@@ -3,31 +3,93 @@ import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 
 export default function CinematicIntro({ onComplete, subtitle = "Webs para Restaurantes • 0€ Comisiones" }) {
-  const [isExiting, setIsExiting] = useState(false);
-  const isExitingRef = useRef(false);
+  // progress represents fade state from 0 (fully visible) to 1 (fully faded out)
+  const [progress, setProgress] = useState(0);
+
+  const progressRef = useRef(0);
+  const isCompletedRef = useRef(false);
+  const isAnimatingExitRef = useRef(false);
   const touchStartY = useRef(null);
   const touchStartX = useRef(null);
+  const rafId = useRef(null);
+  const accumulatedScroll = useRef(0);
 
-  const handleFinish = useCallback(() => {
-    if (!isExitingRef.current) {
-      isExitingRef.current = true;
-      setIsExiting(true);
-      setTimeout(() => {
-        onComplete();
-      }, 650);
-    }
-  }, [onComplete]);
+  // Smooth animation to target progress using cubic-bezier ease-out
+  const animateTo = useCallback((target, duration = 360, onEnd) => {
+    if (rafId.current) cancelAnimationFrame(rafId.current);
+    const start = progressRef.current;
+    const diff = target - start;
+    const startTime = performance.now();
 
-  useEffect(() => {
-    // 1. Wheel scroll down on desktop
-    const handleWheel = (e) => {
-      if (e.deltaY > 5 || Math.abs(e.deltaY) > 25) {
-        handleFinish();
+    const step = (now) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // Luxury smooth ease-out curve
+      const ease = 1 - Math.pow(1 - t, 3);
+      const current = start + diff * ease;
+
+      progressRef.current = current;
+      setProgress(current);
+
+      if (t < 1) {
+        rafId.current = requestAnimationFrame(step);
+      } else {
+        progressRef.current = target;
+        setProgress(target);
+        if (onEnd) onEnd();
       }
     };
 
-    // 2. Touch gesture detection (swipe down / scroll down)
+    rafId.current = requestAnimationFrame(step);
+  }, []);
+
+  const completeIntro = useCallback(() => {
+    if (isCompletedRef.current) return;
+    isCompletedRef.current = true;
+    isAnimatingExitRef.current = true;
+
+    animateTo(1, 380, () => {
+      onComplete();
+    });
+  }, [animateTo, onComplete]);
+
+  useEffect(() => {
+    let wheelTimeout = null;
+
+    // 1. Mouse wheel / trackpad: gradual progressive fade-out
+    const handleWheel = (e) => {
+      if (isCompletedRef.current || isAnimatingExitRef.current) return;
+
+      if (e.deltaY > 0) {
+        // Scrolling down -> fade out
+        accumulatedScroll.current += Math.max(e.deltaY * 0.45, 10);
+      } else if (e.deltaY < 0) {
+        // Scrolling up -> fade back in
+        accumulatedScroll.current = Math.max(0, accumulatedScroll.current + e.deltaY * 0.45);
+      }
+
+      // 120px total scroll distance for complete fade
+      const targetP = Math.min(Math.max(accumulatedScroll.current / 120, 0), 1);
+      progressRef.current = targetP;
+      setProgress(targetP);
+
+      if (targetP >= 0.85) {
+        completeIntro();
+      } else {
+        // If user stops scrolling before completing, gently restore
+        clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => {
+          if (!isCompletedRef.current && !isAnimatingExitRef.current && progressRef.current < 0.85) {
+            accumulatedScroll.current = 0;
+            animateTo(0, 280);
+          }
+        }, 900);
+      }
+    };
+
+    // 2. Touch gesture handling: fluid finger tracking
     const handleTouchStart = (e) => {
+      if (isCompletedRef.current || isAnimatingExitRef.current) return;
       if (e.touches && e.touches.length > 0) {
         touchStartY.current = e.touches[0].clientY;
         touchStartX.current = e.touches[0].clientX;
@@ -35,34 +97,50 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
     };
 
     const handleTouchMove = (e) => {
+      if (isCompletedRef.current || isAnimatingExitRef.current) return;
       if (touchStartY.current === null || !e.touches || e.touches.length === 0) return;
+
       const currentY = e.touches[0].clientY;
       const currentX = e.touches[0].clientX;
       const deltaY = currentY - touchStartY.current;
       const deltaX = currentX - touchStartX.current;
 
-      // If user slides vertically by more than 20px, dismiss
-      if (Math.abs(deltaY) > 20 && Math.abs(deltaY) > Math.abs(deltaX)) {
-        handleFinish();
+      // Only respond to predominantly vertical movement
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        const distance = Math.abs(deltaY);
+        // 130px distance for full progressive fade
+        const p = Math.min(Math.max(distance / 130, 0), 1);
+        progressRef.current = p;
+        setProgress(p);
       }
     };
 
     const handleTouchEnd = () => {
+      if (isCompletedRef.current || isAnimatingExitRef.current) return;
       touchStartY.current = null;
       touchStartX.current = null;
-    };
 
-    // 3. Page scroll listener fallback
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        handleFinish();
+      // If user pulled past 30%, smoothly complete the exit
+      if (progressRef.current >= 0.3) {
+        completeIntro();
+      } else {
+        // Otherwise, spring back smoothly
+        animateTo(0, 240);
       }
     };
 
-    // 4. Down keys
+    // 3. Fallback window scroll listener
+    const handleScroll = () => {
+      if (window.scrollY > 8 && !isCompletedRef.current) {
+        completeIntro();
+      }
+    };
+
+    // 4. Keyboard keys
     const handleKeyDown = (e) => {
+      if (isCompletedRef.current) return;
       if (['ArrowDown', 'PageDown', 'Space', 'Enter'].includes(e.key)) {
-        handleFinish();
+        completeIntro();
       }
     };
 
@@ -73,13 +151,9 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('keydown', handleKeyDown);
 
-    // Safety fallback: 30s so screen never locks if left completely untouched
-    const fallbackTimer = setTimeout(() => {
-      handleFinish();
-    }, 30000);
-
     return () => {
-      clearTimeout(fallbackTimer);
+      clearTimeout(wheelTimeout);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -87,9 +161,9 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleFinish]);
+  }, [completeIntro, animateTo]);
 
-  // Split letter animations
+  // Split letter kinetic animations
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -116,22 +190,30 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
     },
   };
 
+  // Continuous visual styles driven by progress (GPU-accelerated)
+  const currentOpacity = Math.max(0, 1 - progress);
+  const currentTranslateY = -progress * 75;
+  const currentScale = 1 + progress * 0.03;
+  const currentBlur = progress * 10;
+  const promptOpacity = Math.max(0, 1 - progress * 2.4);
+
   return (
-    <motion.div
-      onClick={handleFinish}
-      initial={{ opacity: 0 }}
-      animate={{
-        opacity: isExiting ? 0 : 1,
-        y: isExiting ? -90 : 0,
-        scale: isExiting ? 1.04 : 1,
-        filter: isExiting ? 'blur(10px)' : 'blur(0px)',
+    <div
+      onClick={completeIntro}
+      style={{
+        opacity: currentOpacity,
+        transform: `translate3d(0, ${currentTranslateY}px, 0) scale(${currentScale})`,
+        filter: currentBlur > 0.2 ? `blur(${currentBlur}px)` : 'none',
+        pointerEvents: progress >= 0.9 ? 'none' : 'auto',
+        willChange: 'opacity, transform, filter',
       }}
-      exit={{ opacity: 0, y: -120, filter: 'blur(14px)' }}
-      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black select-none cursor-pointer overflow-hidden touch-none"
     >
       {/* Background ambient lighting */}
-      <div className="pointer-events-none absolute inset-0 bg-grid-subtle opacity-35" />
+      <div 
+        className="pointer-events-none absolute inset-0 bg-grid-subtle" 
+        style={{ opacity: 0.35 * (1 - progress) }} 
+      />
       <motion.div
         animate={{
           scale: [1, 1.2, 1],
@@ -142,6 +224,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
           duration: 3,
           ease: 'easeInOut',
         }}
+        style={{ opacity: (1 - progress) * 0.25 }}
         className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-emerald-500/20 via-white/10 to-cyan-500/20 blur-[130px] rounded-full"
       />
 
@@ -184,15 +267,13 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
           {subtitle}
         </motion.p>
 
-        {/* Visual indicator to slide down */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-10 sm:mt-14 inline-flex flex-col items-center gap-2 group cursor-pointer"
+        {/* Visual indicator to slide down - fades out early as soon as slide starts */}
+        <div
+          style={{ opacity: promptOpacity }}
+          className="mt-10 sm:mt-14 inline-flex flex-col items-center gap-2 group cursor-pointer transition-opacity duration-150"
           onClick={(e) => {
             e.stopPropagation();
-            handleFinish();
+            completeIntro();
           }}
         >
           <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-xl group-hover:border-emerald-500/50 group-hover:bg-white/[0.1] transition-all duration-300 shadow-lg shadow-black/40">
@@ -204,8 +285,8 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
           <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">
             o toca para entrar
           </span>
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

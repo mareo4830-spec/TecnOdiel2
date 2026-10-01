@@ -113,13 +113,12 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
       </AnimatePresence>
 
       {/* Main Portal Stage */}
-      {introFinished && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 min-h-screen flex flex-col justify-between"
-        >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 min-h-screen flex flex-col justify-between"
+      >
           {/* CASE 1: Master Admin Monitoring Dashboard */}
           {isAdmin ? (
             <AdminMonitoringDashboard 
@@ -171,7 +170,6 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
             </div>
           </footer>
         </motion.div>
-      )}
     </div>
   );
 }
