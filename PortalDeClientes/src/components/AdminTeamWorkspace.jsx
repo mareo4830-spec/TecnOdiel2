@@ -539,10 +539,10 @@ export default function AdminTeamWorkspace() {
           >
             {/* Top: Identity & Hours */}
             <div className="space-y-4">
-              <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3.5">
                   <div 
-                    className="w-13 h-13 rounded-2xl p-0.5 border flex items-center justify-center font-mono font-black text-lg text-white shadow-xl"
+                    className="w-12 h-12 rounded-2xl p-0.5 border flex items-center justify-center font-mono font-black text-lg text-white shadow-xl shrink-0"
                     style={{ borderColor: admin.color, backgroundColor: '#09090b' }}
                   >
                     <span style={{ color: admin.color }}>{admin.avatar}</span>
@@ -565,7 +565,7 @@ export default function AdminTeamWorkspace() {
                   </div>
                 </div>
 
-                <div className="text-right shrink-0">
+                <div className="flex sm:block items-center justify-between sm:text-right shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
                   <span className="text-[10px] font-mono text-zinc-400 block uppercase">Horas Pasadas:</span>
                   <div className="text-2xl font-black font-mono text-white" style={{ color: admin.color }}>
                     {admin.totalHours}h
@@ -737,7 +737,7 @@ export default function AdminTeamWorkspace() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
           <form 
             onSubmit={handleSaveDoneTask}
-            className="relative w-full max-w-md bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl"
+            className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -829,7 +829,7 @@ export default function AdminTeamWorkspace() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
           <form 
             onSubmit={handleSaveTodoTask}
-            className="relative w-full max-w-md bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl"
+            className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">

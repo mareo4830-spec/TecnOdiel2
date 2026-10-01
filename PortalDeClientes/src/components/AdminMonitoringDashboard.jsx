@@ -146,32 +146,46 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
   return (
     <div className="min-h-screen bg-black text-zinc-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
       {/* Admin Top Navigation */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-zinc-950/90 backdrop-blur-2xl px-4 sm:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-black border border-emerald-500/50 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-white text-base tracking-tight leading-none">
-                TecnOdiel
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-bold uppercase">
-                Panel Maestro Admin
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-zinc-950/90 backdrop-blur-2xl px-3 sm:px-8 py-2.5 sm:py-0 min-h-16 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
+        <div className="flex items-center justify-between w-full sm:w-auto">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-black border border-emerald-500/50 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-white text-base tracking-tight leading-none">
+                  TecnOdiel
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-bold uppercase">
+                  Admin
+                </span>
+              </div>
+              <span className="text-[10px] text-zinc-400 font-mono hidden md:block">
+                Monitorización Global de Clientes, Tareas y Facturación
               </span>
             </div>
-            <span className="text-[10px] text-zinc-400 font-mono">
-              Monitorización Global de Clientes, Tareas y Facturación
-            </span>
+          </div>
+
+          {/* Logout on mobile in top bar */}
+          <div className="sm:hidden flex items-center gap-2">
+            <button
+              onClick={onLogout}
+              className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+              title="Cerrar sesión de administrador"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="text-[11px]">Salir</span>
+            </button>
           </div>
         </div>
 
         {/* View Switcher: Clientes vs Equipo */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-900/90 border border-white/10">
+        <div className="flex items-center justify-center gap-1.5 p-1 rounded-2xl bg-zinc-900/90 border border-white/10 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveAdminTab('clients')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
               activeAdminTab === 'clients'
                 ? 'bg-emerald-400 text-black shadow-lg'
                 : 'text-zinc-400 hover:text-white'
@@ -187,26 +201,28 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
           <button
             type="button"
             onClick={() => setActiveAdminTab('team')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
               activeAdminTab === 'team'
                 ? 'bg-white text-black shadow-lg'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Equipo: Mario, Javier & Daniel</span>
+            <span className="hidden sm:inline">Equipo: Mario, Javier & Daniel</span>
+            <span className="sm:hidden">Equipo Admin</span>
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Logout on desktop */}
+        <div className="hidden sm:flex items-center gap-3">
           <button
             onClick={onLogout}
             className="px-3.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
             title="Cerrar sesión de administrador"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Cerrar Sesión</span>
+            <span>Cerrar Sesión</span>
           </button>
         </div>
       </header>
@@ -528,7 +544,7 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
       {/* DELETE PROJECT CONFIRMATION MODAL */}
       {restaurantToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-md bg-zinc-950 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl">
+          <div className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-zinc-950 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
                 <AlertTriangle className="w-5 h-5" />

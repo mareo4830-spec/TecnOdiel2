@@ -834,7 +834,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
       {/* QR MODAL */}
       {isQrModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-sm bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl">
+          <div className="relative w-full max-w-sm max-h-[90dvh] overflow-y-auto bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl">
             <h3 className="text-base font-bold text-white">Cartel QR para Mesas</h3>
             <p className="text-xs text-zinc-400">
               Escanea con la cámara de cualquier móvil para abrir la carta digital y reservas.
@@ -875,7 +875,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
           <form 
             onSubmit={handleSaveItem}
-            className="relative w-full max-w-md bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl"
+            className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-zinc-950 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl"
           >
             <h3 className="text-base font-bold text-white">
               {editingItem ? 'Editar Plato / Bebida' : 'Añadir Nuevo Plato / Bebida'}

@@ -81,8 +81,8 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
             className="px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)]"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span className="hidden xs:inline">Crear Mi Web</span>
-            <span className="xs:hidden">Crear</span>
+            <span className="hidden sm:inline">Crear Mi Web</span>
+            <span className="sm:hidden">Crear</span>
           </button>
         </div>
       </div>
