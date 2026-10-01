@@ -37,10 +37,14 @@ import {
   CheckCheck,
   ChevronDown,
   ChevronUp,
-  ChevronLeft
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { TEMPLATES, COLOR_PALETTES, BASE_WEB_PRICE, AVAILABLE_MODULES } from '../../lib/mockData';
 import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
+import TemplateRenderer from '../Templates/TemplateRenderer';
+import ErrorBoundary from '../ErrorBoundary';
+import confetti from 'canvas-confetti';
 
 export const TEMPLATE_GROUPS = [
   {
@@ -110,9 +114,7 @@ export const TEMPLATE_GROUPS = [
     ]
   }
 ];
-import TemplateRenderer from '../Templates/TemplateRenderer';
-import ErrorBoundary from '../ErrorBoundary';
-import confetti from 'canvas-confetti';
+
 
 export default function RestaurantWizard({ onCreated, onCancel }) {
   const [activeSection, setActiveSection] = useState(1);
