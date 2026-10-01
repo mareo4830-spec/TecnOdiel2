@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Calculator, TrendingUp, ShieldCheck, Clock, ArrowUpRight, Coins } from 'lucide-react'
 import TiltCard from './TiltCard'
+import SlideCommit from './ui/SlideCommit'
 
 export default function RoiCalculator({ onOpenAudit }) {
   const [clientsPerMonth, setClientsPerMonth] = useState(350)
@@ -180,15 +181,22 @@ export default function RoiCalculator({ onOpenAudit }) {
                 </div>
               </div>
 
-              <motion.button
-                onClick={onOpenAudit}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-white hover:bg-zinc-200 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(255,255,255,0.3)]"
-              >
-                <span>Quiero una Propuesta Personalizada</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </motion.button>
+              <div className="w-full flex justify-center pt-2">
+                <SlideCommit
+                  width="100%"
+                  height={50}
+                  radius={14}
+                  label="Quiero una Propuesta Personalizada"
+                  doneLabel="¡Abriendo Propuesta!"
+                  trackColor="#09090b"
+                  handleColor="#ffffff"
+                  successColor="#10b981"
+                  onConfirm={async () => {
+                    if (onOpenAudit) onOpenAudit();
+                    return true;
+                  }}
+                />
+              </div>
             </TiltCard>
           </motion.div>
         </div>

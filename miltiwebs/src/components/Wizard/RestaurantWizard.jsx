@@ -45,6 +45,7 @@ import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
 import TemplateRenderer from '../Templates/TemplateRenderer';
 import ErrorBoundary from '../ErrorBoundary';
 import confetti from 'canvas-confetti';
+import SlideCommit from '../ui/SlideCommit';
 
 export const TEMPLATE_GROUPS = [
   {
@@ -2449,35 +2450,41 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
                 {/* Call to Action Portal Buttons */}
                 <div className="space-y-2.5 pt-1">
-                  {/* Primary 1: Activar Web & Abrir Panel */}
-                  <button
-                    type="button"
-                    disabled={isSavingExpedient}
-                    onClick={async () => {
-                      setIsSavingExpedient(true);
-                      try {
-                        const saved = await createRestaurant(formData);
-                        setCreatedRestaurant(saved);
-                        setSavedSuccessMsg('¡Web activada y guardada con éxito!');
+                  {/* Primary 1: Activar Web & Abrir Panel con SlideCommit */}
+                  <div className="w-full flex justify-center">
+                    <SlideCommit
+                      width="100%"
+                      height={50}
+                      radius={14}
+                      label="Activar Mi Web y Abrir Panel"
+                      doneLabel="¡Web activada y guardada con éxito!"
+                      errorLabel="Configuración guardada en tu panel."
+                      trackColor="#09090b"
+                      handleColor="#10b981"
+                      successColor="#10b981"
+                      disabled={isSavingExpedient}
+                      onConfirm={async () => {
+                        setIsSavingExpedient(true);
                         try {
-                          confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
-                        } catch (e) {}
-                        setTimeout(() => {
-                          if (onCreated) onCreated(saved);
-                        }, 1200);
-                      } catch (err) {
-                        setSavedSuccessMsg('Configuración guardada en tu panel.');
-                      } finally {
-                        setIsSavingExpedient(false);
-                      }
-                    }}
-                    className="emil-pressable w-full py-3.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.5)] cursor-pointer"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>
-                      {isSavingExpedient ? 'Activando web en Cloudflare...' : 'Activar Mi Web y Abrir Panel'}
-                    </span>
-                  </button>
+                          const saved = await createRestaurant(formData);
+                          setCreatedRestaurant(saved);
+                          setSavedSuccessMsg('¡Web activada y guardada con éxito!');
+                          try {
+                            confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
+                          } catch (e) {}
+                          setTimeout(() => {
+                            if (onCreated) onCreated(saved);
+                          }, 1200);
+                          return true;
+                        } catch (err) {
+                          setSavedSuccessMsg('Configuración guardada en tu panel.');
+                          return true;
+                        } finally {
+                          setIsSavingExpedient(false);
+                        }
+                      }}
+                    />
+                  </div>
 
                   {/* Primary 2: Go to TecnOdiel Contract Portal */}
                   <a

@@ -1,6 +1,8 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Zap, Smartphone, ShieldCheck, Search, ShoppingBag, HeartHandshake, Check } from 'lucide-react'
+import HoldButton from './ui/HoldButton'
+import LogoLoop from './ui/LogoLoop'
 
 export default function MainPortalCard({ onOpenAudit }) {
   const currentYear = new Date().getFullYear()
@@ -139,27 +141,30 @@ export default function MainPortalCard({ onOpenAudit }) {
               })}
             </motion.div>
 
-            {/* Elegant Main CTA Button: Desde 99€ */}
+            {/* Elegant Main CTA Button: Desde 99€ with React Bits HoldButton */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.35 }}
               className="flex flex-col items-center justify-center w-full mb-6 sm:mb-8"
             >
-              <motion.button
-                onClick={onOpenAudit}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="group relative overflow-hidden inline-flex items-center justify-center gap-3 bg-white px-8 sm:px-10 py-4 sm:py-4.5 text-sm sm:text-base font-black tracking-tight text-black transition-all duration-300 hover:bg-zinc-100 hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] rounded-full cursor-pointer shadow-lg"
-                id="cta-desde-99"
-                aria-label="Pedir Presupuesto Desde 99€"
+              <HoldButton
+                onHold={onOpenAudit}
+                onTap={onOpenAudit}
+                size="lg"
+                fillColor="#10b981"
+                backgroundColor="#ffffff"
+                textColor="#000000"
+                fillTextColor="#000000"
+                radius={9999}
+                holdTime={1100}
+                className="font-black tracking-wider uppercase text-base sm:text-lg shadow-[0_0_35px_rgba(255,255,255,0.25)] hover:shadow-[0_0_45px_rgba(16,185,129,0.4)]"
+                doneLabel="Quiero Mi Web • Desde 99€"
+                icon={<ArrowUpRight className="h-5 w-5 text-black" />}
+                doneIcon={<ArrowUpRight className="h-5 w-5 text-black" />}
               >
-                <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/80 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-out" />
-                <span className="relative z-10 uppercase font-black tracking-wider text-base sm:text-lg">
-                  Quiero Mi Web • Desde 99€
-                </span>
-                <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </motion.button>
+                Quiero Mi Web • Desde 99€
+              </HoldButton>
               <p className="mt-2.5 text-[11px] sm:text-xs font-mono text-zinc-400">
                 Presupuesto sin compromiso • Te respondemos hoy mismo
               </p>
@@ -185,6 +190,26 @@ export default function MainPortalCard({ onOpenAudit }) {
                 <span>0€ comisiones por cliente</span>
               </span>
             </motion.div>
+
+            {/* Continuous Technology & Partner Badges Ribbon via React Bits LogoLoop */}
+            <div className="w-full mt-6 border-t border-white/5 pt-5 overflow-hidden">
+              <LogoLoop
+                logos={[
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-orange-400" />Cloudflare Edge</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Supabase SSL</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />React 18 & Vite</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-blue-400" />Google Maps & SEO</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-teal-400" />Bizum Directo</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />Stripe Checkout</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-amber-400" />Carta Digital QR</span> },
+                  { node: <span className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-xs font-mono text-zinc-300"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Soporte TecnOdiel</span> },
+                ]}
+                speed={50}
+                gap={16}
+                fadeOut={true}
+                fadeOutColor="#09090b"
+              />
+            </div>
           </div>
         </motion.div>
 

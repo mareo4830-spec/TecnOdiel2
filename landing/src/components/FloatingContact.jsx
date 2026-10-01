@@ -1,12 +1,21 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Sparkles } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
+import SlingButton from './ui/SlingButton'
 
 export default function FloatingContact({ onOpenAudit }) {
   const [hovered, setHovered] = useState(false)
 
+  const handleOpenWhatsApp = () => {
+    window.open('https://wa.me/34600000000?text=Hola%20TecnOdiel,%20quiero%20informaci%C3%B3n%20para%20mi%20negocio', '_blank', 'noopener,noreferrer')
+  }
+
   return (
-    <div className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40 flex items-center gap-3">
+    <div 
+      className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40 flex items-center gap-3"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {/* Expanded Pill Tooltip */}
       <AnimatePresence>
         {hovered && (
@@ -28,24 +37,22 @@ export default function FloatingContact({ onOpenAudit }) {
         )}
       </AnimatePresence>
 
-      {/* Floating Action Button with Radar Pulse */}
-      <motion.a
-        href="https://wa.me/34600000000?text=Hola%20TecnOdiel,%20quiero%20informaci%C3%B3n%20para%20mi%20negocio"
-        target="_blank"
-        rel="noopener noreferrer"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.94 }}
-        className="relative group flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-emerald-500 text-black shadow-[0_0_25px_rgba(16,185,129,0.4)] transition-colors hover:bg-emerald-400 focus:outline-none"
-        aria-label="Contactar por WhatsApp"
-      >
-        {/* Sonar Radar Waves */}
-        <span className="absolute -inset-1 rounded-full border border-emerald-400/50 animate-ping opacity-60 pointer-events-none" />
-        <span className="absolute -inset-2.5 rounded-full border border-emerald-400/20 animate-pulse pointer-events-none" />
-
-        <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7 text-black transition-transform group-hover:scale-110" />
-      </motion.a>
+      {/* React Bits SlingButton: Pull back to send or tap directly */}
+      <div className="relative group">
+        <SlingButton
+          size={54}
+          padColor="#10b981"
+          iconColor="#000000"
+          accentColor="#34d399"
+          wellColor="#09090b"
+          bandColor="#059669"
+          onSend={handleOpenWhatsApp}
+          ariaLabel="Contactar por WhatsApp"
+          className="shadow-[0_0_30px_rgba(16,185,129,0.4)]"
+        >
+          <MessageCircle className="h-6 w-6 text-black fill-black" />
+        </SlingButton>
+      </div>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { ArrowDown } from 'lucide-react';
 export default function CinematicIntro({ onComplete, subtitle = "Webs para Restaurantes • 0€ Comisiones" }) {
   // progress represents fade state from 0 (fully visible) to 1 (fully faded out)
   const [progress, setProgress] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
 
   const progressRef = useRef(0);
   const isCompletedRef = useRef(false);
@@ -200,6 +201,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
   return (
     <div
       onClick={completeIntro}
+      onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
       style={{
         opacity: currentOpacity,
         transform: `translate3d(0, ${currentTranslateY}px, 0) scale(${currentScale})`,
@@ -209,6 +211,15 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
       }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black select-none cursor-pointer overflow-hidden touch-none"
     >
+      {/* Dynamic Cursor Spotlight Effect */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+        style={{
+          opacity: (1 - progress) * 0.7,
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(16, 185, 129, 0.08), transparent 50%)`,
+        }}
+      />
+
       {/* Background ambient lighting */}
       <div 
         className="pointer-events-none absolute inset-0 bg-grid-subtle" 
@@ -276,7 +287,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
             completeIntro();
           }}
         >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-xl group-hover:border-emerald-500/50 group-hover:bg-white/[0.1] transition-all duration-300 shadow-lg shadow-black/40">
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-xl group-hover:border-emerald-500/50 group-hover:bg-white/[0.1] transition-all duration-300 shadow-lg shadow-black/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]">
             <ArrowDown className="h-4 w-4 text-emerald-400 animate-bounce" />
             <span className="text-xs sm:text-sm font-medium tracking-wide text-zinc-200">
               Desliza para abajo
