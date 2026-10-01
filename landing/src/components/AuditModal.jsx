@@ -54,9 +54,9 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
       name: 'Restaurante / Bar / Gastronomía',
       icon: UtensilsCrossed,
       active: true,
-      badge: 'DISPONIBLE // 30 PLANTILLAS',
+      badge: 'DISPONIBLE // HOSTELERÍA',
       badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-      description: 'Creador inteligente con 30 diseños web únicos, carta digital QR interactiva y reservas automáticas sin comisiones.',
+      description: 'Creador inteligente de webs gastronómicas con carta digital QR interactiva y reservas automáticas sin comisiones.',
       actionText: 'Crear Mi Web Gastronómica Ahora'
     },
     {
@@ -191,7 +191,7 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                   <div className="sm:pl-12 flex items-center justify-between pt-1 border-t border-white/5">
                     {isRestaurante ? (
                       <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">
-                        <span>{isNavigating ? 'Abriendo Creador con 30 Plantillas...' : sector.actionText}</span>
+                        <span>{isNavigating ? 'Abriendo Creador Web...' : sector.actionText}</span>
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </span>
                     ) : (
@@ -221,7 +221,7 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                     Sector &ldquo;{selectedDisabledSector}&rdquo; no disponible aún
                   </strong>
                   <span className="text-zinc-300">
-                    Actualmente la plataforma TecnOdiel está 100% activa y optimizada para <strong>Restaurantes, Bares y Gastronomía</strong> (con 30 plantillas únicas y Cloudflare Pages). Selecciona la primera opción para crear tu web al instante.
+                    Actualmente la plataforma TecnOdiel está 100% activa y optimizada para <strong>Restaurantes, Bares y Gastronomía</strong> (con cartas interactivas y Cloudflare Pages). Selecciona la primera opción para crear tu web al instante.
                   </span>
                 </div>
               </motion.div>

@@ -96,6 +96,17 @@ export const FALLBACK_RESTAURANT = {
   ]
 };
 
+// Sanitize slug for routing and queries
+export function sanitizeSlug(input) {
+  return (input || '')
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // Fetch all available restaurants for client switcher / login
 export async function getClientRestaurantsList() {
   try {
@@ -116,11 +127,17 @@ export async function getClientRestaurantsList() {
 // Fetch full restaurant by slug with categories, items, and reservations
 export async function getClientRestaurantDetails(slugOrId) {
   try {
-    const { data, error } = await supabase
-      .from('restaurants')
-      .select('*')
-      .or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
-      .single();
+    const clean = (slugOrId || '').toString().trim();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean);
+    
+    let query = supabase.from('restaurants').select('*');
+    if (isUuid) {
+      query = query.eq('id', clean);
+    } else {
+      query = query.eq('slug', sanitizeSlug(clean));
+    }
+
+    const { data, error } = await query.single();
 
     if (!error && data) {
       // Fetch categories & items

@@ -51,7 +51,7 @@ export default function Navbar({ restaurant, onSwitchRestaurant, onNavigateToMul
               type="button"
               onClick={onNavigateToMultiwebs}
               className="emil-pressable px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
-              title="Ir al creador de webs con 30 plantillas"
+              title="Ir al creador de webs para restaurantes"
             >
               <UtensilsCrossed className="w-3.5 h-3.5 text-emerald-400" />
               <span className="hidden sm:inline">Creador de Webs</span>

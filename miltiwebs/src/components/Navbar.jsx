@@ -29,7 +29,7 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
                   TecnOdiel
                 </span>
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                  30 Plantillas
+                  Studio
                 </span>
               </div>
               <span className="text-[10px] text-zinc-400 font-mono tracking-wider hidden sm:block">
