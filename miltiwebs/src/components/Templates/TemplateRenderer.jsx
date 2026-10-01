@@ -4,6 +4,7 @@ import MinimalistTemplate from './MinimalistTemplate';
 import BrutalistTemplate from './BrutalistTemplate';
 import ArtisanTemplate from './ArtisanTemplate';
 import VelvetTemplate from './VelvetTemplate';
+import TecnodielTemplate from './TecnodielTemplate';
 import DynamicThemedTemplate from './DynamicThemedTemplate';
 
 export default function TemplateRenderer({ restaurant, isPreview = false }) {
@@ -20,6 +21,8 @@ export default function TemplateRenderer({ restaurant, isPreview = false }) {
       return <VelvetTemplate restaurant={restaurant} isPreview={isPreview} />;
     case 'nocturne':
       return <NocturneTemplate restaurant={restaurant} isPreview={isPreview} />;
+    case 'tecnodiel_elite':
+      return <TecnodielTemplate restaurant={restaurant} isPreview={isPreview} />;
     default:
       // Dynamically handles all 25+ specialized templates:
       // cyberpunk, tokyo_omakase, mediterranean_breeze, bistro_parisien,

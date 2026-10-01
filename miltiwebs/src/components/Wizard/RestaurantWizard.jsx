@@ -34,10 +34,82 @@ import {
   ArrowUpRight,
   MessageSquare,
   Lock,
-  CheckCheck
+  CheckCheck,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft
 } from 'lucide-react';
 import { TEMPLATES, COLOR_PALETTES, BASE_WEB_PRICE, AVAILABLE_MODULES } from '../../lib/mockData';
 import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
+
+export const TEMPLATE_GROUPS = [
+  {
+    name: 'Alta Cocina & Autor',
+    icon: '🏆',
+    templates: [
+      { id: 'nocturne', label: 'Estilo Nocturno & Exclusivo (Mixología & Noche)' },
+      { id: 'velvet', label: 'Estilo Velvet & Burdeos (Terciopelo & Jazz)' },
+      { id: 'tokyo_omakase', label: 'Estilo Omakase & Zen Japonés (Barra Omakase)' },
+      { id: 'gourmet_vanguardia', label: 'Estilo Vanguardia & Estrella Michelin (Haute Cuisine)' },
+      { id: 'bodega_enoteca', label: 'Estilo Bodega Histórica & Enoteca (Cata & Vinos)' }
+    ]
+  },
+  {
+    name: 'Brasas, Carnes & Tradición',
+    icon: '🥩',
+    templates: [
+      { id: 'steakhouse_asador', label: 'Estilo Asador Prime & Carnicería (Dry Aged)' },
+      { id: 'artisan', label: 'Estilo Rústico & Brasa (Horno de Leña)' },
+      { id: 'tapas_andaluzas', label: 'Estilo Taberna & Tapas Andaluzas (Albero & Sol)' },
+      { id: 'pulperia_gallega', label: 'Estilo Pulpería Tradicional & Rías (Pulpo á Feira)' },
+      { id: 'trattoria_italiana', label: 'Estilo Trattoria Clásica Toscana (Pasta Fresca)' }
+    ]
+  },
+  {
+    name: 'Street Food & Dinámico',
+    icon: '🍔',
+    templates: [
+      { id: 'urban_street_smash', label: 'Estilo Urban Street & Smash Burger (Diner & Street)' },
+      { id: 'wok_asian_fusion', label: 'Estilo Asian Street & Wok Fusión (Wok & Bao)' },
+      { id: 'taqueria_fiesta', label: 'Estilo Taquería & Cantina Mexicana (Agave & Tacos)' },
+      { id: 'pizzeria_napolitana', label: 'Estilo Pizzería Napolitana & Horno (Masa 48h)' },
+      { id: 'cerveceria_craft', label: 'Estilo Cervecería Artesanal & Taproom (Craft Beer)' }
+    ]
+  },
+  {
+    name: 'Cafetería, Dulce & Brunch',
+    icon: '☕',
+    templates: [
+      { id: 'coffee_specialty', label: 'Estilo Café de Especialidad & Roastery (Specialty Coffee)' },
+      { id: 'pasticceria_dolce', label: 'Estilo Dulce Boutique & Brunch (Pastelería Fina)' },
+      { id: 'gelato_artesanal', label: 'Estilo Heladería Italiana & Crepería (Gelato Artesanal)' },
+      { id: 'churreria_tradicional', label: 'Estilo Chocolatería & Churrería Castiza (Chocolate & Porras)' }
+    ]
+  },
+  {
+    name: 'Mar, Sol & Experiencias',
+    icon: '🌊',
+    templates: [
+      { id: 'mediterranean_breeze', label: 'Estilo Brisa Mediterránea & Arroces (Salitre & Arroz)' },
+      { id: 'marisqueria_costera', label: 'Estilo Marisquería & Lonja Marinera (Gamba Blanca)' },
+      { id: 'beach_club', label: 'Estilo Beach Club & Sunset Chiringuito (Hamacas & Sol)' },
+      { id: 'rooftop_sunset', label: 'Estilo Sky Lounge & Atardecer (Rooftop Vista)' },
+      { id: 'lounge_shisha', label: 'Estilo Shisha Lounge & Arabian Nights (Lounge Exclusivo)' },
+      { id: 'bistro_parisien', label: 'Estilo Bistró Francés & Vintage (Belle Époque)' }
+    ]
+  },
+  {
+    name: 'Vanguardia, Nórdico & Cyber',
+    icon: '⚡',
+    templates: [
+      { id: 'brutalist', label: 'Estilo Moderno & Rompedor (Underground Brutalist)' },
+      { id: 'minimalist', label: 'Estilo Limpio & Nórdico (Paz Visual & Espacio)' },
+      { id: 'botanical_garden', label: 'Estilo Botánico & Cocina Saludable (Km 0 & Orgánico)' },
+      { id: 'cyberpunk', label: 'Estilo Cyber Neon & Future Bar (Neon & Glitch)' },
+      { id: 'tecnodiel_elite', label: 'Estilo TecnOdiel Cyber Luxury (Ingeniería Edge)' }
+    ]
+  }
+];
 import TemplateRenderer from '../Templates/TemplateRenderer';
 import confetti from 'canvas-confetti';
 
@@ -48,6 +120,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
   const [createdRestaurant, setCreatedRestaurant] = useState(null);
   const [quickTweakTab, setQuickTweakTab] = useState('template');
   const [tweakNotice, setTweakNotice] = useState('');
+  const [isTweakBarCollapsed, setIsTweakBarCollapsed] = useState(false);
   const [billingPlan, setBillingPlan] = useState('monthly'); // 'monthly' | 'annual'
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [isSavingExpedient, setIsSavingExpedient] = useState(false);
@@ -1452,84 +1525,185 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     ) : (
       /* STEP 7: Vista Previa Final y Modificaciones en Vivo */
       <div className="flex-1 flex flex-col overflow-hidden bg-[#020203]">
-        {/* Quick Tweaks Control Bar */}
-        <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-4 sm:px-6 py-3 space-y-2.5 z-20">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-emerald-400" />
-                <span>¿Quieres retocar algún detalle de tu web?</span>
+        {/* Quick Tweaks Control Bar - Collapsible & Clean Dropdown */}
+        {isTweakBarCollapsed ? (
+          <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-4 sm:px-6 py-2.5 flex items-center justify-between z-20 shadow-md">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">VISTA PREVIA EN VIVO:</span>
+              <span className="text-xs font-bold text-white bg-zinc-900 border border-white/10 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
+                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{TEMPLATES.find(t => t.id === formData.template_id)?.name || 'Estilo Seleccionado'}</span>
               </span>
-              <span className="text-[11px] text-zinc-400 hidden md:inline">
-                Toca cualquier botón y verás el cambio en pantalla al instante:
-              </span>
+              {tweakNotice && (
+                <span className="text-xs text-emerald-400 font-mono hidden md:inline animate-fadeIn">
+                  ✓ {tweakNotice}
+                </span>
+              )}
             </div>
 
-            {tweakNotice && (
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-medium flex items-center gap-1 animate-fadeIn">
-                <Check className="w-3 h-3 text-emerald-400" />
-                <span>{tweakNotice}</span>
-              </span>
-            )}
+            <button
+              type="button"
+              onClick={() => setIsTweakBarCollapsed(false)}
+              className="btn-industrial px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-md cursor-pointer"
+              title="Desplegar panel para cambiar estilo, colores, módulos o textos"
+            >
+              <Sliders className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Retocar Web / Estilos</span>
+              <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
           </div>
-
-          {/* Quick Tweak Category Chips */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {[
-              { id: 'template', label: 'Cambiar Estilo', icon: Layers },
-              { id: 'services', label: 'Servicios & Precio', icon: CreditCard },
-              { id: 'colors', label: 'Cambiar Colores', icon: Palette },
-              { id: 'layout', label: 'Cambiar Portada', icon: Layout },
-              { id: 'typography', label: 'Cambiar Letra', icon: Type },
-              { id: 'texture', label: 'Luz de Fondo', icon: Sparkles },
-              { id: 'quickedit', label: 'Retocar Textos', icon: Edit3 }
-            ].map(tab => {
-              const TabIcon = tab.icon;
-              const isActive = quickTweakTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setQuickTweakTab(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
-                    isActive 
-                      ? 'bg-emerald-400 text-black font-bold shadow-md' 
-                      : 'bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
-                  }`}
-                >
-                  <TabIcon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Dynamic Options for Selected Quick Tweak */}
-          <div className="pt-2 border-t border-white/5">
-            {quickTweakTab === 'template' && (
-              <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
-                <span className="text-[11px] font-mono text-zinc-400 pr-1">Elige Estilo:</span>
-                {TEMPLATES.map(t => {
-                  const isSel = formData.template_id === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, template_id: t.id }));
-                        showTweakNotice(`Estilo cambiado a ${t.name}`);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-2 ${
-                        isSel
-                          ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <span className="font-semibold">{t.name}</span>
-                      <span className="text-[10px] text-zinc-500 font-normal">({t.badge})</span>
-                    </button>
-                  );
-                })}
+        ) : (
+          <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-4 sm:px-6 py-3 space-y-2.5 z-20">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Panel de Retoques en Tiempo Real</span>
+                </span>
+                {tweakNotice && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-medium flex items-center gap-1 animate-fadeIn">
+                    <Check className="w-3 h-3 text-emerald-400" />
+                    <span>{tweakNotice}</span>
+                  </span>
+                )}
               </div>
-            )}
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-zinc-500 font-mono hidden sm:inline">
+                  Los cambios se aplican al instante
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsTweakBarCollapsed(true)}
+                  className="px-3 py-1 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium transition flex items-center gap-1.5 cursor-pointer"
+                  title="Ocultar este panel para ver la web a pantalla completa"
+                >
+                  <ChevronUp className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Ocultar Panel</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Tweak Category Chips */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {[
+                { id: 'template', label: 'Cambiar Estilo', icon: Layers },
+                { id: 'services', label: 'Servicios & Precio', icon: CreditCard },
+                { id: 'colors', label: 'Cambiar Colores', icon: Palette },
+                { id: 'layout', label: 'Cambiar Portada', icon: Layout },
+                { id: 'typography', label: 'Cambiar Letra', icon: Type },
+                { id: 'texture', label: 'Luz de Fondo', icon: Sparkles },
+                { id: 'quickedit', label: 'Retocar Textos', icon: Edit3 }
+              ].map(tab => {
+                const TabIcon = tab.icon;
+                const isActive = quickTweakTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setQuickTweakTab(tab.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
+                      isActive 
+                        ? 'bg-emerald-400 text-black font-bold shadow-md' 
+                        : 'bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
+                    }`}
+                  >
+                    <TabIcon className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Dynamic Options for Selected Quick Tweak */}
+            <div className="pt-2 border-t border-white/5">
+              {quickTweakTab === 'template' && (
+                <div className="flex flex-col md:flex-row md:items-center gap-3 pt-1 animate-fadeIn">
+                  {/* Clean categorized dropdown */}
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <label htmlFor="template-dropdown" className="text-xs font-mono text-zinc-400 shrink-0 flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Elige Estilo:</span>
+                    </label>
+                    
+                    <div className="relative flex-1 max-w-lg">
+                      <select
+                        id="template-dropdown"
+                        value={formData.template_id}
+                        onChange={(e) => {
+                          const nextId = e.target.value;
+                          const chosen = TEMPLATES.find(t => t.id === nextId);
+                          setFormData(prev => ({ ...prev, template_id: nextId }));
+                          showTweakNotice(`Estilo cambiado a ${chosen?.name || nextId}`);
+                        }}
+                        className="w-full pl-3.5 pr-10 py-2 rounded-xl bg-zinc-900 border border-emerald-500/40 text-white font-medium text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 transition cursor-pointer appearance-none shadow-sm"
+                      >
+                        {TEMPLATE_GROUPS.map((group, gIdx) => (
+                          <optgroup key={gIdx} label={`${group.icon} ${group.name}`} className="bg-zinc-950 text-emerald-400 font-bold">
+                            {group.templates.map(item => (
+                              <option key={item.id} value={item.id} className="bg-zinc-900 text-zinc-100 font-normal py-1">
+                                {item.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
+                        <ChevronDown className="w-4 h-4 text-emerald-400" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Prev / Next navigation + Active Badge */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentIndex = TEMPLATES.findIndex(t => t.id === formData.template_id);
+                        const prevIndex = (currentIndex - 1 + TEMPLATES.length) % TEMPLATES.length;
+                        const prevT = TEMPLATES[prevIndex];
+                        setFormData(prev => ({ ...prev, template_id: prevT.id }));
+                        showTweakNotice(`Estilo cambiado a ${prevT.name}`);
+                      }}
+                      className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                      title="Estilo anterior"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Anterior</span>
+                    </button>
+
+                    <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-semibold">
+                      {TEMPLATES.findIndex(t => t.id === formData.template_id) + 1} / {TEMPLATES.length}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentIndex = TEMPLATES.findIndex(t => t.id === formData.template_id);
+                        const nextIndex = (currentIndex + 1) % TEMPLATES.length;
+                        const nextT = TEMPLATES[nextIndex];
+                        setFormData(prev => ({ ...prev, template_id: nextT.id }));
+                        showTweakNotice(`Estilo cambiado a ${nextT.name}`);
+                      }}
+                      className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                      title="Siguiente estilo"
+                    >
+                      <span className="hidden sm:inline">Siguiente</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsTweakBarCollapsed(true)}
+                      className="ml-1 sm:ml-2 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
+                      title="Ocultar controles para ver la web"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Ver Web</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
             {quickTweakTab === 'services' && (
               <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
@@ -1728,6 +1902,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             )}
           </div>
         </div>
+      )}
 
         {/* Live Responsive Preview Window */}
         <div className="flex-1 p-3 sm:p-6 flex flex-col items-center justify-start overflow-hidden relative">
