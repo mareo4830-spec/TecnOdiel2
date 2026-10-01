@@ -21,6 +21,9 @@ Thumbs.db
 *.log
 .vscode
 .idea
+.agents
+.cursor
+.skills
 
 # Vite cache
 .vite
