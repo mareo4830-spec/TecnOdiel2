@@ -23,7 +23,8 @@ import {
   Layers, 
   LogOut,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Users
 } from 'lucide-react';
 import { 
   getAllRestaurantsForAdmin, 
@@ -31,8 +32,10 @@ import {
   updateRestaurantAdminNotes,
   updateRestaurantPlanSettings
 } from '../lib/supabase';
+import AdminTeamWorkspace from './AdminTeamWorkspace';
 
 export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout }) {
+  const [activeAdminTab, setActiveAdminTab] = useState('clients'); // 'clients' | 'team'
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,6 +144,39 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
           </div>
         </div>
 
+        {/* View Switcher: Clientes vs Equipo */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-900/90 border border-white/10">
+          <button
+            type="button"
+            onClick={() => setActiveAdminTab('clients')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              activeAdminTab === 'clients'
+                ? 'bg-emerald-400 text-black shadow-lg'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>Clientes & Webs</span>
+            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${activeAdminTab === 'clients' ? 'bg-black/20 text-black' : 'bg-zinc-800 text-zinc-300'}`}>
+              {restaurants.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveAdminTab('team')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              activeAdminTab === 'team'
+                ? 'bg-white text-black shadow-lg'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Equipo: Mario, Javier & Daniel</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+        </div>
+
         <div className="flex items-center gap-3">
           <button
             onClick={onLogout}
@@ -155,6 +191,12 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        {activeAdminTab === 'team' ? (
+          /* VISTA EQUIPO: MARIO, JAVIER Y DANIEL */
+          <AdminTeamWorkspace />
+        ) : (
+          /* VISTA CLIENTES & WEBS */
+          <>
         {/* KPI Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950/80 border border-white/10 shadow-lg">
@@ -438,7 +480,9 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
             })}
           </div>
         )}
-      </main>
+      </>
+    )}
+  </main>
     </div>
   );
 }
