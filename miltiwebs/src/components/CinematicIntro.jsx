@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowDown } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 
-export default function CinematicIntro({ onComplete, subtitle = "Portal de Clientes // Panel de Control & Gestión" }) {
+export default function CinematicIntro({ onComplete, subtitle = "Webs que Facturan • Soluciones Reales" }) {
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
@@ -65,11 +65,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Portal de Clien
     <motion.div
       onClick={handleFinish}
       initial={{ opacity: 0 }}
-      animate={{ 
-        opacity: isExiting ? 0 : 1, 
-        scale: isExiting ? 1.08 : 1, 
-        filter: isExiting ? 'blur(10px)' : 'blur(0px)' 
-      }}
+      animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 1.08 : 1, filter: isExiting ? 'blur(10px)' : 'blur(0px)' }}
       exit={{ opacity: 0, scale: 1.1, filter: 'blur(12px)' }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black select-none cursor-pointer overflow-hidden"
@@ -123,7 +119,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Portal de Clien
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-4 sm:mt-6 text-xs sm:text-base md:text-lg font-mono tracking-widest uppercase text-emerald-400"
+          className="mt-4 sm:mt-6 text-xs sm:text-base md:text-lg font-mono tracking-widest uppercase text-zinc-400"
         >
           {subtitle}
         </motion.p>
@@ -136,7 +132,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Portal de Clien
           className="mt-10 sm:mt-14 inline-flex items-center gap-2 text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-widest"
         >
           <ArrowDown className="h-3.5 w-3.5 animate-bounce" />
-          <span>Haz clic para entrar a tu panel</span>
+          <span>Haz clic para entrar</span>
         </motion.div>
       </div>
     </motion.div>

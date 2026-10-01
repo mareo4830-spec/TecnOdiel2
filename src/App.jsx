@@ -81,12 +81,14 @@ export default function App() {
       {/* Active Sub-App Rendering */}
       {view === 'landing' && (
         <LandingApp 
+          key="landing-page"
           onNavigateToMultiwebs={() => navigateTo('multiwebs')} 
         />
       )}
 
       {view === 'multiwebs' && (
         <MultiwebsApp 
+          key="multiwebs-page"
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
           onNavigateToLanding={() => navigateTo('landing')}
         />
@@ -94,6 +96,7 @@ export default function App() {
 
       {view === 'portal' && (
         <PortalApp 
+          key={`portal-page-${activeSlug || 'root'}`}
           initialSlug={activeSlug}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToLanding={() => navigateTo('landing')}

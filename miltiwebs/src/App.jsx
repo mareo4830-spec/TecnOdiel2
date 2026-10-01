@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import CinematicIntro from './components/CinematicIntro';
 import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import RestaurantWizard from './components/Wizard/RestaurantWizard';
 import TemplateRenderer from './components/Templates/TemplateRenderer';
 import { fetchRestaurants } from './lib/supabase';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 // Helper to detect distinct tenant subdomain (e.g. "marea-negra.vercel.app" or "marea-negra.localhost")
 function detectTenantSlug() {
@@ -41,6 +43,8 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   const [activeRestaurant, setActiveRestaurant] = useState(null);
   const [publicSlug, setPublicSlug] = useState(null);
   const [tenantSlug, setTenantSlug] = useState(() => detectTenantSlug());
+  const [introFinished, setIntroFinished] = useState(false);
+  const lastPathRef = useRef(typeof window !== 'undefined' ? (window.location.hash || window.location.pathname) : '');
 
   // Load restaurants on mount
   const loadData = async () => {
@@ -58,6 +62,12 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
       const detected = detectTenantSlug();
       const hash = window.location.hash;
       const pathname = window.location.pathname;
+
+      const currentRoute = hash || pathname;
+      if (lastPathRef.current && lastPathRef.current !== currentRoute) {
+        setIntroFinished(false);
+      }
+      lastPathRef.current = currentRoute;
 
       // Case A: Visited via distinct Vercel subdomain (e.g. "bar-pepe.vercel.app")
       if (detected) {
@@ -121,6 +131,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
 
   // Handle navigation helpers
   const handleOpenWizard = () => {
+    setIntroFinished(false);
     window.location.hash = '#/wizard';
     setCurrentView('wizard');
   };
@@ -134,6 +145,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   };
 
   const handleBackToDashboard = () => {
+    setIntroFinished(false);
     const detected = detectTenantSlug();
     if (detected) {
       window.location.hash = '#/';
@@ -145,96 +157,102 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
     loadData();
   };
 
-  // If in Standalone Tenant View (Distinct Vercel Subdomain / Custom Domain)
-  if (currentView === 'standalone_tenant' && activeRestaurant) {
-    return (
-      <div className="relative min-h-screen bg-black text-white">
-        <TemplateRenderer restaurant={activeRestaurant} isPreview={false} />
-      </div>
-    );
-  }
-
-  // If in public restaurant view (via Master Platform #/r/slug)
-  if (currentView === 'public_restaurant' && publicSlug) {
-    const target = restaurants.find(r => r.slug === publicSlug || r.subdomain === publicSlug);
-    if (!target) {
-      return (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center">
-          <h2 className="text-2xl font-bold mb-2">Restaurante no encontrado</h2>
-          <p className="text-zinc-400 text-sm mb-4">No pudimos encontrar el subdominio /{publicSlug}.</p>
-          <button
-            onClick={handleBackToDashboard}
-            className="px-4 py-2 rounded-xl bg-emerald-400 text-black font-bold text-xs"
-          >
-            Volver al Catálogo
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="relative min-h-screen bg-black text-white">
-        {/* Discreet Back to Catalog button */}
-        <div className="fixed bottom-4 left-4 z-50">
-          <button
-            onClick={handleBackToDashboard}
-            className="px-4 py-2 rounded-full bg-zinc-950/90 border border-white/15 text-zinc-300 hover:text-white text-xs font-semibold shadow-[0_0_20px_rgba(0,0,0,0.8)] backdrop-blur-md hover:bg-zinc-900 transition flex items-center gap-2 emil-pressable"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Volver a Multiwebs</span>
-          </button>
-        </div>
-
-        <TemplateRenderer restaurant={target} isPreview={false} />
-      </div>
-    );
-  }
-
-  // If in Wizard View
-  if (currentView === 'wizard') {
-    return (
-      <RestaurantWizard
-        onCreated={(newRest) => {
-          loadData();
-          setActiveRestaurant(newRest);
-          // Navigate directly to the client portal after giving visto bueno
-          if (onNavigateToPortal) {
-            onNavigateToPortal(newRest?.slug);
-          } else {
-            window.location.hash = `#/portal?r=${newRest?.slug || ''}`;
-          }
-        }}
-        onCancel={handleBackToDashboard}
-      />
-    );
-  }
-
-  // If in Management View, redirect to Portal de Clientes
-  if (currentView === 'manager') {
-    if (onNavigateToPortal) {
-      onNavigateToPortal(activeRestaurant?.slug);
-    } else {
-      window.location.hash = `#/portal?r=${activeRestaurant?.slug || ''}`;
-    }
-    return null;
-  }
-
-  // Default: Dashboard Overview
   return (
-    <div className="min-h-screen bg-black text-zinc-100 flex flex-col">
-      <Navbar
-        onOpenWizard={handleOpenWizard}
-        onViewHome={handleBackToDashboard}
-        currentView={currentView}
-        onNavigateToPortal={onNavigateToPortal}
-        onNavigateToLanding={onNavigateToLanding}
-      />
+    <div className="relative min-h-screen bg-black text-zinc-100 flex flex-col">
+      {/* Cinematic Intro: Giant TecnOdiel with kinetic animation */}
+      <AnimatePresence mode="wait">
+        {!introFinished && (
+          <CinematicIntro
+            key={`cinematic-intro-${currentView}-${publicSlug || ''}`}
+            subtitle={
+              currentView === 'wizard' ? "Configurador de Restaurantes" :
+              currentView === 'public_restaurant' ? "Carta Digital & Pedidos" :
+              "Multiwebs • Red de Restaurantes"
+            }
+            onComplete={() => setIntroFinished(true)}
+          />
+        )}
+      </AnimatePresence>
 
-      <DashboardOverview
-        restaurants={restaurants}
-        onOpenWizard={handleOpenWizard}
-        onManageRestaurant={handleManage}
-      />
+      {/* If in Standalone Tenant View (Distinct Vercel Subdomain / Custom Domain) */}
+      {currentView === 'standalone_tenant' && activeRestaurant && (
+        <div className="relative min-h-screen bg-black text-white">
+          <TemplateRenderer restaurant={activeRestaurant} isPreview={false} />
+        </div>
+      )}
+
+      {/* If in public restaurant view (via Master Platform #/r/slug) */}
+      {currentView === 'public_restaurant' && publicSlug && (
+        (() => {
+          const target = restaurants.find(r => r.slug === publicSlug || r.subdomain === publicSlug);
+          if (!target) {
+            return (
+              <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center">
+                <h2 className="text-2xl font-bold mb-2">Restaurante no encontrado</h2>
+                <p className="text-zinc-400 text-sm mb-4">No pudimos encontrar el subdominio /{publicSlug}.</p>
+                <button
+                  onClick={handleBackToDashboard}
+                  className="px-4 py-2 rounded-xl bg-emerald-400 text-black font-bold text-xs"
+                >
+                  Volver al Catálogo
+                </button>
+              </div>
+            );
+          }
+
+          return (
+            <div className="relative min-h-screen bg-black text-white">
+              {/* Discreet Back to Catalog button */}
+              <div className="fixed bottom-4 left-4 z-50">
+                <button
+                  onClick={handleBackToDashboard}
+                  className="px-4 py-2 rounded-full bg-zinc-950/90 border border-white/15 text-zinc-300 hover:text-white text-xs font-semibold shadow-[0_0_20px_rgba(0,0,0,0.8)] backdrop-blur-md hover:bg-zinc-900 transition flex items-center gap-2 emil-pressable"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Volver a Multiwebs</span>
+                </button>
+              </div>
+
+              <TemplateRenderer restaurant={target} isPreview={false} />
+            </div>
+          );
+        })()
+      )}
+
+      {/* If in Wizard View */}
+      {currentView === 'wizard' && (
+        <RestaurantWizard
+          onCreated={(newRest) => {
+            loadData();
+            setActiveRestaurant(newRest);
+            if (onNavigateToPortal) {
+              onNavigateToPortal(newRest?.slug);
+            } else {
+              window.location.hash = `#/portal?r=${newRest?.slug || ''}`;
+            }
+          }}
+          onCancel={handleBackToDashboard}
+        />
+      )}
+
+      {/* Default: Dashboard Overview */}
+      {currentView === 'dashboard' && (
+        <div className="min-h-screen bg-black text-zinc-100 flex flex-col">
+          <Navbar
+            onOpenWizard={handleOpenWizard}
+            onViewHome={handleBackToDashboard}
+            currentView={currentView}
+            onNavigateToPortal={onNavigateToPortal}
+            onNavigateToLanding={onNavigateToLanding}
+          />
+
+          <DashboardOverview
+            restaurants={restaurants}
+            onOpenWizard={handleOpenWizard}
+            onManageRestaurant={handleManage}
+          />
+        </div>
+      )}
     </div>
   );
 }

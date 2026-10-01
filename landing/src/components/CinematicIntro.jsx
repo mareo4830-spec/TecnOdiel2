@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Sparkles, ArrowDown } from 'lucide-react'
 
-export default function CinematicIntro({ onComplete }) {
+export default function CinematicIntro({ onComplete, subtitle = "Webs que Facturan • Soluciones Reales" }) {
   const [isExiting, setIsExiting] = useState(false)
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function CinematicIntro({ onComplete }) {
           transition={{ duration: 0.7, delay: 0.4 }}
           className="mt-4 sm:mt-6 text-xs sm:text-base md:text-lg font-mono tracking-widest uppercase text-zinc-400"
         >
-          Webs que Facturan • Soluciones Reales
+          {subtitle}
         </motion.p>
 
         {/* Subtle skip prompt */}

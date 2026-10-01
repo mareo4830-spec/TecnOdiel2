@@ -9,7 +9,7 @@ import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
 import { getClientRestaurantDetails } from './lib/supabase';
 
 export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLanding }) {
-  const [introFinished, setIntroFinished] = useState(true);
+  const [introFinished, setIntroFinished] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(() => {
@@ -27,6 +27,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
   useEffect(() => {
     if (initialSlug && initialSlug !== selectedSlug) {
       setSelectedSlug(initialSlug);
+      setIntroFinished(false);
     }
   }, [initialSlug]);
 
@@ -60,6 +61,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setSelectedSlug(slug);
     setIsAdmin(false);
     setIsAdminImpersonating(false);
+    setIntroFinished(false);
   };
 
   const handleAdminLogin = () => {
@@ -67,12 +69,14 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setIsAdminImpersonating(false);
     setSelectedSlug(null);
     setRestaurantData(null);
+    setIntroFinished(false);
   };
 
   const handleImpersonateClient = (slugOrId) => {
     setIsAdmin(false);
     setIsAdminImpersonating(true);
     setSelectedSlug(slugOrId);
+    setIntroFinished(false);
   };
 
   const handleBackToAdmin = () => {
@@ -80,6 +84,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setIsAdminImpersonating(false);
     setSelectedSlug(null);
     setRestaurantData(null);
+    setIntroFinished(false);
   };
 
   const handleSwitchRestaurant = () => {
@@ -87,6 +92,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setRestaurantData(null);
     setIsAdmin(false);
     setIsAdminImpersonating(false);
+    setIntroFinished(false);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tecnodiel_client_slug');
     }
