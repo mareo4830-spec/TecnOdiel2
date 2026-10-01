@@ -88,7 +88,13 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
       const hash = window.location.hash;
       const pathname = window.location.pathname;
 
+      // Ignore in-page section jumps (#carta, #menu, etc.) so they never re-trigger intro or reset view
+      if (/^#(carta|degustacion|menu|reservas|contacto|info|horarios)/i.test(hash)) {
+        return;
+      }
+
       const currentRoute = hash || pathname;
+
       if (lastPathRef.current && lastPathRef.current !== currentRoute) {
         setIntroFinished(false);
       }

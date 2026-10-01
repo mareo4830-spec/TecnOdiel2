@@ -40,7 +40,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { TEMPLATES, COLOR_PALETTES, BASE_WEB_PRICE, AVAILABLE_MODULES } from '../../lib/mockData';
+import { TEMPLATES, COLOR_PALETTES, BASE_WEB_PRICE, AVAILABLE_MODULES, getPresetMenuForStyle, DEFAULT_MENUS_BY_STYLE } from '../../lib/mockData';
 import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
 import TemplateRenderer from '../Templates/TemplateRenderer';
 import ErrorBoundary from '../ErrorBoundary';
@@ -48,69 +48,43 @@ import confetti from 'canvas-confetti';
 
 export const TEMPLATE_GROUPS = [
   {
-    name: 'Alta Cocina & Autor',
-    icon: '🏆',
+    name: 'Tapas & Solera del Sur',
+    icon: '☀️',
     templates: [
-      { id: 'nocturne', label: 'Estilo Nocturno & Exclusivo (Mixología & Noche)' },
-      { id: 'velvet', label: 'Estilo Velvet & Burdeos (Terciopelo & Jazz)' },
-      { id: 'tokyo_omakase', label: 'Estilo Omakase & Zen Japonés (Barra Omakase)' },
-      { id: 'gourmet_vanguardia', label: 'Estilo Vanguardia & Estrella Michelin (Haute Cuisine)' },
-      { id: 'bodega_enoteca', label: 'Estilo Bodega Histórica & Enoteca (Cata & Vinos)' }
+      { id: 'tapas_andaluzas', label: 'Estilo Taberna & Solera Andaluza (Albero, Pizarra & Jabugo)' }
     ]
   },
   {
-    name: 'Brasas, Carnes & Tradición',
-    icon: '🥩',
+    name: 'Noche, Coctelería & Futurismo',
+    icon: '🍸',
     templates: [
-      { id: 'steakhouse_asador', label: 'Estilo Asador Prime & Carnicería (Dry Aged)' },
-      { id: 'artisan', label: 'Estilo Rústico & Brasa (Horno de Leña)' },
-      { id: 'tapas_andaluzas', label: 'Estilo Taberna & Tapas Andaluzas (Albero & Sol)' },
-      { id: 'pulperia_gallega', label: 'Estilo Pulpería Tradicional & Rías (Pulpo á Feira)' },
-      { id: 'trattoria_italiana', label: 'Estilo Trattoria Clásica Toscana (Pasta Fresca)' }
+      { id: 'nocturne', label: 'Estilo Nocturno & Mixología VIP (Obsidian Black & Oro)' },
+      { id: 'cyberpunk', label: 'Estilo Cyber Neon & Future Bar (Consola HUD & 2077)' }
     ]
   },
   {
-    name: 'Street Food & Dinámico',
+    name: 'Street Food, Burgers & Craft',
     icon: '🍔',
     templates: [
-      { id: 'urban_street_smash', label: 'Estilo Urban Street & Smash Burger (Diner & Street)' },
-      { id: 'wok_asian_fusion', label: 'Estilo Asian Street & Wok Fusión (Wok & Bao)' },
-      { id: 'taqueria_fiesta', label: 'Estilo Taquería & Cantina Mexicana (Agave & Tacos)' },
-      { id: 'pizzeria_napolitana', label: 'Estilo Pizzería Napolitana & Horno (Masa 48h)' },
-      { id: 'cerveceria_craft', label: 'Estilo Cervecería Artesanal & Taproom (Craft Beer)' }
+      { id: 'urban_street_smash', label: 'Estilo Urban Street & Smash Burger (Diner & Maillard)' },
+      { id: 'cerveceria_craft', label: 'Estilo Cervecería Artesanal & Taproom (Cobre & Grifos)' }
     ]
   },
   {
-    name: 'Cafetería, Dulce & Brunch',
-    icon: '☕',
+    name: 'Alta Cocina, Brasa & Tradición',
+    icon: '🥩',
     templates: [
-      { id: 'coffee_specialty', label: 'Estilo Café de Especialidad & Roastery (Specialty Coffee)' },
-      { id: 'pasticceria_dolce', label: 'Estilo Dulce Boutique & Brunch (Pastelería Fina)' },
-      { id: 'gelato_artesanal', label: 'Estilo Heladería Italiana & Crepería (Gelato Artesanal)' },
-      { id: 'churreria_tradicional', label: 'Estilo Chocolatería & Churrería Castiza (Chocolate & Porras)' }
+      { id: 'tokyo_omakase', label: 'Estilo Omakase & Zen Japonés (Barra Shokunin & Washi)' },
+      { id: 'steakhouse_asador', label: 'Estilo Asador Prime & Cortes Madurados (Dry Aged 60D)' },
+      { id: 'bistro_parisien', label: 'Estilo Bistró Francés & Belle Époque (Esmeralda & Oro)' }
     ]
   },
   {
-    name: 'Mar, Sol & Experiencias',
+    name: 'Mar, Salitre & Dulce Boutique',
     icon: '🌊',
     templates: [
-      { id: 'mediterranean_breeze', label: 'Estilo Brisa Mediterránea & Arroces (Salitre & Arroz)' },
-      { id: 'marisqueria_costera', label: 'Estilo Marisquería & Lonja Marinera (Gamba Blanca)' },
-      { id: 'beach_club', label: 'Estilo Beach Club & Sunset Chiringuito (Hamacas & Sol)' },
-      { id: 'rooftop_sunset', label: 'Estilo Sky Lounge & Atardecer (Rooftop Vista)' },
-      { id: 'lounge_shisha', label: 'Estilo Shisha Lounge & Arabian Nights (Lounge Exclusivo)' },
-      { id: 'bistro_parisien', label: 'Estilo Bistró Francés & Vintage (Belle Époque)' }
-    ]
-  },
-  {
-    name: 'Vanguardia, Nórdico & Cyber',
-    icon: '⚡',
-    templates: [
-      { id: 'brutalist', label: 'Estilo Moderno & Rompedor (Underground Brutalist)' },
-      { id: 'minimalist', label: 'Estilo Limpio & Nórdico (Paz Visual & Espacio)' },
-      { id: 'botanical_garden', label: 'Estilo Botánico & Cocina Saludable (Km 0 & Orgánico)' },
-      { id: 'cyberpunk', label: 'Estilo Cyber Neon & Future Bar (Neon & Glitch)' },
-      { id: 'tecnodiel_elite', label: 'Estilo TecnOdiel Cyber Luxury (Ingeniería Edge)' }
+      { id: 'marisqueria_costera', label: 'Estilo Marisquería & Lonja Marinera (Gamba Blanca & Lonja)' },
+      { id: 'pasticceria_dolce', label: 'Estilo Dolce Boutique, Brunch & Café (Crema & Vitrina)' }
     ]
   }
 ];
@@ -130,6 +104,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
   const [savedSuccessMsg, setSavedSuccessMsg] = useState('');
   const [templateFilter, setTemplateFilter] = useState('all');
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
+  const [activeMenuCatIdx, setActiveMenuCatIdx] = useState(0);
 
   const showTweakNotice = (msg) => {
     setTweakNotice(msg);
@@ -142,31 +117,30 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     selected_modules: ['booking_engine', 'nfc_menu', 'seo_ranking'],
 
     // 1-6: Identidad de Marca
-    name: 'Marea Negra Bar',
-
-    slug: 'marea-negra',
-    subdomain: 'marea-negra',
-    slogan: 'Cocteleria de autor y bocados de noche',
-    description: 'Un espacio intimo y refinado donde la mixologia contemporanea se encuentra con creaciones culinarias de origen y acustica envolvente.',
-    category: 'night_bar',
-    dress_code: 'Smart Casual / Elegante',
+    name: 'Taberna El Albero',
+    slug: 'taberna-el-albero',
+    subdomain: 'taberna-el-albero',
+    slogan: 'Tapas de solera, jamón ibérico y vinos del sur',
+    description: 'Taberna tradicional con esencia andaluza, jamón de bellota 100% ibérico cortado a cuchillo al momento, gambas de Huelva y solera en bota.',
+    category: 'tapas',
+    dress_code: 'Informal / Agradable',
 
     // 7-10: Arquitectura & Hero
-    template_id: 'nocturne',
+    template_id: 'tapas_andaluzas',
     hero_layout: 'centered', // 'centered', 'split', 'minimal'
-    hero_image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
+    hero_image: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1920&q=80',
     texture: 'spotlight', // 'spotlight', 'grain', 'vignette', 'clean'
 
     // 11-15: Cromatica & Tipografia
-    primary_color: '#f59e0b',
-    accent_color: '#fbbf24',
-    background_color: '#050507',
-    surface_color: '#0d0d12',
-    font_family: 'Outfit',
+    primary_color: '#eab308',
+    accent_color: '#ca8a04',
+    background_color: '#1c1006',
+    surface_color: '#2a180b',
+    font_family: 'Playfair Display',
 
     // 16-20: Motor de Reservas Directas (Sin intermediarios)
     booking_rules: {
-      available_areas: ['Salon Central', 'Terraza Climatizada', 'Barra VIP Cocteleria'],
+      available_areas: ['Salón de Barricas', 'Terraza Solera', 'Barra Tradicional'],
       max_guests_per_table: 8,
       slot_interval_minutes: 30,
       advance_notice: 'Mismo dia permitido',
@@ -174,39 +148,23 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     },
 
     // 21-24: Horarios & Logistica
-    lunch_shift: { enabled: false, open: '13:30', close: '16:30' },
-    dinner_shift: { enabled: true, open: '19:30', close: '02:30' },
+    lunch_shift: { enabled: true, open: '13:00', close: '16:30' },
+    dinner_shift: { enabled: true, open: '20:00', close: '00:30' },
     closed_days: ['Lunes'],
     dietary_filters: ['Gluten Free', 'Vegano', 'Sin Lacteos'],
 
     // 25-28: Contacto & SEO
     phone: '+34 959 10 20 30',
     whatsapp_number: '+34600112233',
-    email: 'reservas@mareanegra.es',
-    address: 'Calle Marina, 14',
+    email: 'contacto@tabernaelalbero.es',
+    address: 'Calle Real, 18',
     city: 'Huelva',
     postal_code: '21001',
     google_maps_url: 'https://maps.google.com',
-    instagram_url: 'https://instagram.com/mareanegra',
+    instagram_url: 'https://instagram.com/tabernaelalbero',
 
-    // Menu Pre-cargado
-    menu_categories: [
-      {
-        id: 'cat-w-1',
-        name: 'Cocteles de Autor',
-        items: [
-          { id: 'item-w-1', name: 'Smoked Truffle Old Fashioned', description: 'Bourbon anejo, bitter de trufa negra y roble tostado.', price: 14.50, badge: 'Firma de la Casa', allergens: [] },
-          { id: 'item-w-2', name: 'Emerald Yuzu Botanical', description: 'Ginebra artesanal, reduccion de yuzu y champan brut.', price: 13.00, badge: 'Top Seleccion', allergens: [] }
-        ]
-      },
-      {
-        id: 'cat-w-2',
-        name: 'Bocados de Noche',
-        items: [
-          { id: 'item-w-3', name: 'Brioche de Wagyu & Foie', description: 'Mantequilla tostada y lascas de trufa fresca.', price: 18.00, badge: 'Exclusivo', allergens: ['Gluten', 'Lacteos'] }
-        ]
-      }
-    ]
+    // Menu Pre-cargado realista segun el estilo seleccionado
+    menu_categories: getPresetMenuForStyle('tapas_andaluzas')
   });
 
   const [newAreaInput, setNewAreaInput] = useState('');
@@ -322,6 +280,90 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
         available_areas: prev.booking_rules.available_areas.filter((_, i) => i !== idx)
       }
     }));
+  };
+
+  // Menu Editor Handlers
+  const handleUpdateCategoryName = (catIdx, newName) => {
+    setFormData(prev => {
+      const updated = [...(prev.menu_categories || [])];
+      if (updated[catIdx]) {
+        updated[catIdx] = { ...updated[catIdx], category: newName };
+      }
+      return { ...prev, menu_categories: updated };
+    });
+  };
+
+  const handleAddCategory = () => {
+    setFormData(prev => {
+      const updated = [...(prev.menu_categories || [])];
+      const newIdx = updated.length + 1;
+      updated.push({
+        category: `Nueva Categoría ${newIdx}`,
+        items: [
+          { name: 'Nuevo Plato', price: '12,00€', description: 'Descripción de los ingredientes frescos y preparación casera.' }
+        ]
+      });
+      return { ...prev, menu_categories: updated };
+    });
+    setActiveMenuCatIdx((formData.menu_categories || []).length);
+    showTweakNotice('Nueva categoría añadida');
+  };
+
+  const handleRemoveCategory = (catIdx) => {
+    setFormData(prev => {
+      const updated = (prev.menu_categories || []).filter((_, idx) => idx !== catIdx);
+      return { ...prev, menu_categories: updated.length > 0 ? updated : getPresetMenuForStyle(prev.template_id) };
+    });
+    setActiveMenuCatIdx(0);
+    showTweakNotice('Categoría eliminada');
+  };
+
+  const handleUpdateDish = (catIdx, dishIdx, field, value) => {
+    setFormData(prev => {
+      const updated = [...(prev.menu_categories || [])];
+      if (updated[catIdx] && updated[catIdx].items && updated[catIdx].items[dishIdx]) {
+        const updatedItems = [...updated[catIdx].items];
+        updatedItems[dishIdx] = { ...updatedItems[dishIdx], [field]: value };
+        updated[catIdx] = { ...updated[catIdx], items: updatedItems };
+      }
+      return { ...prev, menu_categories: updated };
+    });
+  };
+
+  const handleAddDish = (catIdx) => {
+    setFormData(prev => {
+      const updated = [...(prev.menu_categories || [])];
+      if (updated[catIdx]) {
+        const items = updated[catIdx].items ? [...updated[catIdx].items] : [];
+        items.push({
+          name: 'Plato de la Casa',
+          price: '15,00€',
+          description: 'Elaborado artesanalmente con productos de proximidad seleccionados.'
+        });
+        updated[catIdx] = { ...updated[catIdx], items };
+      }
+      return { ...prev, menu_categories: updated };
+    });
+    showTweakNotice('Nuevo plato añadido');
+  };
+
+  const handleRemoveDish = (catIdx, dishIdx) => {
+    setFormData(prev => {
+      const updated = [...(prev.menu_categories || [])];
+      if (updated[catIdx] && updated[catIdx].items) {
+        const updatedItems = updated[catIdx].items.filter((_, idx) => idx !== dishIdx);
+        updated[catIdx] = { ...updated[catIdx], items: updatedItems };
+      }
+      return { ...prev, menu_categories: updated };
+    });
+    showTweakNotice('Plato eliminado');
+  };
+
+  const handleResetMenuToPreset = () => {
+    const preset = getPresetMenuForStyle(formData.template_id);
+    setFormData(prev => ({ ...prev, menu_categories: preset }));
+    setActiveMenuCatIdx(0);
+    showTweakNotice('Carta restablecida al modelo del estilo');
   };
 
   const handleSave = async () => {
@@ -727,7 +769,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             primary_color: t.previewColors.primary,
                             accent_color: t.previewColors.accent,
                             background_color: t.previewColors.bg,
-                            surface_color: t.previewColors.card
+                            surface_color: t.previewColors.card,
+                            menu_categories: getPresetMenuForStyle(t.id)
                           }))}
                           className={`p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
                             isSel
@@ -1605,6 +1648,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             <div className="flex flex-wrap items-center gap-1.5">
               {[
                 { id: 'template', label: 'Cambiar Estilo', icon: Layers },
+                { id: 'menu', label: 'Editar Carta', icon: Utensils },
                 { id: 'services', label: 'Servicios & Precio', icon: CreditCard },
                 { id: 'colors', label: 'Cambiar Colores', icon: Palette },
                 { id: 'layout', label: 'Cambiar Portada', icon: Layout },
@@ -1649,9 +1693,11 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         onChange={(e) => {
                           const nextId = e.target.value;
                           const chosen = TEMPLATES.find(t => t.id === nextId);
+                          const presetMenu = getPresetMenuForStyle(nextId);
                           setFormData(prev => ({ 
                             ...prev, 
                             template_id: nextId,
+                            menu_categories: presetMenu,
                             ...(chosen?.previewColors ? {
                               primary_color: chosen.previewColors.primary,
                               accent_color: chosen.previewColors.accent,
@@ -1661,6 +1707,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                               font_family: chosen.defaultFont || prev.font_family
                             } : {})
                           }));
+                          setActiveMenuCatIdx(0);
                           showTweakNotice(`Estilo cambiado a ${chosen?.name || nextId}`);
                         }}
                         className="w-full pl-3.5 pr-10 py-2 rounded-xl bg-zinc-900 border border-emerald-500/40 text-white font-medium text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 transition cursor-pointer appearance-none shadow-sm"
@@ -1691,9 +1738,11 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         const prevIndex = (safeIdx - 1 + TEMPLATES.length) % TEMPLATES.length;
                         const prevT = TEMPLATES[prevIndex];
                         if (prevT) {
+                          const presetMenu = getPresetMenuForStyle(prevT.id);
                           setFormData(prev => ({ 
                             ...prev, 
                             template_id: prevT.id,
+                            menu_categories: presetMenu,
                             hero_image: prevT.heroBg || prev.hero_image,
                             primary_color: prevT.previewColors?.primary || prev.primary_color,
                             accent_color: prevT.previewColors?.accent || prev.accent_color,
@@ -1701,6 +1750,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             surface_color: prevT.previewColors?.card || prev.surface_color,
                             font_family: prevT.defaultFont || prev.font_family
                           }));
+                          setActiveMenuCatIdx(0);
                           showTweakNotice(`Estilo cambiado a ${prevT.name}`);
                         }
                       }}
@@ -1723,9 +1773,11 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         const nextIndex = (safeIdx + 1) % TEMPLATES.length;
                         const nextT = TEMPLATES[nextIndex];
                         if (nextT) {
+                          const presetMenu = getPresetMenuForStyle(nextT.id);
                           setFormData(prev => ({ 
                             ...prev, 
                             template_id: nextT.id,
+                            menu_categories: presetMenu,
                             hero_image: nextT.heroBg || prev.hero_image,
                             primary_color: nextT.previewColors?.primary || prev.primary_color,
                             accent_color: nextT.previewColors?.accent || prev.accent_color,
@@ -1733,6 +1785,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             surface_color: nextT.previewColors?.card || prev.surface_color,
                             font_family: nextT.defaultFont || prev.font_family
                           }));
+                          setActiveMenuCatIdx(0);
                           showTweakNotice(`Estilo cambiado a ${nextT.name}`);
                         }
                       }}
@@ -1764,6 +1817,162 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       <span className="hidden sm:inline">Nueva Pestaña</span>
                     </a>
                   </div>
+                </div>
+              )}
+
+              {quickTweakTab === 'menu' && (
+                <div className="space-y-4 pt-1 animate-fadeIn">
+                  {/* Category selector row & global actions */}
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2 border-b border-white/5">
+                    <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto py-1">
+                      <span className="text-xs font-mono text-zinc-400 mr-1 flex items-center gap-1">
+                        <Utensils className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Categorías:</span>
+                      </span>
+                      {(formData.menu_categories || []).map((cat, cIdx) => {
+                        const isCatActive = (activeMenuCatIdx || 0) === cIdx;
+                        return (
+                          <button
+                            key={cIdx}
+                            type="button"
+                            onClick={() => setActiveMenuCatIdx(cIdx)}
+                            className={`px-3 py-1 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
+                              isCatActive
+                                ? 'bg-emerald-500 text-black font-bold shadow-sm'
+                                : 'bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
+                            }`}
+                          >
+                            <span>{cat.category || `Sección ${cIdx + 1}`}</span>
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                              isCatActive ? 'bg-black/20 text-black font-bold' : 'bg-zinc-800 text-zinc-400'
+                            }`}>
+                              {(cat.items || []).length}
+                            </span>
+                          </button>
+                        );
+                      })}
+                      <button
+                        type="button"
+                        onClick={handleAddCategory}
+                        className="px-2.5 py-1 rounded-xl border border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-medium transition flex items-center gap-1"
+                        title="Añadir una nueva sección a la carta"
+                      >
+                        <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Añadir Categoría</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleResetMenuToPreset}
+                        className="px-2.5 py-1 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-mono transition flex items-center gap-1.5 cursor-pointer"
+                        title="Restablecer los platos sugeridos para este estilo de restaurante"
+                      >
+                        <RefreshCw className="w-3 h-3 text-emerald-400" />
+                        <span>Restablecer Ejemplo del Estilo</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Active Category Editor & Dishes */}
+                  {(() => {
+                    const currentCats = formData.menu_categories || [];
+                    const safeIdx = Math.min(Math.max(0, activeMenuCatIdx || 0), Math.max(0, currentCats.length - 1));
+                    const currentCat = currentCats[safeIdx];
+                    if (!currentCat) return (
+                      <div className="p-4 text-center text-xs text-zinc-400">
+                        No hay platos configurados.{' '}
+                        <button type="button" onClick={handleResetMenuToPreset} className="text-emerald-400 underline ml-1">
+                          Cargar platos sugeridos
+                        </button>
+                      </div>
+                    );
+
+                    return (
+                      <div className="space-y-3">
+                        {/* Category Name & Actions Bar */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-zinc-900/60 p-2.5 rounded-xl border border-white/5">
+                          <div className="flex items-center gap-2 flex-1">
+                            <label className="text-xs font-mono text-zinc-400 shrink-0">Nombre de la Sección:</label>
+                            <input
+                              type="text"
+                              value={currentCat.category || ''}
+                              onChange={(e) => handleUpdateCategoryName(safeIdx, e.target.value)}
+                              placeholder="Ej: Entrantes, Carnes, Postres..."
+                              className="px-3 py-1.5 rounded-lg bg-zinc-950 border border-white/10 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none w-full max-w-xs"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleAddDish(safeIdx)}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition flex items-center gap-1 shadow-sm cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Añadir Plato</span>
+                            </button>
+                            {currentCats.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveCategory(safeIdx)}
+                                className="px-2.5 py-1.5 rounded-lg border border-red-500/20 hover:border-red-500/50 bg-red-500/10 text-red-300 text-xs transition flex items-center gap-1 cursor-pointer"
+                                title="Eliminar toda esta categoría de la carta"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Eliminar Sección</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Dishes Cards Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+                          {(currentCat.items || []).map((dish, dIdx) => (
+                            <div
+                              key={dIdx}
+                              className="p-3 rounded-xl bg-zinc-900/90 border border-white/10 hover:border-white/20 transition space-y-2 group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-md bg-zinc-800 text-zinc-400 text-[10px] font-mono flex items-center justify-center font-bold">
+                                  {dIdx + 1}
+                                </span>
+                                <input
+                                  type="text"
+                                  value={dish.name || ''}
+                                  onChange={(e) => handleUpdateDish(safeIdx, dIdx, 'name', e.target.value)}
+                                  placeholder="Nombre del plato"
+                                  className="flex-1 px-2.5 py-1 rounded-lg bg-zinc-950 border border-white/10 text-xs font-semibold text-white focus:border-emerald-400 focus:outline-none"
+                                />
+                                <input
+                                  type="text"
+                                  value={dish.price || ''}
+                                  onChange={(e) => handleUpdateDish(safeIdx, dIdx, 'price', e.target.value)}
+                                  placeholder="14,00€"
+                                  className="w-20 px-2 py-1 rounded-lg bg-zinc-950 border border-white/10 text-xs font-mono font-bold text-emerald-400 text-right focus:border-emerald-400 focus:outline-none"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveDish(safeIdx, dIdx)}
+                                  className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer"
+                                  title="Eliminar este plato"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <textarea
+                                rows={2}
+                                value={dish.description || ''}
+                                onChange={(e) => handleUpdateDish(safeIdx, dIdx, 'description', e.target.value)}
+                                placeholder="Descripción del plato, ingredientes frescos, maridaje sugerido o alérgenos..."
+                                className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-white/5 text-[11px] text-zinc-300 focus:border-emerald-400 focus:outline-none resize-none leading-relaxed"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 

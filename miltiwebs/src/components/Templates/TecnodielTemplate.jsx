@@ -101,13 +101,14 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
                   <span>Reservar Mesa Online</span>
                 </button>
 
-                <a
-                  href="#degustacion"
-                  className="px-5 py-3.5 rounded-xl border border-white/10 bg-zinc-900/60 hover:bg-zinc-800 text-white text-xs font-semibold transition flex items-center gap-2"
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('degustacion')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-5 py-3.5 rounded-xl border border-white/10 bg-zinc-900/60 hover:bg-zinc-800 text-white text-xs font-semibold transition flex items-center gap-2 cursor-pointer"
                 >
                   <span>Descubrir Menu</span>
                   <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
-                </a>
+                </button>
               </div>
             </div>
 

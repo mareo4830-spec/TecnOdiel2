@@ -50,6 +50,11 @@ export default function App() {
       const qSlug = params.get('r') || params.get('slug') || params.get('restaurant');
       if (qSlug) setActiveSlug(qSlug);
 
+      // Ignore intra-page anchor jumps (#carta, #degustacion, etc.) so they never reset the active view
+      if (/^#(carta|degustacion|menu|reservas|contacto|info|horarios)/i.test(hash)) {
+        return;
+      }
+
       if (
         path.includes('/restaurantes') || 
         path.includes('/multiwebs') || 

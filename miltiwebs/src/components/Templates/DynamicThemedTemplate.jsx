@@ -9,97 +9,35 @@ import {
 import BookingModal from '../Booking/BookingModal';
 import { normalizeTemplateId } from './templateNormalizer';
 
-// Template metadata definitions
+// Template metadata definitions for the 10 Curated Iconic Archetypes
 export const TEMPLATE_THEMES = {
+  tapas_andaluzas: {
+    icon: Sun,
+    tagline: 'Taberna de Solera & Jamón de Bellota',
+    badgeText: 'Albero, Guitarras & Solera del Sur',
+    styleClass: 'theme-tapas',
+    archetype: 'taberna_iberica',
+    cardBorder: 'border-amber-800/50 hover:border-amber-500 shadow-md',
+    buttonShape: 'rounded-xl font-serif font-bold',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#eab308',
+    defaultAccent: '#ca8a04',
+    defaultBg: '#1c1006',
+    defaultSurface: '#2a180b'
+  },
   nocturne: {
     icon: Wine,
-    tagline: 'Mixología & Noche Exclusiva',
+    tagline: 'Mixología de Autor & Clandestino',
     badgeText: 'Experiencia Nocturna de Autor',
     styleClass: 'theme-nocturne',
-    archetype: 'michelin_haute',
-    cardBorder: 'border-white/10 hover:border-amber-400/40',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
-  },
-  minimalist: {
-    icon: Utensils,
-    tagline: 'Minimalismo Nórdico & Producto',
-    badgeText: 'Paz Visual & Cocina Cuidada',
-    styleClass: 'theme-minimal',
-    archetype: 'default_elegance',
-    cardBorder: 'border-zinc-800 hover:border-zinc-500',
-    buttonShape: 'rounded-md',
-    badgeShape: 'rounded-sm'
-  },
-  brutalist: {
-    icon: Zap,
-    tagline: 'Underground & Street Vibe',
-    badgeText: 'Energía Sin Filtros',
-    styleClass: 'theme-brutalist',
-    archetype: 'street_smash',
-    cardBorder: 'border-2 border-lime-400 shadow-[4px_4px_0px_#ccff00]',
-    buttonShape: 'rounded-none uppercase tracking-widest font-black',
-    badgeShape: 'rounded-none'
-  },
-  artisan: {
-    icon: Flame,
-    tagline: 'Horno de Leña & Fuego Lento',
-    badgeText: 'Tradición, Madera & Brasa',
-    styleClass: 'theme-artisan',
-    archetype: 'asador_prime',
-    cardBorder: 'border-amber-900/40 hover:border-orange-500/50',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
-  },
-  velvet: {
-    icon: GlassWater,
-    tagline: 'Terciopelo, Jazz & Clandestino',
-    badgeText: 'Velvet Speakeasy & Burdeos',
-    styleClass: 'theme-velvet',
-    archetype: 'bistro_paris',
-    cardBorder: 'border-rose-900/30 hover:border-rose-500/40',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
-  },
-  cyberpunk: {
-    icon: Zap,
-    tagline: 'Cyber Neon & Experimental Bar',
-    badgeText: 'Sintético // 2077 Night Hub',
-    styleClass: 'theme-cyberpunk',
-    archetype: 'cyber_hud',
-    cardBorder: 'border border-cyan-500/40 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]',
-    buttonShape: 'rounded-none font-mono uppercase tracking-wider',
-    badgeShape: 'rounded-none font-mono'
-  },
-  tokyo_omakase: {
-    icon: Moon,
-    tagline: 'Barra Omakase & Minimalismo Zen',
-    badgeText: 'Omakase del Chef // 東京 • 職人',
-    styleClass: 'theme-omakase',
-    archetype: 'omakase',
-    cardBorder: 'border-stone-800 hover:border-stone-600',
-    buttonShape: 'rounded-sm tracking-widest',
-    badgeShape: 'rounded-none'
-  },
-  mediterranean_breeze: {
-    icon: Waves,
-    tagline: 'Brisa Marina & Arroces de Costa',
-    badgeText: 'Sabor a Mar, Salitre & Arroz',
-    styleClass: 'theme-mediterranean',
-    archetype: 'coastal_lonja',
-    cardBorder: 'border-sky-900/40 hover:border-sky-400/50',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
-  },
-  bistro_parisien: {
-    icon: Award,
-    tagline: 'Bistró Clásico & Café de Época',
-    badgeText: 'Haute Cuisine & Accord Vins',
-    styleClass: 'theme-bistro',
-    archetype: 'bistro_paris',
-    cardBorder: 'border-amber-900/40 hover:border-amber-400/60',
-    buttonShape: 'rounded-xl font-serif',
-    badgeShape: 'rounded-full'
+    archetype: 'nocturne',
+    cardBorder: 'border-amber-400/20 hover:border-amber-400/60 shadow-lg',
+    buttonShape: 'rounded-2xl font-sans',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#f59e0b',
+    defaultAccent: '#fbbf24',
+    defaultBg: '#060608',
+    defaultSurface: '#0f0f14'
   },
   urban_street_smash: {
     icon: Flame,
@@ -107,19 +45,27 @@ export const TEMPLATE_THEMES = {
     badgeText: '100% Carne Crujiente // Costra Maillard',
     styleClass: 'theme-smash',
     archetype: 'street_smash',
-    cardBorder: 'border-2 border-orange-500/60 hover:border-orange-400 shadow-[4px_4px_0px_#f97316]',
-    buttonShape: 'rounded-xl font-black uppercase tracking-wider',
-    badgeShape: 'rounded-lg'
+    cardBorder: 'border-2 border-yellow-400 shadow-[5px_5px_0px_#facc15]',
+    buttonShape: 'rounded-none uppercase font-black tracking-widest',
+    badgeShape: 'rounded-none',
+    defaultPrimary: '#facc15',
+    defaultAccent: '#ff5500',
+    defaultBg: '#09090b',
+    defaultSurface: '#18181b'
   },
-  tapas_andaluzas: {
-    icon: Sun,
-    tagline: 'Taberna de Solera & Jamón Ibérico',
-    badgeText: 'Albero, Guitarras & Tapas del Sur',
-    styleClass: 'theme-tapas',
-    archetype: 'taberna_iberica',
-    cardBorder: 'border-amber-800/40 hover:border-amber-400/60',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
+  tokyo_omakase: {
+    icon: Moon,
+    tagline: 'Barra Omakase & Zen Japonés',
+    badgeText: 'Omakase del Chef // 東京 • 職人',
+    styleClass: 'theme-omakase',
+    archetype: 'omakase',
+    cardBorder: 'border-stone-800 hover:border-stone-600',
+    buttonShape: 'rounded-sm tracking-widest uppercase text-xs',
+    badgeShape: 'rounded-none',
+    defaultPrimary: '#f5f5f4',
+    defaultAccent: '#e11d48',
+    defaultBg: '#111113',
+    defaultSurface: '#1c1917'
   },
   steakhouse_asador: {
     icon: Flame,
@@ -127,59 +73,27 @@ export const TEMPLATE_THEMES = {
     badgeText: 'Carbón Vegetal & Dry Aged 60 Días',
     styleClass: 'theme-steakhouse',
     archetype: 'asador_prime',
-    cardBorder: 'border-red-950 hover:border-red-600/60',
-    buttonShape: 'rounded-xl font-bold uppercase',
-    badgeShape: 'rounded-md'
+    cardBorder: 'border-red-950/80 hover:border-red-600/70 shadow-lg',
+    buttonShape: 'rounded-xl font-black uppercase tracking-wider',
+    badgeShape: 'rounded-md',
+    defaultPrimary: '#ef4444',
+    defaultAccent: '#f97316',
+    defaultBg: '#180704',
+    defaultSurface: '#280c08'
   },
-  pasticceria_dolce: {
-    icon: Heart,
-    tagline: 'Pastelería Boutique & Desayunos Dolce',
-    badgeText: 'Crema Pastelera & Café de Ensueño',
-    styleClass: 'theme-dolce',
-    archetype: 'specialty_coffee',
-    cardBorder: 'border-pink-900/30 hover:border-pink-400/50',
-    buttonShape: 'rounded-full',
-    badgeShape: 'rounded-full'
-  },
-  botanical_garden: {
-    icon: Sparkles,
-    tagline: 'Cocina Verde, Orgánica & Vital',
-    badgeText: 'Del Huerto a la Mesa // Km 0',
-    styleClass: 'theme-botanical',
-    archetype: 'botanical_organic',
-    cardBorder: 'border-emerald-900/40 hover:border-emerald-400/60',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
-  },
-  rooftop_sunset: {
-    icon: Sun,
-    tagline: 'Sky Lounge & Cócteles al Atardecer',
-    badgeText: 'Vistas Panorámicas // Golden Hour',
-    styleClass: 'theme-rooftop',
-    archetype: 'sunset_beach',
-    cardBorder: 'border-purple-900/30 hover:border-amber-400/50',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
-  },
-  trattoria_italiana: {
-    icon: Utensils,
-    tagline: 'Auténtica Cocina Toscana & Pasta Fresca',
-    badgeText: 'Tradizione di Famiglia & Chianti',
-    styleClass: 'theme-trattoria',
-    archetype: 'pizzeria_napoli',
-    cardBorder: 'border-green-950 hover:border-emerald-600/50',
-    buttonShape: 'rounded-xl font-serif',
-    badgeShape: 'rounded-full'
-  },
-  cerveceria_craft: {
-    icon: Beer,
-    tagline: 'Fábrica de Cerveza & Taproom',
-    badgeText: '12 Grifos Artesanales // Lúpulo Fresco',
-    styleClass: 'theme-brewery',
-    archetype: 'craft_brewery',
-    cardBorder: 'border-amber-900/40 hover:border-amber-500/60',
-    buttonShape: 'rounded-lg uppercase font-bold',
-    badgeShape: 'rounded-md'
+  bistro_parisien: {
+    icon: Award,
+    tagline: 'Bistró Francés & Belle Époque',
+    badgeText: 'Maison de Cuisine & Sommelier',
+    styleClass: 'theme-bistro',
+    archetype: 'bistro_paris',
+    cardBorder: 'border-amber-500/40 hover:border-amber-400 shadow-md',
+    buttonShape: 'rounded-xl font-serif italic',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#10b981',
+    defaultAccent: '#eab308',
+    defaultBg: '#04160e',
+    defaultSurface: '#072417'
   },
   marisqueria_costera: {
     icon: Fish,
@@ -187,134 +101,61 @@ export const TEMPLATE_THEMES = {
     badgeText: 'Subasta Matinal // Costa de Huelva',
     styleClass: 'theme-marisqueria',
     archetype: 'coastal_lonja',
-    cardBorder: 'border-cyan-900/40 hover:border-cyan-400/60',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
+    cardBorder: 'border-sky-800/50 hover:border-sky-400 shadow-md',
+    buttonShape: 'rounded-2xl',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#0284c7',
+    defaultAccent: '#38bdf8',
+    defaultBg: '#021424',
+    defaultSurface: '#05233e'
   },
-  taqueria_fiesta: {
-    icon: Flame,
-    tagline: 'Tacos al Pastor, Cantina & Mezcal',
-    badgeText: '¡Viva el Sabor! // Tortilla a Mano',
-    styleClass: 'theme-taqueria',
-    archetype: 'taqueria_mexicana',
-    cardBorder: 'border-lime-900/40 hover:border-lime-400/60 shadow-[3px_3px_0px_#84cc16]',
-    buttonShape: 'rounded-xl font-bold uppercase',
-    badgeShape: 'rounded-md'
-  },
-  coffee_specialty: {
-    icon: Coffee,
-    tagline: 'Tostadero & Café de Especialidad',
-    badgeText: 'Granos de Finca // Extracción 9 Bar',
-    styleClass: 'theme-coffee',
-    archetype: 'specialty_coffee',
-    cardBorder: 'border-amber-950 hover:border-amber-600/50',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
-  },
-  gelato_artesanal: {
+  pasticceria_dolce: {
     icon: Heart,
-    tagline: 'Gelato Italiano & Crepes de Autor',
-    badgeText: 'Mantecado Diario // 100% Natural',
-    styleClass: 'theme-gelato',
-    archetype: 'specialty_coffee',
-    cardBorder: 'border-teal-900/30 hover:border-teal-400/50',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
+    tagline: 'Pastelería Boutique & Desayunos Dolce',
+    badgeText: 'Pastelería Fina & Brunch de Autor',
+    styleClass: 'theme-dolce',
+    archetype: 'pasticceria_dolce',
+    cardBorder: 'border-pink-500/30 hover:border-pink-400 shadow-md',
+    buttonShape: 'rounded-full font-medium',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#ec4899',
+    defaultAccent: '#f472b6',
+    defaultBg: '#1c1218',
+    defaultSurface: '#2b1b25'
   },
-  pizzeria_napolitana: {
-    icon: Pizza,
-    tagline: 'Pizzería Napolitana & Horno de Leña',
-    badgeText: 'Fermentación 48h // Vera Pizza DOP',
-    styleClass: 'theme-pizzeria',
-    archetype: 'pizzeria_napoli',
-    cardBorder: 'border-red-900/40 hover:border-orange-500/60',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
+  cerveceria_craft: {
+    icon: Beer,
+    tagline: 'Fábrica de Cerveza & Taproom',
+    badgeText: '12 Grifos Artesanales // Lúpulo Fresco',
+    styleClass: 'theme-brewery',
+    archetype: 'craft_brewery',
+    cardBorder: 'border-amber-800/40 hover:border-amber-500 shadow-md',
+    buttonShape: 'rounded-lg font-mono font-bold uppercase',
+    badgeShape: 'rounded-md',
+    defaultPrimary: '#d97706',
+    defaultAccent: '#f59e0b',
+    defaultBg: '#1a0f04',
+    defaultSurface: '#291807'
   },
-  lounge_shisha: {
-    icon: Moon,
-    tagline: 'Tetería VIP, Shishas & Arabian Nights',
-    badgeText: 'Atmósfera Mística & Reservados Exclusivos',
-    styleClass: 'theme-shisha',
-    archetype: 'sunset_beach',
-    cardBorder: 'border-purple-900/40 hover:border-amber-400/60',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
-  },
-  beach_club: {
-    icon: Palmtree,
-    tagline: 'Beach Club, Balinesas & Puestas de Sol',
-    badgeText: 'Oasis Balear // DJ Sessions & Marisco',
-    styleClass: 'theme-beach',
-    archetype: 'sunset_beach',
-    cardBorder: 'border-cyan-900/40 hover:border-amber-400/50',
-    buttonShape: 'rounded-2xl',
-    badgeShape: 'rounded-full'
-  },
-  gourmet_vanguardia: {
-    icon: Gem,
-    tagline: 'Vanguardia Molecular & Menú Degustación',
-    badgeText: 'Criterio Michelin // Haute Cuisine Emocional',
-    styleClass: 'theme-vanguardia',
-    archetype: 'michelin_haute',
-    cardBorder: 'border-zinc-800 hover:border-zinc-400',
-    buttonShape: 'rounded-none tracking-widest uppercase text-xs',
-    badgeShape: 'rounded-none'
-  },
-  wok_asian_fusion: {
-    icon: Flame,
-    tagline: 'Wok Street Food, Bao & Ramen',
-    badgeText: 'Fuego al Wok // Callejón Nocturno',
-    styleClass: 'theme-wok',
-    archetype: 'street_smash',
-    cardBorder: 'border-red-900/50 hover:border-red-500/70',
-    buttonShape: 'rounded-lg font-bold uppercase',
-    badgeShape: 'rounded-md'
-  },
-  churreria_tradicional: {
-    icon: Coffee,
-    tagline: 'Chocolatería Castiza & Porras de Rueda',
-    badgeText: 'Masa de Madrugada & Chocolate a la Taza',
-    styleClass: 'theme-churreria',
-    archetype: 'taberna_iberica',
-    cardBorder: 'border-amber-950 hover:border-amber-500/60',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
-  },
-  bodega_enoteca: {
-    icon: Crown,
-    tagline: 'Bodega Centenaria & Cata de Vinos',
-    badgeText: 'Roble Francés & Soleras Centenarias',
-    styleClass: 'theme-bodega',
-    archetype: 'taberna_iberica',
-    cardBorder: 'border-red-950 hover:border-amber-600/50',
-    buttonShape: 'rounded-xl font-serif',
-    badgeShape: 'rounded-full'
-  },
-  pulperia_gallega: {
-    icon: Compass,
-    tagline: 'Pulpería de Ría & Tradición Gallega',
-    badgeText: 'Pulpo á Feira & Cunca de Albariño',
-    styleClass: 'theme-pulperia',
-    archetype: 'taberna_iberica',
-    cardBorder: 'border-zinc-800 hover:border-red-600/60',
-    buttonShape: 'rounded-xl',
-    badgeShape: 'rounded-full'
-  },
-  tecnodiel_elite: {
-    icon: Sparkles,
-    tagline: 'Firma TecnOdiel Cyber Luxury',
-    badgeText: 'Digital Engine // Ultra Performance',
-    styleClass: 'theme-tecnodiel',
-    archetype: 'cyber_luxury',
-    cardBorder: 'border-emerald-500/30 hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.35)]',
-    buttonShape: 'rounded-xl font-mono',
-    badgeShape: 'rounded-full'
+  cyberpunk: {
+    icon: Zap,
+    tagline: 'Cyber Neon & Experimental Bar',
+    badgeText: 'Sintético // 2077 Night Hub',
+    styleClass: 'theme-cyberpunk',
+    archetype: 'cyber_hud',
+    cardBorder: 'border border-cyan-500/50 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]',
+    buttonShape: 'rounded-none font-mono uppercase tracking-widest',
+    badgeShape: 'rounded-none font-mono',
+    defaultPrimary: '#06b6d4',
+    defaultAccent: '#a855f7',
+    defaultBg: '#010914',
+    defaultSurface: '#04172a'
   }
 };
 
 export function getTemplateArchetype(templateId) {
-  const meta = TEMPLATE_THEMES[templateId];
+  const norm = normalizeTemplateId(templateId);
+  const meta = TEMPLATE_THEMES[norm];
   return meta?.archetype || 'default_elegance';
 }
 
@@ -324,17 +165,26 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
   const rawId = restaurant?.template_id;
   const templateId = normalizeTemplateId(rawId);
-  const meta = TEMPLATE_THEMES[templateId] || TEMPLATE_THEMES.nocturne;
-  const archetype = getTemplateArchetype(templateId);
-  const IconComponent = meta.icon || Wine;
+  const meta = TEMPLATE_THEMES[templateId] || TEMPLATE_THEMES.tapas_andaluzas;
+  const archetype = meta.archetype || 'default_elegance';
+  const IconComponent = meta.icon || Utensils;
 
-  const primaryColor = restaurant?.primary_color || meta.defaultPrimary || '#f59e0b';
-  const accentColor = restaurant?.accent_color || meta.defaultAccent || '#fbbf24';
-  const bgColor = restaurant?.background_color || meta.defaultBg || '#050507';
-  const surfaceColor = restaurant?.surface_color || meta.defaultSurface || '#0d0d12';
+  const primaryColor = restaurant?.primary_color || meta.defaultPrimary || '#eab308';
+  const accentColor = restaurant?.accent_color || meta.defaultAccent || '#ca8a04';
+  const bgColor = restaurant?.background_color || meta.defaultBg || '#1c1006';
+  const surfaceColor = restaurant?.surface_color || meta.defaultSurface || '#2a180b';
   const categories = Array.isArray(restaurant?.menu_categories) ? restaurant.menu_categories : [];
 
-  const heroImage = restaurant?.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
+  const heroImage = restaurant?.hero_image || 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1920&q=80';
+
+  // Smooth scroll without changing window.location.hash to prevent router resets!
+  const scrollToCarta = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const el = document.getElementById('carta');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div 
@@ -344,10 +194,30 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       {/* ─────────────────────────────────────────────────────────────
           ARCHETYPE-SPECIFIC ATMOSPHERIC BACKGROUND EFFECTS
          ───────────────────────────────────────────────────────────── */}
+      {archetype === 'taberna_iberica' && (
+        <>
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-20"
+            style={{
+              backgroundImage: 'radial-gradient(circle, #eab308 1px, transparent 1px)',
+              backgroundSize: '32px 32px'
+            }}
+          />
+          <div className="absolute top-0 right-0 w-[550px] h-[350px] rounded-full blur-[140px] pointer-events-none opacity-25 bg-amber-600" />
+        </>
+      )}
+
+      {archetype === 'nocturne' && (
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-[150px] pointer-events-none opacity-30"
+          style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }}
+        />
+      )}
+
       {archetype === 'omakase' && (
         <>
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-stone-900/30 rounded-full blur-[160px] pointer-events-none" />
-          <div className="absolute top-20 right-6 text-[140px] font-black text-white/[0.02] select-none pointer-events-none font-serif leading-none">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-stone-900/40 rounded-full blur-[160px] pointer-events-none" />
+          <div className="absolute top-20 right-6 text-[140px] font-black text-white/[0.03] select-none pointer-events-none font-serif leading-none">
             旬
           </div>
         </>
@@ -357,7 +227,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
         <div 
           className="absolute inset-0 pointer-events-none opacity-10"
           style={{
-            backgroundImage: `radial-gradient(circle, ${primaryColor} 1.5px, transparent 1.5px)`,
+            backgroundImage: 'radial-gradient(circle, #facc15 1.5px, transparent 1.5px)',
             backgroundSize: '24px 24px'
           }}
         />
@@ -368,7 +238,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           <div 
             className="absolute inset-0 pointer-events-none opacity-20"
             style={{
-              backgroundImage: `linear-gradient(to right, ${primaryColor}25 1px, transparent 1px), linear-gradient(to bottom, ${primaryColor}25 1px, transparent 1px)`,
+              backgroundImage: 'linear-gradient(to right, #06b6d425 1px, transparent 1px), linear-gradient(to bottom, #06b6d425 1px, transparent 1px)',
               backgroundSize: '32px 32px'
             }}
           />
@@ -378,20 +248,34 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
       {archetype === 'coastal_lonja' && (
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none opacity-20 blur-[130px]"
-          style={{ background: `radial-gradient(circle, #0284c7 0%, #0369a1 40%, transparent 80%)` }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 pointer-events-none opacity-25 blur-[130px]"
+          style={{ background: 'radial-gradient(circle, #0284c7 0%, #0369a1 40%, transparent 80%)' }}
         />
       )}
 
       {archetype === 'asador_prime' && (
         <div 
-          className="absolute top-0 right-1/4 w-96 h-96 rounded-full pointer-events-none opacity-25 blur-[120px]"
-          style={{ background: `radial-gradient(circle, #ea580c 0%, #7c2d12 50%, transparent 80%)` }}
+          className="absolute top-0 right-1/4 w-96 h-96 rounded-full pointer-events-none opacity-30 blur-[130px]"
+          style={{ background: 'radial-gradient(circle, #dc2626 0%, #7c2d12 50%, transparent 80%)' }}
         />
       )}
 
       {archetype === 'bistro_paris' && (
         <div className="absolute inset-0 bg-radial-vignette opacity-50 pointer-events-none" />
+      )}
+
+      {archetype === 'pasticceria_dolce' && (
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] rounded-full blur-[140px] pointer-events-none opacity-25"
+          style={{ background: 'radial-gradient(circle, #ec4899 0%, transparent 70%)' }}
+        />
+      )}
+
+      {archetype === 'craft_brewery' && (
+        <div 
+          className="absolute top-0 right-10 w-96 h-96 rounded-full pointer-events-none opacity-25 blur-[130px]"
+          style={{ background: 'radial-gradient(circle, #d97706 0%, transparent 70%)' }}
+        />
       )}
 
       {/* ─────────────────────────────────────────────────────────────
@@ -414,7 +298,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold tracking-tight text-white block text-sm sm:text-base leading-tight">
-                  {restaurant.name}
+                  {restaurant.name || 'Restaurante'}
                 </span>
                 {archetype === 'cyber_hud' && (
                   <span className="text-[9px] font-mono px-1.5 py-0.5 border border-cyan-500/40 text-cyan-400 bg-cyan-950/40">
@@ -444,7 +328,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
             )}
             <button
               onClick={() => setIsBookingOpen(true)}
-              className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg hover:brightness-110 active:scale-95`}
+              className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer`}
               style={{
                 backgroundColor: primaryColor,
                 color: '#000000',
@@ -459,7 +343,119 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       </header>
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 1: TOKYO OMAKASE (ZEN WABI-SABI)
+          BESPOKE HERO ARCHETYPE 1: TABERNA IBÉRICA & TAPAS (ALBERO & MADERA)
+         ───────────────────────────────────────────────────────────── */}
+      {archetype === 'taberna_iberica' && (
+        <section className="relative pt-8 pb-14 px-4 max-w-6xl mx-auto font-serif">
+          <div className="rounded-3xl border-2 border-amber-800/60 bg-[#231409] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+            {/* Azulejo Ceramic Top Accent */}
+            <div className="flex items-center justify-between pb-4 mb-6 border-b border-amber-700/40 text-xs font-mono uppercase tracking-widest text-amber-400/90">
+              <span className="flex items-center gap-2">
+                <Sun className="w-4 h-4 text-amber-400" />
+                <span>SOLERA & BODEGUITA // HUELVA & SEVILLA</span>
+              </span>
+              <span className="hidden sm:inline text-amber-500/70">CORTE DE JAMÓN A CUCHILLO • D.O. JABUGO</span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-sans font-semibold">
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Taberna Tradicional • Tapas, Medias & Raciones</span>
+                </div>
+
+                <h1 className="text-3xl sm:text-5xl font-black text-amber-100 tracking-tight leading-tight">
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+
+                <p className="text-xs sm:text-sm text-amber-200/80 leading-relaxed max-w-lg font-sans">
+                  {restaurant.description || 'El sabor auténtico del sur: jamón de bellota 100% ibérico cortado a cuchillo al momento, gambas blancas de Huelva al ajillo y vinos finos servidos en bota y catavinos.'}
+                </p>
+
+                <div className="pt-2 flex flex-wrap items-center gap-3 font-sans">
+                  <button
+                    onClick={() => setIsBookingOpen(true)}
+                    className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer"
+                  >
+                    Reservar Mesa en Taberna
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-xl border border-amber-600/50 bg-amber-950/60 hover:bg-amber-900/60 text-amber-200 font-bold text-xs uppercase transition cursor-pointer"
+                  >
+                    Ver Pizarra de Tapas
+                  </button>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 relative">
+                <div className="relative rounded-2xl overflow-hidden border-2 border-amber-700/60 shadow-2xl bg-amber-950/40 p-2">
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className="w-full h-[320px] object-cover rounded-xl filter contrast-105"
+                  />
+                  <div className="absolute bottom-4 left-4 right-4 bg-black/90 p-3 rounded-lg border border-amber-700/50 text-[11px] font-sans text-amber-200 flex justify-between items-center">
+                    <span className="font-bold">JAMÓN DEL DÍA: D.O. JABUGO</span>
+                    <span className="text-amber-400 font-mono font-bold">100% BELLOTA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          BESPOKE HERO ARCHETYPE 2: NOCTURNE LOUNGE & MIXOLOGÍA (VIP OBSIDIAN)
+         ───────────────────────────────────────────────────────────── */}
+      {archetype === 'nocturne' && (
+        <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden border border-amber-400/20 bg-gradient-to-b from-[#14141d] to-[#07070a] p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl">
+            <div 
+              className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000 opacity-40"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent -z-10" />
+
+            <div className="max-w-2xl space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border border-amber-400/30 bg-amber-400/10 text-amber-300 uppercase tracking-widest backdrop-blur-md">
+                <Wine className="w-3.5 h-3.5 text-amber-400" />
+                <span>Atmósfera Clandestina & Mixología de Noche</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-6xl font-light text-white tracking-tight leading-tight">
+                {restaurant.slogan || restaurant.name}
+              </h1>
+
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl font-light">
+                {restaurant.description || 'Un espacio íntimo y refinado donde la mixología contemporánea se encuentra con creaciones culinarias de autor, luces suaves y acústica envolvente.'}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 pt-4">
+                <button
+                  onClick={() => setIsBookingOpen(true)}
+                  className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Reservar Mesa VIP</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={scrollToCarta}
+                  className="px-5 py-3.5 rounded-xl border border-white/20 hover:border-white/40 text-xs font-semibold text-white bg-black/40 backdrop-blur-md transition cursor-pointer"
+                >
+                  Ver Cócteles & Bocados
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          BESPOKE HERO ARCHETYPE 3: TOKYO OMAKASE (ZEN WABI-SABI)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'omakase' && (
         <section className="relative pt-12 pb-16 px-4 max-w-6xl mx-auto">
@@ -473,7 +469,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 <span>Barra Omakase • Máximo 10 Comensales</span>
               </div>
               <h1 className="text-4xl sm:text-6xl font-light text-stone-100 tracking-tight leading-tight">
-                {restaurant.slogan || `${restaurant.name}`}
+                {restaurant.slogan || restaurant.name}
               </h1>
               <p className="text-xs sm:text-sm text-stone-400 leading-relaxed max-w-lg font-light">
                 {restaurant.description || 'La experiencia Omakase confía el menú por completo a las manos del Shokunin. Producto puro, arroz cocido con vinagre rojo akazu y corte exacto al milímetro.'}
@@ -482,16 +478,17 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <button
                   onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl"
+                  className="px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer"
                 >
                   Reservar Pase de Barra
                 </button>
-                <a
-                  href="#carta"
-                  className="px-5 py-3.5 border border-stone-700 text-stone-300 hover:text-white hover:border-stone-500 text-xs tracking-wider uppercase transition"
+                <button
+                  type="button"
+                  onClick={scrollToCarta}
+                  className="px-5 py-3.5 border border-stone-700 text-stone-300 hover:text-white hover:border-stone-500 text-xs tracking-wider uppercase transition cursor-pointer"
                 >
                   Ver Secuencia de Pases
-                </a>
+                </button>
               </div>
             </div>
 
@@ -513,12 +510,12 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 2: STREET SMASH & WOK (KINETIC / RETRO DINER)
+          BESPOKE HERO ARCHETYPE 4: STREET SMASH & WOK (KINETIC / RETRO DINER)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'street_smash' && (
         <section className="relative pt-6 pb-12 px-4 max-w-6xl mx-auto">
           {/* Kinetic Marquee Ticker */}
-          <div className="mb-6 overflow-hidden rounded-xl bg-orange-500 text-black py-2.5 font-black uppercase text-xs tracking-widest shadow-lg flex items-center whitespace-nowrap">
+          <div className="mb-6 overflow-hidden rounded-xl bg-yellow-400 text-black py-2.5 font-black uppercase text-xs tracking-widest shadow-lg flex items-center whitespace-nowrap">
             <div className="flex items-center gap-8 animate-marquee">
               <span>🔥 100% CARNE DE VACA MADURADA</span>
               <span>•</span>
@@ -534,11 +531,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
             </div>
           </div>
 
-          <div className="relative rounded-3xl border-2 border-orange-500/60 bg-zinc-950 p-6 sm:p-12 shadow-[8px_8px_0px_#f97316] overflow-hidden">
+          <div className="relative rounded-3xl border-2 border-yellow-400 bg-zinc-950 p-6 sm:p-12 shadow-[8px_8px_0px_#facc15] overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-orange-500/20 border border-orange-500 text-orange-400 text-xs font-black uppercase tracking-wider">
-                  <Flame className="w-4 h-4 fill-orange-400" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-xs font-black uppercase tracking-wider">
+                  <Flame className="w-4 h-4 fill-yellow-400" />
                   <span>SMASH CULTURE // CRUNCHY EDGES</span>
                 </div>
                 <h1 className="text-4xl sm:text-6xl font-black text-white uppercase tracking-tight leading-none">
@@ -550,16 +547,17 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 <div className="pt-2 flex flex-wrap items-center gap-3">
                   <button
                     onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black font-black text-xs uppercase tracking-wider transition shadow-lg active:translate-y-1"
+                    className="px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg active:translate-y-1 cursor-pointer"
                   >
                     ¡Pedir Mesa / Comer Aquí!
                   </button>
-                  <a
-                    href="#carta"
-                    className="px-5 py-3.5 rounded-xl border-2 border-white/20 hover:border-white text-white font-bold text-xs uppercase transition"
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-xl border-2 border-white/20 hover:border-white text-white font-bold text-xs uppercase transition cursor-pointer"
                   >
                     Ver Burgers & Combos
-                  </a>
+                  </button>
                 </div>
               </div>
 
@@ -581,11 +579,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 3: COASTAL LONJA (MEDITERRÁNEO & MAR)
+          BESPOKE HERO ARCHETYPE 5: COASTAL LONJA (MEDITERRÁNEO & MAR)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'coastal_lonja' && (
         <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="rounded-3xl border border-sky-800/60 bg-gradient-to-b from-sky-950/50 to-zinc-950 p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+          <div className="rounded-3xl border border-sky-800/60 bg-gradient-to-b from-sky-950/60 to-zinc-950 p-6 sm:p-12 shadow-2xl relative overflow-hidden">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
               <div className="space-y-4 max-w-xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-mono">
@@ -596,21 +594,22 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   {restaurant.slogan || restaurant.name}
                 </h1>
                 <p className="text-xs sm:text-sm text-sky-100/70 leading-relaxed">
-                  {restaurant.description || 'Gamba blanca de la costa, carabineros de profundidad, arroces en su punto exacto al fuego y pescados salvajes a la sal o a la brasa.'}
+                  {restaurant.description || 'Gamba blanca de la costa de Huelva, carabineros de profundidad, arroces en su punto exacto al fuego y pescados salvajes a la sal o a la brasa.'}
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
                     onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)]"
+                    className="px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer"
                   >
                     Reservar Mesa con Salitre
                   </button>
-                  <a
-                    href="#carta"
-                    className="px-5 py-3 rounded-2xl border border-sky-500/30 bg-sky-950/40 text-sky-200 text-xs font-semibold hover:border-sky-400 transition"
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3 rounded-2xl border border-sky-500/30 bg-sky-950/40 text-sky-200 text-xs font-semibold hover:border-sky-400 transition cursor-pointer"
                   >
                     Pizarra de la Lonja
-                  </a>
+                  </button>
                 </div>
               </div>
 
@@ -627,12 +626,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 4: CYBERPUNK HUD (SCI-FI TERMINAL)
+          BESPOKE HERO ARCHETYPE 6: CYBERPUNK HUD (SCI-FI TERMINAL)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'cyber_hud' && (
         <section className="relative pt-8 pb-14 px-4 max-w-6xl mx-auto font-mono">
           <div className="border border-cyan-500/50 bg-black/90 p-5 sm:p-10 shadow-[0_0_30px_rgba(6,182,212,0.25)] relative">
-            {/* HUD Corner Accents */}
             <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
             <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyan-400" />
             <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyan-400" />
@@ -660,16 +658,17 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 <div className="pt-2 flex flex-wrap items-center gap-3">
                   <button
                     onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4]"
+                    className="px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer"
                   >
                     [ INICIAR_RESERVA ]
                   </button>
-                  <a
-                    href="#carta"
-                    className="px-5 py-3 border border-cyan-500/50 bg-black text-cyan-400 hover:bg-cyan-950/40 text-xs uppercase tracking-wider transition"
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3 border border-cyan-500/50 bg-black text-cyan-400 hover:bg-cyan-950/40 text-xs uppercase tracking-wider transition cursor-pointer"
                   >
                     [ VER_REGISTRO_CARTA ]
-                  </a>
+                  </button>
                 </div>
               </div>
 
@@ -680,7 +679,6 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                     alt={restaurant.name}
                     className="w-full h-64 object-cover filter brightness-90 contrast-125"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
                   <div className="absolute bottom-2 left-2 text-[9px] text-cyan-400 font-mono">
                     STATUS: OPTIMAL_ATMOSPHERE
                   </div>
@@ -692,11 +690,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 5: BISTRO PARISIEN (ART DÉCO & GOLD)
+          BESPOKE HERO ARCHETYPE 7: BISTRO PARISIEN (ART DÉCO & GOLD)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'bistro_paris' && (
         <section className="relative pt-12 pb-16 px-4 max-w-5xl mx-auto text-center font-serif">
-          <div className="p-8 sm:p-14 border border-amber-600/30 bg-[#06140e] rounded-2xl shadow-2xl relative">
+          <div className="p-8 sm:p-14 border border-amber-500/40 bg-[#061910] rounded-2xl shadow-2xl relative">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full border border-amber-500/40 flex items-center justify-center text-amber-400">
               <Award className="w-6 h-6" />
             </div>
@@ -712,27 +710,28 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
             <div className="flex justify-center gap-4 pt-2 font-sans">
               <button
                 onClick={() => setIsBookingOpen(true)}
-                className="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl"
+                className="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer"
               >
                 Réserver Une Table
               </button>
-              <a
-                href="#carta"
-                className="px-6 py-3 rounded-xl border border-amber-500/40 text-amber-200 hover:border-amber-400 text-xs font-semibold transition"
+              <button
+                type="button"
+                onClick={scrollToCarta}
+                className="px-6 py-3 rounded-xl border border-amber-500/40 text-amber-200 hover:border-amber-400 text-xs font-semibold transition cursor-pointer"
               >
                 Consulter La Carte
-              </a>
+              </button>
             </div>
           </div>
         </section>
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 6: ASADOR PRIME (EMBER & DRY AGED)
+          BESPOKE HERO ARCHETYPE 8: ASADOR PRIME (EMBER & DRY AGED)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'asador_prime' && (
         <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-zinc-950 border border-red-950/80 p-6 sm:p-12 rounded-2xl shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#230906] border border-red-950/80 p-6 sm:p-12 rounded-2xl shadow-2xl">
             <div className="lg:col-span-7 space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-950/60 border border-red-600/50 text-red-400 text-xs font-mono uppercase tracking-wider">
                 <Flame className="w-3.5 h-3.5 text-red-500" />
@@ -747,16 +746,17 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)]"
+                  className="px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer"
                 >
                   Reservar Mesa de Brasa
                 </button>
-                <a
-                  href="#carta"
-                  className="px-5 py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 text-xs font-bold uppercase hover:border-zinc-500 transition"
+                <button
+                  type="button"
+                  onClick={scrollToCarta}
+                  className="px-5 py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 text-xs font-bold uppercase hover:border-zinc-500 transition cursor-pointer"
                 >
                   Ver Cortes & Maduración
-                </a>
+                </button>
               </div>
             </div>
 
@@ -778,35 +778,48 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 7: SUNSET BEACH & ROOFTOP
+          BESPOKE HERO ARCHETYPE 9: PASTICCERIA DOLCE & BRUNCH
          ───────────────────────────────────────────────────────────── */}
-      {archetype === 'sunset_beach' && (
+      {archetype === 'pasticceria_dolce' && (
         <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden border border-purple-900/40 bg-gradient-to-tr from-zinc-950 via-purple-950/30 to-amber-950/20 p-6 sm:p-14 shadow-2xl">
-            <div className="max-w-2xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-400/40 bg-amber-400/10 text-amber-300 text-xs font-medium">
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span>Golden Hour // Vistas Panorámicas & Balinesas</span>
+          <div className="rounded-3xl border border-pink-500/30 bg-gradient-to-tr from-[#2b1824] via-[#1c1218] to-[#251520] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-pink-400/40 bg-pink-400/10 text-pink-300 text-xs font-medium">
+                  <Heart className="w-3.5 h-3.5 text-pink-400 fill-pink-400/20" />
+                  <span>Obrador Artesanal & Specialty Coffee</span>
+                </div>
+                <h1 className="text-3xl sm:text-5xl font-light text-pink-100 tracking-tight">
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p className="text-xs sm:text-sm text-pink-200/80 leading-relaxed max-w-lg">
+                  {restaurant.description || 'Croissants hojaldrados de mantequilla francesa, tostas de masa madre con huevos benedictinos y café de especialidad tostado semanalmente.'}
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-3">
+                  <button
+                    onClick={() => setIsBookingOpen(true)}
+                    className="px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer"
+                  >
+                    Reservar Mesa Brunch
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-full border border-pink-400/30 bg-white/5 text-pink-200 text-xs font-semibold hover:border-pink-300 transition cursor-pointer"
+                  >
+                    Ver Vitrina & Bebidas
+                  </button>
+                </div>
               </div>
-              <h1 className="text-3xl sm:text-6xl font-extrabold text-white tracking-tight">
-                {restaurant.slogan || restaurant.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg">
-                {restaurant.description || 'El punto de encuentro exclusivo para despedir el día frente al mar o sobre las alturas de la ciudad, con coctelería de autor y música selecta.'}
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-3">
-                <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 rounded-full bg-gradient-to-r from-amber-400 to-rose-500 hover:brightness-110 text-black font-extrabold text-xs transition shadow-2xl"
-                >
-                  Reservar Balinesa / Mesa VIP
-                </button>
-                <a
-                  href="#carta"
-                  className="px-5 py-3.5 rounded-full border border-white/20 bg-white/5 text-white text-xs font-semibold hover:border-white/40 transition"
-                >
-                  Carta de Cócteles & Botellas
-                </a>
+
+              <div className="lg:col-span-5 relative">
+                <div className="rounded-3xl overflow-hidden border border-pink-500/30 shadow-2xl p-2 bg-pink-950/20">
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className="w-full h-72 object-cover rounded-2xl"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -814,9 +827,62 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 8: GENERAL ELEGANT FALLBACK
+          BESPOKE HERO ARCHETYPE 10: CRAFT BREWERY & TAPROOM
          ───────────────────────────────────────────────────────────── */}
-      {(!['omakase', 'street_smash', 'coastal_lonja', 'cyber_hud', 'asador_prime', 'bistro_paris', 'sunset_beach'].includes(archetype)) && (
+      {archetype === 'craft_brewery' && (
+        <section className="relative pt-8 pb-14 px-4 max-w-6xl mx-auto font-mono">
+          <div className="rounded-2xl border-2 border-amber-800/60 bg-[#251508] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs uppercase tracking-widest font-bold">
+                  <Beer className="w-4 h-4 text-amber-400" />
+                  <span>Fábrica Cervecera // 12 Grifos en Rotación</span>
+                </div>
+                <h1 className="text-3xl sm:text-5xl font-black text-amber-100 uppercase tracking-tight">
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-sans">
+                  {restaurant.description || 'Cerveza artesana fresca servida directamente desde nuestros tanques de maduración, combinada con bocados ahumados de pulled pork y patatas de taproom.'}
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => setIsBookingOpen(true)}
+                    className="px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer"
+                  >
+                    Reservar Mesa Taproom
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-lg border border-amber-700/60 text-amber-200 text-xs font-bold uppercase hover:bg-amber-950/40 transition cursor-pointer"
+                  >
+                    Pizarra de Cervezas
+                  </button>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 relative">
+                <div className="rounded-xl overflow-hidden border border-amber-700/60 shadow-2xl p-1 bg-black/40">
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className="w-full h-72 object-cover rounded-lg filter contrast-105"
+                  />
+                  <div className="mt-2 bg-amber-950/80 p-2 text-[10px] text-amber-300 flex justify-between">
+                    <span>LÚPULOS DE HOY: CITRA & MOSAIC</span>
+                    <span className="font-bold">TEMP SERVICIO: 4°C</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          BESPOKE HERO ARCHETYPE 11: GENERAL FALLBACK
+         ───────────────────────────────────────────────────────────── */}
+      {(!['taberna_iberica', 'nocturne', 'omakase', 'street_smash', 'coastal_lonja', 'cyber_hud', 'bistro_paris', 'asador_prime', 'pasticceria_dolce', 'craft_brewery'].includes(archetype)) && (
         <section className="relative pt-8 sm:pt-12 pb-16 px-4 max-w-6xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl">
             <div 
@@ -849,24 +915,23 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               <div className="flex flex-wrap items-center gap-3 pt-4">
                 <button
                   onClick={() => setIsBookingOpen(true)}
-                  className={`px-6 py-3.5 ${meta.buttonShape} font-bold text-xs transition flex items-center gap-2 shadow-2xl hover:brightness-110 active:scale-95`}
+                  className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer`}
                   style={{
                     backgroundColor: primaryColor,
                     color: '#000000',
-                    boxShadow: `0 0 25px ${primaryColor}50`
+                    boxShadow: `0 0 20px ${primaryColor}40`
                   }}
                 >
-                  <Calendar className="w-4 h-4" />
-                  <span>Reservar Mesa Online</span>
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Reservar Mesa</span>
                 </button>
-
-                <a
-                  href="#carta"
-                  className={`px-5 py-3.5 ${meta.buttonShape} border border-white/15 bg-black/40 backdrop-blur-md text-white text-xs font-semibold hover:border-white/30 transition flex items-center gap-1.5`}
+                <button
+                  type="button"
+                  onClick={scrollToCarta}
+                  className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}
                 >
-                  <span>Ver Carta Digital</span>
-                  <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-                </a>
+                  Ver Carta Digital
+                </button>
               </div>
             </div>
           </div>
@@ -877,6 +942,41 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           ARCHETYPE SIGNATURE INTERACTIVE WIDGET
          ───────────────────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 mb-12">
+        {archetype === 'taberna_iberica' && (
+          <div className="p-5 rounded-2xl border-2 border-amber-800/50 bg-[#28170c] shadow-lg font-sans">
+            <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider text-xs mb-3">
+              <Sun className="w-4 h-4 text-amber-400" />
+              <span>GARANTÍA DE SOLERA & MATERIA PRIMA DEL SUR:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-amber-200/90">
+              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-700/40">
+                <span className="text-amber-100 font-bold block mb-1">1. D.O. JABUGO 100% BELLOTA</span>
+                Jamones criados en libertad en dehesas de encina con curación natural mínima de 36 meses.
+              </div>
+              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-700/40">
+                <span className="text-amber-100 font-bold block mb-1">2. ACEITE VIRGEN EXTRA</span>
+                Todas nuestras frituras y ajillos se realizan exclusivamente con AOVE de cooperativa andaluza.
+              </div>
+              <div className="p-3 bg-amber-950/60 rounded-xl border border-amber-700/40">
+                <span className="text-amber-100 font-bold block mb-1">3. MANZANILLAS EN RAMA</span>
+                Servidas directamente de bota a baja temperatura para respetar todo su velo de flor.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'nocturne' && (
+          <div className="p-5 rounded-2xl border border-amber-400/20 bg-[#0f0f15] shadow-lg">
+            <div className="flex items-center justify-between gap-4 text-xs font-mono text-amber-300">
+              <div className="flex items-center gap-2">
+                <Wine className="w-4 h-4 text-amber-400" />
+                <span>MIXOLOGÍA DE AUTOR // CARTA DE DESTILADOS BOTÁNICOS</span>
+              </div>
+              <span className="text-zinc-400 text-[11px]">HIELO CRISTALINO TALLADO A MANO • CRUSTA CASERA</span>
+            </div>
+          </div>
+        )}
+
         {archetype === 'omakase' && (
           <div className="p-6 border border-stone-800 bg-stone-950 rounded-xl space-y-3 font-mono text-xs text-stone-300">
             <div className="flex items-center gap-2 text-stone-400 font-bold uppercase tracking-wider text-[11px]">
@@ -901,26 +1001,26 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
         )}
 
         {archetype === 'street_smash' && (
-          <div className="p-6 rounded-2xl border-2 border-orange-500/40 bg-zinc-950 shadow-md">
-            <div className="text-xs font-black uppercase text-orange-400 tracking-wider mb-2 flex items-center gap-2">
+          <div className="p-6 rounded-2xl border-2 border-yellow-400 bg-zinc-950 shadow-md">
+            <div className="text-xs font-black uppercase text-yellow-400 tracking-wider mb-2 flex items-center gap-2">
               <Flame className="w-4 h-4" />
               <span>LA FÓRMULA SMASH // PASO A PASO:</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
-                <span className="text-orange-400 font-bold block">01. PICADO FRESCO</span>
+                <span className="text-yellow-400 font-bold block">01. PICADO FRESCO</span>
                 Blend propio de vacuno mayor, moldeado en bolas de 90g sin compactar.
               </div>
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
-                <span className="text-orange-400 font-bold block">02. PLANCHA 260°C</span>
+                <span className="text-yellow-400 font-bold block">02. PLANCHA 260°C</span>
                 Espátula de acero inoxidable pesado y papel manteca a máxima presión.
               </div>
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
-                <span className="text-orange-400 font-bold block">03. COSTRA MAILLARD</span>
+                <span className="text-yellow-400 font-bold block">03. COSTRA MAILLARD</span>
                 Bordes ultrafinos crujientes con caramelización proteica explosiva.
               </div>
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
-                <span className="text-orange-400 font-bold block">04. CHEESE CLOCHE</span>
+                <span className="text-yellow-400 font-bold block">04. CHEESE CLOCHE</span>
                 Doble cheddar fundido al vapor bajo campana en 15 segundos.
               </div>
             </div>
@@ -1017,17 +1117,26 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               className="text-[11px] font-mono uppercase tracking-widest font-bold mb-1"
               style={{ color: accentColor }}
             >
-              {archetype === 'omakase' ? 'SECUENCIA GASTRONÓMICA' : 
-               archetype === 'street_smash' ? 'THE STREET MENU' : 
+              {archetype === 'taberna_iberica' ? 'TABERNA DE SOLERA // PIZARRA DEL DÍA' :
+               archetype === 'nocturne' ? 'COCKTAILS & AUTHOR BITES' :
+               archetype === 'omakase' ? 'SECUENCIA GASTRONÓMICA' : 
+               archetype === 'street_smash' ? 'THE STREET SMASH MENU' : 
                archetype === 'coastal_lonja' ? 'TABLÓN DE LA LONJA' : 
                archetype === 'cyber_hud' ? 'DATA_INDEX // SELECTION' : 
-               archetype === 'bistro_paris' ? "L'ARDOISE DU JOUR" : 'CARTA DIGITAL'}
+               archetype === 'bistro_paris' ? "L'ARDOISE DU JOUR" : 
+               archetype === 'asador_prime' ? 'NUESTROS CORTES & MADURACIÓN' :
+               archetype === 'pasticceria_dolce' ? 'VITRINA DULCE & BRUNCH' :
+               archetype === 'craft_brewery' ? 'PIZARRA DE GRIFOS & TAPROOM' : 'CARTA DIGITAL'}
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              {archetype === 'omakase' ? 'Propuesta Omakase' : 
+              {archetype === 'taberna_iberica' ? 'Nuestras Tapas & Raciones' :
+               archetype === 'nocturne' ? 'Carta de Mixología & Noche' :
+               archetype === 'omakase' ? 'Propuesta Omakase del Chef' : 
                archetype === 'street_smash' ? 'Burgers, Sides & Shakes' : 
                archetype === 'coastal_lonja' ? 'Mariscos & Arroces de Costa' : 
-               archetype === 'asador_prime' ? 'Nuestros Cortes & Brasa' : 'Nuestra Carta'}
+               archetype === 'asador_prime' ? 'Cortes Selectos a la Brasa' : 
+               archetype === 'pasticceria_dolce' ? 'Desayunos, Brunch & Postres' :
+               archetype === 'craft_brewery' ? 'Cervezas Artesanas & Bocados' : 'Nuestra Carta'}
             </h2>
           </div>
 
@@ -1038,9 +1147,9 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 <button
                   key={cat.id || idx}
                   onClick={() => setActiveCategory(idx)}
-                  className={`px-4 py-2 text-xs font-semibold whitespace-nowrap transition ${meta.buttonShape} ${
+                  className={`px-4 py-2 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${meta.buttonShape} ${
                     activeCategory === idx 
-                      ? 'text-black font-bold' 
+                      ? 'text-black font-bold shadow-md' 
                       : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-zinc-200'
                   }`}
                   style={activeCategory === idx ? { backgroundColor: primaryColor } : {}}
@@ -1052,7 +1161,79 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           )}
         </div>
 
-        {/* ── ARCHETYPE MENU VARIANT 1: OMAKASE (DOTTED LEADERS & SEQUENTIAL) ── */}
+        {/* ── ARCHETYPE MENU VARIANT 1: TABERNA IBÉRICA (PIZARRA RÚSTICA CON TIZA & SOLERA) ── */}
+        {archetype === 'taberna_iberica' && (
+          <div className="rounded-2xl border-2 border-amber-800/60 bg-[#251509] p-6 sm:p-10 shadow-2xl font-serif">
+            <div className="border-b border-amber-700/40 pb-3 mb-6 flex items-center justify-between text-xs font-mono text-amber-300">
+              <span>PIZARRA DE COCINA TRADICIONAL</span>
+              <span>CARTA EN VIVO</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
+                <div 
+                  key={item.id || itIdx} 
+                  className="p-4 rounded-xl bg-amber-950/40 border border-amber-700/30 hover:border-amber-500/60 transition flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex justify-between items-baseline gap-3 mb-1.5">
+                      <h3 className="font-bold text-amber-100 text-base sm:text-lg tracking-wide">
+                        {item.name}
+                      </h3>
+                      <span className="font-mono font-bold text-amber-400 text-base shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-amber-200/70 font-sans font-light leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="pt-2 border-t border-amber-800/30 flex items-center justify-between text-[10px] font-sans">
+                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">
+                      {item.badge || 'Especialidad'}
+                    </span>
+                    <span className="text-amber-400/80 font-mono">Tapa / Ración</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── ARCHETYPE MENU VARIANT 2: NOCTURNE LOUNGE (OBSIDIAN & GOLD LUXURY CARDS) ── */}
+        {archetype === 'nocturne' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
+              <div 
+                key={item.id || itIdx}
+                className="p-5 rounded-2xl border border-amber-400/20 bg-[#0f0f15] hover:border-amber-400/50 transition shadow-lg flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-baseline gap-3 mb-2">
+                    <h3 className="font-light text-white text-base sm:text-lg">
+                      {item.name}
+                    </h3>
+                    <span className="font-mono text-amber-400 font-bold text-sm shrink-0">
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-zinc-400 font-light leading-relaxed mb-3">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                  <span className="text-amber-300/80 font-medium">{item.badge || 'Mixología de Autor'}</span>
+                  <span>PREPARADO AL MOMENTO</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── ARCHETYPE MENU VARIANT 3: OMAKASE (DOTTED LEADERS & SEQUENTIAL) ── */}
         {archetype === 'omakase' && (
           <div className="border border-stone-800 bg-stone-950 p-6 sm:p-10 divide-y divide-stone-800">
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
@@ -1083,20 +1264,20 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           </div>
         )}
 
-        {/* ── ARCHETYPE MENU VARIANT 2: STREET SMASH (POSTER CARDS WITH COMBO CHIPS) ── */}
+        {/* ── ARCHETYPE MENU VARIANT 4: STREET SMASH (POSTER CARDS WITH COMBO CHIPS) ── */}
         {archetype === 'street_smash' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-2xl border-2 border-zinc-800 bg-zinc-950 hover:border-orange-500 transition shadow-[4px_4px_0px_rgba(249,115,22,0.3)] flex flex-col justify-between"
+                className="p-5 rounded-2xl border-2 border-zinc-800 bg-zinc-950 hover:border-yellow-400 transition shadow-[4px_4px_0px_rgba(250,204,21,0.4)] flex flex-col justify-between"
               >
                 <div>
                   <div className="flex justify-between items-start gap-3 mb-2">
                     <h3 className="font-black uppercase text-base text-white tracking-wide">
                       {item.name}
                     </h3>
-                    <span className="px-2.5 py-1 rounded-lg bg-orange-500 text-black font-black text-sm shrink-0">
+                    <span className="px-2.5 py-1 rounded-lg bg-yellow-400 text-black font-black text-sm shrink-0">
                       {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
                     </span>
                   </div>
@@ -1108,14 +1289,14 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 </div>
                 <div className="pt-2 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
                   <span>+3.50€ COMBO PATATAS & BEBIDA</span>
-                  <span className="text-orange-400 font-bold">100% CARNE FRESCA</span>
+                  <span className="text-yellow-400 font-bold">100% CARNE FRESCA</span>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* ── ARCHETYPE MENU VARIANT 3: CYBER HUD (TELEMETRY BOXES) ── */}
+        {/* ── ARCHETYPE MENU VARIANT 5: CYBER HUD (TELEMETRY BOXES) ── */}
         {archetype === 'cyber_hud' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono">
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
@@ -1148,7 +1329,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           </div>
         )}
 
-        {/* ── ARCHETYPE MENU VARIANT 4: BISTRO PARISIEN (GOLD FILIGREE & WINE PAIRING) ── */}
+        {/* ── ARCHETYPE MENU VARIANT 6: BISTRO PARISIEN (GOLD FILIGREE & WINE PAIRING) ── */}
         {archetype === 'bistro_paris' && (
           <div className="p-6 sm:p-10 border border-amber-600/30 bg-[#06140e] rounded-2xl shadow-xl font-serif">
             <div className="divide-y divide-amber-900/30">
@@ -1177,47 +1358,171 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           </div>
         )}
 
-        {/* ── ARCHETYPE MENU VARIANT 5: STANDARD BESPOKE TILED CARDS ── */}
-        {!['omakase', 'street_smash', 'cyber_hud', 'bistro_paris'].includes(archetype) && (
+        {/* ── ARCHETYPE MENU VARIANT 7: ASADOR PRIME (CARNES MADURADAS & CORTES) ── */}
+        {archetype === 'asador_prime' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className={`p-5 rounded-2xl border transition group hover:-translate-y-0.5 ${meta.cardBorder}`}
+                className="p-5 rounded-2xl border border-red-950 bg-[#1e0705] hover:border-red-600/60 transition shadow-lg flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-baseline gap-3 mb-2">
+                    <h3 className="font-bold uppercase text-white text-base tracking-wide">
+                      {item.name}
+                    </h3>
+                    <span className="font-mono text-red-400 font-bold text-base shrink-0">
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-zinc-300 leading-relaxed mb-3">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <div className="pt-2 border-t border-red-900/30 flex items-center justify-between text-[10px] font-mono">
+                  <span className="text-red-400 font-bold">{item.badge || 'Madurado'}</span>
+                  <span className="text-zinc-400">BRASA DE ENCINA 400°C</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── ARCHETYPE MENU VARIANT 8: COASTAL LONJA (MARISCOS & LONJA DE HUELVA) ── */}
+        {archetype === 'coastal_lonja' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
+              <div 
+                key={item.id || itIdx}
+                className="p-5 rounded-2xl border border-sky-800/50 bg-[#051c33] hover:border-sky-400 transition shadow-lg flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-baseline gap-3 mb-2">
+                    <h3 className="font-extrabold text-white text-base">
+                      {item.name}
+                    </h3>
+                    <span className="font-mono text-sky-300 font-bold text-base shrink-0">
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-sky-100/70 leading-relaxed mb-3">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <div className="pt-2 border-t border-sky-900/40 flex items-center justify-between text-[10px] font-mono">
+                  <span className="text-sky-300 font-medium">{item.badge || 'Pesca del Día'}</span>
+                  <span className="text-sky-400/80">SUBASTA MATINAL</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── ARCHETYPE MENU VARIANT 9: PASTICCERIA DOLCE (BRUNCH & VITRINA PASTEL) ── */}
+        {archetype === 'pasticceria_dolce' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
+              <div 
+                key={item.id || itIdx}
+                className="p-5 rounded-3xl border border-pink-500/30 bg-[#24131e] hover:border-pink-400 transition shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-baseline gap-3 mb-2">
+                    <h3 className="font-medium text-pink-100 text-base">
+                      {item.name}
+                    </h3>
+                    <span className="font-mono text-pink-400 font-bold text-base shrink-0">
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-pink-200/70 leading-relaxed mb-3">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <div className="pt-2 border-t border-pink-900/40 flex items-center justify-between text-[10px]">
+                  <span className="text-pink-300 font-medium">{item.badge || 'Recién Horneado'}</span>
+                  <span className="text-pink-400/70 font-mono">100% ARTESANAL</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── ARCHETYPE MENU VARIANT 10: CRAFT BREWERY (TAPROOM & GRIFOS) ── */}
+        {archetype === 'craft_brewery' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono">
+            {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
+              <div 
+                key={item.id || itIdx}
+                className="p-5 rounded-xl border border-amber-800/50 bg-[#211105] hover:border-amber-500 transition shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-baseline gap-3 mb-2">
+                    <h3 className="font-bold uppercase text-amber-100 text-sm tracking-wide">
+                      {item.name}
+                    </h3>
+                    <span className="text-amber-400 font-bold text-base shrink-0">
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-zinc-300 font-sans leading-relaxed mb-3">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <div className="pt-2 border-t border-amber-900/40 flex items-center justify-between text-[10px]">
+                  <span className="text-amber-400 font-bold">{item.badge || 'Tirador Directo'}</span>
+                  <span className="text-zinc-400">CERVEZA FRESCA DE BARRIL</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── ARCHETYPE MENU VARIANT 11: STANDARD TILED CARDS FALLBACK ── */}
+        {(!['taberna_iberica', 'nocturne', 'omakase', 'street_smash', 'cyber_hud', 'bistro_paris', 'asador_prime', 'coastal_lonja', 'pasticceria_dolce', 'craft_brewery'].includes(archetype)) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
+              <div 
+                key={item.id || itIdx}
+                className={`p-5 ${meta.buttonShape} border ${meta.cardBorder} transition backdrop-blur-sm flex flex-col justify-between`}
                 style={{ backgroundColor: surfaceColor }}
               >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="space-y-1.5 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-zinc-100">
-                        {item.name}
-                      </h3>
-                      {item.badge && (
-                        <span 
-                          className={`text-[9px] px-2 py-0.5 ${meta.badgeShape} font-mono font-bold uppercase tracking-wider`}
-                          style={{
-                            backgroundColor: `${primaryColor}20`,
-                            color: accentColor,
-                            border: `1px solid ${primaryColor}40`
-                          }}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-                    {item.description && (
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        {item.description}
-                      </p>
-                    )}
+                <div>
+                  <div className="flex justify-between items-baseline gap-3 mb-2">
+                    <h3 className="font-bold text-white text-base tracking-tight">
+                      {item.name}
+                    </h3>
+                    <span 
+                      className="font-mono font-bold text-sm shrink-0"
+                      style={{ color: primaryColor }}
+                    >
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                    </span>
                   </div>
-                  <div 
-                    className="font-mono font-extrabold text-base sm:text-lg shrink-0"
-                    style={{ color: primaryColor }}
-                  >
-                    {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                  </div>
+                  {item.description && (
+                    <p className="text-xs text-zinc-400 leading-relaxed mb-3">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
+                {item.badge && (
+                  <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
+                    <span 
+                      className="px-2 py-0.5 rounded font-medium"
+                      style={{ backgroundColor: `${primaryColor}20`, color: accentColor }}
+                    >
+                      {item.badge}
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -1225,71 +1530,27 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          BOOKING CALL TO ACTION STRIP
+          FOOTER SECTION
          ───────────────────────────────────────────────────────────── */}
-      <section className="py-14 px-4 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent">
-        <div className="max-w-4xl mx-auto text-center space-y-5 p-8 sm:p-12 rounded-3xl border border-white/10 bg-black/60 backdrop-blur-xl">
-          <IconComponent className="w-8 h-8 mx-auto" style={{ color: primaryColor }} />
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-            ¿Quieres vivir la experiencia en {restaurant.name}?
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed">
-            Reserva tu mesa en segundos sin intermediarios ni comisiones. Confirmación directa en tu pantalla.
-          </p>
-          <button
-            onClick={() => setIsBookingOpen(true)}
-            className={`px-8 py-3.5 ${meta.buttonShape} text-xs font-extrabold transition shadow-2xl hover:brightness-110 active:scale-95`}
-            style={{
-              backgroundColor: primaryColor,
-              color: '#000000',
-              boxShadow: `0 0 30px ${primaryColor}50`
-            }}
-          >
-            Reservar Mesa Ahora
-          </button>
-        </div>
-      </section>
-
-      {/* ─────────────────────────────────────────────────────────────
-          FOOTER
-         ───────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-10 px-4 text-center text-xs text-zinc-500 bg-black/80">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-white/10 py-10 bg-black/70">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-zinc-300">{restaurant.name}</span>
+            <span className="font-bold text-white">{restaurant.name}</span>
             <span>•</span>
-            <span>{restaurant.address || 'Huelva'}</span>
+            <span className="font-mono text-[11px] text-zinc-500">Impulsado por TecnOdiel</span>
           </div>
-
           <div className="flex items-center gap-4 text-zinc-400">
-            {restaurant.google_maps_url && (
-              <a href={restaurant.google_maps_url} target="_blank" rel="noreferrer" className="hover:text-white transition">
-                Google Maps
-              </a>
-            )}
-            {restaurant.instagram_url && (
-              <a href={restaurant.instagram_url} target="_blank" rel="noreferrer" className="hover:text-white transition">
-                Instagram
-              </a>
-            )}
-            <a 
-              href="https://tecnodiel.com" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="text-zinc-500 hover:text-emerald-400 transition font-mono text-[10px]"
-            >
-              TecnOdiel Engine
-            </a>
+            {restaurant.phone && <span>Tel: {restaurant.phone}</span>}
+            {restaurant.address && <span>{restaurant.address}</span>}
           </div>
         </div>
       </footer>
 
-      {/* Booking Modal */}
+      {/* Booking Modal (Live interactive reservation engine) */}
       {isBookingOpen && (
         <BookingModal 
-          restaurant={restaurant}
-          isOpen={isBookingOpen}
-          onClose={() => setIsBookingOpen(false)}
+          restaurant={restaurant} 
+          onClose={() => setIsBookingOpen(false)} 
         />
       )}
     </div>

@@ -129,13 +129,14 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
                   <span>Reservar Mesa Online</span>
                 </button>
 
-                <a
-                  href="#carta"
-                  className="px-5 py-3 rounded-xl border border-white/15 bg-black/40 backdrop-blur-md text-white text-xs font-semibold hover:border-white/30 transition flex items-center gap-1.5"
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('carta')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-5 py-3 rounded-xl border border-white/15 bg-black/40 backdrop-blur-md text-white text-xs font-semibold hover:border-white/30 transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Carta Digital</span>
                   <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -176,12 +177,13 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
                   <Calendar className="w-4 h-4" />
                   <span>Reservar Mesa Online</span>
                 </button>
-                <a
-                  href="#carta"
-                  className="px-5 py-3 rounded-xl border border-white/10 bg-zinc-900 text-white text-xs font-semibold"
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('carta')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="px-5 py-3 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold cursor-pointer transition"
                 >
                   <span>Explorar Carta</span>
-                </a>
+                </button>
               </div>
             </div>
 
