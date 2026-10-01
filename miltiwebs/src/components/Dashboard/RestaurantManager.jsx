@@ -349,7 +349,7 @@ export default function RestaurantManager({ restaurant, onBack, onRestaurantUpda
 
           <div className="flex items-center gap-2">
             <a
-              href={`#r/${restaurant.slug}`}
+              href={restaurant.custom_domain ? `https://${restaurant.custom_domain}` : `/#/r/${restaurant.slug}`}
               target="_blank"
               rel="noreferrer"
               className="emil-pressable px-3.5 py-1.5 rounded-xl border border-white/15 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition flex items-center gap-1.5"

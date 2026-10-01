@@ -9,7 +9,7 @@ export default function Navbar({
   isAdminImpersonating,
   onBackToAdmin
 }) {
-  const liveUrl = restaurant?.cloudflare_url || restaurant?.published_url || `https://${restaurant?.slug || 'web'}.pages.dev`;
+  const liveUrl = restaurant?.custom_domain ? `https://${restaurant.custom_domain}` : `/#/r/${restaurant?.slug || ''}`;
 
   return (
     <nav className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-2xl">

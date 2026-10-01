@@ -43,7 +43,31 @@ CREATE TABLE IF NOT EXISTS public.restaurants (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
--- 2. TABLA DE RESERVAS DIRECTAS
+-- 2. TABLA DE CATEGORIAS DE CARTA
+CREATE TABLE IF NOT EXISTS public.menu_categories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE,
+    name VARCHAR(128) NOT NULL,
+    order_index INT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+);
+
+-- 3. TABLA DE PLATOS Y PRODUCTOS
+CREATE TABLE IF NOT EXISTS public.menu_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE,
+    category_id UUID REFERENCES public.menu_categories(id) ON DELETE CASCADE,
+    name VARCHAR(128) NOT NULL,
+    description TEXT,
+    price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    badge VARCHAR(64),
+    allergens TEXT[] DEFAULT '{}',
+    is_available BOOLEAN DEFAULT true,
+    order_index INT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+);
+
+-- 4. TABLA DE RESERVAS DIRECTAS
 CREATE TABLE IF NOT EXISTS public.reservations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE,
@@ -60,12 +84,20 @@ CREATE TABLE IF NOT EXISTS public.reservations (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
--- 3. SEGURIDAD Y PRIVACIDAD DE DATOS
+-- 5. SEGURIDAD Y PRIVACIDAD DE DATOS (POLITICAS RLS)
 ALTER TABLE public.restaurants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.menu_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.menu_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reservations ENABLE ROW LEVEL SECURITY;
+
 CREATE POLICY "Lectura publica de restaurantes" ON public.restaurants FOR SELECT USING (true);
+CREATE POLICY "Modificacion restaurantes" ON public.restaurants FOR ALL USING (true);
+CREATE POLICY "Lectura publica de categorias" ON public.menu_categories FOR SELECT USING (true);
+CREATE POLICY "Gestion categorias" ON public.menu_categories FOR ALL USING (true);
+CREATE POLICY "Lectura publica de platos" ON public.menu_items FOR SELECT USING (true);
+CREATE POLICY "Gestion platos" ON public.menu_items FOR ALL USING (true);
 CREATE POLICY "Creacion publica de reservas" ON public.reservations FOR INSERT WITH CHECK (true);
-CREATE POLICY "Lectura reservas por cliente" ON public.reservations FOR SELECT USING (true);
+CREATE POLICY "Lectura reservas" ON public.reservations FOR SELECT USING (true);
 `;
 
   const handleSave = (e) => {

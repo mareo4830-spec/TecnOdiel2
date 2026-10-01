@@ -68,8 +68,8 @@ export default function Dashboard({ restaurant, onRefresh }) {
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const liveUrl = restaurant.cloudflare_url || restaurant.published_url || `https://${restaurant.slug}.pages.dev`;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(liveUrl)}`;
+  const liveUrl = restaurant.custom_domain ? `https://${restaurant.custom_domain}` : `/#/r/${restaurant.slug}`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/#/r/${restaurant.slug}` : liveUrl)}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(liveUrl);

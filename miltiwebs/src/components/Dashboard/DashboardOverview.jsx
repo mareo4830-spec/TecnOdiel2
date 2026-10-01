@@ -180,7 +180,7 @@ export default function DashboardOverview({
                     {/* Action Buttons */}
                     <div className="pt-1">
                       <a
-                        href={rest.cloudflare_url || `#r/${rest.slug}`}
+                        href={rest.custom_domain ? `https://${rest.custom_domain}` : `/#/r/${rest.slug}`}
                         target="_blank"
                         rel="noreferrer"
                         className="w-full py-2.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center justify-center gap-2 shadow-md"

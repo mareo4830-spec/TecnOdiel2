@@ -7,6 +7,7 @@ import {
   Thermometer, Gauge, Tag, Info, Terminal, Radio, Eye, Layers
 } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
+import { normalizeTemplateId } from './TemplateRenderer';
 
 // Template metadata definitions
 export const TEMPLATE_THEMES = {
@@ -321,15 +322,16 @@ export default function DynamicThemedTemplate({ restaurant, isPreview = false })
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
 
-  const templateId = restaurant.template_id || 'nocturne';
+  const rawId = restaurant.template_id;
+  const templateId = normalizeTemplateId(rawId);
   const meta = TEMPLATE_THEMES[templateId] || TEMPLATE_THEMES.nocturne;
   const archetype = getTemplateArchetype(templateId);
   const IconComponent = meta.icon || Wine;
 
-  const primaryColor = restaurant.primary_color || '#f59e0b';
-  const accentColor = restaurant.accent_color || '#fbbf24';
-  const bgColor = restaurant.background_color || '#050507';
-  const surfaceColor = restaurant.surface_color || '#0d0d12';
+  const primaryColor = restaurant.primary_color || meta.defaultPrimary || '#f59e0b';
+  const accentColor = restaurant.accent_color || meta.defaultAccent || '#fbbf24';
+  const bgColor = restaurant.background_color || meta.defaultBg || '#050507';
+  const surfaceColor = restaurant.surface_color || meta.defaultSurface || '#0d0d12';
   const categories = restaurant.menu_categories || [];
 
   const heroImage = restaurant.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';

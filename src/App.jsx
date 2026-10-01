@@ -14,7 +14,18 @@ export default function App() {
     if (params.get('view') === 'multiwebs' || params.get('view') === 'restaurantes') return 'multiwebs';
     if (params.get('view') === 'portal') return 'portal';
 
-    if (path.includes('/restaurantes') || path.includes('/multiwebs') || hash.includes('#/multiwebs') || hash.includes('#/wizard') || hash.includes('#/manage') || hash.includes('#/r/')) {
+    if (
+      path.includes('/restaurantes') || 
+      path.includes('/multiwebs') || 
+      path.includes('/r/') ||
+      hash.includes('#/multiwebs') || 
+      hash.includes('#/wizard') || 
+      hash.includes('#/manage') || 
+      hash.includes('#/r/') ||
+      hash.includes('#r/') ||
+      hash.startsWith('#/r/') ||
+      hash.startsWith('#r/')
+    ) {
       return 'multiwebs';
     }
     if (path.includes('/portal') || hash.includes('#/portal') || hash.includes('#portal')) {
@@ -39,7 +50,18 @@ export default function App() {
       const qSlug = params.get('r') || params.get('slug') || params.get('restaurant');
       if (qSlug) setActiveSlug(qSlug);
 
-      if (path.includes('/restaurantes') || path.includes('/multiwebs') || hash.includes('#/multiwebs') || hash.includes('#/wizard') || hash.includes('#/manage') || hash.includes('#/r/')) {
+      if (
+        path.includes('/restaurantes') || 
+        path.includes('/multiwebs') || 
+        path.includes('/r/') ||
+        hash.includes('#/multiwebs') || 
+        hash.includes('#/wizard') || 
+        hash.includes('#/manage') || 
+        hash.includes('#/r/') ||
+        hash.includes('#r/') ||
+        hash.startsWith('#/r/') ||
+        hash.startsWith('#r/')
+      ) {
         setView('multiwebs');
       } else if (path.includes('/portal') || hash.includes('#/portal') || hash.includes('#portal')) {
         setView('portal');

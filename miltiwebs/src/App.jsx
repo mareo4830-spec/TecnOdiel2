@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import RestaurantWizard from './components/Wizard/RestaurantWizard';
 import TemplateRenderer from './components/Templates/TemplateRenderer';
-import { fetchRestaurants } from './lib/supabase';
+import { fetchRestaurants, fetchRestaurantBySlug } from './lib/supabase';
 import { ArrowLeft } from 'lucide-react';
 
 // Helper to detect distinct tenant subdomain (e.g. "marea-negra.vercel.app" or "marea-negra.localhost")
@@ -42,6 +42,8 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'manager', 'public_restaurant', 'standalone_tenant'
   const [activeRestaurant, setActiveRestaurant] = useState(null);
   const [publicSlug, setPublicSlug] = useState(null);
+  const [singleRestaurant, setSingleRestaurant] = useState(null);
+  const [isLoadingPublic, setIsLoadingPublic] = useState(false);
   const [tenantSlug, setTenantSlug] = useState(() => detectTenantSlug());
   const [introFinished, setIntroFinished] = useState(false);
   const lastPathRef = useRef(typeof window !== 'undefined' ? (window.location.hash || window.location.pathname) : '');
@@ -55,6 +57,28 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   useEffect(() => {
     loadData();
   }, []);
+
+  // When publicSlug is active, fetch from Supabase if not in local cache
+  useEffect(() => {
+    if (publicSlug) {
+      const match = restaurants.find(r => r.slug === publicSlug || r.subdomain === publicSlug || r.id === publicSlug);
+      if (match) {
+        setSingleRestaurant(match);
+      } else {
+        setIsLoadingPublic(true);
+        fetchRestaurantBySlug(publicSlug)
+          .then(found => {
+            if (found) setSingleRestaurant(found);
+          })
+          .catch(err => {
+            console.warn('Error fetching single restaurant from Supabase:', err);
+          })
+          .finally(() => {
+            setIsLoadingPublic(false);
+          });
+      }
+    }
+  }, [publicSlug, restaurants]);
 
   // Handle URL hash & host-based tenant routing
   useEffect(() => {
@@ -96,9 +120,10 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
 
       // Case B: Master Platform Routing (tecnodiel.vercel.app or localhost)
       if (hash.startsWith('#r/') || hash.startsWith('#/r/')) {
-        const path = hash.replace(/^#\/?r\//, '');
-        if (path.includes('/admin')) {
-          const slug = path.replace(/\/admin.*$/, '');
+        const rawPath = hash.replace(/^#\/?r\//, '');
+        const cleanPath = rawPath.split('?')[0].replace(/\/$/, '');
+        if (cleanPath.includes('/admin')) {
+          const slug = cleanPath.replace(/\/admin.*$/, '');
           if (onNavigateToPortal) {
             onNavigateToPortal(slug);
           } else {
@@ -106,7 +131,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
           }
           return;
         }
-        setPublicSlug(path);
+        setPublicSlug(cleanPath);
         setCurrentView('public_restaurant');
       } else if (hash === '#wizard' || hash === '#/wizard') {
         setCurrentView('wizard');
@@ -184,12 +209,23 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
       {/* If in public restaurant view (via Master Platform #/r/slug) */}
       {currentView === 'public_restaurant' && publicSlug && (
         (() => {
-          const target = restaurants.find(r => r.slug === publicSlug || r.subdomain === publicSlug);
+          const target = singleRestaurant || restaurants.find(r => r.slug === publicSlug || r.subdomain === publicSlug || r.id === publicSlug);
+
+          if (isLoadingPublic && !target) {
+            return (
+              <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-10 h-10 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mb-4" />
+                <h2 className="text-xl font-bold mb-1">Cargando restaurante...</h2>
+                <p className="text-zinc-400 text-xs font-mono">Conectando con la base de datos Supabase</p>
+              </div>
+            );
+          }
+
           if (!target) {
             return (
               <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center">
                 <h2 className="text-2xl font-bold mb-2">Restaurante no encontrado</h2>
-                <p className="text-zinc-400 text-sm mb-4">No pudimos encontrar el subdominio /{publicSlug}.</p>
+                <p className="text-zinc-400 text-sm mb-4">No pudimos encontrar el restaurante /{publicSlug} en la base de datos.</p>
                 <button
                   onClick={handleBackToDashboard}
                   className="px-4 py-2 rounded-xl bg-emerald-400 text-black font-bold text-xs"

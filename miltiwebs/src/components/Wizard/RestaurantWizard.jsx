@@ -1542,16 +1542,29 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsTweakBarCollapsed(false)}
-              className="btn-industrial px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-md cursor-pointer"
-              title="Desplegar panel para cambiar estilo, colores, módulos o textos"
-            >
-              <Sliders className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Retocar Web / Estilos</span>
-              <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
+            <div className="flex items-center gap-2">
+              <a
+                href={`/#/r/${formData.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
+                title="Abrir web completa en nueva pestaña"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="hidden sm:inline">Abrir Web</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setIsTweakBarCollapsed(false)}
+                className="btn-industrial px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-md cursor-pointer"
+                title="Desplegar panel para cambiar estilo, colores, módulos o textos"
+              >
+                <Sliders className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Retocar Web / Estilos</span>
+                <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            </div>
           </div>
         ) : (
           <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-4 sm:px-6 py-3 space-y-2.5 z-20">
@@ -1696,11 +1709,22 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       type="button"
                       onClick={() => setIsTweakBarCollapsed(true)}
                       className="ml-1 sm:ml-2 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
-                      title="Ocultar controles para ver la web"
+                      title="Ocultar controles para ver la web a pantalla completa"
                     >
                       <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Ver Web</span>
+                      <span>Ocultar Barra</span>
                     </button>
+
+                    <a
+                      href={`/#/r/${formData.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
+                      title="Abrir web en nueva pestaña"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Nueva Pestaña</span>
+                    </a>
                   </div>
                 </div>
               )}

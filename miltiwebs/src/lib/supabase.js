@@ -96,16 +96,20 @@ export async function fetchRestaurants() {
 
 // API: Get single restaurant by slug or subdomain
 export async function fetchRestaurantBySlug(slugOrSubdomain) {
+  if (!slugOrSubdomain) return null;
   const clean = sanitizeSlug(slugOrSubdomain);
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrSubdomain);
   const supabase = getSupabaseClient();
   
   if (supabase) {
     try {
-      const { data, error } = await supabase
-        .from('restaurants')
-        .select('*')
-        .or(`slug.eq.${clean},subdomain.eq.${clean}`)
-        .single();
+      let query = supabase.from('restaurants').select('*');
+      if (isUUID) {
+        query = query.eq('id', slugOrSubdomain);
+      } else {
+        query = query.or(`slug.eq.${clean},subdomain.eq.${clean}`);
+      }
+      const { data, error } = await query.maybeSingle();
       
       if (!error && data) {
         // Also fetch menu categories & items
@@ -117,7 +121,7 @@ export async function fetchRestaurantBySlug(slugOrSubdomain) {
         
         return {
           ...data,
-          menu_categories: categories || []
+          menu_categories: categories && categories.length > 0 ? categories : (data.menu_categories || [])
         };
       }
     } catch (e) {
@@ -126,7 +130,7 @@ export async function fetchRestaurantBySlug(slugOrSubdomain) {
   }
   
   const all = getLocalRestaurants();
-  const found = all.find(r => r.slug === clean || r.subdomain === clean);
+  const found = all.find(r => r.slug === clean || r.subdomain === clean || r.id === slugOrSubdomain);
   return found || null;
 }
 
@@ -391,10 +395,12 @@ export async function updateRestaurant(id, updatedFields) {
       delete safeFields.id;
 
       if (Object.keys(safeFields).length > 0) {
-        await supabase
-          .from('restaurants')
-          .update(safeFields)
-          .or(`id.eq.${id},slug.eq.${id}`);
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        if (isUUID) {
+          await supabase.from('restaurants').update(safeFields).eq('id', id);
+        } else {
+          await supabase.from('restaurants').update(safeFields).eq('slug', id);
+        }
       }
     } catch (err) {
       console.warn('Supabase restaurant update failed, updating locally', err);
