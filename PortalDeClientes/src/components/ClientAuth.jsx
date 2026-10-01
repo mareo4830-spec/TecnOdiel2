@@ -190,21 +190,35 @@ export default function ClientAuth({
       <div className="w-full max-w-lg bg-[#09090c] border border-zinc-800 rounded-lg p-5 sm:p-8 shadow-2xl space-y-6 text-left">
         {/* Top Back Navigation Bar */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-          <button
-            type="button"
-            onClick={() => {
-              if (onNavigateToLanding) {
-                onNavigateToLanding();
-              } else if (typeof window !== 'undefined') {
-                window.location.hash = '#/';
-              }
-            }}
-            className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-2 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-            title="Volver a la portada de TecnOdiel"
-          >
-            <ArrowLeft className="w-4 h-4 text-emerald-400" />
-            <span>Volver a Portada</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigateToLanding) {
+                  onNavigateToLanding();
+                } else if (typeof window !== 'undefined') {
+                  window.location.hash = '#/';
+                }
+              }}
+              className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+              title="Volver a la portada de TecnOdiel"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Inicio</span>
+            </button>
+
+            {onNavigateToMultiwebs && (
+              <button
+                type="button"
+                onClick={onNavigateToMultiwebs}
+                className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+                title="Ver red de restaurantes"
+              >
+                <Globe className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Multiwebs</span>
+              </button>
+            )}
+          </div>
 
           <button
             type="button"
@@ -212,10 +226,10 @@ export default function ClientAuth({
               setAuthMode(prev => (prev === 'client' ? 'admin' : 'client'));
               setErrorMsg('');
             }}
-            className="text-[11px] font-mono text-zinc-300 hover:text-white transition flex items-center gap-1 hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded px-2 py-1.5 min-h-[44px]"
+            className="text-[11px] font-mono text-zinc-400 hover:text-white transition flex items-center gap-1 hover:underline cursor-pointer rounded px-2 py-1.5 min-h-[40px]"
           >
             {authMode === 'client' ? (
-              <span>Acceso Maestro Admin →</span>
+              <span>Acceso Admin →</span>
             ) : (
               <span>← Acceso Clientes</span>
             )}
@@ -224,9 +238,9 @@ export default function ClientAuth({
 
         {/* Status Indicator */}
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
-            {authMode === 'client' ? '// ACCESO PRIVADO CLIENTE' : '// ACCESO MAESTRO ADMIN'}
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-mono text-xs uppercase tracking-wider text-emerald-300 font-semibold">
+            {authMode === 'client' ? '// PANEL DE CLIENTE // 0€ COMISIONES' : '// PANEL DE ADMINISTRACIÓN // MASTER'}
           </span>
         </div>
 
@@ -237,17 +251,17 @@ export default function ClientAuth({
           <div className="space-y-5">
             <div className="text-left space-y-1.5">
               <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                Acceso a Tu Negocio
+                Control Total de tu Local
               </h1>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
-                Introduce tu <strong>Clave Única de Cliente</strong> para gestionar tu carta, revisar tus reservas y ver tu web en tiempo real con total privacidad.
+                Actualiza tu carta en segundos, confirma reservas al instante y multiplica tus clientes desde tu móvil.
               </p>
             </div>
 
             <form onSubmit={handleClientSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 font-mono">
-                  Tu Clave de Acceso Única:
+                  Tu Clave de Cliente:
                 </label>
                 <div className="relative">
                   <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />

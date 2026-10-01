@@ -409,13 +409,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-white">Cuestionario de Diseño de Tu Web</span>
+                <span className="font-extrabold text-sm text-white">Configuración de Tu Web</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                   Paso 0{activeSection} de 06
                 </span>
               </div>
               <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline">
-                {SECTIONS[activeSection - 1]?.label} • Responde cada detalle y verás tu web completa al final
+                {SECTIONS[activeSection - 1]?.label} • Tu web lista en solo 2 minutos
               </span>
             </div>
           </div>
@@ -437,7 +437,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             className="hidden sm:inline-flex btn-industrial px-3.5 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs font-mono font-medium items-center gap-2 transition cursor-pointer min-h-[40px]"
           >
             <Eye className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Ver Vista Previa Final</span>
+            <span>Ver Vista Previa →</span>
           </button>
         </header>
       ) : (
@@ -2418,24 +2418,24 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 {/* Guaranteed Conditions List */}
                 <div className="space-y-1.5 text-xs">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
-                    Tranquilidad y compromisos para tu negocio:
+                    Garantías para tu tranquilidad:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-zinc-300 text-[11px]">
                     <div className="flex items-center gap-2">
                       <CheckCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>0% comisiones: todas las reservas son 100% para ti</span>
+                      <span>0% comisiones: cada reserva es 100% tuya</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Los teléfonos y datos de tus clientes son tuyos para siempre</span>
+                      <span>Tus clientes y teléfonos son de tu negocio</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Dominio Cloudflare Pages comercial 100% gratuito sin cuotas</span>
+                      <span>Dominio Cloudflare Pages incluido gratis</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Guardado automático de URL en base de datos Supabase</span>
+                      <span>Carta digital con QR para mesas activa</span>
                     </div>
                   </div>
                 </div>
@@ -2449,7 +2449,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
                 {/* Call to Action Portal Buttons */}
                 <div className="space-y-2.5 pt-1">
-                  {/* Primary 1: Dar el Visto Bueno & Abrir Panel de Admin */}
+                  {/* Primary 1: Activar Web & Abrir Panel */}
                   <button
                     type="button"
                     disabled={isSavingExpedient}
@@ -2458,7 +2458,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       try {
                         const saved = await createRestaurant(formData);
                         setCreatedRestaurant(saved);
-                        setSavedSuccessMsg('¡Web activada, URL Cloudflare creada y guardada en Supabase con éxito!');
+                        setSavedSuccessMsg('¡Web activada y guardada con éxito!');
                         try {
                           confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
                         } catch (e) {}
@@ -2471,11 +2471,11 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         setIsSavingExpedient(false);
                       }
                     }}
-                    className="emil-pressable w-full py-3.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.5)]"
+                    className="emil-pressable w-full py-3.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.5)] cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>
-                      {isSavingExpedient ? 'Creando Web en Cloudflare Pages y Guardando en Supabase...' : 'Dar el Visto Bueno: Activar Web y Abrir Panel de Admin'}
+                      {isSavingExpedient ? 'Activando web en Cloudflare...' : 'Activar Mi Web y Abrir Panel'}
                     </span>
                   </button>
 
@@ -2490,21 +2490,20 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     className="emil-pressable w-full py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white font-semibold text-xs transition flex items-center justify-center gap-2"
                   >
                     <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                    <span>Continuar a TecnOdiel para Finalizar Contrato y Pagos</span>
+                    <span>Confirmar Plan y Condiciones</span>
                   </a>
 
                   {/* Secondary: Direct WhatsApp Contract Manager */}
                   <a
                     href={`https://wa.me/34600000000?text=${encodeURIComponent(
-                      `Hola equipo TecnOdiel, he configurado mi web para ${formData.name} (${formData.slug}.pages.dev) con estilo ${formData.template_id} y los siguientes servicios: [${(formData.selected_modules || []).map(id => AVAILABLE_MODULES.find(m => m.id === id)?.name).filter(Boolean).join(', ')}]. La tarifa resultante es de ${calculatePlanPrice()}€/mes (${billingPlan === 'annual' ? 'facturación anual' : 'mensual'}). He dado el visto bueno y me gustaría cerrar los detalles del contrato.`
+                      `Hola equipo TecnOdiel, he configurado mi web para ${formData.name} (${formData.slug}.pages.dev) con estilo ${formData.template_id} y los siguientes servicios: [${(formData.selected_modules || []).map(id => AVAILABLE_MODULES.find(m => m.id === id)?.name).filter(Boolean).join(', ')}]. La tarifa resultante es de ${calculatePlanPrice()}€/mes (${billingPlan === 'annual' ? 'facturación anual' : 'mensual'}). Me gustaría cerrar los detalles del contrato.`
                     )}`}
-
                     target="_blank"
                     rel="noreferrer"
                     className="emil-pressable w-full py-2.5 px-4 rounded-xl bg-transparent hover:bg-white/5 text-zinc-400 hover:text-zinc-200 text-xs transition flex items-center justify-center gap-2 text-center"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Hablar por WhatsApp con el Equipo para Dudas</span>
+                    <span>Consultar Dudas por WhatsApp</span>
                   </a>
                 </div>
               </div>

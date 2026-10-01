@@ -197,9 +197,9 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
           <CinematicIntro
             key={`cinematic-intro-${currentView}-${publicSlug || ''}`}
             subtitle={
-              currentView === 'wizard' ? "Configurador de Restaurantes" :
-              currentView === 'public_restaurant' ? "Carta Digital & Pedidos" :
-              "Multiwebs • Red de Restaurantes"
+              currentView === 'wizard' ? "Crea Tu Web en 2 Minutos • Sin Líos" :
+              currentView === 'public_restaurant' ? "Carta Digital QR • Reservas Directas" :
+              "Webs para Restaurantes • 0€ Comisiones"
             }
             onComplete={() => setIntroFinished(true)}
           />

@@ -60,7 +60,20 @@ export default function Navbar({
               title="Volver a la portada de TecnOdiel"
             >
               <ArrowLeft className="w-4 h-4 text-emerald-400" />
-              <span>Volver</span>
+              <span>Inicio</span>
+            </button>
+          )}
+
+          {/* Navigate to Multiwebs */}
+          {onNavigateToMultiwebs && (
+            <button
+              type="button"
+              onClick={onNavigateToMultiwebs}
+              className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] sm:min-h-[44px] cursor-pointer"
+              title="Ver catálogo de restaurantes"
+            >
+              <UtensilsCrossed className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden md:inline">Multiwebs</span>
             </button>
           )}
 

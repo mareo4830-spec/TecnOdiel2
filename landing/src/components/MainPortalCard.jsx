@@ -8,43 +8,43 @@ export default function MainPortalCard({ onOpenAudit }) {
   const solutionsList = [
     {
       icon: Zap,
-      title: 'Tu web lista para vender',
-      description: 'Una web bonita, moderna y rápida en el móvil. Tus clientes entrarán y verán al instante lo que ofreces para comprarte a ti.',
+      title: 'Web rápida que vende',
+      description: 'Diseño moderno y ultrarrápido en móvil. Tus clientes entran, ven lo que ofreces y compran en segundos.',
       color: 'text-amber-400',
       badge: 'Carga en 0.2s',
     },
     {
       icon: Search,
-      title: 'Posiciónate el primero en Google',
-      description: 'Cuando busquen tu negocio o servicio en Huelva, saldrás tú antes que la competencia en Google y Google Maps.',
+      title: 'Primero en Google y Maps',
+      description: 'Aparece antes que tu competencia cuando busquen tu negocio o comida en Huelva.',
       color: 'text-blue-400',
       badge: 'Más clientes locales',
     },
     {
       icon: Smartphone,
-      title: 'Tu carta o menú en el móvil',
-      description: 'Sin descargar incómodos PDFs. Una carta táctil que se abre al segundo, con fotos de tus platos y precios siempre actualizados.',
+      title: 'Carta digital con QR',
+      description: 'Sin descargar PDFs molestos. Carta táctil interactiva con fotos irresistibles y precios al día.',
       color: 'text-emerald-400',
-      badge: '0 PDFs molestos',
+      badge: '0 descargas',
     },
     {
       icon: ShieldCheck,
-      title: 'Reservas y pedidos a tu WhatsApp',
-      description: 'Tus clientes te piden o te reservan mesa en un clic directo. Sin intermediarios y sin que nadie te quite un 15% de comisión.',
+      title: 'Reservas directas a WhatsApp',
+      description: 'Tus clientes reservan mesa o piden en 1 clic. Cero intermediarios y 0€ en comisiones.',
       color: 'text-cyan-400',
-      badge: '100% para ti',
+      badge: '100% tu beneficio',
     },
     {
       icon: ShoppingBag,
-      title: 'Cobra al instante por Bizum o tarjeta',
-      description: 'Vende tus productos o servicios por internet y recibe el dinero en tu cuenta bancaria al momento. Fácil y sin líos.',
+      title: 'Cobra con Bizum o Tarjeta',
+      description: 'Pagos al instante directo a tu cuenta bancaria. Cómodo para tu cliente, seguro para ti.',
       color: 'text-purple-400',
-      badge: 'Bizum y Tarjeta',
+      badge: 'Cobro directo',
     },
     {
       icon: HeartHandshake,
-      title: 'Nosotros nos encargamos de todo',
-      description: 'Tú dedícate a atender a tus clientes. Del dominio, el servidor, el mantenimiento y que todo funcione nos ocupamos nosotros desde Huelva.',
+      title: 'Nosotros nos ocupamos de todo',
+      description: 'Dominio, velocidad, cambios de carta y soporte técnico desde Huelva. Tú solo atiende a tus clientes.',
       color: 'text-emerald-400',
       badge: 'Tranquilidad total',
     },
@@ -99,7 +99,7 @@ export default function MainPortalCard({ onOpenAudit }) {
               transition={{ duration: 0.7, delay: 0.22 }}
               className="max-w-2xl text-xs sm:text-sm md:text-base font-normal text-zinc-300 mb-8 sm:mb-10 leading-relaxed"
             >
-              Tus clientes buscan en el móvil antes de comprar o salir a comer. Si no tienes una web rápida o no sales el primero en Google, se están yendo a tu competencia. En <strong className="text-white font-semibold">TecnOdiel</strong> hacemos que tu negocio destaque, atraiga clientes todos los días y multipliques tus ingresos sin complicaciones:
+              Tus clientes deciden con el móvil en la mano. Si no te encuentran o tu web va lenta, eligen a la competencia. En <strong className="text-white font-semibold">TecnOdiel</strong> creamos tu web para que atraigas clientes cada día y multipliques tus ingresos sin líos:
             </motion.p>
 
             {/* Everything We Can Do - Close, Clear & Sales-Oriented Grid */}
@@ -156,12 +156,12 @@ export default function MainPortalCard({ onOpenAudit }) {
               >
                 <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/80 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-out" />
                 <span className="relative z-10 uppercase font-black tracking-wider text-base sm:text-lg">
-                  Desde 99€
+                  Quiero Mi Web • Desde 99€
                 </span>
                 <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </motion.button>
               <p className="mt-2.5 text-[11px] sm:text-xs font-mono text-zinc-400">
-                Pide tu presupuesto sin compromiso • Te respondemos hoy mismo
+                Presupuesto sin compromiso • Te respondemos hoy mismo
               </p>
             </motion.div>
 
@@ -174,15 +174,15 @@ export default function MainPortalCard({ onOpenAudit }) {
             >
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-emerald-400" />
-                <span>Cero complicaciones técnicas</span>
+                <span>Cero líos técnicos</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-emerald-400" />
-                <span>Trato cercano y directo en Huelva</span>
+                <span>Trato cercano en Huelva</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-emerald-400" />
-                <span>Sin comisiones por tus clientes</span>
+                <span>0€ comisiones por cliente</span>
               </span>
             </motion.div>
           </div>

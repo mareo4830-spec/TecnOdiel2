@@ -51,42 +51,42 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
   const sectors = [
     {
       id: 'restaurante',
-      name: 'Restaurante / Bar / Gastronomía',
+      name: 'Hostelería (Restaurantes, Bares y Cafés)',
       icon: UtensilsCrossed,
       active: true,
-      badge: 'DISPONIBLE // HOSTELERÍA',
+      badge: 'DISPONIBLE AHORA',
       badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-      description: 'Creador inteligente de webs gastronómicas con carta digital QR interactiva y reservas automáticas sin comisiones.',
-      actionText: 'Crear Mi Web Gastronómica Ahora'
+      description: 'Carta digital con QR interactivo, fotos de platos y reservas directas a tu WhatsApp sin comisiones.',
+      actionText: 'Crear Mi Web en 2 Minutos'
     },
     {
       id: 'comercio',
-      name: 'Comercio / Tienda Local',
+      name: 'Tiendas y Comercio Local',
       icon: Store,
       active: false,
-      badge: 'EN DESARROLLO',
+      badge: 'PRÓXIMAMENTE',
       badgeColor: 'text-zinc-400 bg-white/5 border-white/10',
-      description: 'Catálogo de productos, venta online con Bizum y recogida en tienda física.',
+      description: 'Catálogo de productos y cobros rápidos con Bizum.',
       actionText: 'Próximamente'
     },
     {
       id: 'clinica',
-      name: 'Clínica / Salud / Bienestar',
+      name: 'Clínicas y Salud',
       icon: Stethoscope,
       active: false,
-      badge: 'EN DESARROLLO',
+      badge: 'PRÓXIMAMENTE',
       badgeColor: 'text-zinc-400 bg-white/5 border-white/10',
-      description: 'Cita previa online para pacientes, recordatorios automáticos por WhatsApp y tarifas.',
+      description: 'Cita previa online y recordatorios por WhatsApp.',
       actionText: 'Próximamente'
     },
     {
       id: 'servicios',
-      name: 'Servicios Profesionales / Empresa',
+      name: 'Servicios y Empresas',
       icon: Briefcase,
       active: false,
-      badge: 'EN DESARROLLO',
+      badge: 'PRÓXIMAMENTE',
       badgeColor: 'text-zinc-400 bg-white/5 border-white/10',
-      description: 'Presupuestos automáticos, captación de clientes cualificados y presencia corporativa sólida.',
+      description: 'Presupuestos automáticos y más clientes locales.',
       actionText: 'Próximamente'
     }
   ];
@@ -130,14 +130,14 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
             <div className="flex items-center gap-2 mb-2">
               <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-emerald-400 flex items-center gap-1.5 font-semibold">
                 <Sparkles className="w-3.5 h-3.5" />
-                // SELECCIONA TU SECTOR DE NEGOCIO
+                // TU WEB EN 2 MINUTOS
               </span>
             </div>
             <h3 id="audit-modal-title" className="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase">
               ¿Qué tipo de negocio tienes?
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-zinc-400 font-light leading-relaxed">
-              Elige tu sector para acceder de inmediato al generador de webs con plantillas y herramientas especializadas:
+              Elige tu sector y creamos tu web con herramientas listas para vender:
             </p>
           </div>
 
@@ -221,7 +221,7 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                     Sector &ldquo;{selectedDisabledSector}&rdquo; no disponible aún
                   </strong>
                   <span className="text-zinc-300">
-                    Actualmente la plataforma TecnOdiel está 100% activa y optimizada para <strong>Restaurantes, Bares y Gastronomía</strong> (con cartas interactivas y Cloudflare Pages). Selecciona la primera opción para crear tu web al instante.
+                    TecnOdiel está 100% activo para <strong>Hostelería, Bares y Restaurantes</strong>. Selecciona la primera opción para crear tu web al instante.
                   </span>
                 </div>
               </motion.div>
@@ -230,10 +230,10 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
 
           {/* Bottom Security Note */}
           <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-zinc-400">
-            <span>TecnOdiel Web Engine • Huelva</span>
+            <span>TecnOdiel • Huelva</span>
             <span className="text-emerald-400 flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Acceso directo sin formularios previos
+              Acceso directo sin esperas
             </span>
           </div>
         </motion.div>

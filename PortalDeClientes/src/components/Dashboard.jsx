@@ -221,30 +221,30 @@ export default function Dashboard({ restaurant, onRefresh }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 px-4 sm:px-6 py-3 rounded-2xl bg-zinc-950/70 border border-white/10 text-[11px] text-zinc-300 font-mono">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>SSL Certificado 256-bit</span>
+          <span>0€ Comisiones por Reserva</span>
         </div>
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-amber-400 shrink-0" />
-          <span>Cloudflare Global Edge</span>
+          <span>Cloudflare Ultrarrápido</span>
         </div>
         <div className="flex items-center gap-2">
           <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Panel Aislado y Seguro</span>
+          <span>Carta QR Lista para Mesas</span>
         </div>
         <div className="flex items-center gap-2">
           <Headphones className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Soporte Técnico Huelva</span>
+          <span>Soporte Directo en Huelva</span>
         </div>
       </div>
 
       {/* Tabs Navigation */}
       <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto scrollbar-none">
         {[
-          { id: 'overview', label: 'Resumen & Dominio', icon: Globe },
+          { id: 'overview', label: 'Resumen', icon: Globe },
           { id: 'menu', label: `Carta Digital (${totalDishes})`, icon: Utensils },
           { id: 'bookings', label: `Reservas (${reservationsList.length})`, icon: Calendar },
-          { id: 'hours', label: 'Horarios & Contacto', icon: Clock },
-          { id: 'billing', label: 'Plan & Condiciones', icon: CreditCard }
+          { id: 'hours', label: 'Horarios y Datos', icon: Clock },
+          { id: 'billing', label: 'Mi Plan y Cobertura', icon: CreditCard }
         ].map(tab => {
           const Icon = tab.icon;
           const isSel = activeTab === tab.id;
@@ -252,7 +252,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap ${
+              className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 isSel 
                   ? 'bg-white text-black shadow-lg' 
                   : 'bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800'
@@ -270,12 +270,12 @@ export default function Dashboard({ restaurant, onRefresh }) {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl bg-zinc-950/60 border border-white/10 space-y-1">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase">Dominio Gratuito</span>
+              <span className="text-[10px] font-mono text-zinc-500 uppercase">Tu Enlace Web</span>
               <div className="text-sm font-mono text-amber-300 font-bold truncate">
                 {restaurant.slug}.pages.dev
               </div>
               <span className="text-[10px] text-emerald-400 block pt-1">
-                ✓ Cloudflare SSL Certificado
+                ✓ Carga en 0.2s en móvil
               </span>
             </div>
 
@@ -284,8 +284,8 @@ export default function Dashboard({ restaurant, onRefresh }) {
               <div className="text-2xl font-black text-white font-mono">
                 {confirmedReservations}
               </div>
-              <span className="text-[10px] text-zinc-400 block pt-1">
-                Directas a tu WhatsApp y panel
+              <span className="text-[10px] text-emerald-400 block pt-1">
+                0€ en comisiones a terceros
               </span>
             </div>
 
@@ -294,15 +294,15 @@ export default function Dashboard({ restaurant, onRefresh }) {
               <div className="text-2xl font-black text-white font-mono">
                 {totalDishes}
               </div>
-              <span className="text-[10px] text-emerald-400 block pt-1">
-                Actualización instantánea
+              <span className="text-[10px] text-zinc-400 block pt-1">
+                Actualizados al segundo
               </span>
             </div>
 
             <div className="p-5 rounded-2xl bg-zinc-950/60 border border-white/10 space-y-1">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase">Estilo Activo</span>
+              <span className="text-[10px] font-mono text-zinc-500 uppercase">Diseño Activo</span>
               <div className="text-sm font-bold text-white uppercase truncate">
-                {restaurant.template_id || 'Nocturne'}
+                {restaurant.template_id || 'Gastronómico'}
               </div>
               <span className="text-[10px] text-zinc-400 block pt-1">
                 Color principal: <span className="font-mono" style={{ color: restaurant.primary_color }}>{restaurant.primary_color}</span>
@@ -324,23 +324,23 @@ export default function Dashboard({ restaurant, onRefresh }) {
 
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-base font-bold text-white">Tu Asesor TecnOdiel Asignado</h3>
+                  <h3 className="text-base font-bold text-white">Tu Asesor TecnOdiel en Huelva</h3>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold">
-                    ● En Línea (Huelva)
+                    ● En Línea para Ayudarte
                   </span>
                 </div>
                 <p className="text-xs text-zinc-300 max-w-xl leading-relaxed">
-                  ¿Quieres cambiar fotos de tu local, actualizar platos especiales o necesitas una recomendación? Estamos a tu lado para que no tengas que preocuparte por nada técnico.
+                  ¿Quieres cambiar fotos de tu local, actualizar platos o tienes cualquier duda? Escríbenos y te lo dejamos listo sin complicaciones.
                 </p>
                 <div className="flex items-center gap-3 text-[11px] text-zinc-400 pt-1 flex-wrap">
                   <span className="flex items-center gap-1 text-emerald-400 font-semibold">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    Soporte Humano Cercano
+                    Trato Directo
                   </span>
                   <span>•</span>
-                  <span>Respuesta media &lt; 15 min</span>
+                  <span>Respuesta rápida</span>
                   <span>•</span>
-                  <span>Garantía 100% TecnOdiel</span>
+                  <span>Garantía TecnOdiel</span>
                 </div>
               </div>
             </div>
@@ -362,46 +362,46 @@ export default function Dashboard({ restaurant, onRefresh }) {
           <div className="p-6 rounded-3xl bg-zinc-950/80 border border-white/10 space-y-4">
             <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-400" />
-              <span>Acciones Frecuentes para tu Día a Día</span>
+              <span>Acciones Rápidas</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 onClick={() => setActiveTab('menu')}
-                className="p-4 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-400/40 text-left transition space-y-1 group"
+                className="p-4 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-400/40 text-left transition space-y-1 group cursor-pointer"
               >
                 <div className="flex items-center justify-between text-xs font-bold text-white group-hover:text-emerald-300">
-                  <span>Modificar Platos o Precios</span>
+                  <span>Modificar Carta y Precios</span>
                   <ChevronRight className="w-4 h-4 text-zinc-500" />
                 </div>
                 <p className="text-[11px] text-zinc-400">
-                  Cambia un precio, marca un plato como agotado o añade la sugerencia del chef.
+                  Cambia precios, añade platos o marca productos como agotados en 1 clic.
                 </p>
               </button>
 
               <button
                 onClick={() => setActiveTab('bookings')}
-                className="p-4 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-400/40 text-left transition space-y-1 group"
+                className="p-4 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-400/40 text-left transition space-y-1 group cursor-pointer"
               >
                 <div className="flex items-center justify-between text-xs font-bold text-white group-hover:text-emerald-300">
-                  <span>Gestionar Reservas de Mesas</span>
+                  <span>Gestionar Reservas</span>
                   <ChevronRight className="w-4 h-4 text-zinc-500" />
                 </div>
                 <p className="text-[11px] text-zinc-400">
-                  Comprueba las mesas solicitadas y envía confirmaciones por WhatsApp en 1 clic.
+                  Comprueba las mesas solicitadas y envía confirmaciones por WhatsApp en 1 toque.
                 </p>
               </button>
 
               <button
                 onClick={() => setIsQrModalOpen(true)}
-                className="p-4 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-400/40 text-left transition space-y-1 group"
+                className="p-4 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-400/40 text-left transition space-y-1 group cursor-pointer"
               >
                 <div className="flex items-center justify-between text-xs font-bold text-white group-hover:text-emerald-300">
-                  <span>Descargar Cartel QR para Mesas</span>
+                  <span>Descargar Cartel QR</span>
                   <ChevronRight className="w-4 h-4 text-zinc-500" />
                 </div>
                 <p className="text-[11px] text-zinc-400">
-                  Código QR listo para imprimir y colocar en barras, mesas o en la entrada de tu local.
+                  Listo para imprimir y colocar en mesas, barra o terraza de tu local.
                 </p>
               </button>
             </div>
@@ -415,16 +415,16 @@ export default function Dashboard({ restaurant, onRefresh }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight">
-                Gestión de Carta Digital en Tiempo Real
+                Tu Carta Digital en Tiempo Real
               </h2>
               <p className="text-xs text-zinc-400">
-                Los cambios se reflejan al instante en tu web pública de Cloudflare Pages sin reiniciar nada.
+                Los cambios se actualizan al instante en el móvil de tus clientes. Sin PDFs ni reimpresiones.
               </p>
             </div>
 
             <button
               onClick={() => handleOpenItemModal()}
-              className="px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-bold transition flex items-center gap-2 shadow-lg"
+              className="px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>Añadir Nuevo Plato / Bebida</span>
@@ -544,18 +544,18 @@ export default function Dashboard({ restaurant, onRefresh }) {
                 Reservas Directas de Clientes
               </h2>
               <p className="text-xs text-zinc-400">
-                Reservas recibidas sin pagar comisiones ni intermediarios externos.
+                Reservas recibidas sin intermediarios ni comisiones por cubierto.
               </p>
             </div>
             <span className="text-xs font-mono text-emerald-400 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-              0€ Comisiones de por vida
+              0€ comisiones • 100% para ti
             </span>
           </div>
 
           <div className="space-y-3">
             {reservationsList.length === 0 ? (
-              <div className="p-12 text-center rounded-3xl bg-zinc-950/60 border border-white/5 text-zinc-500 text-xs">
-                No hay reservas registradas en este momento. Las nuevas reservas aparecerán aquí en vivo.
+              <div className="p-12 text-center rounded-3xl bg-zinc-950/60 border border-white/5 text-zinc-400 text-xs">
+                No hay reservas pendientes. Las nuevas solicitudes de clientes aparecerán aquí al instante.
               </div>
             ) : (
               reservationsList.map(res => (
@@ -726,18 +726,18 @@ export default function Dashboard({ restaurant, onRefresh }) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
               <div>
                 <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">
-                  // CONDICIONES CONTRACTUALES CLARAS
+                  // TU PLAN CONTRATADO // TRANSPARENCIA TOTAL
                 </span>
                 <h2 className="text-xl font-bold text-white tracking-tight">
                   Tu Plan y Servicios Contratados
                 </h2>
                 <p className="text-xs text-zinc-400">
-                  Transparencia absoluta y soporte personal de TecnOdiel.
+                  Sin permanencias ni costes ocultos. Todo incluido para tu tranquilidad.
                 </p>
               </div>
 
               <div className="px-4 py-2 rounded-2xl bg-zinc-900 border border-emerald-500/30 text-right">
-                <span className="text-[10px] font-mono text-zinc-400 block uppercase">Inversión Contratada:</span>
+                <span className="text-[10px] font-mono text-zinc-400 block uppercase">Cuota Mensual:</span>
                 <span className="text-lg font-black text-emerald-300 font-mono">
                   {restaurant.budget ? `${parseFloat(restaurant.budget).toFixed(0)}€` : '99€'}/mes
                 </span>
@@ -792,7 +792,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
                 </div>
                 <div className="flex items-center gap-2 text-zinc-300">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Asesor Técnico Personal Asignado en Huelva</span>
+                  <span>Asesor Personal en Huelva Siempre Disponible</span>
                 </div>
               </div>
             </div>
@@ -804,7 +804,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
                 <span>Garantía de Cercanía y Transparencia TecnOdiel</span>
               </div>
               <p className="text-[11px] text-zinc-400 leading-relaxed font-light">
-                Sin permanencias ocultas, sin cargos imprevistos ni comisiones por cubierto. Si necesitas solicitar una factura, cambiar los datos de facturación o ampliar funcionalidades, habla directamente con tu asesor.
+                Sin permanencias ni comisiones por cubierto. Si necesitas cualquier cambio en tu carta o tu plan, solo tienes que escribir a tu asesor por WhatsApp.
               </p>
             </div>
 

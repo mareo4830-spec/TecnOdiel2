@@ -463,42 +463,42 @@ export const BASE_WEB_PRICE = 29;
 export const AVAILABLE_MODULES = [
   {
     id: 'booking_engine',
-    name: 'Reservas de Mesas sin Comisiones',
-    tagline: 'Ahorra intermediarios y gestiona tus mesas',
+    name: 'Reservas Directas a WhatsApp',
+    tagline: '0€ comisiones, 100% para ti',
     price: 15,
-    description: 'Tus clientes reservan mesa desde la web. Te llega el aviso directo a tu móvil o WhatsApp y no pagas ni un céntimo de comisión por cliente.',
-    badge: 'Sin Comisiones'
+    description: 'Tus clientes reservan mesa en 1 clic. El aviso te llega directo al móvil sin intermediarios ni comisiones.',
+    badge: '0€ Comisiones'
   },
   {
     id: 'nfc_menu',
-    name: 'Carta Digital con Código QR y Placa de Mesa',
-    tagline: 'Tus clientes tocan la mesa o leen el código con el móvil',
+    name: 'Carta Digital con Código QR',
+    tagline: 'Sin descargas, fotos y precios al día',
     price: 10,
-    description: 'Carta digital rápida para ver desde cualquier móvil sin descargar nada. Puedes cambiar precios o platos cuando quieras en un segundo.',
-    badge: 'Tocar y Listo'
+    description: 'Tus clientes leen el QR y ven la carta al instante. Actualiza platos, sugerencias y precios en segundos.',
+    badge: 'Carga en 0.2s'
   },
   {
     id: 'seo_ranking',
-    name: 'Aparecer de los Primeros en Google y Mapas',
-    tagline: 'Para que te encuentren al buscar dónde comer o tomar algo',
+    name: 'Posicionamiento en Google y Maps',
+    tagline: 'Aparece el primero en tu ciudad',
     price: 19,
-    description: 'Optimizamos tu web para que vecinos y visitantes de tu ciudad te encuentren rápidamente al buscar bares o restaurantes en Google Maps.',
+    description: 'Atrae a clientes locales y turistas cuando busquen dónde comer o tomar una copa en Google Maps.',
     badge: 'Más Clientes'
   },
   {
     id: 'multi_language',
-    name: 'Carta en Varios Idiomas para Turistas',
-    tagline: 'Inglés, Francés y Alemán al instante',
+    name: 'Carta en Inglés y Varios Idiomas',
+    tagline: 'Ideal para turistas extranjeros',
     price: 10,
-    description: 'Traduce automáticamente tu carta y la lista de alérgenos para que los clientes extranjeros entiendan tus platos y pidan con confianza.',
+    description: 'Traduce tu carta y alérgenos para que los visitantes extranjeros pidan más rápido y con confianza.',
     badge: 'Para Turistas'
   },
   {
     id: 'custom_domain',
-    name: 'Tu Propio Nombre en Internet (tu-local.com)',
-    tagline: 'Nombre exclusivo y correo profesional',
+    name: 'Dominio Propio (.es o .com)',
+    tagline: 'Tu nombre exclusivo en internet',
     price: 6,
-    description: 'Consigue una dirección web propia con el nombre exacto de tu negocio (ej: elbarquito.es) y correo con tu nombre para dar máxima confianza.',
+    description: 'Tu dirección web propia (ej: tubar.es) para transmitir máxima confianza y categoría a tus clientes.',
     badge: 'Tu Marca'
   }
 ];
