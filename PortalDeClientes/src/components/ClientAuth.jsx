@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   Lock, 
@@ -9,9 +9,45 @@ import {
   CheckCircle2, 
   Key, 
   MessageSquare,
-  AlertCircle
+  AlertCircle,
+  Ban,
+  Clock,
+  ShieldAlert
 } from 'lucide-react';
 import { verifyClientAccessKey } from '../lib/supabase';
+
+const MAX_ADMIN_ATTEMPTS = 3;
+const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutos de baneo
+const STORAGE_LOCKOUT_KEY = 'tecnodiel_admin_lockout';
+
+// Detección estricta de patrones de inyección SQL (OWASP A03 Injection Defense)
+const SQL_INJECTION_REGEX = /('|"|;|--|\/\*|\*\/|@@|\b(SELECT|UNION|INSERT|DELETE|UPDATE|DROP|ALTER|CREATE|EXEC|EXECUTE|DECLARE|TRUNCATE|WAITFOR|BENCHMARK|SLEEP|PG_SLEEP)\b|\b(OR|AND)\s+(['"]?\w+['"]?\s*=\s*['"]?\w+['"]?|1\s*=\s*1|0\s*=\s*0)\b)/i;
+
+function getLockoutData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_LOCKOUT_KEY);
+    if (!raw) return { attempts: 0, lockoutUntil: 0 };
+    const parsed = JSON.parse(raw);
+    return {
+      attempts: Number(parsed.attempts) || 0,
+      lockoutUntil: Number(parsed.lockoutUntil) || 0
+    };
+  } catch (e) {
+    return { attempts: 0, lockoutUntil: 0 };
+  }
+}
+
+function saveLockoutData(attempts, lockoutUntil) {
+  try {
+    localStorage.setItem(STORAGE_LOCKOUT_KEY, JSON.stringify({ attempts, lockoutUntil }));
+  } catch (e) {}
+}
+
+function clearLockoutData() {
+  try {
+    localStorage.removeItem(STORAGE_LOCKOUT_KEY);
+  } catch (e) {}
+}
 
 export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
   const [authMode, setAuthMode] = useState('client'); // 'client' | 'admin'
@@ -19,6 +55,37 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
   const [adminPin, setAdminPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [attemptsCount, setAttemptsCount] = useState(() => getLockoutData().attempts);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  // Monitorización y cuenta atrás en tiempo real del baneo de 30 minutos
+  useEffect(() => {
+    const checkLockout = () => {
+      const now = Date.now();
+      const lockData = getLockoutData();
+      if (lockData.lockoutUntil > now) {
+        setRemainingSeconds(Math.ceil((lockData.lockoutUntil - now) / 1000));
+        setAttemptsCount(lockData.attempts);
+      } else {
+        if (remainingSeconds > 0) {
+          clearLockoutData();
+          setRemainingSeconds(0);
+          setAttemptsCount(0);
+          setErrorMsg('');
+        }
+      }
+    };
+
+    checkLockout();
+    const timer = setInterval(checkLockout, 1000);
+    return () => clearInterval(timer);
+  }, [remainingSeconds]);
+
+  const formatRemainingTime = (totalSeconds) => {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m}m ${s < 10 ? '0' : ''}${s}s`;
+  };
 
   const handleClientSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +94,12 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
 
     if (!cleanKey) {
       setErrorMsg('Por favor, introduce tu clave de acceso de cliente.');
+      return;
+    }
+
+    // Blindaje contra inyección SQL en la clave de cliente
+    if (SQL_INJECTION_REGEX.test(cleanKey)) {
+      setErrorMsg('⚠️ Formato de clave inválido. Caracteres sospechosos de inyección SQL neutralizados.');
       return;
     }
 
@@ -48,13 +121,61 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
   const handleAdminSubmit = (e) => {
     e.preventDefault();
     setErrorMsg('');
+
+    const now = Date.now();
+    const lockData = getLockoutData();
+
+    // 1. Comprobar si el usuario está actualmente baneado (30 min)
+    if (lockData.lockoutUntil > now) {
+      const secLeft = Math.ceil((lockData.lockoutUntil - now) / 1000);
+      setErrorMsg(`⛔ Acceso bloqueado por seguridad: has superado los 3 intentos. Espera ${formatRemainingTime(secLeft)}.`);
+      return;
+    }
+
     const pin = adminPin.trim();
 
-    // Secure Admin Master PIN check (Eliminados accesos débiles 'admin' y 'admin2026')
-    if (pin === 'tecnodiel2026') {
+    if (!pin) {
+      setErrorMsg('Por favor introduce la clave maestra de administrador.');
+      return;
+    }
+
+    // 2. Blindaje Anti-Inyección SQL
+    if (SQL_INJECTION_REGEX.test(pin) || SQL_INJECTION_REGEX.test(adminPin)) {
+      const newAttempts = lockData.attempts + 1;
+      setAttemptsCount(newAttempts);
+
+      if (newAttempts >= MAX_ADMIN_ATTEMPTS) {
+        const banExpiry = now + LOCKOUT_DURATION_MS;
+        saveLockoutData(newAttempts, banExpiry);
+        setRemainingSeconds(Math.ceil(LOCKOUT_DURATION_MS / 1000));
+        setErrorMsg('⛔ Intento de inyección SQL detectado y bloqueado. Has superado los 3 intentos: baneado 30 minutos.');
+      } else {
+        saveLockoutData(newAttempts, 0);
+        setErrorMsg(`⚠️ Patrón de inyección SQL no permitido. Intento fallido ${newAttempts} de ${MAX_ADMIN_ATTEMPTS}. Al 3er fallo serás baneado 30 min.`);
+      }
+      return;
+    }
+
+    // 3. Verificación de la Contraseña Maestra Actualizada: 'psoe2026'
+    if (pin === 'psoe2026') {
+      clearLockoutData();
+      setAttemptsCount(0);
+      setRemainingSeconds(0);
       onAdminLogin();
     } else {
-      setErrorMsg('Clave maestra de administrador incorrecta.');
+      const newAttempts = lockData.attempts + 1;
+      setAttemptsCount(newAttempts);
+
+      if (newAttempts >= MAX_ADMIN_ATTEMPTS) {
+        const banExpiry = now + LOCKOUT_DURATION_MS;
+        saveLockoutData(newAttempts, banExpiry);
+        setRemainingSeconds(Math.ceil(LOCKOUT_DURATION_MS / 1000));
+        setErrorMsg('⛔ Has fallado la contraseña 3 veces. Acceso de administrador BANEADO durante 30 minutos por seguridad.');
+      } else {
+        saveLockoutData(newAttempts, 0);
+        const remainingAttempts = MAX_ADMIN_ATTEMPTS - newAttempts;
+        setErrorMsg(`Contraseña de administrador incorrecta. Te quedan ${remainingAttempts} intento${remainingAttempts === 1 ? '' : 's'} antes del bloqueo de 30 minutos.`);
+      }
     }
   };
 
@@ -175,20 +296,52 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
             </div>
 
             <form onSubmit={handleAdminSubmit} className="space-y-4">
+              {/* Alerta de Baneo por 30 Minutos */}
+              {remainingSeconds > 0 && (
+                <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-3 animate-fadeIn">
+                  <Ban className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <div className="font-bold text-rose-200 flex items-center gap-1.5">
+                      <ShieldAlert className="w-4 h-4 text-rose-400" />
+                      <span>Acceso de Administrador Bloqueado</span>
+                    </div>
+                    <p className="text-zinc-300 leading-relaxed text-[11px]">
+                      Has superado los 3 intentos permitidos o se detectó un patrón malicioso. Por seguridad de TecnOdiel, este panel está baneado durante 30 minutos.
+                    </p>
+                    <div className="pt-1.5 flex items-center gap-1.5 text-rose-300 font-mono text-xs font-bold">
+                      <Clock className="w-3.5 h-3.5 animate-spin" />
+                      <span>Tiempo restante: {formatRemainingTime(remainingSeconds)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 font-mono">
-                  Clave Maestra de Administrador:
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider font-mono">
+                    Clave Maestra de Administrador:
+                  </label>
+                  {attemptsCount > 0 && remainingSeconds === 0 && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                      Fallos: {attemptsCount} / {MAX_ADMIN_ATTEMPTS}
+                    </span>
+                  )}
+                </div>
                 <input
                   type="password"
                   required
-                  placeholder="Introduce la clave maestra..."
+                  disabled={remainingSeconds > 0}
+                  placeholder={remainingSeconds > 0 ? "Acceso temporalmente baneado..." : "Introduce la clave maestra..."}
                   value={adminPin}
                   onChange={e => {
                     setAdminPin(e.target.value);
                     if (errorMsg) setErrorMsg('');
                   }}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-zinc-900/90 border border-white/15 text-white font-mono text-sm placeholder:text-zinc-500 focus:outline-none focus:border-emerald-400 transition"
+                  className={`w-full px-4 py-3.5 rounded-2xl bg-zinc-900/90 border font-mono text-sm placeholder:text-zinc-500 focus:outline-none transition ${
+                    remainingSeconds > 0 
+                      ? 'border-rose-500/30 text-zinc-500 cursor-not-allowed bg-rose-950/20' 
+                      : 'border-white/15 text-white focus:border-emerald-400'
+                  }`}
                 />
               </div>
 
@@ -201,10 +354,24 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] active:scale-95"
+                disabled={remainingSeconds > 0}
+                className={`w-full py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-95 ${
+                  remainingSeconds > 0
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 cursor-not-allowed'
+                    : 'bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_0_20px_rgba(16,185,129,0.35)]'
+                }`}
               >
-                <span>Acceder al Panel Maestro</span>
-                <ArrowRight className="w-4 h-4 stroke-[3]" />
+                {remainingSeconds > 0 ? (
+                  <>
+                    <Ban className="w-4 h-4" />
+                    <span>Baneado ({formatRemainingTime(remainingSeconds)})</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Acceder al Panel Maestro</span>
+                    <ArrowRight className="w-4 h-4 stroke-[3]" />
+                  </>
+                )}
               </button>
             </form>
           </div>

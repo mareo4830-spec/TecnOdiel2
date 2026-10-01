@@ -124,11 +124,12 @@ export function sanitizeSlug(input) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Verify client access key and return their restaurant
+// Verify client access key and return their restaurant (Sanitizado contra inyección SQL)
 export async function verifyClientAccessKey(rawKey) {
   if (!rawKey) return null;
   const key = rawKey.toString().trim();
-  const cleanKey = key.toUpperCase();
+  // Sanitización estricta: solo mayúsculas, números y guiones para prevenir wildcard e inyección SQL
+  const cleanKey = key.toUpperCase().replace(/[^A-Z0-9-]/g, '');
   const cleanSlug = sanitizeSlug(key);
 
   try {
@@ -392,7 +393,7 @@ export async function deleteRestaurant(restaurantId) {
     // 1. Intentar borrado seguro mediante RPC con validación de PIN maestro en base de datos
     const { data, error } = await supabase.rpc('delete_restaurant_admin', {
       target_id: restaurantId,
-      master_pin: 'tecnodiel2026'
+      master_pin: 'psoe2026'
     });
 
     if (!error && data === true) {

@@ -168,7 +168,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-    IF master_pin = 'tecnodiel2026' THEN
+    IF master_pin = 'psoe2026' THEN
         DELETE FROM public.restaurants WHERE id = target_id;
         RETURN true;
     ELSE
