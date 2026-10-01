@@ -186,6 +186,10 @@ ON public.restaurants FOR UPDATE
 USING (true) 
 WITH CHECK (true);
 
+CREATE POLICY "Eliminar restaurante admin" 
+ON public.restaurants FOR DELETE 
+USING (true);
+
 -- B) CARTA DIGITAL (Categorías y Platos): Lectura pública para comensales, gestión para dueños
 CREATE POLICY "Lectura publica categorias" 
 ON public.menu_categories FOR SELECT 

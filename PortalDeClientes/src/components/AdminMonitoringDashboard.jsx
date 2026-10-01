@@ -24,13 +24,16 @@ import {
   LogOut,
   Sparkles,
   ArrowRight,
-  Users
+  Users,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { 
   getAllRestaurantsForAdmin, 
   updateRestaurantTasks, 
   updateRestaurantAdminNotes,
-  updateRestaurantPlanSettings
+  updateRestaurantPlanSettings,
+  deleteRestaurant
 } from '../lib/supabase';
 import AdminTeamWorkspace from './AdminTeamWorkspace';
 
@@ -44,6 +47,25 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
   const [savingNotesId, setSavingNotesId] = useState(null);
   const [notesState, setNotesState] = useState({});
   const [editingPlanRest, setEditingPlanRest] = useState(null);
+  const [restaurantToDelete, setRestaurantToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteSuccessMsg, setDeleteSuccessMsg] = useState('');
+
+  const handleConfirmDelete = async () => {
+    if (!restaurantToDelete) return;
+    setIsDeleting(true);
+    const success = await deleteRestaurant(restaurantToDelete.id);
+    setIsDeleting(false);
+
+    if (success) {
+      setRestaurants(prev => prev.filter(r => r.id !== restaurantToDelete.id));
+      setDeleteSuccessMsg(`El proyecto "${restaurantToDelete.name}" ha sido eliminado correctamente.`);
+      setTimeout(() => setDeleteSuccessMsg(''), 4000);
+      setRestaurantToDelete(null);
+    } else {
+      alert('No se pudo eliminar el proyecto. Por favor, inténtalo de nuevo.');
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -244,6 +266,14 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
           </div>
         </div>
 
+        {/* Delete Success Alert */}
+        {deleteSuccessMsg && (
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2.5 animate-fadeIn shadow-lg">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-semibold">{deleteSuccessMsg}</span>
+          </div>
+        )}
+
         {/* Search, Filter & Actions Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 rounded-2xl bg-zinc-950/60 border border-white/10">
           <div className="relative flex-1">
@@ -384,6 +414,17 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
                         <Eye className="w-3.5 h-3.5" />
                         <span>Abrir Su Panel</span>
                       </button>
+
+                      {/* Delete Project (Admin only) */}
+                      <button
+                        type="button"
+                        onClick={() => setRestaurantToDelete(restaurant)}
+                        className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-rose-500/15 hover:border-rose-500/40 text-zinc-400 hover:text-rose-300 text-xs font-semibold transition flex items-center gap-1.5"
+                        title="Eliminar este proyecto web definitivamente de la plataforma"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-zinc-400 hover:text-rose-400" />
+                        <span className="hidden sm:inline">Eliminar</span>
+                      </button>
                     </div>
                   </div>
 
@@ -482,7 +523,67 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
         )}
       </>
     )}
-  </main>
+      </main>
+
+      {/* DELETE PROJECT CONFIRMATION MODAL */}
+      {restaurantToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+          <div className="relative w-full max-w-md bg-zinc-950 border border-rose-500/30 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white tracking-tight">
+                  ¿Eliminar este proyecto web?
+                </h3>
+                <span className="text-[11px] text-zinc-400 font-mono">
+                  Acción permanente para administradores
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-zinc-900/80 border border-white/5 space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400">Proyecto:</span>
+                <span className="text-white font-bold">{restaurantToDelete.name}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400">Slug / Dominio:</span>
+                <span className="font-mono text-zinc-300">{restaurantToDelete.slug}.pages.dev</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-400">Clave Cliente:</span>
+                <span className="font-mono text-emerald-400">{restaurantToDelete.client_access_key}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-rose-300/90 leading-relaxed bg-rose-500/5 p-3 rounded-xl border border-rose-500/20">
+              ⚠️ Se borrarán todos los datos del restaurante, su carta digital con platos y categorías, y las reservas registradas.
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setRestaurantToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2.5 rounded-xl border border-white/10 text-zinc-300 hover:text-white text-xs transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-lg active:scale-95"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>{isDeleting ? 'Eliminando...' : 'Sí, Eliminar Proyecto'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

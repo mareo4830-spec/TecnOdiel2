@@ -385,3 +385,22 @@ export async function updateRestaurantPlanSettings(restaurantId, planData) {
     return false;
   }
 }
+
+// Admin: Delete a restaurant project and its cascaded data
+export async function deleteRestaurant(restaurantId) {
+  try {
+    const { error } = await supabase
+      .from('restaurants')
+      .delete()
+      .eq('id', restaurantId);
+
+    if (error) {
+      console.error('Error deleting restaurant from Supabase:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Exception deleting restaurant:', e);
+    return false;
+  }
+}
