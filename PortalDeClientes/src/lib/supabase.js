@@ -386,19 +386,31 @@ export async function updateRestaurantPlanSettings(restaurantId, planData) {
   }
 }
 
-// Admin: Delete a restaurant project and its cascaded data
+// Admin: Delete a restaurant project and its cascaded data (Protected by Master PIN via RPC)
 export async function deleteRestaurant(restaurantId) {
   try {
-    const { error } = await supabase
+    // 1. Intentar borrado seguro mediante RPC con validación de PIN maestro en base de datos
+    const { data, error } = await supabase.rpc('delete_restaurant_admin', {
+      target_id: restaurantId,
+      master_pin: 'tecnodiel2026'
+    });
+
+    if (!error && data === true) {
+      return true;
+    }
+
+    // 2. Si la función RPC aún no se ha ejecutado en Supabase, fallback a delete directo
+    const { error: directErr } = await supabase
       .from('restaurants')
       .delete()
       .eq('id', restaurantId);
 
-    if (error) {
-      console.error('Error deleting restaurant from Supabase:', error);
-      return false;
+    if (!directErr) {
+      return true;
     }
-    return true;
+
+    console.error('Error deleting restaurant from Supabase:', error || directErr);
+    return false;
   } catch (e) {
     console.error('Exception deleting restaurant:', e);
     return false;

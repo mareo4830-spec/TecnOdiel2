@@ -171,6 +171,7 @@ DROP POLICY IF EXISTS "Gestion platos" ON public.menu_items;
 DROP POLICY IF EXISTS "Crear reservas clientes" ON public.reservations;
 DROP POLICY IF EXISTS "Consultar reservas portal" ON public.reservations;
 DROP POLICY IF EXISTS "Actualizar estado reservas" ON public.reservations;
+DROP POLICY IF EXISTS "Eliminar restaurante admin" ON public.restaurants;
 
 -- A) RESTAURANTES: Lectura pública, creación pública, actualización protegida
 CREATE POLICY "Lectura publica restaurantes" 
@@ -186,9 +187,26 @@ ON public.restaurants FOR UPDATE
 USING (true) 
 WITH CHECK (true);
 
-CREATE POLICY "Eliminar restaurante admin" 
-ON public.restaurants FOR DELETE 
-USING (true);
+-- Blindaje contra eliminación no autorizada (OWASP Top 10 - A01: Broken Access Control)
+-- No se expone ninguna política DELETE pública para la anon key.
+-- La eliminación requiere el PIN maestro de TecnOdiel mediante la función delete_restaurant_admin:
+CREATE OR REPLACE FUNCTION delete_restaurant_admin(target_id UUID, master_pin TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    IF master_pin = 'tecnodiel2026' THEN
+        DELETE FROM public.restaurants WHERE id = target_id;
+        RETURN true;
+    ELSE
+        RAISE EXCEPTION 'Acceso denegado: Clave de administrador incorrecta';
+    END IF;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION delete_restaurant_admin(UUID, TEXT) TO anon, authenticated;
 
 -- B) CARTA DIGITAL (Categorías y Platos): Lectura pública para comensales, gestión para dueños
 CREATE POLICY "Lectura publica categorias" 

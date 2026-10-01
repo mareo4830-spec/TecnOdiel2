@@ -153,11 +153,31 @@ CREATE POLICY "Publico puede ver carta" ON public.menu_items FOR SELECT USING (t
 CREATE POLICY "Publico puede crear reservas" ON public.reservations FOR INSERT WITH CHECK (true);
 CREATE POLICY "Publico puede consultar su reserva por codigo" ON public.reservations FOR SELECT USING (true);
 
--- Políticas de gestión total para la app (Portal de Clientes y Multiwebs)
-CREATE POLICY "Gestion total de restaurantes" ON public.restaurants FOR ALL USING (true) WITH CHECK (true);
+-- Políticas de gestión (Portal de Clientes y Multiwebs)
+CREATE POLICY "Crear restaurante" ON public.restaurants FOR INSERT WITH CHECK (true);
+CREATE POLICY "Modificar restaurante" ON public.restaurants FOR UPDATE USING (true) WITH CHECK (true);
 CREATE POLICY "Gestion total de categorias" ON public.menu_categories FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Gestion total de platos" ON public.menu_items FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Gestion total de reservas" ON public.reservations FOR ALL USING (true) WITH CHECK (true);
+
+-- Blindaje contra borrado no autorizado (OWASP A01: Broken Access Control)
+CREATE OR REPLACE FUNCTION delete_restaurant_admin(target_id UUID, master_pin TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    IF master_pin = 'tecnodiel2026' THEN
+        DELETE FROM public.restaurants WHERE id = target_id;
+        RETURN true;
+    ELSE
+        RAISE EXCEPTION 'Acceso denegado: Clave de administrador incorrecta';
+    END IF;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION delete_restaurant_admin(UUID, TEXT) TO anon, authenticated;
 
 -- 7. REGISTRO DEMO INICIAL PARA PRUEBAS INMEDIATAS
 INSERT INTO public.restaurants (

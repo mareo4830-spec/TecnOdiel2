@@ -50,8 +50,8 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
     setErrorMsg('');
     const pin = adminPin.trim();
 
-    // Secure Admin Master PIN check
-    if (pin === 'tecnodiel2026' || pin === 'admin2026' || pin === 'admin') {
+    // Secure Admin Master PIN check (Eliminados accesos débiles 'admin' y 'admin2026')
+    if (pin === 'tecnodiel2026') {
       onAdminLogin();
     } else {
       setErrorMsg('Clave maestra de administrador incorrecta.');

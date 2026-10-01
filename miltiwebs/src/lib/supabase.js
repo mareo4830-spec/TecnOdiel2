@@ -132,6 +132,7 @@ export async function fetchRestaurantBySlug(slugOrSubdomain) {
 
 // API: Create new restaurant
 export async function createRestaurant(restaurantData) {
+  const cleanSlug = sanitizeSlug(restaurantData.slug || restaurantData.name || 'mi-restaurante');
   const randomKeyNum = Math.floor(100 + Math.random() * 900);
   const clientKey = restaurantData.client_access_key || `TO-${cleanSlug.toUpperCase().slice(0, 6)}-${randomKeyNum}`;
 
