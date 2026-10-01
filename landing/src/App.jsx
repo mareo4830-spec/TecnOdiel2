@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import Navbar from './components/Navbar'
 import MainPortalCard from './components/MainPortalCard'
 import AuditModal from './components/AuditModal'
 import ScrollProgress from './components/ScrollProgress'
 import CinematicBackground from './components/CinematicBackground'
 import FloatingContact from './components/FloatingContact'
-import MobileStickyBar from './components/MobileStickyBar'
+import CinematicIntro from './components/CinematicIntro'
 
 export default function App({ onNavigateToMultiwebs }) {
   const [auditModalOpen, setAuditModalOpen] = useState(false)
+  const [introFinished, setIntroFinished] = useState(false)
 
   const handleOpenAudit = () => {
     setAuditModalOpen(true)
@@ -19,28 +21,41 @@ export default function App({ onNavigateToMultiwebs }) {
   }
 
   return (
-    <div className="relative min-h-[100dvh] w-full bg-[#070709] text-zinc-100 selection:bg-white selection:text-black overflow-x-hidden">
-      {/* Top Precision Progress Accent */}
+    <div className="relative min-h-[100dvh] w-full bg-black text-zinc-100 selection:bg-white selection:text-black cinematic-grain overflow-x-hidden">
+      {/* Top Laser Progress Accent */}
       <ScrollProgress />
 
-      {/* Industrial Architectural Precision Canvas */}
+      {/* Atmospheric Ambient Glow & Dynamic Pointer Spotlight */}
       <CinematicBackground />
 
-      {/* Fixed Industrial Minimalist Navigation */}
+      {/* Cinematic Intro: Giant TecnOdiel with animation before revealing portal */}
+      <AnimatePresence mode="wait">
+        {!introFinished && (
+          <CinematicIntro
+            key="cinematic-intro"
+            onComplete={() => setIntroFinished(true)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Fixed Global Navigation */}
       <Navbar onOpenAudit={handleOpenAudit} />
 
-      {/* Main Industrial Control Interface */}
-      <main id="main-content" className="relative z-10 w-full min-h-[100dvh] flex items-center justify-center">
+      {/* Main Stage: Portada Principal Centrada y Elegante */}
+      <motion.main
+        id="main-content"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full min-h-[100dvh] flex items-center justify-center"
+      >
         <MainPortalCard onOpenAudit={handleOpenAudit} />
-      </main>
+      </motion.main>
 
-      {/* Desktop Floating WhatsApp Utility */}
-      <FloatingContact />
+      {/* Floating Interactive WhatsApp Quick Contact */}
+      <FloatingContact onOpenAudit={handleOpenAudit} />
 
-      {/* Mobile Sticky Industrial Action Dock */}
-      <MobileStickyBar onOpenAudit={handleOpenAudit} />
-
-      {/* Project Configurator Diagnostic Modal */}
+      {/* Interactive & Secure Technical Audit Diagnostic Modal with Direct Restaurant Routing */}
       <AuditModal 
         isOpen={auditModalOpen} 
         onClose={handleCloseAudit} 
