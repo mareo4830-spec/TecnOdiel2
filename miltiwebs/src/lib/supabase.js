@@ -132,11 +132,27 @@ export async function fetchRestaurantBySlug(slugOrSubdomain) {
 
 // API: Create new restaurant
 export async function createRestaurant(restaurantData) {
-  const cleanSlug = sanitizeSlug(restaurantData.slug || restaurantData.name);
+  const randomKeyNum = Math.floor(100 + Math.random() * 900);
+  const clientKey = restaurantData.client_access_key || `TO-${cleanSlug.toUpperCase().slice(0, 6)}-${randomKeyNum}`;
+
   const newRestaurant = {
     id: restaurantData.id || `rest-${Date.now()}`,
     slug: cleanSlug,
     subdomain: cleanSlug,
+    client_access_key: clientKey,
+    plan_name: restaurantData.plan_name || 'Plan Hostelería Pro',
+    budget: parseFloat(restaurantData.budget) || 99.00,
+    billing_plan: restaurantData.billing_plan || 'monthly',
+    contract_status: restaurantData.contract_status || 'active',
+    pending_tasks: restaurantData.pending_tasks || [
+      { id: 'task-1', label: 'Fotografías profesionales de platos estrella', done: true },
+      { id: 'task-2', label: 'Logotipo en alta resolución o vector transparente', done: true },
+      { id: 'task-3', label: 'Carta completa de comidas, postres y alérgenos', done: true },
+      { id: 'task-4', label: 'Vinculación de dominio propio (.es / .com)', done: false },
+      { id: 'task-5', label: 'Verificación de reservas directas por WhatsApp', done: true },
+      { id: 'task-6', label: 'Firma de contrato y orden de domiciliación bancaria', done: true }
+    ],
+    admin_notes: restaurantData.admin_notes || 'Web creada desde el configurador. Pendiente llamada de bienvenida.',
     name: restaurantData.name,
     slogan: restaurantData.slogan || '',
     description: restaurantData.description || '',
@@ -255,6 +271,13 @@ export async function createRestaurant(restaurantData) {
           address: newRestaurant.address,
           city: newRestaurant.city,
           booking_rules: newRestaurant.booking_rules,
+          client_access_key: newRestaurant.client_access_key,
+          plan_name: newRestaurant.plan_name,
+          budget: newRestaurant.budget,
+          billing_plan: newRestaurant.billing_plan,
+          contract_status: newRestaurant.contract_status,
+          pending_tasks: newRestaurant.pending_tasks,
+          admin_notes: newRestaurant.admin_notes,
           seo_title: `${newRestaurant.name} | Web Oficial`,
           seo_description: `Dominio Cloudflare Pages: ${newRestaurant.cloudflare_url || 'https://' + newRestaurant.slug + '.pages.dev'}`
         }])

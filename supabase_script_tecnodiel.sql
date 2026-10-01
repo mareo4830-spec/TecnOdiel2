@@ -69,14 +69,28 @@ CREATE TABLE IF NOT EXISTS public.restaurants (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Si la tabla ya existía, añadir columnas de Cloudflare si no existen:
+-- Si la tabla ya existía, añadir columnas de Cloudflare y panel si no existen:
 ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS cloudflare_url TEXT;
 ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS published_url TEXT;
 ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS cloudflare_status VARCHAR(32) DEFAULT 'ready';
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS client_access_key VARCHAR(32);
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS plan_name VARCHAR(64) DEFAULT 'Plan Hostelería Pro';
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS budget NUMERIC(10,2) DEFAULT 99.00;
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS billing_plan VARCHAR(32) DEFAULT 'monthly';
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS contract_status VARCHAR(32) DEFAULT 'active';
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS pending_tasks JSONB DEFAULT '[
+  {"id": "cf_pages", "label": "Despliegue y DNS Cloudflare Pages", "done": true},
+  {"id": "menu_loaded", "label": "Carga de carta y precios", "done": true},
+  {"id": "photos_hd", "label": "Fotografías HD del local y platos", "done": false},
+  {"id": "custom_domain", "label": "Dominio propio .es / .com configurado", "done": false},
+  {"id": "contract_signed", "label": "Contrato firmado y domiciliación SEPA", "done": false}
+]'::jsonb;
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS admin_notes TEXT DEFAULT '';
 
--- Índices de búsqueda
+-- Índices de búsqueda y seguridad
 CREATE INDEX IF NOT EXISTS idx_restaurants_slug ON public.restaurants(slug);
 CREATE INDEX IF NOT EXISTS idx_restaurants_subdomain ON public.restaurants(subdomain);
+CREATE INDEX IF NOT EXISTS idx_restaurants_client_access_key ON public.restaurants(client_access_key);
 
 -- 3. CATEGORÍAS DE CARTA DIGITAL
 CREATE TABLE IF NOT EXISTS public.menu_categories (
@@ -215,7 +229,8 @@ WITH CHECK (status IN ('pending', 'confirmed', 'seated', 'cancelled'));
 -- 7. REGISTRO DEMO INICIAL PARA PRUEBAS INMEDIATAS
 INSERT INTO public.restaurants (
     slug, subdomain, cloudflare_url, published_url, name, slogan, description, category,
-    template_id, primary_color, accent_color, phone, whatsapp_number, address, city
+    template_id, primary_color, accent_color, phone, whatsapp_number, address, city,
+    client_access_key, plan_name, budget
 ) VALUES (
     'marea-negra',
     'marea-negra.pages.dev',
@@ -231,10 +246,14 @@ INSERT INTO public.restaurants (
     '+34 959 10 20 30',
     '+34600112233',
     'Calle Marina, 14',
-    'Huelva'
+    'Huelva',
+    'TO-MN892',
+    'Plan Crecimiento Gastronómico',
+    99.00
 ) ON CONFLICT (slug) DO UPDATE SET 
     cloudflare_url = EXCLUDED.cloudflare_url,
-    published_url = EXCLUDED.published_url;
+    published_url = EXCLUDED.published_url,
+    client_access_key = COALESCE(public.restaurants.client_access_key, EXCLUDED.client_access_key);
 
 -- ==============================================================================
 -- ¡Listo! Copia y pega este script en el SQL Editor de tu proyecto de Supabase.

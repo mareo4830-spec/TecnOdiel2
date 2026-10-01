@@ -2005,8 +2005,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 </button>
               </div>
               <p className="text-zinc-300 text-[11px]">
-                Disponible inmediatamente bajo tu dirección propia: <strong className="text-white font-mono">{createdRestaurant.slug}.tecnodiel.app</strong>
+                Disponible inmediatamente bajo tu dirección: <strong className="text-white font-mono">{createdRestaurant.slug}.pages.dev</strong>
               </p>
+              {createdRestaurant.client_access_key && (
+                <div className="p-2.5 rounded-xl bg-zinc-900 border border-emerald-500/30 flex items-center justify-between text-xs font-mono">
+                  <span className="text-zinc-400">Tu Clave Única de Acceso:</span>
+                  <strong className="text-emerald-400 font-bold tracking-wider">{createdRestaurant.client_access_key}</strong>
+                </div>
+              )}
               <div className="flex items-center gap-2 pt-1">
                 <a
                   href={`#r/${createdRestaurant.slug}`}

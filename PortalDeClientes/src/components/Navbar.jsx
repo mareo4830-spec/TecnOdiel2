@@ -1,7 +1,14 @@
 import React from 'react';
-import { Globe, LogOut, ExternalLink, ShieldCheck, Sparkles, ArrowLeft, UtensilsCrossed } from 'lucide-react';
+import { Globe, LogOut, ExternalLink, ShieldCheck, Sparkles, ArrowLeft, UtensilsCrossed, Shield } from 'lucide-react';
 
-export default function Navbar({ restaurant, onSwitchRestaurant, onNavigateToMultiwebs, onNavigateToLanding }) {
+export default function Navbar({ 
+  restaurant, 
+  onSwitchRestaurant, 
+  onNavigateToMultiwebs, 
+  onNavigateToLanding,
+  isAdminImpersonating,
+  onBackToAdmin
+}) {
   const liveUrl = restaurant?.cloudflare_url || restaurant?.published_url || `https://${restaurant?.slug || 'web'}.pages.dev`;
 
   return (
@@ -21,7 +28,7 @@ export default function Navbar({ restaurant, onSwitchRestaurant, onNavigateToMul
                 TecnOdiel
               </span>
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold uppercase">
-                Portal Clientes
+                {isAdminImpersonating ? 'Vista Admin' : 'Tu Portal'}
               </span>
             </div>
             <span className="text-[10px] text-zinc-400 font-mono tracking-wider block">
@@ -32,6 +39,18 @@ export default function Navbar({ restaurant, onSwitchRestaurant, onNavigateToMul
 
         {/* Center / Right status */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* If admin is impersonating, button to return to Master Admin */}
+          {isAdminImpersonating && onBackToAdmin && (
+            <button
+              type="button"
+              onClick={onBackToAdmin}
+              className="px-3.5 py-1.5 rounded-xl border border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 text-xs font-bold transition flex items-center gap-1.5"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Volver a Panel Maestro Admin</span>
+            </button>
+          )}
+
           {/* Back to Landing */}
           {onNavigateToLanding && (
             <button
@@ -42,19 +61,6 @@ export default function Navbar({ restaurant, onSwitchRestaurant, onNavigateToMul
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Inicio</span>
-            </button>
-          )}
-
-          {/* Go to Multiwebs Creator */}
-          {onNavigateToMultiwebs && (
-            <button
-              type="button"
-              onClick={onNavigateToMultiwebs}
-              className="emil-pressable px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
-              title="Ir al creador de webs para restaurantes"
-            >
-              <UtensilsCrossed className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Creador de Webs</span>
             </button>
           )}
 
@@ -71,13 +77,14 @@ export default function Navbar({ restaurant, onSwitchRestaurant, onNavigateToMul
             <ExternalLink className="w-3 h-3 text-amber-400" />
           </a>
 
-          {/* Switch Restaurant / Logout */}
+          {/* Logout / Exit */}
           <button
             onClick={onSwitchRestaurant}
             className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5"
+            title="Cerrar sesión de este panel"
           >
             <LogOut className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="hidden md:inline">Cambiar Negocio</span>
+            <span className="hidden sm:inline">Cerrar Sesión</span>
           </button>
         </div>
       </div>

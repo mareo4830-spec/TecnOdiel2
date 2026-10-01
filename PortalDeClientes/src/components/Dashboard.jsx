@@ -23,7 +23,11 @@ import {
   RefreshCw,
   AlertCircle,
   Copy,
-  ChevronRight
+  ChevronRight,
+  Key,
+  Lock,
+  Headphones,
+  Check
 } from 'lucide-react';
 import { 
   toggleMenuItemStock, 
@@ -37,7 +41,15 @@ import confetti from 'canvas-confetti';
 export default function Dashboard({ restaurant, onRefresh }) {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'menu', 'bookings', 'hours', 'billing'
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+
+  const handleCopyKey = () => {
+    const k = restaurant.client_access_key || 'TO-MN892';
+    navigator.clipboard.writeText(k);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
+  };
 
   // Menu modal state
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -142,15 +154,30 @@ export default function Dashboard({ restaurant, onRefresh }) {
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8 animate-fadeIn">
       {/* Top Banner / Restaurant Identity */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-2xl">
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase font-semibold">
               ● Web Activa en Línea
             </span>
             <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 uppercase font-semibold">
               Cloudflare Pages
             </span>
+            {/* Clave Privada de Cliente */}
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-emerald-500/40 text-xs font-mono">
+              <Key className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-zinc-400 text-[11px]">Tu Clave Privada:</span>
+              <strong className="text-white text-xs tracking-wider">{restaurant.client_access_key || 'TO-MN892'}</strong>
+              <button
+                type="button"
+                onClick={handleCopyKey}
+                className="hover:text-emerald-300 text-zinc-400 transition ml-0.5 p-0.5"
+                title="Copiar tu clave de acceso"
+              >
+                {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+              {copiedKey && <span className="text-[10px] text-emerald-400 font-bold ml-0.5">¡Copiada!</span>}
+            </div>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
             {restaurant.name}
@@ -187,6 +214,26 @@ export default function Dashboard({ restaurant, onRefresh }) {
             <span>Ver Mi Web en Vivo</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
+        </div>
+      </div>
+
+      {/* Trust & Security Guarantee Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 px-4 sm:px-6 py-3 rounded-2xl bg-zinc-950/70 border border-white/10 text-[11px] text-zinc-300 font-mono">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>SSL Certificado 256-bit</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Globe className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>Cloudflare Global Edge</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>Panel Aislado y Seguro</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Headphones className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>Soporte Técnico Huelva</span>
         </div>
       </div>
 
@@ -260,6 +307,54 @@ export default function Dashboard({ restaurant, onRefresh }) {
               <span className="text-[10px] text-zinc-400 block pt-1">
                 Color principal: <span className="font-mono" style={{ color: restaurant.primary_color }}>{restaurant.primary_color}</span>
               </span>
+            </div>
+          </div>
+
+          {/* Tu Asesor TecnOdiel Personal - Cercanía, Soporte y Confianza */}
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-zinc-950 via-zinc-900/90 to-zinc-950 border border-emerald-500/30 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[0_0_30px_rgba(16,185,129,0.08)]">
+            <div className="flex items-start sm:items-center gap-4">
+              <div className="relative shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-zinc-800 border-2 border-emerald-400/50 flex items-center justify-center text-white shadow-lg overflow-hidden">
+                  <div className="bg-gradient-to-br from-emerald-500 to-teal-700 w-full h-full flex items-center justify-center font-black font-mono text-lg tracking-wider">
+                    TO
+                  </div>
+                </div>
+                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-black" title="Asesor en línea" />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-bold text-white">Tu Asesor TecnOdiel Asignado</h3>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold">
+                    ● En Línea (Huelva)
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-300 max-w-xl leading-relaxed">
+                  ¿Quieres cambiar fotos de tu local, actualizar platos especiales o necesitas una recomendación? Estamos a tu lado para que no tengas que preocuparte por nada técnico.
+                </p>
+                <div className="flex items-center gap-3 text-[11px] text-zinc-400 pt-1 flex-wrap">
+                  <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Soporte Humano Cercano
+                  </span>
+                  <span>•</span>
+                  <span>Respuesta media &lt; 15 min</span>
+                  <span>•</span>
+                  <span>Garantía 100% TecnOdiel</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <a
+                href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola TecnOdiel, soy ${restaurant.name} (clave ${restaurant.client_access_key || ''}). Necesito ayuda con mi web o carta digital.`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-5 py-3 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95"
+              >
+                <MessageSquare className="w-4 h-4 fill-black" />
+                <span>Hablar con mi Asesor (WhatsApp)</span>
+              </a>
             </div>
           </div>
 
@@ -626,45 +721,112 @@ export default function Dashboard({ restaurant, onRefresh }) {
 
       {/* TAB 5: BILLING & CONTRACT */}
       {activeTab === 'billing' && (
-        <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 space-y-6 max-w-2xl">
-          <div>
-            <h2 className="text-lg font-bold text-white tracking-tight">
-              Tu Plan y Servicios Contratados
-            </h2>
-            <p className="text-xs text-zinc-400">
-              Garantía y soporte directo de TecnOdiel.
-            </p>
-          </div>
+        <div className="space-y-6 max-w-3xl">
+          <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+              <div>
+                <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">
+                  // CONDICIONES CONTRACTUALES CLARAS
+                </span>
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  Tu Plan y Servicios Contratados
+                </h2>
+                <p className="text-xs text-zinc-400">
+                  Transparencia absoluta y soporte personal de TecnOdiel.
+                </p>
+              </div>
 
-          <div className="p-4 rounded-2xl bg-zinc-900/80 border border-white/5 space-y-3">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400">Alojamiento Web Cloudflare Pages:</span>
-              <span className="text-emerald-400 font-bold">100% Gratuito de por vida</span>
+              <div className="px-4 py-2 rounded-2xl bg-zinc-900 border border-emerald-500/30 text-right">
+                <span className="text-[10px] font-mono text-zinc-400 block uppercase">Inversión Contratada:</span>
+                <span className="text-lg font-black text-emerald-300 font-mono">
+                  {restaurant.budget ? `${parseFloat(restaurant.budget).toFixed(0)}€` : '99€'}/mes
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400">Comisión por Comensal / Reserva:</span>
-              <span className="text-emerald-400 font-bold">0€ (100% de los ingresos para ti)</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400">Dominio asignado:</span>
-              <span className="font-mono text-zinc-200">{restaurant.slug}.pages.dev</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400">Soporte Técnico:</span>
-              <span className="text-zinc-200 font-semibold">TecnOdiel Huelva</span>
-            </div>
-          </div>
 
-          <div className="pt-2">
-            <a
-              href="https://wa.me/34600000000?text=Hola%20equipo%20TecnOdiel,%20necesito%20asistencia%20con%20mi%20portal%20de%20cliente"
-              target="_blank"
-              rel="noreferrer"
-              className="px-5 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs border border-white/10 transition inline-flex items-center gap-2"
-            >
-              <MessageSquare className="w-4 h-4 text-emerald-400" />
-              <span>Contactar con Soporte Técnico TecnOdiel</span>
-            </a>
+            {/* Plan Info Card */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-1">
+                <span className="text-[10px] font-mono text-zinc-400 uppercase">Plan Activo</span>
+                <div className="text-sm font-bold text-white">
+                  {restaurant.plan_name || 'Plan Crecimiento Gastronómico'}
+                </div>
+                <span className="text-[11px] text-emerald-400 block">✓ Estado: Activo y Protegido</span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-1">
+                <span className="text-[10px] font-mono text-zinc-400 uppercase">Tu Clave de Cliente Privada</span>
+                <div className="text-sm font-mono text-amber-300 font-bold">
+                  {restaurant.client_access_key || 'TO-MN892'}
+                </div>
+                <span className="text-[11px] text-zinc-400 block">Identificador exclusivo para tu negocio</span>
+              </div>
+            </div>
+
+            {/* Inclusive Services List */}
+            <div className="p-5 rounded-2xl bg-zinc-900/40 border border-white/5 space-y-3">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                Servicios y Coberturas Incluidas en tu Cuota:
+              </h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Alojamiento Cloudflare de Alta Velocidad</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>0€ Comisiones por Reserva (100% tuyo)</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Carta Digital y Cartelería QR Ilimitada</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Certificado SSL y Copias de Seguridad 24h</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Motor de Reservas Directo a WhatsApp</span>
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Asesor Técnico Personal Asignado en Huelva</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Ethics & Trust Manifesto */}
+            <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-zinc-300 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-emerald-400 text-xs">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Garantía de Cercanía y Transparencia TecnOdiel</span>
+              </div>
+              <p className="text-[11px] text-zinc-400 leading-relaxed font-light">
+                Sin permanencias ocultas, sin cargos imprevistos ni comisiones por cubierto. Si necesitas solicitar una factura, cambiar los datos de facturación o ampliar funcionalidades, habla directamente con tu asesor.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <a
+                href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola equipo TecnOdiel, soy ${restaurant.name} (clave ${restaurant.client_access_key || ''}). Tengo una consulta sobre mi factura / plan contratado.`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-6 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs border border-white/10 transition flex items-center justify-center gap-2 shadow-lg"
+              >
+                <MessageSquare className="w-4 h-4 text-emerald-400" />
+                <span>Hablar con Administración TecnOdiel</span>
+              </a>
+
+              <a
+                href="tel:+34600000000"
+                className="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold transition flex items-center justify-center gap-2"
+              >
+                <Phone className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Llamar por Teléfono</span>
+              </a>
+            </div>
           </div>
         </div>
       )}

@@ -5,10 +5,13 @@ import CinematicBackground from './components/CinematicBackground';
 import Navbar from './components/Navbar';
 import ClientAuth from './components/ClientAuth';
 import Dashboard from './components/Dashboard';
+import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
 import { getClientRestaurantDetails } from './lib/supabase';
 
 export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLanding }) {
   const [introFinished, setIntroFinished] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(() => {
     if (initialSlug) return initialSlug;
     if (typeof window !== 'undefined') {
@@ -48,18 +51,42 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
   };
 
   useEffect(() => {
-    if (selectedSlug) {
+    if (selectedSlug && !isAdmin) {
       loadRestaurant(selectedSlug);
     }
-  }, [selectedSlug]);
+  }, [selectedSlug, isAdmin]);
 
   const handleSelectRestaurant = (slug) => {
     setSelectedSlug(slug);
+    setIsAdmin(false);
+    setIsAdminImpersonating(false);
+  };
+
+  const handleAdminLogin = () => {
+    setIsAdmin(true);
+    setIsAdminImpersonating(false);
+    setSelectedSlug(null);
+    setRestaurantData(null);
+  };
+
+  const handleImpersonateClient = (slugOrId) => {
+    setIsAdmin(false);
+    setIsAdminImpersonating(true);
+    setSelectedSlug(slugOrId);
+  };
+
+  const handleBackToAdmin = () => {
+    setIsAdmin(true);
+    setIsAdminImpersonating(false);
+    setSelectedSlug(null);
+    setRestaurantData(null);
   };
 
   const handleSwitchRestaurant = () => {
     setSelectedSlug(null);
     setRestaurantData(null);
+    setIsAdmin(false);
+    setIsAdminImpersonating(false);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tecnodiel_client_slug');
     }
@@ -88,13 +115,22 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="relative z-10 min-h-screen flex flex-col justify-between"
         >
-          {restaurantData ? (
+          {/* CASE 1: Master Admin Monitoring Dashboard */}
+          {isAdmin ? (
+            <AdminMonitoringDashboard 
+              onImpersonateClient={handleImpersonateClient}
+              onLogout={handleSwitchRestaurant}
+            />
+          ) : restaurantData ? (
+            /* CASE 2: Single Client Dashboard (Isolated) */
             <>
               <Navbar 
                 restaurant={restaurantData} 
                 onSwitchRestaurant={handleSwitchRestaurant}
                 onNavigateToMultiwebs={onNavigateToMultiwebs}
                 onNavigateToLanding={onNavigateToLanding}
+                isAdminImpersonating={isAdminImpersonating}
+                onBackToAdmin={handleBackToAdmin}
               />
               <main className="flex-1">
                 <Dashboard 
@@ -104,8 +140,12 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
               </main>
             </>
           ) : (
+            /* CASE 3: Secure Login Gate (Client Key or Master Admin) */
             <main className="flex-1 flex items-center justify-center">
-              <ClientAuth onSelectRestaurant={handleSelectRestaurant} />
+              <ClientAuth 
+                onSelectRestaurant={handleSelectRestaurant} 
+                onAdminLogin={handleAdminLogin}
+              />
             </main>
           )}
 
@@ -115,7 +155,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
               <div className="flex items-center gap-2">
                 <span className="font-bold text-zinc-300">TecnOdiel</span>
                 <span>•</span>
-                <span>Portal de Gestión para Clientes</span>
+                <span>Portal Privado de Clientes & Administración</span>
               </div>
               <div className="text-[11px] font-mono text-zinc-500">
                 Alojamiento Cloudflare Pages • Base de Datos Supabase SSL

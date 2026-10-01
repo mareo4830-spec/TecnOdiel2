@@ -5,10 +5,25 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Default checklist tasks for monitoring website readiness
+export const DEFAULT_PENDING_TASKS = [
+  { id: 'task-1', label: 'Fotografías profesionales de platos estrella', done: true },
+  { id: 'task-2', label: 'Logotipo en alta resolución o vector transparente', done: true },
+  { id: 'task-3', label: 'Carta completa de comidas, postres y alérgenos', done: true },
+  { id: 'task-4', label: 'Vinculación de dominio propio (.es / .com)', done: false },
+  { id: 'task-5', label: 'Verificación de reservas directas por WhatsApp', done: true },
+  { id: 'task-6', label: 'Firma de contrato y orden de domiciliación bancaria', done: true }
+];
+
 // Demo Fallback Restaurant when offline or initial setup
 export const FALLBACK_RESTAURANT = {
   id: 'demo-rest-01',
   slug: 'marea-negra',
+  client_access_key: 'TO-MN892',
+  plan_name: 'Plan Hostelería Pro',
+  budget: 99.00,
+  billing_plan: 'monthly',
+  contract_status: 'active',
   name: 'Marea Negra Bar & Lounge',
   slogan: 'Coctelería de autor y bocados de noche',
   description: 'Un espacio íntimo y refinado donde la mixología contemporánea se encuentra con creaciones culinarias de origen y acústica envolvente.',
@@ -27,6 +42,8 @@ export const FALLBACK_RESTAURANT = {
   address: 'Calle Marina, 14',
   city: 'Huelva',
   postal_code: '21001',
+  pending_tasks: DEFAULT_PENDING_TASKS,
+  admin_notes: 'Web activa en Cloudflare Pages. Pendiente confirmar si quieren dominio propio .es.',
   lunch_shift: { enabled: false, open: '13:30', close: '16:30' },
   dinner_shift: { enabled: true, open: '19:30', close: '02:30' },
   closed_days: ['Lunes'],
@@ -107,24 +124,81 @@ export function sanitizeSlug(input) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Fetch all available restaurants for client switcher / login
-export async function getClientRestaurantsList() {
+// Verify client access key and return their restaurant
+export async function verifyClientAccessKey(rawKey) {
+  if (!rawKey) return null;
+  const key = rawKey.toString().trim();
+  const cleanKey = key.toUpperCase();
+  const cleanSlug = sanitizeSlug(key);
+
+  try {
+    // 1. Try matching by client_access_key
+    const { data: byKey, error: errKey } = await supabase
+      .from('restaurants')
+      .select('*')
+      .ilike('client_access_key', cleanKey)
+      .limit(1);
+
+    if (!errKey && byKey && byKey.length > 0) {
+      return byKey[0];
+    }
+
+    // 2. Try matching by slug
+    if (cleanSlug) {
+      const { data: bySlug, error: errSlug } = await supabase
+        .from('restaurants')
+        .select('*')
+        .eq('slug', cleanSlug)
+        .limit(1);
+
+      if (!errSlug && bySlug && bySlug.length > 0) {
+        return bySlug[0];
+      }
+    }
+  } catch (e) {
+    console.warn('Error verifying client key in Supabase:', e);
+  }
+
+  // Fallback match for demo
+  if (
+    cleanKey === 'TO-MN892' || 
+    cleanKey === 'TO-MAREA-91' || 
+    cleanSlug === 'marea-negra' || 
+    cleanKey === 'MAREA'
+  ) {
+    return FALLBACK_RESTAURANT;
+  }
+
+  return null;
+}
+
+// Fetch all available restaurants for Super Admin monitoring
+export async function getAllRestaurantsForAdmin() {
   try {
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, slug, subdomain, category, template_id, cloudflare_url, published_url')
-      .order('name');
+      .select('*')
+      .order('created_at', { ascending: false });
     
     if (!error && data && data.length > 0) {
-      return data;
+      return data.map(r => ({
+        ...r,
+        client_access_key: r.client_access_key || `TO-${(r.slug || 'CLIENT').toUpperCase().slice(0, 6)}-${Math.floor(100 + Math.random() * 900)}`,
+        plan_name: r.plan_name || 'Plan Hostelería Pro',
+        budget: r.budget || 99.00,
+        billing_plan: r.billing_plan || 'monthly',
+        contract_status: r.contract_status || 'active',
+        pending_tasks: Array.isArray(r.pending_tasks) && r.pending_tasks.length > 0 ? r.pending_tasks : DEFAULT_PENDING_TASKS,
+        admin_notes: r.admin_notes || ''
+      }));
     }
   } catch (e) {
-    console.warn('Supabase fetch failed:', e);
+    console.warn('Supabase admin fetch failed:', e);
   }
   return [FALLBACK_RESTAURANT];
 }
 
-// Fetch full restaurant by slug with categories, items, and reservations
+// Fetch full restaurant by slug or ID with categories, items, and reservations
 export async function getClientRestaurantDetails(slugOrId) {
   try {
     const clean = (slugOrId || '').toString().trim();
@@ -156,6 +230,13 @@ export async function getClientRestaurantDetails(slugOrId) {
 
       return {
         ...data,
+        client_access_key: data.client_access_key || `TO-${(data.slug || 'CLIENT').toUpperCase().slice(0, 6)}-892`,
+        plan_name: data.plan_name || 'Plan Hostelería Pro',
+        budget: data.budget || 99.00,
+        billing_plan: data.billing_plan || 'monthly',
+        contract_status: data.contract_status || 'active',
+        pending_tasks: Array.isArray(data.pending_tasks) && data.pending_tasks.length > 0 ? data.pending_tasks : DEFAULT_PENDING_TASKS,
+        admin_notes: data.admin_notes || '',
         cloudflare_url: data.cloudflare_url || data.published_url || `https://${data.slug}.pages.dev`,
         menu_categories: categories || [],
         reservations: reservations || []
@@ -254,6 +335,53 @@ export async function updateRestaurantProfile(restaurantId, fields) {
     return !error;
   } catch (e) {
     console.error('Error updating profile:', e);
+    return false;
+  }
+}
+
+// Admin: Update pending tasks checklist for a specific restaurant
+export async function updateRestaurantTasks(restaurantId, tasks) {
+  try {
+    const { error } = await supabase
+      .from('restaurants')
+      .update({ pending_tasks: tasks })
+      .eq('id', restaurantId);
+    return !error;
+  } catch (e) {
+    console.error('Error updating tasks:', e);
+    return false;
+  }
+}
+
+// Admin: Update internal notes for a restaurant
+export async function updateRestaurantAdminNotes(restaurantId, notes) {
+  try {
+    const { error } = await supabase
+      .from('restaurants')
+      .update({ admin_notes: notes })
+      .eq('id', restaurantId);
+    return !error;
+  } catch (e) {
+    console.error('Error updating admin notes:', e);
+    return false;
+  }
+}
+
+// Admin: Update budget and plan settings
+export async function updateRestaurantPlanSettings(restaurantId, planData) {
+  try {
+    const { error } = await supabase
+      .from('restaurants')
+      .update({
+        budget: parseFloat(planData.budget) || 99.00,
+        billing_plan: planData.billing_plan || 'monthly',
+        plan_name: planData.plan_name || 'Plan Hostelería Pro',
+        contract_status: planData.contract_status || 'active'
+      })
+      .eq('id', restaurantId);
+    return !error;
+  } catch (e) {
+    console.error('Error updating plan settings:', e);
     return false;
   }
 }
