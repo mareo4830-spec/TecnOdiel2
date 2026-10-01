@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import RestaurantWizard from './components/Wizard/RestaurantWizard';
-import RestaurantManager from './components/Dashboard/RestaurantManager';
 import TemplateRenderer from './components/Templates/TemplateRenderer';
 import { fetchRestaurants } from './lib/supabase';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
@@ -72,7 +71,12 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
         if (target) {
           setActiveRestaurant(target);
           if (pathname.includes('/admin') || hash === '#admin' || hash === '#/admin') {
-            setCurrentView('manager');
+            if (onNavigateToPortal) {
+              onNavigateToPortal(target.slug);
+            } else {
+              window.location.hash = `#/portal?r=${target.slug}`;
+            }
+            return;
           } else {
             setCurrentView('standalone_tenant');
           }
@@ -85,12 +89,12 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
         const path = hash.replace(/^#\/?r\//, '');
         if (path.includes('/admin')) {
           const slug = path.replace(/\/admin.*$/, '');
-          const target = restaurants.find(r => r.id === slug || r.slug === slug || r.subdomain === slug);
-          if (target) {
-            setActiveRestaurant(target);
-            setCurrentView('manager');
-            return;
+          if (onNavigateToPortal) {
+            onNavigateToPortal(slug);
+          } else {
+            window.location.hash = `#/portal?r=${slug}`;
           }
+          return;
         }
         setPublicSlug(path);
         setCurrentView('public_restaurant');
@@ -99,10 +103,12 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
       } else if (hash.startsWith('#manage/') || hash.startsWith('#/manage/')) {
         const id = hash.replace(/^#\/?manage\//, '');
         const target = restaurants.find(r => r.id === id || r.slug === id);
-        if (target) {
-          setActiveRestaurant(target);
-          setCurrentView('manager');
+        if (onNavigateToPortal) {
+          onNavigateToPortal(target?.slug || id);
+        } else {
+          window.location.hash = `#/portal?r=${target?.slug || id}`;
         }
+        return;
       } else {
         setCurrentView('dashboard');
       }
@@ -120,9 +126,11 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   };
 
   const handleManage = (restaurant) => {
-    setActiveRestaurant(restaurant);
-    window.location.hash = `#/manage/${restaurant.id}`;
-    setCurrentView('manager');
+    if (onNavigateToPortal) {
+      onNavigateToPortal(restaurant?.slug);
+    } else {
+      window.location.hash = `#/portal?r=${restaurant?.slug || ''}`;
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -141,18 +149,6 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   if (currentView === 'standalone_tenant' && activeRestaurant) {
     return (
       <div className="relative min-h-screen bg-black text-white">
-        {/* Discreet floating admin button for restaurant owner */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <a
-            href="#/admin"
-            className="px-3.5 py-2 rounded-full bg-zinc-950/90 hover:bg-zinc-900 border border-white/15 hover:border-emerald-500/50 text-zinc-300 hover:text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-xl transition-all flex items-center gap-2 emil-pressable"
-            title="Acceso al Panel de Administración del Restaurante"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Panel de Admin ({activeRestaurant.name})</span>
-          </a>
-        </div>
-
         <TemplateRenderer restaurant={activeRestaurant} isPreview={false} />
       </div>
     );
@@ -170,30 +166,22 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
             onClick={handleBackToDashboard}
             className="px-4 py-2 rounded-xl bg-emerald-400 text-black font-bold text-xs"
           >
-            Volver al Panel Principal
+            Volver al Catálogo
           </button>
         </div>
       );
     }
 
     return (
-      <div className="relative">
-        {/* Floating Owner Access & Management Bar */}
-        <div className="fixed bottom-4 inset-x-4 z-50 flex items-center justify-between pointer-events-none">
-          <a
-            href={`#/r/${target.slug}/admin`}
-            className="pointer-events-auto px-4 py-2.5 rounded-full bg-zinc-950/95 border border-emerald-500/50 text-emerald-300 text-xs font-bold shadow-[0_0_25px_rgba(0,0,0,0.9)] backdrop-blur-xl hover:bg-zinc-900 transition flex items-center gap-2 emil-pressable"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Panel de Admin (Añadir Platos)</span>
-          </a>
-
+      <div className="relative min-h-screen bg-black text-white">
+        {/* Discreet Back to Catalog button */}
+        <div className="fixed bottom-4 left-4 z-50">
           <button
             onClick={handleBackToDashboard}
-            className="pointer-events-auto px-4 py-2.5 rounded-full bg-zinc-950/90 border border-white/15 text-zinc-300 hover:text-white text-xs font-semibold shadow-[0_0_20px_rgba(0,0,0,0.8)] backdrop-blur-md hover:bg-zinc-900 transition flex items-center gap-2 emil-pressable"
+            className="px-4 py-2 rounded-full bg-zinc-950/90 border border-white/15 text-zinc-300 hover:text-white text-xs font-semibold shadow-[0_0_20px_rgba(0,0,0,0.8)] backdrop-blur-md hover:bg-zinc-900 transition flex items-center gap-2 emil-pressable"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Panel TecnOdiel</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Volver a Multiwebs</span>
           </button>
         </div>
 
@@ -221,18 +209,14 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
     );
   }
 
-  // If in Management View
-  if (currentView === 'manager' && activeRestaurant) {
-    return (
-      <RestaurantManager
-        restaurant={activeRestaurant}
-        onBack={handleBackToDashboard}
-        onRestaurantUpdated={(updated) => {
-          setActiveRestaurant(updated);
-          loadData();
-        }}
-      />
-    );
+  // If in Management View, redirect to Portal de Clientes
+  if (currentView === 'manager') {
+    if (onNavigateToPortal) {
+      onNavigateToPortal(activeRestaurant?.slug);
+    } else {
+      window.location.hash = `#/portal?r=${activeRestaurant?.slug || ''}`;
+    }
+    return null;
   }
 
   // Default: Dashboard Overview

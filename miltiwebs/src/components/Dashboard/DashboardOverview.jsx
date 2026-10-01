@@ -178,22 +178,14 @@ export default function DashboardOverview({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={() => onManageRestaurant(rest)}
-                        className="flex-1 py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold border border-white/10 transition flex items-center justify-center gap-1.5"
-                      >
-                        <Settings className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Panel de Admin</span>
-                      </button>
-
+                    <div className="pt-1">
                       <a
-                        href={`#r/${rest.slug}`}
+                        href={rest.cloudflare_url || `#r/${rest.slug}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="py-2 px-3.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-bold transition flex items-center gap-1.5 shadow-md"
+                        className="w-full py-2.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center justify-center gap-2 shadow-md"
                       >
-                        <span>Ver Web</span>
+                        <span>Ver Web en Línea</span>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     </div>
