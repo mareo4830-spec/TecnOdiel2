@@ -3,7 +3,7 @@ import { X, Calendar, Clock, Users, MapPin, CheckCircle2, Phone, Mail, MessageSq
 import confetti from 'canvas-confetti';
 import { createReservation } from '../../lib/supabase';
 
-export default function BookingModal({ restaurant, isOpen, onClose }) {
+export default function BookingModal({ restaurant, isOpen = true, onClose }) {
   if (!isOpen || !restaurant) return null;
 
   const [step, setStep] = useState(1); // 1: Seleccion mesa, 2: Datos contacto, 3: Confirmacion

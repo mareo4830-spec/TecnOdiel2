@@ -6,138 +6,19 @@ import ArtisanTemplate from './ArtisanTemplate';
 import VelvetTemplate from './VelvetTemplate';
 import TecnodielTemplate from './TecnodielTemplate';
 import DynamicThemedTemplate from './DynamicThemedTemplate';
+import { normalizeTemplateId } from './templateNormalizer';
 
-/**
- * Normalizes template IDs from database entries, forgiving hyphens, spaces, uppercase or synonyms
- */
-export function normalizeTemplateId(id) {
-  if (!id) return 'nocturne';
-  const clean = String(id).toLowerCase().trim().replace(/[-\s]+/g, '_');
-
-  const aliases = {
-    'nocturno': 'nocturne',
-    'minimal': 'minimalist',
-    'minimalista': 'minimalist',
-    'nordico': 'minimalist',
-    'brutal': 'brutalist',
-    'brutalismo': 'brutalist',
-    'artesano': 'artisan',
-    'leña': 'artisan',
-    'lena': 'artisan',
-    'terciopelo': 'velvet',
-    'omakase': 'tokyo_omakase',
-    'zen': 'tokyo_omakase',
-    'japones': 'tokyo_omakase',
-    'japon': 'tokyo_omakase',
-    'tokyo': 'tokyo_omakase',
-    'sushi': 'tokyo_omakase',
-    'smash': 'urban_street_smash',
-    'burger': 'urban_street_smash',
-    'burgers': 'urban_street_smash',
-    'urban': 'urban_street_smash',
-    'street': 'urban_street_smash',
-    'street_smash': 'urban_street_smash',
-    'mediterraneo': 'mediterranean_breeze',
-    'mediterranean': 'mediterranean_breeze',
-    'breeze': 'mediterranean_breeze',
-    'marisqueria': 'marisqueria_costera',
-    'costera': 'marisqueria_costera',
-    'marisco': 'marisqueria_costera',
-    'mariscos': 'marisqueria_costera',
-    'lonja': 'marisqueria_costera',
-    'bistro': 'bistro_parisien',
-    'paris': 'bistro_parisien',
-    'parisien': 'bistro_parisien',
-    'frances': 'bistro_parisien',
-    'asador': 'steakhouse_asador',
-    'steakhouse': 'steakhouse_asador',
-    'carne': 'steakhouse_asador',
-    'carniceria': 'steakhouse_asador',
-    'brasa': 'steakhouse_asador',
-    'dry_aged': 'steakhouse_asador',
-    'chuleton': 'steakhouse_asador',
-    'txuleton': 'steakhouse_asador',
-    'coffee': 'coffee_specialty',
-    'specialty': 'coffee_specialty',
-    'cafe': 'coffee_specialty',
-    'cafeteria': 'coffee_specialty',
-    'tostadero': 'coffee_specialty',
-    'dolce': 'pasticceria_dolce',
-    'pasteleria': 'pasticceria_dolce',
-    'dulce': 'pasticceria_dolce',
-    'gelato': 'gelato_artesanal',
-    'helado': 'gelato_artesanal',
-    'helados': 'gelato_artesanal',
-    'heladeria': 'gelato_artesanal',
-    'pizza': 'pizzeria_napolitana',
-    'pizzeria': 'pizzeria_napolitana',
-    'napoli': 'pizzeria_napolitana',
-    'napolitana': 'pizzeria_napolitana',
-    'tacos': 'taqueria_fiesta',
-    'taqueria': 'taqueria_fiesta',
-    'mexicana': 'taqueria_fiesta',
-    'mexicano': 'taqueria_fiesta',
-    'cantina': 'taqueria_fiesta',
-    'beach': 'beach_club',
-    'beachclub': 'beach_club',
-    'chiringuito': 'beach_club',
-    'sunset': 'rooftop_sunset',
-    'rooftop': 'rooftop_sunset',
-    'sky': 'rooftop_sunset',
-    'shisha': 'lounge_shisha',
-    'lounge': 'lounge_shisha',
-    'teteria': 'lounge_shisha',
-    'tapas': 'tapas_andaluzas',
-    'andaluz': 'tapas_andaluzas',
-    'taberna': 'tapas_andaluzas',
-    'cerveza': 'cerveceria_craft',
-    'cerveceria': 'cerveceria_craft',
-    'craft': 'cerveceria_craft',
-    'brewery': 'cerveceria_craft',
-    'churreria': 'churreria_tradicional',
-    'churros': 'churreria_tradicional',
-    'chocolate': 'churreria_tradicional',
-    'bodega': 'bodega_enoteca',
-    'enoteca': 'bodega_enoteca',
-    'vino': 'bodega_enoteca',
-    'vinos': 'bodega_enoteca',
-    'pulperia': 'pulperia_gallega',
-    'pulpo': 'pulperia_gallega',
-    'gallega': 'pulperia_gallega',
-    'vanguardia': 'gourmet_vanguardia',
-    'michelin': 'gourmet_vanguardia',
-    'haute': 'gourmet_vanguardia',
-    'gourmet': 'gourmet_vanguardia',
-    'degustacion': 'gourmet_vanguardia',
-    'wok': 'wok_asian_fusion',
-    'asian': 'wok_asian_fusion',
-    'fusion': 'wok_asian_fusion',
-    'ramen': 'wok_asian_fusion',
-    'botanical': 'botanical_garden',
-    'botanico': 'botanical_garden',
-    'organico': 'botanical_garden',
-    'saludable': 'botanical_garden',
-    'vegano': 'botanical_garden',
-    'trattoria': 'trattoria_italiana',
-    'italiano': 'trattoria_italiana',
-    'pasta': 'trattoria_italiana',
-    'cyber': 'cyberpunk',
-    'cyber_neon': 'cyberpunk',
-    'futurista': 'cyberpunk',
-    'tecnodiel': 'tecnodiel_elite',
-    'elite': 'tecnodiel_elite'
-  };
-
-  return aliases[clean] || clean;
-}
+export { normalizeTemplateId };
 
 export default function TemplateRenderer({ restaurant, isPreview = false }) {
   if (!restaurant) return null;
 
-  const templateId = normalizeTemplateId(restaurant.template_id);
+  const templateId = normalizeTemplateId(restaurant?.template_id);
   const normalizedRestaurant = { 
     ...restaurant, 
-    template_id: templateId 
+    template_id: templateId,
+    menu_categories: Array.isArray(restaurant?.menu_categories) ? restaurant.menu_categories : [],
+    selected_modules: Array.isArray(restaurant?.selected_modules) ? restaurant.selected_modules : []
   };
 
   switch (templateId) {

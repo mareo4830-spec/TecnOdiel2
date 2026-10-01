@@ -7,7 +7,7 @@ import {
   Thermometer, Gauge, Tag, Info, Terminal, Radio, Eye, Layers
 } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
-import { normalizeTemplateId } from './TemplateRenderer';
+import { normalizeTemplateId } from './templateNormalizer';
 
 // Template metadata definitions
 export const TEMPLATE_THEMES = {
@@ -318,23 +318,23 @@ export function getTemplateArchetype(templateId) {
   return meta?.archetype || 'default_elegance';
 }
 
-export default function DynamicThemedTemplate({ restaurant, isPreview = false }) {
+export default function DynamicThemedTemplate({ restaurant = {}, isPreview = false }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
 
-  const rawId = restaurant.template_id;
+  const rawId = restaurant?.template_id;
   const templateId = normalizeTemplateId(rawId);
   const meta = TEMPLATE_THEMES[templateId] || TEMPLATE_THEMES.nocturne;
   const archetype = getTemplateArchetype(templateId);
   const IconComponent = meta.icon || Wine;
 
-  const primaryColor = restaurant.primary_color || meta.defaultPrimary || '#f59e0b';
-  const accentColor = restaurant.accent_color || meta.defaultAccent || '#fbbf24';
-  const bgColor = restaurant.background_color || meta.defaultBg || '#050507';
-  const surfaceColor = restaurant.surface_color || meta.defaultSurface || '#0d0d12';
-  const categories = restaurant.menu_categories || [];
+  const primaryColor = restaurant?.primary_color || meta.defaultPrimary || '#f59e0b';
+  const accentColor = restaurant?.accent_color || meta.defaultAccent || '#fbbf24';
+  const bgColor = restaurant?.background_color || meta.defaultBg || '#050507';
+  const surfaceColor = restaurant?.surface_color || meta.defaultSurface || '#0d0d12';
+  const categories = Array.isArray(restaurant?.menu_categories) ? restaurant.menu_categories : [];
 
-  const heroImage = restaurant.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
+  const heroImage = restaurant?.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
 
   return (
     <div 
@@ -816,7 +816,7 @@ export default function DynamicThemedTemplate({ restaurant, isPreview = false })
       {/* ─────────────────────────────────────────────────────────────
           BESPOKE HERO ARCHETYPE 8: GENERAL ELEGANT FALLBACK
          ───────────────────────────────────────────────────────────── */}
-      {['default_elegance', 'specialty_coffee', 'taqueria_mexicana', 'pizzeria_napoli', 'michelin_haute', 'taberna_iberica', 'botanical_organic', 'craft_brewery', 'cyber_luxury'].includes(archetype) && (
+      {(!['omakase', 'street_smash', 'coastal_lonja', 'cyber_hud', 'asador_prime', 'bistro_paris', 'sunset_beach'].includes(archetype)) && (
         <section className="relative pt-8 sm:pt-12 pb-16 px-4 max-w-6xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl">
             <div 
@@ -978,7 +978,7 @@ export default function DynamicThemedTemplate({ restaurant, isPreview = false })
             <div>
               <span className="text-[10px] text-zinc-500 uppercase block font-mono">Horarios</span>
               <span className="text-zinc-200 font-semibold">
-                {restaurant.dinner_shift?.enabled ? `Cenas ${restaurant.dinner_shift.open} - ${restaurant.dinner_shift.close}` : 'Abierto según reserva'}
+                {restaurant?.dinner_shift?.enabled ? `Cenas ${restaurant.dinner_shift.open || '19:30'} - ${restaurant.dinner_shift.close || '02:30'}` : 'Abierto según reserva'}
               </span>
             </div>
           </div>
@@ -1288,6 +1288,7 @@ export default function DynamicThemedTemplate({ restaurant, isPreview = false })
       {isBookingOpen && (
         <BookingModal 
           restaurant={restaurant}
+          isOpen={isBookingOpen}
           onClose={() => setIsBookingOpen(false)}
         />
       )}

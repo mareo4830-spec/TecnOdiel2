@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import RestaurantWizard from './components/Wizard/RestaurantWizard';
 import TemplateRenderer from './components/Templates/TemplateRenderer';
+import ErrorBoundary from './components/ErrorBoundary';
 import { fetchRestaurants, fetchRestaurantBySlug } from './lib/supabase';
 import { ArrowLeft } from 'lucide-react';
 
@@ -257,18 +258,20 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
 
       {/* If in Wizard View */}
       {currentView === 'wizard' && (
-        <RestaurantWizard
-          onCreated={(newRest) => {
-            loadData();
-            setActiveRestaurant(newRest);
-            if (onNavigateToPortal) {
-              onNavigateToPortal(newRest?.slug);
-            } else {
-              window.location.hash = `#/portal?r=${newRest?.slug || ''}`;
-            }
-          }}
-          onCancel={handleBackToDashboard}
-        />
+        <ErrorBoundary>
+          <RestaurantWizard
+            onCreated={(newRest) => {
+              loadData();
+              setActiveRestaurant(newRest);
+              if (onNavigateToPortal) {
+                onNavigateToPortal(newRest?.slug);
+              } else {
+                window.location.hash = `#/portal?r=${newRest?.slug || ''}`;
+              }
+            }}
+            onCancel={handleBackToDashboard}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Default: Dashboard Overview */}

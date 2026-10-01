@@ -111,6 +111,7 @@ export const TEMPLATE_GROUPS = [
   }
 ];
 import TemplateRenderer from '../Templates/TemplateRenderer';
+import ErrorBoundary from '../ErrorBoundary';
 import confetti from 'canvas-confetti';
 
 export default function RestaurantWizard({ onCreated, onCancel }) {
@@ -1646,7 +1647,18 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         onChange={(e) => {
                           const nextId = e.target.value;
                           const chosen = TEMPLATES.find(t => t.id === nextId);
-                          setFormData(prev => ({ ...prev, template_id: nextId }));
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            template_id: nextId,
+                            ...(chosen?.previewColors ? {
+                              primary_color: chosen.previewColors.primary,
+                              accent_color: chosen.previewColors.accent,
+                              background_color: chosen.previewColors.bg,
+                              surface_color: chosen.previewColors.card,
+                              hero_image: chosen.heroBg || prev.hero_image,
+                              font_family: chosen.defaultFont || prev.font_family
+                            } : {})
+                          }));
                           showTweakNotice(`Estilo cambiado a ${chosen?.name || nextId}`);
                         }}
                         className="w-full pl-3.5 pr-10 py-2 rounded-xl bg-zinc-900 border border-emerald-500/40 text-white font-medium text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 transition cursor-pointer appearance-none shadow-sm"
@@ -1673,10 +1685,22 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       type="button"
                       onClick={() => {
                         const currentIndex = TEMPLATES.findIndex(t => t.id === formData.template_id);
-                        const prevIndex = (currentIndex - 1 + TEMPLATES.length) % TEMPLATES.length;
+                        const safeIdx = currentIndex >= 0 ? currentIndex : 0;
+                        const prevIndex = (safeIdx - 1 + TEMPLATES.length) % TEMPLATES.length;
                         const prevT = TEMPLATES[prevIndex];
-                        setFormData(prev => ({ ...prev, template_id: prevT.id }));
-                        showTweakNotice(`Estilo cambiado a ${prevT.name}`);
+                        if (prevT) {
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            template_id: prevT.id,
+                            hero_image: prevT.heroBg || prev.hero_image,
+                            primary_color: prevT.previewColors?.primary || prev.primary_color,
+                            accent_color: prevT.previewColors?.accent || prev.accent_color,
+                            background_color: prevT.previewColors?.bg || prev.background_color,
+                            surface_color: prevT.previewColors?.card || prev.surface_color,
+                            font_family: prevT.defaultFont || prev.font_family
+                          }));
+                          showTweakNotice(`Estilo cambiado a ${prevT.name}`);
+                        }
                       }}
                       className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
                       title="Estilo anterior"
@@ -1686,17 +1710,29 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     </button>
 
                     <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-semibold">
-                      {TEMPLATES.findIndex(t => t.id === formData.template_id) + 1} / {TEMPLATES.length}
+                      {Math.max(1, TEMPLATES.findIndex(t => t.id === formData.template_id) + 1)} / {TEMPLATES.length}
                     </div>
 
                     <button
                       type="button"
                       onClick={() => {
                         const currentIndex = TEMPLATES.findIndex(t => t.id === formData.template_id);
-                        const nextIndex = (currentIndex + 1) % TEMPLATES.length;
+                        const safeIdx = currentIndex >= 0 ? currentIndex : 0;
+                        const nextIndex = (safeIdx + 1) % TEMPLATES.length;
                         const nextT = TEMPLATES[nextIndex];
-                        setFormData(prev => ({ ...prev, template_id: nextT.id }));
-                        showTweakNotice(`Estilo cambiado a ${nextT.name}`);
+                        if (nextT) {
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            template_id: nextT.id,
+                            hero_image: nextT.heroBg || prev.hero_image,
+                            primary_color: nextT.previewColors?.primary || prev.primary_color,
+                            accent_color: nextT.previewColors?.accent || prev.accent_color,
+                            background_color: nextT.previewColors?.bg || prev.background_color,
+                            surface_color: nextT.previewColors?.card || prev.surface_color,
+                            font_family: nextT.defaultFont || prev.font_family
+                          }));
+                          showTweakNotice(`Estilo cambiado a ${nextT.name}`);
+                        }
                       }}
                       className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
                       title="Siguiente estilo"
@@ -1993,7 +2029,9 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               }`}
             >
               <div className="w-full h-full overflow-y-auto">
-                <TemplateRenderer restaurant={formData} isPreview={true} />
+                <ErrorBoundary>
+                  <TemplateRenderer restaurant={formData} isPreview={true} />
+                </ErrorBoundary>
               </div>
             </div>
           </div>
@@ -2009,9 +2047,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   {(formData.selected_modules || []).map(modId => {
                     const mod = AVAILABLE_MODULES.find(m => m.id === modId);
                     if (!mod) return null;
+                    const parts = (mod.name || 'Servicio').split(' ');
                     return (
                       <span key={mod.id} className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase bg-zinc-900 text-zinc-300 border border-white/10">
-                        + {mod.name.split(' ')[0]} {mod.name.split(' ')[1] || ''} ({mod.price}€)
+                        + {parts[0]} {parts[1] || ''} ({mod.price}€)
                       </span>
                     );
                   })}
@@ -2346,7 +2385,9 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
         {/* Fullscreen Interactive Web View */}
         <div className="flex-1 w-full overflow-y-auto overscroll-contain bg-black">
-          <TemplateRenderer restaurant={formData} isPreview={true} />
+          <ErrorBoundary>
+            <TemplateRenderer restaurant={formData} isPreview={true} />
+          </ErrorBoundary>
         </div>
 
         {/* Bottom Dock Bar */}
