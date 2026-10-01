@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Database, Plus, Globe, Shield, Terminal, ArrowUpRight, LayoutDashboard, ArrowLeft, Store } from 'lucide-react';
+import { Plus, LayoutDashboard, ArrowLeft } from 'lucide-react';
 import { getSupabaseConfig } from '../lib/supabase';
 
 export default function Navbar({ onOpenWizard, onViewHome, currentView, onNavigateToPortal, onNavigateToLanding }) {
@@ -7,26 +7,32 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
   const isConnected = config.connected;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-[#09090c]/90 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
         {/* Brand */}
         <div 
           onClick={onViewHome}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onViewHome();
+            }
+          }}
+          aria-label="Ir a catálogo de restaurantes"
         >
-          <div className="w-9 h-9 rounded-xl bg-black border border-emerald-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)] group-hover:border-emerald-400 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-5 h-5">
-              <path d="M30 70 L50 30 L70 70" stroke="#10b981" strokeWidth="10" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="50" cy="30" r="7" fill="#34d399" />
-            </svg>
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded bg-zinc-900 border border-zinc-700 flex items-center justify-center font-mono text-xs font-bold text-white tracking-widest group-hover:border-zinc-500 transition-colors">
+            <span>TO</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-white text-base tracking-tight leading-none">
+              <span className="font-black text-white text-sm sm:text-base tracking-tight leading-none uppercase font-sans">
                 TecnOdiel
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                Studio
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300 font-semibold uppercase">
+                STUDIO
               </span>
             </div>
             <span className="text-[10px] text-zinc-400 font-mono tracking-wider hidden sm:block">
@@ -42,8 +48,9 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
             <button
               type="button"
               onClick={onNavigateToLanding}
-              className="emil-pressable px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+              className="btn-industrial min-h-[40px] px-3 py-1.5 rounded border border-zinc-800 hover:border-zinc-600 bg-zinc-900 text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-white"
               title="Volver a la portada principal"
+              aria-label="Volver a inicio"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Inicio</span>
@@ -60,8 +67,9 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
                 window.location.hash = '#/portal';
               }
             }}
-            className="emil-pressable px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+            className="btn-industrial min-h-[40px] px-3 py-1.5 rounded border border-zinc-800 hover:border-zinc-600 bg-zinc-900 text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-emerald-400"
             title="Abrir Portal de Gestión de Clientes"
+            aria-label="Abrir portal de clientes"
           >
             <LayoutDashboard className="w-3.5 h-3.5 text-emerald-400" />
             <span className="hidden sm:inline">Portal Clientes</span>
@@ -69,16 +77,17 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
 
           {/* Cloud sync status badge */}
           <div
-            className="hidden xl:inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+            className="hidden xl:inline-flex items-center gap-2 px-2.5 py-1 rounded text-[10px] font-mono border border-zinc-800 bg-zinc-900 text-zinc-300"
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Supabase Conectado</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span>SUPABASE CONECTADO</span>
           </div>
 
           {/* New Website Wizard CTA */}
           <button
             onClick={onOpenWizard}
-            className="px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)]"
+            className="btn-industrial min-h-[40px] px-3.5 sm:px-4 py-2 rounded bg-white hover:bg-zinc-200 text-black font-mono text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Crear nueva web de restaurante"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span className="hidden sm:inline">Crear Mi Web</span>

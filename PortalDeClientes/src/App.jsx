@@ -9,7 +9,7 @@ import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
 import { getClientRestaurantDetails } from './lib/supabase';
 
 export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLanding }) {
-  const [introFinished, setIntroFinished] = useState(false);
+  const [introFinished, setIntroFinished] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(() => {
@@ -120,6 +120,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
             <AdminMonitoringDashboard 
               onImpersonateClient={handleImpersonateClient}
               onLogout={handleSwitchRestaurant}
+              onNavigateToLanding={onNavigateToLanding}
             />
           ) : restaurantData ? (
             /* CASE 2: Single Client Dashboard (Isolated) */
@@ -145,6 +146,8 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
               <ClientAuth 
                 onSelectRestaurant={handleSelectRestaurant} 
                 onAdminLogin={handleAdminLogin}
+                onNavigateToLanding={onNavigateToLanding}
+                onNavigateToMultiwebs={onNavigateToMultiwebs}
               />
             </main>
           )}

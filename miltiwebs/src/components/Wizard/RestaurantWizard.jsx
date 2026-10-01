@@ -53,6 +53,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
   const [isSavingExpedient, setIsSavingExpedient] = useState(false);
   const [savedSuccessMsg, setSavedSuccessMsg] = useState('');
   const [templateFilter, setTemplateFilter] = useState('all');
+  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
   const showTweakNotice = (msg) => {
     setTweakNotice(msg);
@@ -301,14 +302,24 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             </div>
           </div>
 
+          {/* Mobile Preview Trigger Button (Only on Mobile) */}
+          <button
+            type="button"
+            onClick={() => setIsMobilePreviewOpen(true)}
+            className="sm:hidden btn-industrial px-3 py-1.5 rounded-lg border border-emerald-500/50 bg-emerald-500/15 text-emerald-300 font-mono text-xs font-bold flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Vista Previa</span>
+          </button>
+
+          {/* Desktop Preview Button */}
           <button
             type="button"
             onClick={() => setActiveSection(7)}
-            className="px-3.5 py-1.5 rounded-xl border border-white/15 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold flex items-center gap-2 transition"
+            className="hidden sm:inline-flex btn-industrial px-3.5 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs font-mono font-medium items-center gap-2 transition cursor-pointer min-h-[40px]"
           >
             <Eye className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">Ver Vista Previa Final</span>
-            <span className="sm:hidden">Previa</span>
+            <span>Ver Vista Previa Final</span>
           </button>
         </header>
       ) : (
@@ -338,7 +349,17 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
           {/* Viewport Toggles & Launch CTA */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl">
+            {/* Mobile Step 7 Preview button */}
+            <button
+              type="button"
+              onClick={() => setIsMobilePreviewOpen(true)}
+              className="md:hidden btn-industrial px-3 py-1.5 rounded-lg border border-emerald-500/50 bg-emerald-500/15 text-emerald-300 font-mono text-xs font-bold flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Ver Previa</span>
+            </button>
+
+            <div className="hidden md:flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl">
               <button
                 onClick={() => setPreviewDevice('desktop')}
                 className={`p-1.5 rounded-lg transition ${previewDevice === 'desktop' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'}`}
@@ -366,7 +387,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               type="button"
               disabled={saving}
               onClick={handleSave}
-              className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-50"
+              className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-50 min-h-[40px]"
             >
               {saving ? 'Guardando en la nube...' : 'Lanzar Mi Sitio Web'}
               <CheckCircle2 className="w-4 h-4" />
@@ -377,31 +398,33 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
       {/* Main Content: Steps 1-6 Questionnaire VS Step 7 Final Preview */}
       {activeSection <= 6 ? (
-        <div className="flex-1 overflow-y-auto bg-zinc-950/40 px-4 sm:px-6 py-6 sm:py-8">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto bg-zinc-950/40 px-3 sm:px-6 py-4 sm:py-8">
+          <div className="max-w-3xl mx-auto space-y-5 sm:space-y-6">
             {/* Step Navigation Pills & Progress Bar */}
-            <div className="p-3.5 rounded-2xl bg-zinc-950 border border-white/10 space-y-2.5 shadow-lg">
+            <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2.5 shadow-lg">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-white">Progreso del Cuestionario</span>
-                <span className="font-mono text-emerald-400">Paso {activeSection} de 6</span>
+                <span className="font-mono text-zinc-300 uppercase tracking-wider text-[11px] font-semibold">// PROGRESO DEL FORMULARIO</span>
+                <span className="font-mono text-emerald-400 font-bold">Paso {activeSection} de 6</span>
               </div>
-              <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-white/5">
+              <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
                 <div 
                   className="bg-emerald-400 h-full transition-all duration-300 rounded-full"
                   style={{ width: `${(activeSection / 6) * 100}%` }}
                 />
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 pt-1">
+
+              {/* Desktop Steps Grid */}
+              <div className="hidden sm:grid sm:grid-cols-7 gap-1 pt-1">
                 {SECTIONS.map((sec) => (
                   <button
                     key={sec.id}
                     onClick={() => setActiveSection(sec.id)}
-                    className={`py-1.5 px-1 text-center rounded-xl border transition flex flex-col items-center gap-0.5 ${
+                    className={`py-2 px-1 text-center rounded-lg border transition flex flex-col items-center gap-0.5 cursor-pointer ${
                       activeSection === sec.id
-                        ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold'
+                        ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
                         : activeSection > sec.id
-                        ? 'border-white/15 bg-zinc-900 text-zinc-300'
-                        : 'border-white/5 bg-zinc-950 text-zinc-500'
+                        ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
+                        : 'border-zinc-800/80 bg-zinc-950 text-zinc-500'
                     }`}
                   >
                     <span className="text-[10px] font-mono leading-none">0{sec.id}</span>
@@ -409,10 +432,30 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   </button>
                 ))}
               </div>
+
+              {/* Mobile Steps Scrollable Bar */}
+              <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                {SECTIONS.map((sec) => (
+                  <button
+                    key={sec.id}
+                    onClick={() => setActiveSection(sec.id)}
+                    className={`px-3 py-2 rounded-lg border text-xs font-mono whitespace-nowrap transition flex items-center gap-1.5 min-h-[44px] shrink-0 cursor-pointer ${
+                      activeSection === sec.id
+                        ? 'border-emerald-400 bg-emerald-500/20 text-white font-bold ring-1 ring-emerald-400'
+                        : activeSection > sec.id
+                        ? 'border-zinc-700 bg-zinc-900 text-zinc-200'
+                        : 'border-zinc-800 bg-zinc-950 text-zinc-500'
+                    }`}
+                  >
+                    <span className="text-[10px] text-emerald-400 font-bold">0{sec.id}</span>
+                    <span>{sec.label.split(' ')[0]}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Active Step Questionnaire Card */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950 border border-white/10 shadow-2xl">
+            <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-zinc-950 border border-zinc-800 shadow-2xl">
 
             {/* SECTION 1: Tu Negocio (Aspects 1 - 6) */}
             {activeSection === 1 && (
@@ -428,7 +471,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <label className="text-xs font-semibold text-zinc-300 block mb-2">
                     1. ¿Qué tipo de local tienes?
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {[
                       { id: 'night_bar', name: 'Bar de copas y cócteles', icon: Wine },
                       { id: 'gastronomic', name: 'Restaurante gastronómico', icon: Utensils },
@@ -442,13 +485,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={c.id}
                           type="button"
                           onClick={() => handleCategorySelect(c.id)}
-                          className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 ${
+                          className={`p-3 rounded-lg border text-left transition flex items-center gap-2.5 min-h-[48px] cursor-pointer ${
                             isSel
-                              ? 'border-emerald-400 bg-emerald-500/10 text-white'
-                              : 'border-white/10 bg-zinc-900/60 text-zinc-400 hover:border-white/20'
+                              ? 'border-emerald-400 bg-emerald-500/15 text-white ring-1 ring-emerald-400'
+                              : 'border-zinc-800 bg-zinc-900/70 text-zinc-300 hover:border-zinc-700'
                           }`}
                         >
-                          <Icon className={`w-4 h-4 ${isSel ? 'text-emerald-400' : 'text-zinc-400'}`} />
+                          <Icon className={`w-4 h-4 shrink-0 ${isSel ? 'text-emerald-400' : 'text-zinc-400'}`} />
                           <span className="text-xs font-semibold leading-tight">{c.name}</span>
                         </button>
                       );
@@ -467,7 +510,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.name}
                       onChange={(e) => handleNameChange(e.target.value)}
                       placeholder="Ej: Bar Los Claveles, Terraza Marina..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-400"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                     />
                   </div>
 
@@ -476,7 +519,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       3. ¿Qué dirección quieres para tu web en internet?
                     </label>
                     <p className="text-[11px] text-zinc-400 mb-1.5">Tus clientes entrarán aquí directamente desde su móvil:</p>
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/80 border border-white/10 text-xs font-mono text-zinc-300">
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-lg bg-zinc-900/90 border border-zinc-800 text-xs font-mono text-zinc-300">
                       <Globe className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>https://</span>
                       <input
@@ -504,7 +547,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.slogan}
                       onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
                       placeholder="Ej: Los mejores cócteles y tapas junto al puerto"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-400"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                     />
                   </div>
 
@@ -517,7 +560,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.description}
                       onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                       placeholder="Ej: Un espacio acogedor donde compartir buenas raciones, tomar una copa tranquila o celebrar en buena compañía..."
-                      className="w-full px-3.5 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-400 resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 resize-none transition"
                     />
                   </div>
                 </div>
@@ -527,16 +570,16 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <label className="text-xs font-semibold text-zinc-300 block mb-1">
                     6. ¿Qué tipo de ropa recomiendas a tus comensales?
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {['Ropa cómoda y casual', 'Arreglado pero informal (Smart Casual)', 'Elegante y de vestir', 'Sin ninguna norma, ¡ven como quieras!'].map(code => (
                       <button
                         key={code}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, dress_code: code }))}
-                        className={`p-2.5 rounded-xl border text-xs text-left transition ${
+                        className={`p-3 rounded-lg border text-xs text-left transition min-h-[44px] cursor-pointer ${
                           formData.dress_code === code
-                            ? 'border-emerald-400 bg-emerald-500/10 text-white font-semibold'
-                            : 'border-white/5 bg-zinc-900 text-zinc-400 hover:border-white/15'
+                            ? 'border-emerald-400 bg-emerald-500/15 text-white font-semibold ring-1 ring-emerald-400'
+                            : 'border-zinc-800 bg-zinc-900/70 text-zinc-300 hover:border-zinc-700'
                         }`}
                       >
                         {code}
@@ -568,7 +611,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   </div>
 
                   {/* Filter Tabs */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 no-scrollbar">
                     {[
                       { id: 'all', label: 'Todos (30)' },
                       { id: 'night_bar', label: 'Copas & Noche' },
@@ -583,10 +626,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         key={tab.id}
                         type="button"
                         onClick={() => setTemplateFilter(tab.id)}
-                        className={`px-3 py-1 rounded-xl text-[11px] font-semibold whitespace-nowrap transition ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap transition cursor-pointer min-h-[36px] ${
                           templateFilter === tab.id
-                            ? 'bg-emerald-400 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                            : 'bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white'
+                            ? 'bg-emerald-400 text-black font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                            : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white'
                         }`}
                       >
                         {tab.label}
@@ -610,21 +653,21 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             background_color: t.previewColors.bg,
                             surface_color: t.previewColors.card
                           }))}
-                          className={`p-3.5 rounded-2xl border cursor-pointer transition flex items-center justify-between ${
+                          className={`p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
                             isSel
-                              ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                              : 'border-white/10 bg-zinc-900/60 hover:border-white/20'
+                              ? 'border-emerald-400 bg-emerald-500/15 shadow-[0_0_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-400'
+                              : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700'
                           }`}
                         >
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-bold text-white">{t.name}</span>
-                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 font-mono font-medium">{t.badge}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono">{t.badge}</span>
                             </div>
                             <p className="text-[11px] text-zinc-400 leading-snug">{t.description}</p>
                             <div className="flex flex-wrap gap-1 pt-0.5">
                               {(t.tags || []).map((tag, tagIdx) => (
-                                <span key={tagIdx} className="text-[9px] px-1.5 py-0.2 rounded bg-white/5 text-zinc-500 font-mono">
+                                <span key={tagIdx} className="text-[9px] px-1.5 py-0.2 rounded bg-white/5 text-zinc-400 font-mono">
                                   #{tag}
                                 </span>
                               ))}
@@ -646,13 +689,12 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   </div>
                 </div>
 
-
                 {/* Aspect 8: Disposicion del Hero (Layout) */}
                 <div>
                   <label className="text-xs font-semibold text-zinc-300 block mb-2">
                     8. ¿Cómo quieres la portada que verán al entrar?
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     {[
                       { id: 'centered', name: 'Foto completa con botón al centro', desc: 'Tu foto ocupa la pantalla y el botón de reserva destaca en medio' },
                       { id: 'split', name: 'Texto a un lado y foto al otro', desc: 'Para que lean tu historia mientras ven tu mejor plato o barra' },
@@ -662,14 +704,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         key={lay.id}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, hero_layout: lay.id }))}
-                        className={`p-2.5 rounded-xl border text-left transition ${
+                        className={`p-3 rounded-lg border text-left transition min-h-[52px] cursor-pointer ${
                           formData.hero_layout === lay.id
-                            ? 'border-emerald-400 bg-emerald-500/10 text-white font-semibold'
-                            : 'border-white/5 bg-zinc-900 text-zinc-400 hover:border-white/15'
+                            ? 'border-emerald-400 bg-emerald-500/15 text-white font-semibold ring-1 ring-emerald-400'
+                            : 'border-zinc-800 bg-zinc-900/70 text-zinc-300 hover:border-zinc-700'
                         }`}
                       >
                         <span className="text-xs block font-bold text-white">{lay.name}</span>
-                        <span className="text-[9px] text-zinc-500 block mt-0.5 leading-tight">{lay.desc}</span>
+                        <span className="text-[10px] text-zinc-400 block mt-1 leading-snug">{lay.desc}</span>
                       </button>
                     ))}
                   </div>
@@ -685,9 +727,9 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     type="text"
                     value={formData.hero_image}
                     onChange={(e) => setFormData(prev => ({ ...prev, hero_image: e.target.value }))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-emerald-400"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-white focus:outline-none focus:border-emerald-400 transition"
                   />
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {[
                       { label: 'Foto Cócteles / Noche', url: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80' },
                       { label: 'Foto Platos Cuidados', url: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80' },
@@ -698,7 +740,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         key={img.label}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, hero_image: img.url }))}
-                        className="px-2.5 py-1 rounded-lg border border-white/10 text-[10px] bg-zinc-900 text-zinc-300 hover:text-white"
+                        className="px-2.5 py-1.5 min-h-[36px] rounded-lg border border-zinc-800 text-[11px] bg-zinc-900 text-zinc-300 hover:text-white cursor-pointer"
                       >
                         {img.label}
                       </button>
@@ -864,7 +906,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <label className="text-xs font-semibold text-zinc-300 block mb-2">
                     15. ¿Qué estilo de letra te gusta más?
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     {[
                       { id: 'Inter', name: 'Clara y moderna (Inter)', desc: 'Muy limpia y fácil de leer en cualquier móvil' },
                       { id: 'Outfit', name: 'Actual y con estilo (Outfit)', desc: 'Moderna, ideal para locales de copas y gastrobares' },
@@ -874,14 +916,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         key={f.id}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, font_family: f.id }))}
-                        className={`p-3 rounded-xl border text-center transition ${
+                        className={`p-3 rounded-lg border text-left transition min-h-[52px] cursor-pointer ${
                           formData.font_family === f.id
-                            ? 'border-white bg-zinc-800 text-white font-bold'
-                            : 'border-white/5 bg-zinc-900 text-zinc-400'
+                            ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
+                            : 'border-zinc-800 bg-zinc-900/70 text-zinc-400 hover:border-zinc-700'
                         }`}
                       >
                         <span className="text-xs block font-bold text-white">{f.name}</span>
-                        <span className="text-[10px] text-zinc-500 block">{f.desc}</span>
+                        <span className="text-[10px] text-zinc-400 block mt-0.5 leading-snug">{f.desc}</span>
                       </button>
                     ))}
                   </div>
@@ -905,30 +947,30 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {formData.booking_rules.available_areas.map((area, idx) => (
-                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white">
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-white">
                         <span>{area}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveArea(idx)}
-                          className="text-zinc-500 hover:text-red-400 text-xs"
+                          className="text-zinc-500 hover:text-red-400 text-xs cursor-pointer ml-1"
                         >
-                          x
+                          ✕
                         </button>
                       </span>
                     ))}
                   </div>
-                  <div className="flex gap-2 pt-1">
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
                     <input
                       type="text"
-                      placeholder="Añadir zona (ej: Salón comedor, Terraza exterior, Barra)..."
+                      placeholder="Añadir zona (ej: Salón comedor, Terraza, Barra)..."
                       value={newAreaInput}
                       onChange={(e) => setNewAreaInput(e.target.value)}
-                      className="flex-1 px-3 py-1.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none"
+                      className="flex-1 min-h-[44px] px-3.5 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                     />
                     <button
                       type="button"
                       onClick={handleAddArea}
-                      className="px-3 py-1.5 rounded-xl bg-white text-black font-bold text-xs"
+                      className="btn-industrial min-h-[44px] px-4 py-2 rounded-lg bg-white text-black font-mono font-bold text-xs uppercase tracking-wider hover:bg-zinc-200 transition cursor-pointer"
                     >
                       Añadir zona
                     </button>
@@ -955,7 +997,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       ...prev,
                       booking_rules: { ...prev.booking_rules, max_guests_per_table: parseInt(e.target.value, 10) }
                     }))}
-                    className="w-full accent-emerald-400"
+                    className="w-full accent-emerald-400 h-2 bg-zinc-900 rounded-lg cursor-pointer"
                   />
                 </div>
 
@@ -964,7 +1006,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <label className="text-xs font-semibold text-zinc-300 block mb-1">
                     18. ¿Cada cuánto tiempo pueden reservar mesa?
                   </label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { mins: 15, label: 'Cada 15 min' },
                       { mins: 30, label: 'Cada 30 min' },
@@ -978,10 +1020,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           ...prev,
                           booking_rules: { ...prev.booking_rules, slot_interval_minutes: slot.mins }
                         }))}
-                        className={`p-2 rounded-xl border text-center text-xs transition ${
+                        className={`p-2.5 rounded-lg border text-center text-xs font-mono transition min-h-[44px] cursor-pointer ${
                           formData.booking_rules.slot_interval_minutes === slot.mins
-                            ? 'border-emerald-400 bg-emerald-500/10 text-white font-bold'
-                            : 'border-white/5 bg-zinc-900 text-zinc-400'
+                            ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
+                            : 'border-zinc-800 bg-zinc-900/70 text-zinc-400 hover:border-zinc-700'
                         }`}
                       >
                         {slot.label}
@@ -995,7 +1037,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <label className="text-xs font-semibold text-zinc-300 block mb-1">
                     19. ¿Con cuánto tiempo de antelación deben reservar?
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       'Sobre la marcha (el mismo día)',
                       'Con al menos 2 horas de antelación',
@@ -1008,10 +1050,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           ...prev,
                           booking_rules: { ...prev.booking_rules, advance_notice: ant }
                         }))}
-                        className={`p-2.5 rounded-xl border text-left text-xs transition ${
+                        className={`p-3 rounded-lg border text-left text-xs transition min-h-[48px] cursor-pointer ${
                           formData.booking_rules.advance_notice === ant
-                            ? 'border-emerald-400 bg-emerald-500/10 text-white font-semibold'
-                            : 'border-white/5 bg-zinc-900 text-zinc-400'
+                            ? 'border-emerald-400 bg-emerald-500/15 text-white font-semibold ring-1 ring-emerald-400'
+                            : 'border-zinc-800 bg-zinc-900/70 text-zinc-300 hover:border-zinc-700'
                         }`}
                       >
                         {ant}
@@ -1025,7 +1067,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <label className="text-xs font-semibold text-zinc-300 block mb-1">
                     20. ¿Cómo quieres que se confirmen las reservas?
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {[
                       { id: 'instant', name: 'Confirmación automática al momento', desc: 'El cliente reserva y se le confirma de inmediato sin que tengas que hacer nada' },
                       { id: 'manual', name: 'Revisar yo antes de confirmar', desc: 'Te llega la solicitud y tú compruebas si tienes hueco libre antes de dar el visto bueno' }
@@ -1037,14 +1079,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           ...prev,
                           booking_rules: { ...prev.booking_rules, confirmation_mode: mod.id }
                         }))}
-                        className={`p-2.5 rounded-xl border text-left transition ${
+                        className={`p-3 rounded-lg border text-left transition min-h-[52px] cursor-pointer ${
                           formData.booking_rules.confirmation_mode === mod.id
-                            ? 'border-emerald-400 bg-emerald-500/10 text-white font-semibold'
-                            : 'border-white/5 bg-zinc-900 text-zinc-400'
+                            ? 'border-emerald-400 bg-emerald-500/15 text-white font-semibold ring-1 ring-emerald-400'
+                            : 'border-zinc-800 bg-zinc-900/70 text-zinc-300 hover:border-zinc-700'
                         }`}
                       >
                         <span className="text-xs block font-bold text-white">{mod.name}</span>
-                        <span className="text-[10px] text-zinc-500 block mt-0.5">{mod.desc}</span>
+                        <span className="text-[10px] text-zinc-400 block mt-1 leading-snug">{mod.desc}</span>
                       </button>
                     ))}
                   </div>
@@ -1240,7 +1282,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       type="text"
                       value={formData.phone}
                       onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                     />
                   </div>
                   <div>
@@ -1251,7 +1293,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       type="text"
                       value={formData.whatsapp_number}
                       onChange={(e) => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                     />
                   </div>
                 </div>
@@ -1265,13 +1307,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                   />
                 </div>
 
                 {/* Aspect 28: Direccion y Ciudad */}
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div className="sm:col-span-2">
                       <label className="text-xs font-semibold text-zinc-300 block mb-1">
                         28. Calle y número
@@ -1280,7 +1322,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         type="text"
                         value={formData.address}
                         onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                       />
                     </div>
                     <div>
@@ -1291,22 +1333,22 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         type="text"
                         value={formData.city}
                         onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none"
+                        className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400 transition"
                       />
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 flex items-center justify-between text-xs text-zinc-400">
+                  <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
                     <span className="flex items-center gap-1.5 text-[11px] text-zinc-300">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       Google y Mapas preparados: Tu dirección y horarios estarán listos para que los vecinos te encuentren al buscar en el móvil.
                     </span>
-                    <span className="text-[10px] text-emerald-400 font-bold shrink-0 ml-2">Búsquedas Locales</span>
+                    <span className="text-[10px] text-emerald-400 font-bold shrink-0 ml-2 font-mono">SEO Local</span>
                   </div>
                 </div>
 
                 {/* Aspect 29: Modulos y Servicios Seleccionables con Impacto en Precio */}
-                <div className="pt-4 border-t border-white/10 space-y-3">
+                <div className="pt-4 border-t border-zinc-800 space-y-3">
                   <div>
                     <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block">Servicios y Extras para tu Local</span>
                     <h3 className="text-sm font-bold text-white tracking-tight">¿Qué herramientas necesitas en tu día a día?</h3>
@@ -1320,10 +1362,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         <div
                           key={mod.id}
                           onClick={() => toggleModule(mod.id)}
-                          className={`p-3.5 sm:p-4 rounded-2xl border transition cursor-pointer flex items-start justify-between gap-3 emil-pressable ${
+                          className={`p-3.5 sm:p-4 rounded-xl border transition cursor-pointer flex items-start justify-between gap-3 min-h-[56px] ${
                             isSelected
-                              ? 'border-emerald-500/50 bg-emerald-950/20 text-white shadow-lg'
-                              : 'border-white/5 bg-zinc-900/60 text-zinc-400 hover:border-white/15'
+                              ? 'border-emerald-500/50 bg-emerald-950/20 text-white shadow-lg ring-1 ring-emerald-500/30'
+                              : 'border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700'
                           }`}
                         >
                           <div className="flex items-start gap-3">
@@ -1350,7 +1392,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   </div>
 
                   {/* Live Price Estimation in Section 6 */}
-                  <div className="p-3.5 rounded-2xl bg-zinc-900 border border-emerald-500/30 flex items-center justify-between text-xs mt-3">
+                  <div className="p-3.5 rounded-xl bg-zinc-900 border border-emerald-500/30 flex items-center justify-between text-xs mt-3">
                     <div>
                       <span className="text-zinc-400 block text-[11px]">Tu cuota mensual personalizada:</span>
                       <span className="text-zinc-500 text-[10px]">Web completa (29€) + {(formData.selected_modules || []).length} servicios seleccionados</span>
@@ -1366,26 +1408,26 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
 
             {/* Step Questionnaire Footer Navigation */}
-            <div className="mt-8 pt-5 border-t border-white/10 flex items-center justify-between">
+            <div className="mt-8 pt-5 border-t border-zinc-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
               {activeSection > 1 ? (
                 <button
                   type="button"
                   onClick={() => setActiveSection(prev => prev - 1)}
-                  className="px-4 py-2.5 rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 text-xs font-semibold hover:text-white transition flex items-center gap-1.5"
+                  className="btn-industrial px-4 py-2.5 rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 text-xs font-mono font-medium hover:text-white transition flex items-center justify-center gap-1.5 min-h-[48px] cursor-pointer"
                 >
-                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Paso Anterior</span>
                 </button>
-              ) : <div />}
+              ) : <div className="hidden sm:block" />}
 
               {activeSection < 6 ? (
                 <button
                   type="button"
                   onClick={() => setActiveSection(prev => prev + 1)}
-                  className="px-6 py-2.5 rounded-xl bg-white text-black hover:bg-zinc-200 text-xs font-bold transition flex items-center gap-1.5 shadow-lg"
+                  className="btn-industrial px-6 py-2.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold transition flex items-center justify-center gap-2 shadow-lg min-h-[48px] cursor-pointer"
                 >
                   <span>Siguiente: {SECTIONS[activeSection]?.label}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               ) : (
                 <button
@@ -1396,11 +1438,11 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       confetti({ particleCount: 60, spread: 70, origin: { y: 0.5 } });
                     } catch (e) {}
                   }}
-                  className="px-6 py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.5)]"
+                  className="btn-industrial px-6 py-3 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-mono font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.5)] min-h-[48px] cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>Ver Mi Web Lista en Directo</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               )}
             </div>
@@ -1695,36 +1737,65 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             style={{ backgroundColor: formData.primary_color }}
           />
 
-          {/* Preview Window Header Bar */}
-          <div className="w-full max-w-4xl flex items-center justify-between pb-3 text-xs text-zinc-400 z-10">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+          {/* Mobile-only Preview Launch Card (Only on Mobile) */}
+          <div className="block md:hidden w-full max-w-lg mx-auto p-4 rounded-xl bg-zinc-950 border border-zinc-800 shadow-xl space-y-3 z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-mono text-xs text-white font-bold uppercase tracking-wider">
+                  Tu Web en Tiempo Real
+                </span>
               </div>
-              <span className="font-mono text-[11px] text-zinc-300 pl-2">
-                https://{formData.slug || 'local'}.tecnodiel.app
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
+                {formData.slug || 'local'}.tecnodiel.app
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Vista Previa Interactiva de tu Web
-              </span>
-            </div>
+            <p className="text-xs text-zinc-300 leading-relaxed font-sans">
+              Hemos generado tu web interactiva con la plantilla <strong>{TEMPLATES.find(t => t.id === formData.template_id)?.name || formData.template_id}</strong> y todos tus datos.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsMobilePreviewOpen(true)}
+              className="btn-industrial w-full py-3.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] min-h-[48px] active:scale-98 transition cursor-pointer"
+            >
+              <Eye className="w-4 h-4 stroke-[2.5]" />
+              <span>Abrir Vista Previa Completa</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
           </div>
 
-          {/* Responsive Device Container */}
-          <div 
-            className={`w-full transition-all duration-300 rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative bg-black ${
-              previewDevice === 'desktop' ? 'max-w-4xl h-[60vh] sm:h-[64vh]' :
-              previewDevice === 'tablet' ? 'max-w-[640px] h-[60vh] sm:h-[64vh]' :
-              'max-w-[375px] h-[60vh] sm:h-[64vh]'
-            }`}
-          >
-            <div className="w-full h-full overflow-y-auto">
-              <TemplateRenderer restaurant={formData} isPreview={true} />
+          {/* Desktop-only Responsive Device Container */}
+          <div className="hidden md:flex flex-col items-center w-full max-w-4xl z-10">
+            {/* Preview Window Header Bar */}
+            <div className="w-full flex items-center justify-between pb-3 text-xs text-zinc-400">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
+                </div>
+                <span className="font-mono text-[11px] text-zinc-300 pl-2">
+                  https://{formData.slug || 'local'}.tecnodiel.app
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Vista Previa Interactiva de tu Web
+                </span>
+              </div>
+            </div>
+
+            <div 
+              className={`w-full transition-all duration-300 rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative bg-black ${
+                previewDevice === 'desktop' ? 'max-w-4xl h-[60vh] sm:h-[64vh]' :
+                previewDevice === 'tablet' ? 'max-w-[640px] h-[60vh] sm:h-[64vh]' :
+                'max-w-[375px] h-[60vh] sm:h-[64vh]'
+              }`}
+            >
+              <div className="w-full h-full overflow-y-auto">
+                <TemplateRenderer restaurant={formData} isPreview={true} />
+              </div>
             </div>
           </div>
 
@@ -2033,6 +2104,73 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               </div>
             </div>
           )}
+        </div>
+      </div>
+    )}
+
+    {/* Mobile-only Floating Preview Trigger Button (Active during form questionnaire) */}
+    {activeSection <= 6 && !isMobilePreviewOpen && (
+      <div className="md:hidden fixed bottom-5 right-4 z-40">
+        <button
+          type="button"
+          onClick={() => setIsMobilePreviewOpen(true)}
+          className="btn-industrial px-4 py-3 rounded-full bg-emerald-400 hover:bg-emerald-300 text-black font-mono font-bold text-xs uppercase tracking-wider shadow-[0_4px_25px_rgba(16,185,129,0.5)] flex items-center gap-2 border border-emerald-300 min-h-[48px] active:scale-95 transition cursor-pointer"
+          title="Abrir vista previa de tu web"
+        >
+          <Eye className="w-4 h-4 stroke-[2.5]" />
+          <span>Vista Previa</span>
+        </button>
+      </div>
+    )}
+
+    {/* Mobile-only Fullscreen Preview Modal */}
+    {isMobilePreviewOpen && (
+      <div className="md:hidden fixed inset-0 z-50 bg-black flex flex-col animate-fadeIn">
+        {/* Top Bar with Return Button */}
+        <div className="h-14 border-b border-zinc-800 bg-zinc-950 px-3 flex items-center justify-between shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsMobilePreviewOpen(false)}
+            className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-xs font-mono font-bold text-white transition flex items-center gap-2 min-h-[44px] cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400" />
+            <span>Volver al Formulario</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-mono text-[11px] text-zinc-300 truncate max-w-[120px]">
+              {formData.slug || 'mi-web'}
+            </span>
+          </div>
+        </div>
+
+        {/* Fullscreen Interactive Web View */}
+        <div className="flex-1 w-full overflow-y-auto overscroll-contain bg-black">
+          <TemplateRenderer restaurant={formData} isPreview={true} />
+        </div>
+
+        {/* Bottom Dock Bar */}
+        <div className="p-3 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-xl flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsMobilePreviewOpen(false)}
+            className="btn-industrial flex-1 py-2.5 px-3 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white font-mono text-xs font-semibold text-center min-h-[44px]"
+          >
+            ← Seguir Editando
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobilePreviewOpen(false);
+              setActiveSection(7);
+              setIsContractModalOpen(true);
+            }}
+            className="btn-industrial flex-1 py-2.5 px-3 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-black font-mono text-xs font-bold text-center flex items-center justify-center gap-1.5 min-h-[44px]"
+          >
+            <span>Ver Oferta</span>
+            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
         </div>
       </div>
     )}

@@ -3,6 +3,7 @@ import {
   Building2, 
   Lock, 
   ArrowRight, 
+  ArrowLeft,
   Sparkles, 
   ShieldCheck, 
   Globe, 
@@ -49,7 +50,12 @@ function clearLockoutData() {
   } catch (e) {}
 }
 
-export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
+export default function ClientAuth({ 
+  onSelectRestaurant, 
+  onAdminLogin, 
+  onNavigateToLanding, 
+  onNavigateToMultiwebs 
+}) {
   const [authMode, setAuthMode] = useState('client'); // 'client' | 'admin'
   const [accessKey, setAccessKey] = useState('');
   const [adminPin, setAdminPin] = useState('');
@@ -99,7 +105,7 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
 
     // Blindaje contra inyección SQL en la clave de cliente
     if (SQL_INJECTION_REGEX.test(cleanKey)) {
-      setErrorMsg('⚠️ Formato de clave inválido. Caracteres sospechosos de inyección SQL neutralizados.');
+      setErrorMsg('Formato de clave inválido. Caracteres no permitidos neutralizados por seguridad.');
       return;
     }
 
@@ -128,7 +134,7 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
     // 1. Comprobar si el usuario está actualmente baneado (30 min)
     if (lockData.lockoutUntil > now) {
       const secLeft = Math.ceil((lockData.lockoutUntil - now) / 1000);
-      setErrorMsg(`⛔ Acceso bloqueado por seguridad: has superado los 3 intentos. Espera ${formatRemainingTime(secLeft)}.`);
+      setErrorMsg(`Acceso bloqueado por seguridad: has superado los 3 intentos. Espera ${formatRemainingTime(secLeft)}.`);
       return;
     }
 
@@ -148,15 +154,15 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
         const banExpiry = now + LOCKOUT_DURATION_MS;
         saveLockoutData(newAttempts, banExpiry);
         setRemainingSeconds(Math.ceil(LOCKOUT_DURATION_MS / 1000));
-        setErrorMsg('⛔ Intento de inyección SQL detectado y bloqueado. Has superado los 3 intentos: baneado 30 minutos.');
+        setErrorMsg('Intento no autorizado detectado. Has superado los 3 intentos: acceso bloqueado 30 minutos.');
       } else {
         saveLockoutData(newAttempts, 0);
-        setErrorMsg(`⚠️ Patrón de inyección SQL no permitido. Intento fallido ${newAttempts} de ${MAX_ADMIN_ATTEMPTS}. Al 3er fallo serás baneado 30 min.`);
+        setErrorMsg(`Patrón de entrada no permitido. Intento fallido ${newAttempts} de ${MAX_ADMIN_ATTEMPTS}. Al 3er fallo el sistema se bloqueará 30 minutos.`);
       }
       return;
     }
 
-    // 3. Verificación de la Contraseña Maestra Actualizada: 'psoe2026'
+    // 3. Verificación de la Contraseña Maestra: 'psoe2026'
     if (pin === 'psoe2026') {
       clearLockoutData();
       setAttemptsCount(0);
@@ -170,7 +176,7 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
         const banExpiry = now + LOCKOUT_DURATION_MS;
         saveLockoutData(newAttempts, banExpiry);
         setRemainingSeconds(Math.ceil(LOCKOUT_DURATION_MS / 1000));
-        setErrorMsg('⛔ Has fallado la contraseña 3 veces. Acceso de administrador BANEADO durante 30 minutos por seguridad.');
+        setErrorMsg('Has fallado la contraseña 3 veces. Acceso de administrador bloqueado durante 30 minutos por seguridad.');
       } else {
         saveLockoutData(newAttempts, 0);
         const remainingAttempts = MAX_ADMIN_ATTEMPTS - newAttempts;
@@ -180,16 +186,25 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
   };
 
   return (
-    <div className="relative z-10 w-full min-h-[85vh] flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-zinc-950/85 border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl space-y-7 animate-fadeIn">
-        {/* Mode Toggle Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/5">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono text-xs uppercase tracking-wider text-emerald-400 font-semibold">
-              {authMode === 'client' ? '// ACCESO PRIVADO CLIENTE' : '// ACCESO MAESTRO ADMIN'}
-            </span>
-          </div>
+    <div className="relative z-10 w-full min-h-[85vh] flex items-center justify-center p-3.5 sm:p-4">
+      <div className="w-full max-w-lg bg-[#09090c] border border-zinc-800 rounded-lg p-5 sm:p-8 shadow-2xl space-y-6 text-left">
+        {/* Top Back Navigation Bar */}
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <button
+            type="button"
+            onClick={() => {
+              if (onNavigateToLanding) {
+                onNavigateToLanding();
+              } else if (typeof window !== 'undefined') {
+                window.location.hash = '#/';
+              }
+            }}
+            className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-2 min-h-[44px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            title="Volver a la portada de TecnOdiel"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400" />
+            <span>Volver a Portada</span>
+          </button>
 
           <button
             type="button"
@@ -197,26 +212,34 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
               setAuthMode(prev => (prev === 'client' ? 'admin' : 'client'));
               setErrorMsg('');
             }}
-            className="text-[11px] font-mono text-zinc-400 hover:text-white transition flex items-center gap-1 hover:underline"
+            className="text-[11px] font-mono text-zinc-300 hover:text-white transition flex items-center gap-1 hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded px-2 py-1.5 min-h-[44px]"
           >
             {authMode === 'client' ? (
-              <span>Acceso Administrador →</span>
+              <span>Acceso Maestro Admin →</span>
             ) : (
-              <span>← Volver a Acceso Clientes</span>
+              <span>← Acceso Clientes</span>
             )}
           </button>
+        </div>
+
+        {/* Status Indicator */}
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="font-mono text-xs uppercase tracking-wider text-white font-semibold">
+            {authMode === 'client' ? '// ACCESO PRIVADO CLIENTE' : '// ACCESO MAESTRO ADMIN'}
+          </span>
         </div>
 
         {authMode === 'client' ? (
           /* =======================================================
              CLIENT LOGIN VIEW (ISOLATED WITH UNIQUE ACCESS KEY)
              ======================================================= */
-          <div className="space-y-6">
-            <div className="text-center space-y-2.5">
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <div className="space-y-5">
+            <div className="text-left space-y-1.5">
+              <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
                 Acceso a Tu Negocio
               </h1>
-              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-light">
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
                 Introduce tu <strong>Clave Única de Cliente</strong> para gestionar tu carta, revisar tus reservas y ver tu web en tiempo real con total privacidad.
               </p>
             </div>
@@ -237,14 +260,14 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
                       setAccessKey(e.target.value);
                       if (errorMsg) setErrorMsg('');
                     }}
-                    className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-900/90 border border-white/15 text-white font-mono text-sm placeholder:text-zinc-500 focus:outline-none focus:border-emerald-400 uppercase tracking-wider transition shadow-inner"
+                    className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded bg-zinc-900 border border-zinc-700 text-white font-mono text-sm placeholder:text-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 uppercase tracking-wider transition"
                   />
                 </div>
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-fadeIn">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="p-3 rounded bg-rose-950/40 border border-rose-800/80 text-rose-200 text-xs flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
                   <span>{errorMsg}</span>
                 </div>
               )}
@@ -252,7 +275,7 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.35)] active:scale-95"
+                className="btn-industrial w-full min-h-[44px] py-3 rounded bg-white hover:bg-zinc-200 text-black font-mono font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-sm active:scale-98 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               >
                 <span>{loading ? 'Verificando Clave...' : 'Entrar a Mi Panel'}</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
@@ -260,11 +283,11 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
             </form>
 
             {/* Quick Demo Key Hint & WhatsApp Recovery */}
-            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2 text-center">
-              <div className="text-[11px] text-zinc-400">
-                Clave demo para probar ahora mismo: <code className="text-emerald-400 font-bold font-mono bg-zinc-900 px-2 py-0.5 rounded border border-emerald-500/30 cursor-pointer" onClick={() => setAccessKey('TO-MN892')}>TO-MN892</code>
+            <div className="p-3.5 rounded bg-zinc-900/60 border border-zinc-800 space-y-1.5 text-left font-mono">
+              <div className="text-[11px] text-zinc-300">
+                Clave demo de prueba: <code className="text-emerald-400 font-bold bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 cursor-pointer" onClick={() => setAccessKey('TO-MN892')}>TO-MN892</code>
               </div>
-              <div className="text-[11px] text-zinc-500">
+              <div className="text-[11px] text-zinc-400">
                 ¿No tienes tu clave a mano?{' '}
                 <a
                   href={`https://wa.me/34600000000?text=${encodeURIComponent('Hola equipo TecnOdiel, necesito la clave de acceso para mi restaurante.')}`}
@@ -282,23 +305,23 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
           /* =======================================================
              SUPER ADMIN MASTER LOGIN VIEW
              ======================================================= */
-          <div className="space-y-6">
-            <div className="text-center space-y-2.5">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
-                <Lock className="w-6 h-6" />
+          <div className="space-y-5">
+            <div className="text-left space-y-1.5">
+              <div className="w-10 h-10 rounded bg-zinc-900 border border-zinc-700 flex items-center justify-center text-emerald-400">
+                <Lock className="w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
                 Acceso de Administración
               </h1>
-              <p className="text-xs text-zinc-400 leading-relaxed font-light">
-                Monitorización de clientes, presupuestos, estados y tareas de cada web.
+              <p className="text-xs text-zinc-300 leading-relaxed font-normal">
+                Monitorización técnica de clientes, presupuestos, estados y despliegues.
               </p>
             </div>
 
             <form onSubmit={handleAdminSubmit} className="space-y-4">
               {/* Alerta de Baneo por 30 Minutos */}
               {remainingSeconds > 0 && (
-                <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-3 animate-fadeIn">
+                <div className="p-3.5 rounded bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-3">
                   <Ban className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <div className="font-bold text-rose-200 flex items-center gap-1.5">
@@ -306,7 +329,7 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
                       <span>Acceso de Administrador Bloqueado</span>
                     </div>
                     <p className="text-zinc-300 leading-relaxed text-[11px]">
-                      Has superado los 3 intentos permitidos o se detectó un patrón malicioso. Por seguridad de TecnOdiel, este panel está baneado durante 30 minutos.
+                      Has superado los 3 intentos permitidos o se detectó un patrón malicioso. Por seguridad de TecnOdiel, este panel está bloqueado durante 30 minutos.
                     </p>
                     <div className="pt-1.5 flex items-center gap-1.5 text-rose-300 font-mono text-xs font-bold">
                       <Clock className="w-3.5 h-3.5 animate-spin" />
@@ -322,7 +345,7 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
                     Clave Maestra de Administrador:
                   </label>
                   {attemptsCount > 0 && remainingSeconds === 0 && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40">
                       Fallos: {attemptsCount} / {MAX_ADMIN_ATTEMPTS}
                     </span>
                   )}
@@ -331,23 +354,23 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
                   type="password"
                   required
                   disabled={remainingSeconds > 0}
-                  placeholder={remainingSeconds > 0 ? "Acceso temporalmente baneado..." : "Introduce la clave maestra..."}
+                  placeholder={remainingSeconds > 0 ? "Acceso temporalmente bloqueado..." : "Introduce la clave maestra..."}
                   value={adminPin}
                   onChange={e => {
                     setAdminPin(e.target.value);
                     if (errorMsg) setErrorMsg('');
                   }}
-                  className={`w-full px-4 py-3.5 rounded-2xl bg-zinc-900/90 border font-mono text-sm placeholder:text-zinc-500 focus:outline-none transition ${
+                  className={`w-full min-h-[44px] px-4 py-2.5 rounded bg-zinc-900 border font-mono text-sm placeholder:text-zinc-500 focus:outline-none transition ${
                     remainingSeconds > 0 
-                      ? 'border-rose-500/30 text-zinc-500 cursor-not-allowed bg-rose-950/20' 
-                      : 'border-white/15 text-white focus:border-emerald-400'
+                      ? 'border-rose-800 text-zinc-500 cursor-not-allowed bg-rose-950/20' 
+                      : 'border-zinc-700 text-white focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400'
                   }`}
                 />
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-fadeIn">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="p-3 rounded bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
                   <span>{errorMsg}</span>
                 </div>
               )}
@@ -355,16 +378,16 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
               <button
                 type="submit"
                 disabled={remainingSeconds > 0}
-                className={`w-full py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-95 ${
+                className={`btn-industrial w-full min-h-[44px] py-3 rounded font-mono font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-98 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                   remainingSeconds > 0
-                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 cursor-not-allowed'
-                    : 'bg-emerald-400 hover:bg-emerald-300 text-black shadow-[0_0_20px_rgba(16,185,129,0.35)]'
+                    ? 'bg-rose-900/30 text-rose-400 border border-rose-800 cursor-not-allowed'
+                    : 'bg-white hover:bg-zinc-200 text-black shadow-sm'
                 }`}
               >
                 {remainingSeconds > 0 ? (
                   <>
                     <Ban className="w-4 h-4" />
-                    <span>Baneado ({formatRemainingTime(remainingSeconds)})</span>
+                    <span>Bloqueado ({formatRemainingTime(remainingSeconds)})</span>
                   </>
                 ) : (
                   <>
@@ -378,13 +401,13 @@ export default function ClientAuth({ onSelectRestaurant, onAdminLogin }) {
         )}
 
         {/* Security & Reassurance Footer */}
-        <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
+        <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Aislamiento de Negocio SSL</span>
+            <span>Aislamiento SSL 256-Bit</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-amber-400" />
+            <Globe className="w-3.5 h-3.5 text-zinc-400" />
             <span>Cloudflare Edge</span>
           </div>
         </div>

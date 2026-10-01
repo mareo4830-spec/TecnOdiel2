@@ -24,6 +24,7 @@ import {
   LogOut,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   Users,
   Trash2,
   AlertTriangle
@@ -37,7 +38,7 @@ import {
 } from '../lib/supabase';
 import AdminTeamWorkspace from './AdminTeamWorkspace';
 
-export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout }) {
+export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout, onNavigateToLanding }) {
   const [activeAdminTab, setActiveAdminTab] = useState('clients'); // 'clients' | 'team'
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -167,11 +168,22 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
             </div>
           </div>
 
-          {/* Logout on mobile in top bar */}
+          {/* Actions on mobile in top bar */}
           <div className="sm:hidden flex items-center gap-2">
+            {onNavigateToLanding && (
+              <button
+                type="button"
+                onClick={onNavigateToLanding}
+                className="btn-industrial px-2.5 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+                title="Volver a la portada de TecnOdiel"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[11px]">Inicio</span>
+              </button>
+            )}
             <button
               onClick={onLogout}
-              className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+              className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px]"
               title="Cerrar sesión de administrador"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -214,11 +226,22 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
           </button>
         </div>
 
-        {/* Logout on desktop */}
+        {/* Actions on desktop */}
         <div className="hidden sm:flex items-center gap-3">
+          {onNavigateToLanding && (
+            <button
+              type="button"
+              onClick={onNavigateToLanding}
+              className="btn-industrial px-3.5 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+              title="Volver a la portada de TecnOdiel"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Volver a Portada</span>
+            </button>
+          )}
           <button
             onClick={onLogout}
-            className="px-3.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px]"
             title="Cerrar sesión de administrador"
           >
             <LogOut className="w-3.5 h-3.5" />

@@ -37,6 +37,7 @@ export default {
           'sans-serif'
         ],
         mono: [
+          '"JetBrains Mono"',
           '"Geist Mono"',
           'SFMono-Regular',
           'Menlo',

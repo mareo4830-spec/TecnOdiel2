@@ -56,11 +56,11 @@ export default function Navbar({
             <button
               type="button"
               onClick={onNavigateToLanding}
-              className="emil-pressable px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition flex items-center gap-1.5"
-              title="Volver al inicio"
+              className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] sm:min-h-[44px] cursor-pointer"
+              title="Volver a la portada de TecnOdiel"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Inicio</span>
+              <ArrowLeft className="w-4 h-4 text-emerald-400" />
+              <span>Volver</span>
             </button>
           )}
 
