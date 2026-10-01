@@ -411,7 +411,7 @@ export default function AdminTeamWorkspace() {
     report += `Total Horas Invertidas: ${totalTeamHours.toFixed(1)}h | Tareas Hechas: ${totalCompletedTasks} | Objetivos: ${totalPendingObjectives}\n\n`;
 
     admins.forEach(a => {
-      report += `👤 ${a.name.toUpperCase()} (${a.role}) - ${a.totalHours}h totales\n`;
+      report += `👤 ${a.name.toUpperCase()} - ${a.totalHours}h totales\n`;
       report += `✅ LO QUE HA HECHO:\n`;
       (a.doneTasks || []).slice(0, 4).forEach(t => {
         report += `  • ${t.title} (${t.hours}h)\n`;
@@ -539,52 +539,29 @@ export default function AdminTeamWorkspace() {
           >
             {/* Top: Identity & Hours */}
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-white/10 pb-4">
-                <div className="flex items-center gap-3.5">
+              <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div className="flex items-center gap-3">
                   <div 
-                    className="w-12 h-12 rounded-2xl p-0.5 border flex items-center justify-center font-mono font-black text-lg text-white shadow-xl shrink-0"
+                    className="w-11 h-11 rounded-2xl p-0.5 border flex items-center justify-center font-mono font-black text-lg text-white shadow-xl shrink-0"
                     style={{ borderColor: admin.color, backgroundColor: '#09090b' }}
                   >
                     <span style={{ color: admin.color }}>{admin.avatar}</span>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-black text-white tracking-tight">
-                        {admin.name}
-                      </h2>
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${admin.badgeClass} font-semibold uppercase`}>
-                        Admin
-                      </span>
-                    </div>
-                    <p className="text-xs text-zinc-300 font-medium">
-                      {admin.role}
-                    </p>
-                    <span className="text-[11px] text-zinc-500 font-mono block">
-                      {admin.subRole}
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-black text-white tracking-tight">
+                      {admin.name}
+                    </h2>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${admin.badgeClass} font-semibold uppercase`}>
+                      Admin
                     </span>
                   </div>
                 </div>
 
-                <div className="flex sm:block items-center justify-between sm:text-right shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                <div className="text-right shrink-0">
                   <span className="text-[10px] font-mono text-zinc-400 block uppercase">Horas Pasadas:</span>
                   <div className="text-2xl font-black font-mono text-white" style={{ color: admin.color }}>
                     {admin.totalHours}h
                   </div>
-                </div>
-              </div>
-
-              {/* Hours Breakdown by Area */}
-              <div className="p-3.5 rounded-2xl bg-zinc-950/70 border border-white/5 space-y-2">
-                <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block font-semibold">
-                  // Desglose de Dedicación:
-                </span>
-                <div className="space-y-1.5">
-                  {(admin.hoursBreakdown || []).map((b, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs">
-                      <span className="text-zinc-300 font-mono text-[11px]">{b.area}</span>
-                      <span className="font-mono font-bold text-white text-xs">{b.hours}h</span>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -760,9 +737,9 @@ export default function AdminTeamWorkspace() {
                 onChange={e => setTargetAdminForDone(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-400"
               >
-                <option value="mario">Mario (Lead Full-Stack & Cloud)</option>
-                <option value="javier">Javier (Operaciones & Ciberseguridad)</option>
-                <option value="daniel">Daniel (Diseño UX/UI & Ventas)</option>
+                <option value="mario">Mario</option>
+                <option value="javier">Javier</option>
+                <option value="daniel">Daniel</option>
               </select>
             </div>
 
