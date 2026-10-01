@@ -8,9 +8,14 @@ import CinematicBackground from './components/CinematicBackground'
 import FloatingContact from './components/FloatingContact'
 import CinematicIntro from './components/CinematicIntro'
 
-export default function App({ onNavigateToMultiwebs }) {
+export default function App({ onNavigateToMultiwebs, initialIntroFinished = false, onIntroComplete }) {
   const [auditModalOpen, setAuditModalOpen] = useState(false)
-  const [introFinished, setIntroFinished] = useState(false)
+  const [introFinished, setIntroFinished] = useState(initialIntroFinished)
+
+  const handleIntroComplete = () => {
+    setIntroFinished(true)
+    if (onIntroComplete) onIntroComplete()
+  }
 
   const handleOpenAudit = () => {
     setAuditModalOpen(true)
@@ -33,7 +38,7 @@ export default function App({ onNavigateToMultiwebs }) {
         {!introFinished && (
           <CinematicIntro
             key="cinematic-intro"
-            onComplete={() => setIntroFinished(true)}
+            onComplete={handleIntroComplete}
           />
         )}
       </AnimatePresence>

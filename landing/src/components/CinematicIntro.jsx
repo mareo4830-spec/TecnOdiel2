@@ -1,38 +1,93 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, ArrowDown } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
 
 export default function CinematicIntro({ onComplete, subtitle = "Webs que Facturan • Soluciones Reales" }) {
   const [isExiting, setIsExiting] = useState(false)
+  const isExitingRef = useRef(false)
+  const touchStartY = useRef(null)
+  const touchStartX = useRef(null)
 
-  useEffect(() => {
-    // Automatically transition after 2.0 seconds of cinematic presentation
-    const timer = setTimeout(() => {
-      handleFinish()
-    }, 2000)
-
-    // Allow user to click, scroll or press any key to instantly transition
-    const handleSkip = () => handleFinish()
-    window.addEventListener('keydown', handleSkip, { once: true })
-    window.addEventListener('wheel', handleSkip, { once: true, passive: true })
-    window.addEventListener('touchstart', handleSkip, { once: true, passive: true })
-
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('keydown', handleSkip)
-      window.removeEventListener('wheel', handleSkip)
-      window.removeEventListener('touchstart', handleSkip)
-    }
-  }, [])
-
-  const handleFinish = () => {
-    if (!isExiting) {
+  const handleFinish = useCallback(() => {
+    if (!isExitingRef.current) {
+      isExitingRef.current = true
       setIsExiting(true)
       setTimeout(() => {
         onComplete()
-      }, 700)
+      }, 650)
     }
-  }
+  }, [onComplete])
+
+  useEffect(() => {
+    // 1. Wheel scroll down on desktop
+    const handleWheel = (e) => {
+      if (e.deltaY > 5 || Math.abs(e.deltaY) > 25) {
+        handleFinish()
+      }
+    }
+
+    // 2. Touch gesture detection (swipe down / scroll down)
+    const handleTouchStart = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        touchStartY.current = e.touches[0].clientY
+        touchStartX.current = e.touches[0].clientX
+      }
+    }
+
+    const handleTouchMove = (e) => {
+      if (touchStartY.current === null || !e.touches || e.touches.length === 0) return
+      const currentY = e.touches[0].clientY
+      const currentX = e.touches[0].clientX
+      const deltaY = currentY - touchStartY.current
+      const deltaX = currentX - touchStartX.current
+
+      // If user slides vertically by more than 20px, dismiss
+      if (Math.abs(deltaY) > 20 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        handleFinish()
+      }
+    }
+
+    const handleTouchEnd = () => {
+      touchStartY.current = null
+      touchStartX.current = null
+    }
+
+    // 3. Page scroll listener fallback
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        handleFinish()
+      }
+    }
+
+    // 4. Down keys
+    const handleKeyDown = (e) => {
+      if (['ArrowDown', 'PageDown', 'Space', 'Enter'].includes(e.key)) {
+        handleFinish()
+      }
+    }
+
+    window.addEventListener('wheel', handleWheel, { passive: true })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    window.addEventListener('touchend', handleTouchEnd, { passive: true })
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('keydown', handleKeyDown)
+
+    // Safety fallback: 30s so screen never locks if left completely untouched
+    const fallbackTimer = setTimeout(() => {
+      handleFinish()
+    }, 30000)
+
+    return () => {
+      clearTimeout(fallbackTimer)
+      window.removeEventListener('wheel', handleWheel)
+      window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleTouchEnd)
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleFinish])
 
   // Split letter animations
   const containerVariants = {
@@ -65,10 +120,15 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs que Factur
     <motion.div
       onClick={handleFinish}
       initial={{ opacity: 0 }}
-      animate={{ opacity: isExiting ? 0 : 1, scale: isExiting ? 1.08 : 1, filter: isExiting ? 'blur(10px)' : 'blur(0px)' }}
-      exit={{ opacity: 0, scale: 1.1, filter: 'blur(12px)' }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black select-none cursor-pointer overflow-hidden"
+      animate={{
+        opacity: isExiting ? 0 : 1,
+        y: isExiting ? -90 : 0,
+        scale: isExiting ? 1.04 : 1,
+        filter: isExiting ? 'blur(10px)' : 'blur(0px)',
+      }}
+      exit={{ opacity: 0, y: -120, filter: 'blur(14px)' }}
+      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black select-none cursor-pointer overflow-hidden touch-none"
     >
       {/* Background ambient lighting */}
       <div className="pointer-events-none absolute inset-0 bg-grid-subtle opacity-35" />
@@ -124,15 +184,26 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs que Factur
           {subtitle}
         </motion.p>
 
-        {/* Subtle skip prompt */}
+        {/* Visual indicator to slide down */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ delay: 0.7 }}
-          className="mt-10 sm:mt-14 inline-flex items-center gap-2 text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-widest"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-10 sm:mt-14 inline-flex flex-col items-center gap-2 group cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleFinish();
+          }}
         >
-          <ArrowDown className="h-3.5 w-3.5 animate-bounce" />
-          <span>Haz clic para entrar</span>
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-xl group-hover:border-emerald-500/50 group-hover:bg-white/[0.1] transition-all duration-300 shadow-lg shadow-black/40">
+            <ArrowDown className="h-4 w-4 text-emerald-400 animate-bounce" />
+            <span className="text-xs sm:text-sm font-medium tracking-wide text-zinc-200">
+              Desliza para abajo
+            </span>
+          </div>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">
+            o toca para entrar
+          </span>
         </motion.div>
       </div>
     </motion.div>

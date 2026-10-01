@@ -40,6 +40,8 @@ export default function App() {
     return params.get('r') || params.get('slug') || params.get('restaurant') || localStorage.getItem('tecnodiel_client_slug') || null;
   });
 
+  const [hasIntroCompleted, setHasIntroCompleted] = useState(false);
+
   // Listen to hash / popstate changes
   useEffect(() => {
     const handleUrlChange = () => {
@@ -109,6 +111,8 @@ export default function App() {
       {view === 'landing' && (
         <LandingApp 
           key="landing-page"
+          initialIntroFinished={hasIntroCompleted}
+          onIntroComplete={() => setHasIntroCompleted(true)}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')} 
         />
       )}
@@ -116,6 +120,8 @@ export default function App() {
       {view === 'multiwebs' && (
         <MultiwebsApp 
           key="multiwebs-page"
+          initialIntroFinished={hasIntroCompleted}
+          onIntroComplete={() => setHasIntroCompleted(true)}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
           onNavigateToLanding={() => navigateTo('landing')}
         />
@@ -125,6 +131,8 @@ export default function App() {
         <PortalApp 
           key={`portal-page-${activeSlug || 'root'}`}
           initialSlug={activeSlug}
+          initialIntroFinished={hasIntroCompleted}
+          onIntroComplete={() => setHasIntroCompleted(true)}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToLanding={() => navigateTo('landing')}
         />

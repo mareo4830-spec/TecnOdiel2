@@ -8,8 +8,8 @@ import Dashboard from './components/Dashboard';
 import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
 import { getClientRestaurantDetails } from './lib/supabase';
 
-export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLanding }) {
-  const [introFinished, setIntroFinished] = useState(false);
+export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLanding, initialIntroFinished = false, onIntroComplete }) {
+  const [introFinished, setIntroFinished] = useState(initialIntroFinished);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(() => {
@@ -23,11 +23,15 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
   const [restaurantData, setRestaurantData] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const handleIntroComplete = () => {
+    setIntroFinished(true);
+    if (onIntroComplete) onIntroComplete();
+  };
+
   // Sync if initialSlug changes
   useEffect(() => {
     if (initialSlug && initialSlug !== selectedSlug) {
       setSelectedSlug(initialSlug);
-      setIntroFinished(false);
     }
   }, [initialSlug]);
 
@@ -61,7 +65,6 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setSelectedSlug(slug);
     setIsAdmin(false);
     setIsAdminImpersonating(false);
-    setIntroFinished(false);
   };
 
   const handleAdminLogin = () => {
@@ -69,14 +72,12 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setIsAdminImpersonating(false);
     setSelectedSlug(null);
     setRestaurantData(null);
-    setIntroFinished(false);
   };
 
   const handleImpersonateClient = (slugOrId) => {
     setIsAdmin(false);
     setIsAdminImpersonating(true);
     setSelectedSlug(slugOrId);
-    setIntroFinished(false);
   };
 
   const handleBackToAdmin = () => {
@@ -84,7 +85,6 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setIsAdminImpersonating(false);
     setSelectedSlug(null);
     setRestaurantData(null);
-    setIntroFinished(false);
   };
 
   const handleSwitchRestaurant = () => {
@@ -92,7 +92,6 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
     setRestaurantData(null);
     setIsAdmin(false);
     setIsAdminImpersonating(false);
-    setIntroFinished(false);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tecnodiel_client_slug');
     }
@@ -108,7 +107,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
         {!introFinished && (
           <CinematicIntro
             key="cinematic-intro"
-            onComplete={() => setIntroFinished(true)}
+            onComplete={handleIntroComplete}
           />
         )}
       </AnimatePresence>

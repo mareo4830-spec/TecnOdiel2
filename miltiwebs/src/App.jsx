@@ -38,7 +38,7 @@ function detectTenantSlug() {
   return null;
 }
 
-export default function App({ onNavigateToPortal, onNavigateToLanding }) {
+export default function App({ onNavigateToPortal, onNavigateToLanding, initialIntroFinished = false, onIntroComplete }) {
   const [restaurants, setRestaurants] = useState([]);
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'manager', 'public_restaurant', 'standalone_tenant'
   const [activeRestaurant, setActiveRestaurant] = useState(null);
@@ -46,8 +46,13 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   const [singleRestaurant, setSingleRestaurant] = useState(null);
   const [isLoadingPublic, setIsLoadingPublic] = useState(false);
   const [tenantSlug, setTenantSlug] = useState(() => detectTenantSlug());
-  const [introFinished, setIntroFinished] = useState(false);
+  const [introFinished, setIntroFinished] = useState(initialIntroFinished);
   const lastPathRef = useRef(typeof window !== 'undefined' ? (window.location.hash || window.location.pathname) : '');
+
+  const handleIntroComplete = () => {
+    setIntroFinished(true);
+    if (onIntroComplete) onIntroComplete();
+  };
 
   // Load restaurants on mount
   const loadData = async () => {
@@ -94,10 +99,6 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
       }
 
       const currentRoute = hash || pathname;
-
-      if (lastPathRef.current && lastPathRef.current !== currentRoute) {
-        setIntroFinished(false);
-      }
       lastPathRef.current = currentRoute;
 
       // Case A: Visited via distinct Vercel subdomain (e.g. "bar-pepe.vercel.app")
@@ -163,7 +164,6 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
 
   // Handle navigation helpers
   const handleOpenWizard = () => {
-    setIntroFinished(false);
     window.location.hash = '#/wizard';
     setCurrentView('wizard');
   };
@@ -177,7 +177,6 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
   };
 
   const handleBackToDashboard = () => {
-    setIntroFinished(false);
     const detected = detectTenantSlug();
     if (detected) {
       window.location.hash = '#/';
@@ -195,13 +194,13 @@ export default function App({ onNavigateToPortal, onNavigateToLanding }) {
       <AnimatePresence mode="wait">
         {!introFinished && (
           <CinematicIntro
-            key={`cinematic-intro-${currentView}-${publicSlug || ''}`}
+            key="cinematic-intro"
             subtitle={
               currentView === 'wizard' ? "Crea Tu Web en 2 Minutos • Sin Líos" :
               currentView === 'public_restaurant' ? "Carta Digital QR • Reservas Directas" :
               "Webs para Restaurantes • 0€ Comisiones"
             }
-            onComplete={() => setIntroFinished(true)}
+            onComplete={handleIntroComplete}
           />
         )}
       </AnimatePresence>
