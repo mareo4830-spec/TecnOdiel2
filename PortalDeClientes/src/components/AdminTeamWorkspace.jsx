@@ -435,65 +435,103 @@ export default function AdminTeamWorkspace() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Team Top KPI Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-zinc-950/80 border border-emerald-500/20 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-zinc-400 text-xs font-medium">Horas Totales del Equipo</span>
-            <Clock className="w-4 h-4 text-emerald-400" />
+      {/* Hero Banner (Matching Multitenant Aesthetics) */}
+      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-emerald-950/60 via-zinc-950 to-zinc-950 border border-emerald-500/20 overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>TECNODIEL CORE — WORKSPACE DE EQUIPO</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Gestión de Equipo & Dedicación
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
+              Seguimiento de horas reales de Mario, Javier y Daniel. Control de hitos completados, auditoría de tareas y backlog de objetivos para la plataforma TecnOdiel.
+            </p>
           </div>
-          <div className="text-3xl font-black text-white font-mono">
-            {totalTeamHours.toFixed(1)} <span className="text-sm font-normal text-emerald-400">horas</span>
+
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsAddDoneModalOpen(true)}
+              className="btn-industrial px-5 py-3.5 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-black font-extrabold text-xs transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.35)] cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Registrar Horas / Hecho</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAddTodoModalOpen(true)}
+              className="px-5 py-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white font-bold text-xs transition flex items-center gap-2 cursor-pointer"
+            >
+              <Target className="w-4 h-4 text-amber-400" />
+              <span>Proponer Objetivo</span>
+            </button>
           </div>
-          <span className="text-[10px] text-zinc-500 font-mono">Mario, Javier y Daniel dedicadas</span>
         </div>
 
-        <div className="p-5 rounded-2xl bg-zinc-950/80 border border-white/10 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-zinc-400 text-xs font-medium">Hitos y Tareas Hechas</span>
-            <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+        {/* Quick Metrics Inside Banner */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-white/10 mt-6">
+          <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono">
+              <Clock className="w-4 h-4" />
+              <span>HORAS TOTALES</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-white font-mono">{totalTeamHours.toFixed(1)}h</div>
           </div>
-          <div className="text-3xl font-black text-white font-mono">
-            {totalCompletedTasks}
-          </div>
-          <span className="text-[10px] text-zinc-500 font-mono">Completadas con éxito y registradas</span>
-        </div>
 
-        <div className="p-5 rounded-2xl bg-zinc-950/80 border border-white/10 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-zinc-400 text-xs font-medium">Objetivos Planificados</span>
-            <Target className="w-4 h-4 text-amber-400" />
+          <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>HITOS HECHOS</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-white font-mono">{totalCompletedTasks}</div>
           </div>
-          <div className="text-3xl font-black text-white font-mono">
-            {totalPendingObjectives}
+
+          <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center gap-2 text-amber-400 text-xs font-mono">
+              <Target className="w-4 h-4" />
+              <span>OBJETIVOS ACTIVOS</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-white font-mono">{totalPendingObjectives}</div>
           </div>
-          <span className="text-[10px] text-zinc-500 font-mono">En backlog para próximas versiones</span>
+
+          <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
+            <div className="flex items-center gap-2 text-blue-400 text-xs font-mono">
+              <Users className="w-4 h-4" />
+              <span>CORE FOUNDERS</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-white font-mono">{admins.length}</div>
+          </div>
         </div>
       </div>
 
-      {/* Control Bar: Filter Admin + Quick Actions */}
-      <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        {/* Admin Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          <span className="text-xs font-mono text-zinc-400 mr-1 hidden sm:inline">Admin:</span>
+      {/* Control Bar: Filter Pills & Report Export */}
+      <div className="flex items-center justify-between gap-3 flex-wrap text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button
+            type="button"
             onClick={() => setSelectedAdminId('all')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-xl border transition shrink-0 cursor-pointer font-mono ${
               selectedAdminId === 'all'
-                ? 'bg-white text-black shadow-lg'
-                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-white/5'
+                ? 'bg-emerald-500 text-black font-extrabold shadow-sm border-emerald-400'
+                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
             }`}
           >
-            Los 3 Admins (Vista General)
+            Todos los Admins ({admins.length})
           </button>
           {admins.map(a => (
             <button
               key={a.id}
+              type="button"
               onClick={() => setSelectedAdminId(a.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-xl border transition shrink-0 flex items-center gap-2 cursor-pointer font-mono ${
                 selectedAdminId === a.id
-                  ? 'bg-emerald-400 text-black shadow-lg'
-                  : 'bg-zinc-900 text-zinc-400 hover:text-white border border-white/5'
+                  ? 'bg-emerald-500 text-black font-extrabold shadow-sm border-emerald-400'
+                  : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
               }`}
             >
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: a.color }} />
@@ -502,162 +540,175 @@ export default function AdminTeamWorkspace() {
           ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <button
-            onClick={() => setIsAddDoneModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition flex items-center gap-1.5"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Registrar Horas / Hecho</span>
-          </button>
-
-          <button
-            onClick={() => setIsAddTodoModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold transition flex items-center gap-1.5"
-          >
-            <Target className="w-3.5 h-3.5" />
-            <span>Proponer Objetivo</span>
-          </button>
-
-          <button
-            onClick={handleCopyReport}
-            className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5"
-            title="Copiar resumen del equipo formateado para WhatsApp"
-          >
-            {copiedReport ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-zinc-400" />}
-            <span>{copiedReport ? '¡Copiado!' : 'Copiar Resumen WhatsApp'}</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleCopyReport}
+          className="p-2 px-3 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer text-xs flex items-center gap-1.5 font-mono"
+          title="Copiar resumen del equipo para WhatsApp o reuniones"
+        >
+          {copiedReport ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-zinc-400" />}
+          <span>{copiedReport ? 'Reporte Copiado' : 'Copiar Resumen WhatsApp'}</span>
+        </button>
       </div>
 
-      {/* Admin Cards Grid */}
-      <div className={`grid gap-6 ${displayedAdmins.length === 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
+      {/* Admin Cards Grid (Clean Obsidian Surface) */}
+      <div className={`grid gap-6 ${displayedAdmins.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 'grid-cols-1 lg:grid-cols-3'}`}>
         {displayedAdmins.map(admin => (
           <div
             key={admin.id}
-            className={`rounded-3xl border ${admin.borderColor} bg-gradient-to-b ${admin.bgGradient} p-6 sm:p-7 shadow-2xl flex flex-col justify-between space-y-6 transition hover:shadow-[0_0_30px_rgba(255,255,255,0.04)]`}
+            className="p-5 sm:p-6 rounded-2xl bg-zinc-950 border border-white/10 hover:border-white/20 transition shadow-xl space-y-5 flex flex-col justify-between group"
           >
-            {/* Top: Identity & Hours */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+              {/* Top: Identity & Hours */}
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div 
-                    className="w-11 h-11 rounded-2xl p-0.5 border flex items-center justify-center font-mono font-black text-lg text-white shadow-xl shrink-0"
-                    style={{ borderColor: admin.color, backgroundColor: '#09090b' }}
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center font-mono font-black text-base shadow-md shrink-0 border"
+                    style={{ 
+                      borderColor: `${admin.color}40`, 
+                      backgroundColor: `${admin.color}15`, 
+                      color: admin.color 
+                    }}
                   >
-                    <span style={{ color: admin.color }}>{admin.avatar}</span>
+                    {admin.avatar}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-black text-white tracking-tight">
-                      {admin.name}
-                    </h2>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${admin.badgeClass} font-semibold uppercase`}>
-                      Admin
-                    </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-emerald-300 transition">
+                        {admin.name}
+                      </h3>
+                      <span 
+                        className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold border"
+                        style={{ 
+                          backgroundColor: `${admin.color}15`, 
+                          color: admin.color, 
+                          borderColor: `${admin.color}35` 
+                        }}
+                      >
+                        Admin
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-400 font-mono">
+                      {admin.role}
+                    </p>
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className="text-[10px] font-mono text-zinc-400 block uppercase">Horas Pasadas:</span>
-                  <div className="text-2xl font-black font-mono text-white" style={{ color: admin.color }}>
+                  <span className="text-[10px] font-mono text-zinc-500 block uppercase">Dedicación:</span>
+                  <span className="text-2xl font-black font-mono text-white" style={{ color: admin.color }}>
                     {admin.totalHours}h
-                  </div>
+                  </span>
                 </div>
               </div>
 
-              {/* SECTION: LO QUE HA HECHO */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                      Lo Que Ha Hecho ({(admin.doneTasks || []).length}):
-                    </h3>
+              {/* Hours Breakdown Box */}
+              <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/5 space-y-1.5 font-mono text-[11px]">
+                <div className="flex items-center justify-between text-zinc-400">
+                  <span className="text-zinc-500">ÁREAS DE ENFOQUE:</span>
+                  <span className="text-zinc-400">{admin.subRole || 'Co-Fundador'}</span>
+                </div>
+                <div className="space-y-1 pt-0.5">
+                  {(admin.hoursBreakdown || []).map((h, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs">
+                      <span className="text-zinc-300 truncate max-w-[200px]">{h.area}</span>
+                      <span className="text-white font-semibold">{h.hours}h</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* SECTION: TRABAJO REALIZADO */}
+              <div className="space-y-2.5 pt-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-zinc-300 font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="uppercase tracking-wider">Hecho ({(admin.doneTasks || []).length})</span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => {
                       setTargetAdminForDone(admin.id);
                       setIsAddDoneModalOpen(true);
                     }}
-                    className="text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1"
+                    className="text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1 text-[11px] cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                     <span>Añadir</span>
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-72 overflow-y-auto pr-1 scrollbar-thin">
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
                   {(admin.doneTasks || []).map(task => (
                     <div
                       key={task.id}
-                      className="p-3 rounded-xl bg-zinc-950/80 border border-white/5 hover:border-emerald-500/30 transition space-y-1 group"
+                      className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-white/15 transition space-y-1 group/task"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-xs text-zinc-200 font-medium leading-snug">
                           {task.title}
                         </span>
                         <button
+                          type="button"
                           onClick={() => handleDeleteDoneTask(admin.id, task.id)}
-                          className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-rose-400 transition p-0.5 shrink-0"
+                          className="opacity-0 group-hover/task:opacity-100 text-zinc-500 hover:text-rose-400 transition p-0.5 shrink-0 cursor-pointer"
                           title="Eliminar tarea"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
-                      <div className="flex items-center gap-3 text-[10px] font-mono text-zinc-400">
+                      <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
                         <span className="text-emerald-400 font-bold">{task.hours}h</span>
                         <span>•</span>
-                        <span className="text-zinc-500">{task.category || 'General'}</span>
+                        <span className="text-zinc-400">{task.category || 'General'}</span>
                         <span>•</span>
-                        <span className="text-zinc-500">{task.date || 'Reciente'}</span>
+                        <span>{task.date || 'Reciente'}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* SECTION: LO QUE QUIERE HACER */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-amber-400" />
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                      Lo Que Quiere Hacer ({(admin.todoTasks || []).length}):
-                    </h3>
+              {/* SECTION: PRÓXIMOS OBJETIVOS */}
+              <div className="space-y-2.5 pt-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-1.5 text-zinc-300 font-semibold">
+                    <Target className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="uppercase tracking-wider">Objetivos ({(admin.todoTasks || []).length})</span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => {
                       setTargetAdminForTodo(admin.id);
                       setIsAddTodoModalOpen(true);
                     }}
-                    className="text-[11px] font-mono text-amber-400 hover:text-amber-300 transition flex items-center gap-1"
+                    className="text-amber-400 hover:text-amber-300 transition flex items-center gap-1 text-[11px] cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                     <span>Añadir</span>
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-64 overflow-y-auto pr-1 scrollbar-thin">
+                <div className="space-y-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin">
                   {(admin.todoTasks || []).length === 0 ? (
-                    <div className="text-[11px] text-zinc-500 font-mono italic p-3 text-center rounded-xl bg-zinc-950/40">
-                      Sin tareas pendientes. ¡Propón un nuevo objetivo!
+                    <div className="text-[11px] text-zinc-500 font-mono italic p-3 text-center rounded-xl bg-zinc-900/40 border border-white/5">
+                      Sin objetivos pendientes.
                     </div>
                   ) : (
                     (admin.todoTasks || []).map(task => (
                       <div
                         key={task.id}
-                        className="p-3 rounded-xl bg-zinc-950/80 border border-white/5 hover:border-amber-500/30 transition flex items-start justify-between gap-3 group"
+                        className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-amber-500/20 transition flex items-start justify-between gap-2.5 group/todo"
                       >
                         <div className="space-y-1 flex-1">
                           <p className="text-xs text-zinc-300 leading-snug">
                             {task.title}
                           </p>
                           <div className="flex items-center gap-2 text-[10px] font-mono">
-                            <span className={`px-1.5 py-0.5 rounded ${
-                              task.priority === 'Alta' 
-                                ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' 
-                                : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                            <span className={`px-1.5 py-0.5 rounded border ${
+                              task.priority === 'Alta'
+                                ? 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+                                : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                             }`}>
                               Prioridad {task.priority}
                             </span>
@@ -669,7 +720,7 @@ export default function AdminTeamWorkspace() {
                           <button
                             type="button"
                             onClick={() => handleCompleteTodoTask(admin.id, task.id)}
-                            className="p-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition"
+                            className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition cursor-pointer"
                             title="Marcar como hecha e ingresar horas"
                           >
                             <Check className="w-3.5 h-3.5" />
@@ -677,7 +728,7 @@ export default function AdminTeamWorkspace() {
                           <button
                             type="button"
                             onClick={() => handleDeleteTodoTask(admin.id, task.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-rose-400 transition"
+                            className="opacity-0 group-hover/todo:opacity-100 p-1.5 text-zinc-500 hover:text-rose-400 transition cursor-pointer"
                             title="Eliminar objetivo"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -690,20 +741,21 @@ export default function AdminTeamWorkspace() {
               </div>
             </div>
 
-            {/* Bottom Quick Card Footer */}
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
+            {/* Bottom Card Footer */}
+            <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
               <span className="text-[11px] text-zinc-500 font-mono">
                 {admin.name} • TecnOdiel Core
               </span>
               <button
+                type="button"
                 onClick={() => {
                   setTargetAdminForDone(admin.id);
                   setIsAddDoneModalOpen(true);
                 }}
-                className="px-3 py-1 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-mono transition flex items-center gap-1"
+                className="p-2 px-3 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition cursor-pointer text-xs flex items-center gap-1.5 font-mono"
               >
-                <Plus className="w-3 h-3" />
-                <span>+ Horas</span>
+                <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                <span>+ Registrar Horas</span>
               </button>
             </div>
           </div>
