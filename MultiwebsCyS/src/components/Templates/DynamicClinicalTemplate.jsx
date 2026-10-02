@@ -75,7 +75,8 @@ export default function DynamicClinicalTemplate({
 
   return (
     <div 
-      className="min-h-screen text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black"
+      onClick={(e) => handleEdit(e, 'background', 'Fondo y Color de la Clínica')}
+      className={`min-h-screen text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black ${editableClass('background')}`}
       style={{ backgroundColor: bgColor }}
     >
       {/* 1. Header / Top Navigation */}

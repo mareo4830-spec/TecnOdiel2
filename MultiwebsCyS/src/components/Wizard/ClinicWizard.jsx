@@ -33,7 +33,8 @@ import {
   ArrowLeftRight, 
   ChevronLeft, 
   ChevronRight,
-  ArrowUpRight
+  ArrowUpRight,
+  Users
 } from 'lucide-react';
 import { 
   TEMPLATES, 
@@ -1002,6 +1003,19 @@ export default function ClinicWizard({ onCreated, onCancel }) {
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
                 <button
                   type="button"
+                  onClick={() => handleSelectElement({ type: 'background', label: 'Fondo y Colores de la Clínica' })}
+                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                    (selectedElement?.type === 'background' || selectedElement?.type === 'colors' || selectedElement?.type === 'theme')
+                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
+                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                  }`}
+                >
+                  <Palette className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Fondo y Colores</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => handleSelectElement({ type: 'hero_image', label: 'Foto de Portada' })}
                   className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
                     selectedElement?.type === 'hero_image'
@@ -1574,10 +1588,146 @@ export default function ClinicWizard({ onCreated, onCancel }) {
                   );
                 })()}
 
-                {/* Theme & Palette Inspector */}
-                {selectedElement.type === 'theme' && (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
+                {/* Theme, Background & Palette Inspector */}
+                {(selectedElement.type === 'theme' || selectedElement.type === 'background' || selectedElement.type === 'colors') && (
+                  <div className="space-y-4">
+                    {/* Background Color Picker & Swatches */}
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                        <span>Color de Fondo Principal</span>
+                        <span className="text-zinc-300 font-mono text-[10px]">{formData.background_color}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={formData.background_color || '#041724'}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, background_color: e.target.value }));
+                            showTweakNotice('Color de fondo actualizado');
+                          }}
+                          className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={formData.background_color || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, background_color: e.target.value }))}
+                          placeholder="#041724"
+                          className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+
+                      {/* Quick Dark Presets */}
+                      <div className="grid grid-cols-4 gap-1.5 pt-1">
+                        {[
+                          { label: 'Océano', hex: '#041724' },
+                          { label: 'Clínico', hex: '#081a24' },
+                          { label: 'Grafito', hex: '#0a0e14' },
+                          { label: 'Esmeralda', hex: '#041c16' },
+                          { label: 'Índigo', hex: '#0b0f24' },
+                          { label: 'Negro', hex: '#000000' },
+                          { label: 'Ceniza', hex: '#10141d' },
+                          { label: 'Noche', hex: '#080b10' }
+                        ].map(sw => (
+                          <button
+                            key={sw.hex}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, background_color: sw.hex }));
+                              showTweakNotice(`Fondo: ${sw.label}`);
+                            }}
+                            className={`p-1.5 rounded-lg border text-left text-[10px] font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                              formData.background_color === sw.hex ? 'border-cyan-400 bg-white/10 text-white font-bold' : 'border-white/10 bg-zinc-900 text-zinc-400'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: sw.hex }} />
+                            <span className="truncate">{sw.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Surface / Cards Color */}
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                        <span>Color de Tarjetas / Superficie</span>
+                        <span className="text-zinc-300 font-mono text-[10px]">{formData.surface_color}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={formData.surface_color || '#08253a'}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, surface_color: e.target.value }));
+                            showTweakNotice('Color de tarjetas actualizado');
+                          }}
+                          className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={formData.surface_color || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, surface_color: e.target.value }))}
+                          placeholder="#08253a"
+                          className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Primary Accent Color */}
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                        <span>Color Principal de Acento</span>
+                        <span className="text-zinc-300 font-mono text-[10px]">{formData.primary_color}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={formData.primary_color || '#06b6d4'}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, primary_color: e.target.value }));
+                            showTweakNotice('Color de acento actualizado');
+                          }}
+                          className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={formData.primary_color || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, primary_color: e.target.value }))}
+                          className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+
+                      {/* Accent swatches */}
+                      <div className="grid grid-cols-4 gap-1.5 pt-1">
+                        {[
+                          { label: 'Cian', hex: '#06b6d4' },
+                          { label: 'Turquesa', hex: '#14b8a6' },
+                          { label: 'Esmeralda', hex: '#10b981' },
+                          { label: 'Azul', hex: '#0284c7' },
+                          { label: 'Violeta', hex: '#8b5cf6' },
+                          { label: 'Lima', hex: '#84cc16' },
+                          { label: 'Oro', hex: '#eab308' },
+                          { label: 'Blanco', hex: '#ffffff' }
+                        ].map(sw => (
+                          <button
+                            key={sw.hex}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, primary_color: sw.hex }));
+                              showTweakNotice(`Acento: ${sw.label}`);
+                            }}
+                            className={`p-1.5 rounded-lg border text-left text-[10px] font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                              formData.primary_color === sw.hex ? 'border-cyan-400 bg-white/10 text-white font-bold' : 'border-white/10 bg-zinc-900 text-zinc-400'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: sw.hex }} />
+                            <span className="truncate">{sw.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Template Visual Styles */}
+                    <div className="space-y-1 pt-2 border-t border-white/10">
                       <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
                         Elige un Estilo Visual de Plantilla Clínica
                       </label>
@@ -1612,9 +1762,10 @@ export default function ClinicWizard({ onCreated, onCancel }) {
                       </div>
                     </div>
 
-                    <div className="space-y-1 pt-1">
+                    {/* Palettes 1-Click */}
+                    <div className="space-y-1 pt-2 border-t border-white/10">
                       <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Paleta de Color Principal
+                        Paleta de Color Principal (1 Clic)
                       </label>
                       <div className="flex flex-wrap items-center gap-2">
                         {COLOR_PALETTES.map((pal, idx) => (
