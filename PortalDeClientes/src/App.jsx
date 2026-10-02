@@ -135,9 +135,10 @@ export default function App({
             />
           ) : restaurantData ? (
             /* CASE 2: Single Client Dashboard (Isolated) */
-            <>
-              <Navbar 
+            <main className="flex-1 w-full min-h-screen">
+              <Dashboard 
                 restaurant={restaurantData} 
+                onRefresh={() => loadRestaurant(selectedSlug)} 
                 onSwitchRestaurant={handleSwitchRestaurant}
                 onNavigateToMultiwebs={onNavigateToMultiwebs}
                 onNavigateToCyS={onNavigateToCyS}
@@ -145,13 +146,7 @@ export default function App({
                 isAdminImpersonating={isAdminImpersonating}
                 onBackToAdmin={handleBackToAdmin}
               />
-              <main className="flex-1">
-                <Dashboard 
-                  restaurant={restaurantData} 
-                  onRefresh={() => loadRestaurant(selectedSlug)} 
-                />
-              </main>
-            </>
+            </main>
           ) : (
             /* CASE 3: Secure Login Gate (Client Key or Master Admin) */
             <main className="flex-1 flex items-center justify-center">
