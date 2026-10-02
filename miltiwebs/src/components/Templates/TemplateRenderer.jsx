@@ -10,7 +10,13 @@ import { normalizeTemplateId } from './templateNormalizer';
 
 export { normalizeTemplateId };
 
-export default function TemplateRenderer({ restaurant, isPreview = false }) {
+export default function TemplateRenderer({ 
+  restaurant, 
+  isPreview = false, 
+  previewDevice = 'desktop',
+  onSelectElement = null,
+  selectedElement = null
+}) {
   if (!restaurant) return null;
 
   const templateId = normalizeTemplateId(restaurant?.template_id);
@@ -18,22 +24,33 @@ export default function TemplateRenderer({ restaurant, isPreview = false }) {
     ...restaurant, 
     template_id: templateId,
     menu_categories: Array.isArray(restaurant?.menu_categories) ? restaurant.menu_categories : [],
-    selected_modules: Array.isArray(restaurant?.selected_modules) ? restaurant.selected_modules : []
+    selected_modules: Array.isArray(restaurant?.selected_modules) ? restaurant.selected_modules : [],
+    hero_layout: restaurant?.hero_layout || 'split',
+    hero_image_side: restaurant?.hero_image_side || 'right',
+    hero_image_size: restaurant?.hero_image_size || 'medium'
+  };
+
+  const commonProps = {
+    restaurant: normalizedRestaurant,
+    isPreview,
+    previewDevice,
+    onSelectElement,
+    selectedElement
   };
 
   switch (templateId) {
     case 'brutalist':
-      return <BrutalistTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <BrutalistTemplate {...commonProps} />;
     case 'minimalist':
-      return <MinimalistTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <MinimalistTemplate {...commonProps} />;
     case 'artisan':
-      return <ArtisanTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <ArtisanTemplate {...commonProps} />;
     case 'velvet':
-      return <VelvetTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <VelvetTemplate {...commonProps} />;
     case 'nocturne':
-      return <NocturneTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <NocturneTemplate {...commonProps} />;
     case 'tecnodiel_elite':
-      return <TecnodielTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <TecnodielTemplate {...commonProps} />;
     default:
       // Dynamically handles all 25+ specialized templates:
       // cyberpunk, tokyo_omakase, mediterranean_breeze, bistro_parisien,
@@ -42,6 +59,6 @@ export default function TemplateRenderer({ restaurant, isPreview = false }) {
       // marisqueria_costera, taqueria_fiesta, coffee_specialty, gelato_artesanal,
       // pizzeria_napolitana, lounge_shisha, beach_club, gourmet_vanguardia,
       // wok_asian_fusion, churreria_tradicional, bodega_enoteca, pulperia_gallega, tecnodiel_elite
-      return <DynamicThemedTemplate restaurant={normalizedRestaurant} isPreview={isPreview} />;
+      return <DynamicThemedTemplate {...commonProps} />;
   }
 }

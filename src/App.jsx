@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LandingApp from '../landing/src/App.jsx';
 import MultiwebsApp from '../miltiwebs/src/App.jsx';
 import PortalApp from '../PortalDeClientes/src/App.jsx';
+import MultiwebsCySApp from '../MultiwebsCyS/src/App.jsx';
 
 export default function App() {
   const [view, setView] = useState(() => {
@@ -13,6 +14,24 @@ export default function App() {
 
     if (params.get('view') === 'multiwebs' || params.get('view') === 'restaurantes') return 'multiwebs';
     if (params.get('view') === 'portal') return 'portal';
+    if (params.get('view') === 'cys' || params.get('view') === 'clinicas' || params.get('view') === 'salud') return 'cys';
+
+    if (
+      path.includes('/clinicas') ||
+      path.includes('/cys') ||
+      path.includes('/salud') ||
+      path.includes('/c/') ||
+      hash.includes('#/clinicas') ||
+      hash.includes('#/cys') ||
+      hash.includes('#/c/') ||
+      hash.includes('#c/') ||
+      hash.startsWith('#/c/') ||
+      hash.startsWith('#c/') ||
+      hash.includes('#/clinic/') ||
+      hash.includes('#clinic/')
+    ) {
+      return 'cys';
+    }
 
     if (
       path.includes('/restaurantes') || 
@@ -58,6 +77,21 @@ export default function App() {
       }
 
       if (
+        path.includes('/clinicas') ||
+        path.includes('/cys') ||
+        path.includes('/salud') ||
+        path.includes('/c/') ||
+        hash.includes('#/clinicas') ||
+        hash.includes('#/cys') ||
+        hash.includes('#/c/') ||
+        hash.includes('#c/') ||
+        hash.startsWith('#/c/') ||
+        hash.startsWith('#c/') ||
+        hash.includes('#/clinic/') ||
+        hash.includes('#clinic/')
+      ) {
+        setView('cys');
+      } else if (
         path.includes('/restaurantes') || 
         path.includes('/multiwebs') || 
         path.includes('/r/') ||
@@ -97,6 +131,9 @@ export default function App() {
     } else if (newView === 'multiwebs') {
       window.history.pushState(null, '', '/restaurantes');
       window.location.hash = '#/multiwebs';
+    } else if (newView === 'cys') {
+      window.history.pushState(null, '', '/clinicas');
+      window.location.hash = '#/cys';
     } else if (newView === 'portal') {
       const q = slug ? `?r=${encodeURIComponent(slug)}` : '';
       window.history.pushState(null, '', `/portal${q}`);
@@ -124,6 +161,12 @@ export default function App() {
           onIntroComplete={() => setHasIntroCompleted(true)}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
           onNavigateToLanding={() => navigateTo('landing')}
+        />
+      )}
+
+      {view === 'cys' && (
+        <MultiwebsCySApp 
+          key="cys-page"
         />
       )}
 

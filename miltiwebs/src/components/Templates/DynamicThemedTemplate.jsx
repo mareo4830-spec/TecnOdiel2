@@ -159,7 +159,13 @@ export function getTemplateArchetype(templateId) {
   return meta?.archetype || 'default_elegance';
 }
 
-export default function DynamicThemedTemplate({ restaurant = {}, isPreview = false }) {
+export default function DynamicThemedTemplate({ 
+  restaurant = {}, 
+  isPreview = false,
+  previewDevice = 'desktop',
+  onSelectElement = null,
+  selectedElement = null
+}) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
 
@@ -176,6 +182,57 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
   const categories = Array.isArray(restaurant?.menu_categories) ? restaurant.menu_categories : [];
 
   const heroImage = restaurant?.hero_image || 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1920&q=80';
+  const heroLayout = restaurant?.hero_layout || 'split';
+  const heroImageSide = restaurant?.hero_image_side || 'right';
+  const heroImageSize = restaurant?.hero_image_size || 'medium';
+  const heroImageRounded = restaurant?.hero_image_rounded || 'rounded-2xl';
+
+  const isMobile = previewDevice === 'mobile';
+  const isTablet = previewDevice === 'tablet';
+
+  const getImageHeight = (size = heroImageSize) => {
+    if (isMobile) {
+      if (size === 'small') return 'h-[200px]';
+      if (size === 'large') return 'h-[320px]';
+      if (size === 'full') return 'h-[380px]';
+      return 'h-[250px]';
+    }
+    if (size === 'small') return 'h-[240px]';
+    if (size === 'large') return 'h-[440px]';
+    if (size === 'full') return 'h-[560px]';
+    return 'h-[340px]';
+  };
+
+  const getGridCols = () => {
+    if (isMobile) {
+      return {
+        container: 'grid grid-cols-1 gap-6 items-center',
+        textCol: 'w-full order-2 space-y-4',
+        imageCol: 'w-full order-1 relative'
+      };
+    }
+    return {
+      container: 'grid grid-cols-1 lg:grid-cols-12 gap-8 items-center',
+      textCol: heroImageSide === 'left' ? 'lg:col-span-7 order-2 space-y-5' : 'lg:col-span-7 order-1 space-y-5',
+      imageCol: heroImageSide === 'left' ? 'lg:col-span-5 order-1 relative' : 'lg:col-span-5 order-2 relative'
+    };
+  };
+
+  const editableClass = (type) => {
+    if (!isPreview) return '';
+    const isSelected = selectedElement?.type === type;
+    return `cursor-pointer transition-all duration-150 relative group/edit ${
+      isSelected 
+        ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-black shadow-[0_0_20px_rgba(16,185,129,0.4)] rounded-xl' 
+        : 'hover:ring-2 hover:ring-emerald-400/80 hover:ring-dashed rounded-xl'
+    }`;
+  };
+
+  const handleEdit = (e, type, title = '', data = {}) => {
+    if (!isPreview || !onSelectElement) return;
+    e.stopPropagation();
+    onSelectElement({ type, title, data: { restaurant, ...data } });
+  };
 
   // Smooth scroll without changing window.location.hash to prevent router resets!
   const scrollToCarta = (e) => {
@@ -283,7 +340,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
          ───────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-2xl bg-black/85">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div 
+            onClick={(e) => handleEdit(e, 'title', 'Nombre de tu Local')}
+            className={`flex items-center gap-3 p-1 rounded-xl transition ${editableClass('title')}`}
+            title={isPreview ? "Pulsa para editar el nombre de tu restaurante" : undefined}
+          >
             <div 
               className={`w-9 h-9 ${meta.buttonShape} flex items-center justify-center border font-bold text-xs shrink-0 transition-transform hover:scale-105`}
               style={{ 
@@ -327,13 +388,20 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               </span>
             )}
             <button
-              onClick={() => setIsBookingOpen(true)}
-              className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer`}
+              onClick={(e) => {
+                if (isPreview) {
+                  handleEdit(e, 'cta_button', 'Botón de Reserva / Llamada a la acción');
+                } else {
+                  setIsBookingOpen(true);
+                }
+              }}
+              className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer ${editableClass('cta_button')}`}
               style={{
                 backgroundColor: primaryColor,
                 color: '#000000',
                 boxShadow: `0 0 20px ${primaryColor}40`
               }}
+              title={isPreview ? "Pulsa para editar el botón de reserva" : undefined}
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Reservar Mesa</span>
@@ -346,38 +414,44 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           BESPOKE HERO ARCHETYPE 1: TABERNA IBÉRICA & TAPAS (ALBERO & MADERA)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'taberna_iberica' && (
-        <section className="relative pt-8 pb-14 px-4 max-w-6xl mx-auto font-serif">
-          <div className="rounded-3xl border-2 border-amber-800/60 bg-[#231409] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
-            {/* Azulejo Ceramic Top Accent */}
-            <div className="flex items-center justify-between pb-4 mb-6 border-b border-amber-700/40 text-xs font-mono uppercase tracking-widest text-amber-400/90">
-              <span className="flex items-center gap-2">
-                <Sun className="w-4 h-4 text-amber-400" />
-                <span>SOLERA & BODEGUITA // HUELVA & SEVILLA</span>
-              </span>
-              <span className="hidden sm:inline text-amber-500/70">CORTE DE JAMÓN A CUCHILLO • D.O. JABUGO</span>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-5">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-sans font-semibold">
+        <section className="relative pt-6 pb-12 px-4 max-w-6xl mx-auto font-serif">
+          {heroLayout === 'centered' ? (
+            <div 
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+              className={`rounded-3xl border-2 border-amber-800/60 p-6 sm:p-14 min-h-[460px] flex flex-col justify-end text-center relative overflow-hidden shadow-2xl ${editableClass('hero_image')}`}
+              title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+            >
+              <div 
+                className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/30 -z-10" />
+              <div className="max-w-2xl space-y-4 mx-auto flex flex-col items-center">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema del Local')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-sans font-semibold ${editableClass('slogan')}`}
+                >
                   <Award className="w-3.5 h-3.5 text-amber-400" />
                   <span>Taberna Tradicional • Tapas, Medias & Raciones</span>
                 </div>
-
-                <h1 className="text-3xl sm:text-5xl font-black text-amber-100 tracking-tight leading-tight">
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl lg:text-6xl'} font-black text-amber-100 tracking-tight leading-tight ${editableClass('title')}`}
+                >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-
-                <p className="text-xs sm:text-sm text-amber-200/80 leading-relaxed max-w-lg font-sans">
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-amber-200/80 leading-relaxed max-w-lg font-sans ${editableClass('slogan')}`}
+                >
                   {restaurant.description || 'El sabor auténtico del sur: jamón de bellota 100% ibérico cortado a cuchillo al momento, gambas blancas de Huelva al ajillo y vinos finos servidos en bota y catavinos.'}
                 </p>
-
-                <div className="pt-2 flex flex-wrap items-center gap-3 font-sans">
+                <div className="pt-2 flex flex-wrap justify-center items-center gap-3 font-sans">
                   <button
-                    onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer"
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
-                    Reservar Mesa en Taberna
+                    {restaurant.cta_text || 'Reservar Mesa en Taberna'}
                   </button>
                   <button
                     type="button"
@@ -388,22 +462,117 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   </button>
                 </div>
               </div>
+            </div>
+          ) : heroLayout === 'minimal' ? (
+            <div className="rounded-3xl border-2 border-amber-800/60 bg-[#231409] p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+              <div className="max-w-2xl space-y-4">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema del Local')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-sans font-semibold ${editableClass('slogan')}`}
+                >
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Taberna Tradicional • Tapas, Medias & Raciones</span>
+                </div>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl'} font-black text-amber-100 tracking-tight leading-tight ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-amber-200/80 leading-relaxed max-w-lg font-sans ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'El sabor auténtico del sur: jamón de bellota 100% ibérico cortado a cuchillo al momento, gambas blancas de Huelva al ajillo y vinos finos.'}
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-3 font-sans">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'Reservar Mesa en Taberna'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-xl border border-amber-600/50 bg-amber-950/60 hover:bg-amber-900/60 text-amber-200 font-bold text-xs uppercase transition cursor-pointer"
+                  >
+                    Ver Pizarra de Tapas
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-3xl border-2 border-amber-800/60 bg-[#231409] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+              <div className="flex items-center justify-between pb-4 mb-6 border-b border-amber-700/40 text-xs font-mono uppercase tracking-widest text-amber-400/90">
+                <span className="flex items-center gap-2">
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span>SOLERA & BODEGUITA // HUELVA & SEVILLA</span>
+                </span>
+                <span className="hidden sm:inline text-amber-500/70">CORTE DE JAMÓN A CUCHILLO • D.O. JABUGO</span>
+              </div>
 
-              <div className="lg:col-span-5 relative">
-                <div className="relative rounded-2xl overflow-hidden border-2 border-amber-700/60 shadow-2xl bg-amber-950/40 p-2">
-                  <img 
-                    src={heroImage} 
-                    alt={restaurant.name}
-                    className="w-full h-[320px] object-cover rounded-xl filter contrast-105"
-                  />
-                  <div className="absolute bottom-4 left-4 right-4 bg-black/90 p-3 rounded-lg border border-amber-700/50 text-[11px] font-sans text-amber-200 flex justify-between items-center">
-                    <span className="font-bold">JAMÓN DEL DÍA: D.O. JABUGO</span>
-                    <span className="text-amber-400 font-mono font-bold">100% BELLOTA</span>
+              <div className={getGridCols().container}>
+                <div className={getGridCols().textCol}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema del Local')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-sans font-semibold ${editableClass('slogan')}`}
+                  >
+                    <Award className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Taberna Tradicional • Tapas, Medias & Raciones</span>
+                  </div>
+
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl'} font-black text-amber-100 tracking-tight leading-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-amber-200/80 leading-relaxed max-w-lg font-sans ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'El sabor auténtico del sur: jamón de bellota 100% ibérico cortado a cuchillo al momento, gambas blancas de Huelva al ajillo y vinos finos servidos en bota y catavinos.'}
+                  </p>
+
+                  <div className="pt-2 flex flex-wrap items-center gap-3 font-sans">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa en Taberna'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-xl border border-amber-600/50 bg-amber-950/60 hover:bg-amber-900/60 text-amber-200 font-bold text-xs uppercase transition cursor-pointer"
+                    >
+                      Ver Pizarra de Tapas
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className={`relative ${heroImageRounded} overflow-hidden border-2 border-amber-700/60 shadow-2xl bg-amber-950/40 p-2`}>
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover rounded-xl filter contrast-105`}
+                    />
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/90 p-3 rounded-lg border border-amber-700/50 text-[11px] font-sans text-amber-200 flex justify-between items-center">
+                      <span className="font-bold">JAMÓN DEL DÍA: D.O. JABUGO</span>
+                      <span className="text-amber-400 font-mono font-bold">100% BELLOTA</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </section>
       )}
 
@@ -411,101 +580,319 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           BESPOKE HERO ARCHETYPE 2: NOCTURNE LOUNGE & MIXOLOGÍA (VIP OBSIDIAN)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'nocturne' && (
-        <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden border border-amber-400/20 bg-gradient-to-b from-[#14141d] to-[#07070a] p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl">
-            <div 
-              className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000 opacity-40"
-              style={{ backgroundImage: `url(${heroImage})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent -z-10" />
+        <section className="relative pt-6 pb-14 px-4 max-w-6xl mx-auto font-sans">
+          {heroLayout === 'split' ? (
+            <div className="relative rounded-3xl overflow-hidden border border-amber-400/20 bg-gradient-to-b from-[#14141d] to-[#07070a] p-6 sm:p-12 shadow-2xl">
+              <div className={getGridCols().container}>
+                <div className={getGridCols().textCol}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema del Local')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border border-amber-400/30 bg-amber-400/10 text-amber-300 uppercase tracking-widest backdrop-blur-md ${editableClass('slogan')}`}
+                  >
+                    <Wine className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Atmósfera Clandestina & Mixología de Noche</span>
+                  </div>
 
-            <div className="max-w-2xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border border-amber-400/30 bg-amber-400/10 text-amber-300 uppercase tracking-widest backdrop-blur-md">
-                <Wine className="w-3.5 h-3.5 text-amber-400" />
-                <span>Atmósfera Clandestina & Mixología de Noche</span>
-              </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl lg:text-6xl'} font-light text-white tracking-tight leading-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
 
-              <h1 className="text-3xl sm:text-6xl font-light text-white tracking-tight leading-tight">
-                {restaurant.slogan || restaurant.name}
-              </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl font-light ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Un espacio íntimo y refinado donde la mixología contemporánea se encuentra con creaciones culinarias de autor, luces suaves y acústica envolvente.'}
+                  </p>
 
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl font-light">
-                {restaurant.description || 'Un espacio íntimo y refinado donde la mixología contemporánea se encuentra con creaciones culinarias de autor, luces suaves y acústica envolvente.'}
-              </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-4">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{restaurant.cta_text || 'Reservar Mesa VIP'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-xl border border-white/20 hover:border-white/40 text-xs font-semibold text-white bg-black/40 backdrop-blur-md transition cursor-pointer"
+                    >
+                      Ver Cócteles & Bocados
+                    </button>
+                  </div>
+                </div>
 
-              <div className="flex flex-wrap items-center gap-3 pt-4">
-                <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer"
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
                 >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Reservar Mesa VIP</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={scrollToCarta}
-                  className="px-5 py-3.5 rounded-xl border border-white/20 hover:border-white/40 text-xs font-semibold text-white bg-black/40 backdrop-blur-md transition cursor-pointer"
-                >
-                  Ver Cócteles & Bocados
-                </button>
+                  <div className={`relative ${heroImageRounded} overflow-hidden border border-amber-400/30 p-2 bg-black/60 shadow-2xl`}>
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover rounded-xl`}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ) : heroLayout === 'minimal' ? (
+            <div className="relative rounded-3xl overflow-hidden border border-amber-400/20 bg-gradient-to-b from-[#14141d] to-[#07070a] p-6 sm:p-10 shadow-2xl">
+              <div className="max-w-2xl space-y-4">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema del Local')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border border-amber-400/30 bg-amber-400/10 text-amber-300 uppercase tracking-widest backdrop-blur-md ${editableClass('slogan')}`}
+                >
+                  <Wine className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Atmósfera Clandestina & Mixología de Noche</span>
+                </div>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl'} font-light text-white tracking-tight leading-tight ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl font-light ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'Un espacio íntimo y refinado donde la mixología contemporánea se encuentra con creaciones culinarias de autor.'}
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-3">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{restaurant.cta_text || 'Reservar Mesa VIP'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-xl border border-white/20 hover:border-white/40 text-xs font-semibold text-white bg-black/40 backdrop-blur-md transition cursor-pointer"
+                  >
+                    Ver Cócteles & Bocados
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div 
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+              className={`relative rounded-3xl overflow-hidden border border-amber-400/20 bg-gradient-to-b from-[#14141d] to-[#07070a] p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl ${editableClass('hero_image')}`}
+              title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+            >
+              <div 
+                className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000 opacity-40"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-transparent -z-10" />
+
+              <div className="max-w-2xl space-y-4">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema del Local')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border border-amber-400/30 bg-amber-400/10 text-amber-300 uppercase tracking-widest backdrop-blur-md ${editableClass('slogan')}`}
+                >
+                  <Wine className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Atmósfera Clandestina & Mixología de Noche</span>
+                </div>
+
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl lg:text-6xl'} font-light text-white tracking-tight leading-tight ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl font-light ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'Un espacio íntimo y refinado donde la mixología contemporánea se encuentra con creaciones culinarias de autor, luces suaves y acústica envolvente.'}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3 pt-4">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{restaurant.cta_text || 'Reservar Mesa VIP'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-xl border border-white/20 hover:border-white/40 text-xs font-semibold text-white bg-black/40 backdrop-blur-md transition cursor-pointer"
+                  >
+                    Ver Cócteles & Bocados
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
       {/* ─────────────────────────────────────────────────────────────
           BESPOKE HERO ARCHETYPE 3: TOKYO OMAKASE (ZEN WABI-SABI)
-         ───────────────────────────────────────────────────────────── */}
+          ───────────────────────────────────────────────────────────── */}
       {archetype === 'omakase' && (
-        <section className="relative pt-12 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-stone-800 bg-stone-950/70 p-6 sm:p-12 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-2 right-4 text-xs font-mono tracking-widest text-stone-600 uppercase">
-              // EDOMAE TRADITION • 一期一会
-            </div>
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 border border-stone-700 bg-stone-900 text-stone-300 text-[10px] font-mono uppercase tracking-widest">
-                <Moon className="w-3.5 h-3.5 text-stone-400" />
-                <span>Barra Omakase • Máximo 10 Comensales</span>
-              </div>
-              <h1 className="text-4xl sm:text-6xl font-light text-stone-100 tracking-tight leading-tight">
-                {restaurant.slogan || restaurant.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-stone-400 leading-relaxed max-w-lg font-light">
-                {restaurant.description || 'La experiencia Omakase confía el menú por completo a las manos del Shokunin. Producto puro, arroz cocido con vinagre rojo akazu y corte exacto al milímetro.'}
-              </p>
-              
-              <div className="pt-2 flex flex-wrap items-center gap-4">
-                <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer"
+        <section className="relative pt-8 pb-14 px-4 max-w-6xl mx-auto">
+          {heroLayout === 'centered' ? (
+            <div 
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+              className={`border border-stone-800 bg-stone-950 p-6 sm:p-14 min-h-[460px] flex flex-col justify-end text-center relative overflow-hidden shadow-2xl ${editableClass('hero_image')}`}
+              title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+            >
+              <div 
+                className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000 opacity-50"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/30 -z-10" />
+              <div className="max-w-2xl space-y-4 mx-auto flex flex-col items-center">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 border border-stone-700 bg-stone-900 text-stone-300 text-[10px] font-mono uppercase tracking-widest ${editableClass('slogan')}`}
                 >
-                  Reservar Pase de Barra
-                </button>
-                <button
-                  type="button"
-                  onClick={scrollToCarta}
-                  className="px-5 py-3.5 border border-stone-700 text-stone-300 hover:text-white hover:border-stone-500 text-xs tracking-wider uppercase transition cursor-pointer"
+                  <Moon className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Barra Omakase • Máximo 10 Comensales</span>
+                </div>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl lg:text-6xl'} font-light text-stone-100 tracking-tight leading-tight ${editableClass('title')}`}
                 >
-                  Ver Secuencia de Pases
-                </button>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 relative">
-              <div className="relative border border-stone-800 p-2 bg-stone-900/60 shadow-2xl">
-                <img 
-                  src={heroImage} 
-                  alt={restaurant.name}
-                  className="w-full h-[380px] object-cover filter contrast-105"
-                />
-                <div className="absolute bottom-4 left-4 right-4 bg-black/85 backdrop-blur-md p-3 border border-stone-800 text-[11px] font-mono text-stone-300 flex items-center justify-between">
-                  <span>CORTE DEL DÍA: O-TORO DE ALMADRABA</span>
-                  <span className="text-amber-400 font-bold">TEMPERATURA 36.5°C</span>
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-stone-300 leading-relaxed max-w-lg font-light ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'La experiencia Omakase confía el menú por completo a las manos del Shokunin.'}
+                </p>
+                <div className="pt-2 flex flex-wrap justify-center items-center gap-4">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'Reservar Pase de Barra'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 border border-stone-700 text-stone-300 hover:text-white hover:border-stone-500 text-xs tracking-wider uppercase transition cursor-pointer"
+                  >
+                    Ver Secuencia de Pases
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
+          ) : heroLayout === 'minimal' ? (
+            <div className="border border-stone-800 bg-stone-950/70 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+              <div className="max-w-2xl space-y-4">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 border border-stone-700 bg-stone-900 text-stone-300 text-[10px] font-mono uppercase tracking-widest ${editableClass('slogan')}`}
+                >
+                  <Moon className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Barra Omakase • Máximo 10 Comensales</span>
+                </div>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl'} font-light text-stone-100 tracking-tight leading-tight ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-stone-400 leading-relaxed max-w-lg font-light ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'La experiencia Omakase confía el menú por completo a las manos del Shokunin.'}
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-4">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'Reservar Pase de Barra'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 border border-stone-700 text-stone-300 hover:text-white hover:border-stone-500 text-xs tracking-wider uppercase transition cursor-pointer"
+                  >
+                    Ver Secuencia de Pases
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="border border-stone-800 bg-stone-950/70 p-6 sm:p-12 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-2 right-4 text-xs font-mono tracking-widest text-stone-600 uppercase">
+                // EDOMAE TRADITION • 一期一会
+              </div>
+              <div className={getGridCols().container}>
+                <div className={getGridCols().textCol}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 border border-stone-700 bg-stone-900 text-stone-300 text-[10px] font-mono uppercase tracking-widest ${editableClass('slogan')}`}
+                  >
+                    <Moon className="w-3.5 h-3.5 text-stone-400" />
+                    <span>Barra Omakase • Máximo 10 Comensales</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-3xl' : 'sm:text-5xl'} font-light text-stone-100 tracking-tight leading-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-stone-400 leading-relaxed max-w-lg font-light ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'La experiencia Omakase confía el menú por completo a las manos del Shokunin. Producto puro, arroz cocido con vinagre rojo akazu y corte exacto al milímetro.'}
+                  </p>
+                  
+                  <div className="pt-2 flex flex-wrap items-center gap-4">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Pase de Barra'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 border border-stone-700 text-stone-300 hover:text-white hover:border-stone-500 text-xs tracking-wider uppercase transition cursor-pointer"
+                    >
+                      Ver Secuencia de Pases
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className={`relative border border-stone-800 p-2 bg-stone-900/60 shadow-2xl ${heroImageRounded}`}>
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover filter contrast-105 rounded`}
+                    />
+                    <div className="absolute bottom-4 left-4 right-4 bg-black/85 backdrop-blur-md p-3 border border-stone-800 text-[11px] font-mono text-stone-300 flex items-center justify-between">
+                      <span>CORTE DEL DÍA: O-TORO DE ALMADRABA</span>
+                      <span className="text-amber-400 font-bold">TEMPERATURA 36.5°C</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -532,24 +919,81 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           </div>
 
           <div className="relative rounded-3xl border-2 border-yellow-400 bg-zinc-950 p-6 sm:p-12 shadow-[8px_8px_0px_#facc15] overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-xs font-black uppercase tracking-wider">
+            {heroLayout === 'centered' ? (
+              <div 
+                onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                className={`min-h-[440px] flex flex-col justify-end text-center relative overflow-hidden p-6 sm:p-12 ${editableClass('hero_image')}`}
+                title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+              >
+                <div 
+                  className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000 opacity-40"
+                  style={{ backgroundImage: `url(${heroImage})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/30 -z-10" />
+                <div className="max-w-2xl space-y-4 mx-auto flex flex-col items-center">
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-xs font-black uppercase tracking-wider ${editableClass('slogan')}`}
+                  >
+                    <Flame className="w-4 h-4 fill-yellow-400" />
+                    <span>SMASH CULTURE // CRUNCHY EDGES</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-4xl ${isMobile ? 'text-3xl' : 'sm:text-6xl'} font-black text-white uppercase tracking-tight leading-none ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-medium ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Carne picada fresca a diario en el local, aplastada a fuego vivo a 260°C para lograr la auténtica reacción Maillard.'}
+                  </p>
+                  <div className="pt-2 flex flex-wrap justify-center items-center gap-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || '¡Pedir Mesa / Comer Aquí!'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-xl border-2 border-white/20 hover:border-white text-white font-bold text-xs uppercase transition cursor-pointer"
+                    >
+                      Ver Burgers & Combos
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : heroLayout === 'minimal' ? (
+              <div className="max-w-2xl space-y-4">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-xs font-black uppercase tracking-wider ${editableClass('slogan')}`}
+                >
                   <Flame className="w-4 h-4 fill-yellow-400" />
                   <span>SMASH CULTURE // CRUNCHY EDGES</span>
                 </div>
-                <h1 className="text-4xl sm:text-6xl font-black text-white uppercase tracking-tight leading-none">
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-4xl ${isMobile ? 'text-3xl' : 'sm:text-5xl'} font-black text-white uppercase tracking-tight leading-none ${editableClass('title')}`}
+                >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-medium">
-                  {restaurant.description || 'Carne picada fresca a diario en el local, aplastada a fuego vivo a 260°C para lograr la auténtica reacción Maillard. Crujiente por fuera, jugo puro por dentro.'}
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-medium ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'Carne picada fresca a diario en el local, aplastada a fuego vivo a 260°C para lograr la auténtica reacción Maillard.'}
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-3">
                   <button
-                    onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg active:translate-y-1 cursor-pointer"
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg cursor-pointer ${editableClass('cta_button')}`}
                   >
-                    ¡Pedir Mesa / Comer Aquí!
+                    {restaurant.cta_text || '¡Pedir Mesa / Comer Aquí!'}
                   </button>
                   <button
                     type="button"
@@ -560,20 +1004,63 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   </button>
                 </div>
               </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={getGridCols().textCol}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-xs font-black uppercase tracking-wider ${editableClass('slogan')}`}
+                  >
+                    <Flame className="w-4 h-4 fill-yellow-400" />
+                    <span>SMASH CULTURE // CRUNCHY EDGES</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-4xl ${isMobile ? 'text-3xl' : 'sm:text-6xl'} font-black text-white uppercase tracking-tight leading-none ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-medium ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Carne picada fresca a diario en el local, aplastada a fuego vivo a 260°C para lograr la auténtica reacción Maillard. Crujiente por fuera, jugo puro por dentro.'}
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg active:translate-y-1 cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || '¡Pedir Mesa / Comer Aquí!'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-xl border-2 border-white/20 hover:border-white text-white font-bold text-xs uppercase transition cursor-pointer"
+                    >
+                      Ver Burgers & Combos
+                    </button>
+                  </div>
+                </div>
 
-              <div className="lg:col-span-5 relative">
-                <div className="relative rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl">
-                  <img 
-                    src={heroImage} 
-                    alt={restaurant.name}
-                    className="w-full h-[320px] object-cover"
-                  />
-                  <div className="absolute top-3 right-3 bg-yellow-400 text-black font-black text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider rotate-3 shadow-md">
-                    ★ Best Seller
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className={`relative ${heroImageRounded} overflow-hidden border-2 border-white/10 shadow-2xl`}>
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
+                    />
+                    <div className="absolute top-3 right-3 bg-yellow-400 text-black font-black text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider rotate-3 shadow-md">
+                      ★ Best Seller
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
       )}
@@ -582,26 +1069,35 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           BESPOKE HERO ARCHETYPE 5: COASTAL LONJA (MEDITERRÁNEO & MAR)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'coastal_lonja' && (
-        <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
+        <section className="relative pt-8 sm:pt-10 pb-16 px-4 max-w-6xl mx-auto">
           <div className="rounded-3xl border border-sky-800/60 bg-gradient-to-b from-sky-950/60 to-zinc-950 p-6 sm:p-12 shadow-2xl relative overflow-hidden">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-              <div className="space-y-4 max-w-xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-mono">
+            {heroLayout === 'minimal' ? (
+              <div className="max-w-3xl mx-auto text-center space-y-4 py-8">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-mono ${editableClass('slogan')}`}
+                >
                   <Fish className="w-3.5 h-3.5 text-sky-400" />
                   <span>Pesca del Día // Subasta de Lonja 06:00 AM</span>
                 </div>
-                <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-extrabold text-white tracking-tight ${editableClass('title')}`}
+                >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-                <p className="text-xs sm:text-sm text-sky-100/70 leading-relaxed">
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-sky-100/70 leading-relaxed max-w-xl mx-auto ${editableClass('slogan')}`}
+                >
                   {restaurant.description || 'Gamba blanca de la costa de Huelva, carabineros de profundidad, arroces en su punto exacto al fuego y pescados salvajes a la sal o a la brasa.'}
                 </p>
-                <div className="flex flex-wrap items-center gap-3 pt-2">
+                <div className="flex justify-center flex-wrap items-center gap-3 pt-3">
                   <button
-                    onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer"
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                   >
-                    Reservar Mesa con Salitre
+                    {restaurant.cta_text || 'Reservar Mesa con Salitre'}
                   </button>
                   <button
                     type="button"
@@ -612,15 +1108,106 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   </button>
                 </div>
               </div>
-
-              <div className="w-full lg:w-96 rounded-2xl overflow-hidden border border-sky-700/40 shadow-2xl shrink-0">
-                <img 
-                  src={heroImage} 
-                  alt={restaurant.name}
-                  className="w-full h-64 object-cover"
-                />
+            ) : heroLayout === 'centered' ? (
+              <div className="space-y-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`w-full rounded-2xl overflow-hidden border border-sky-700/40 shadow-2xl relative ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                    <span className="text-xs text-sky-300 font-mono">Lonja del Cantábrico y Golfo de Cádiz</span>
+                  </div>
+                </div>
+                <div className="text-center space-y-3 max-w-2xl mx-auto">
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-extrabold text-white tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-sky-100/70 leading-relaxed ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Gamba blanca de la costa de Huelva, carabineros de profundidad y pescados salvajes a la brasa.'}
+                  </p>
+                  <div className="flex justify-center flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa con Salitre'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3 rounded-2xl border border-sky-500/30 bg-sky-950/40 text-sky-200 text-xs font-semibold hover:border-sky-400 transition cursor-pointer"
+                    >
+                      Pizarra de la Lonja
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={`${getGridCols().textCol} space-y-4`}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/40 bg-sky-500/10 text-sky-300 text-xs font-mono ${editableClass('slogan')}`}
+                  >
+                    <Fish className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Pesca del Día // Subasta de Lonja 06:00 AM</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-extrabold text-white tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-sky-100/70 leading-relaxed ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Gamba blanca de la costa de Huelva, carabineros de profundidad, arroces en su punto exacto al fuego y pescados salvajes a la sal o a la brasa.'}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa con Salitre'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3 rounded-2xl border border-sky-500/30 bg-sky-950/40 text-sky-200 text-xs font-semibold hover:border-sky-400 transition cursor-pointer"
+                    >
+                      Pizarra de la Lonja
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className={`rounded-2xl overflow-hidden border border-sky-700/40 shadow-2xl shrink-0`}>
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -644,23 +1231,32 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               <span className="text-zinc-500">LAT: 37.2614° N • LON: -6.9447° W</span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-block px-2.5 py-1 bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[11px] uppercase tracking-wider">
+            {heroLayout === 'minimal' ? (
+              <div className="space-y-4 max-w-2xl mx-auto text-center py-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-block px-2.5 py-1 bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[11px] uppercase tracking-wider ${editableClass('slogan')}`}
+                >
                   [ PROTOCOLO MIXOLOGÍA EXPERIMENTAL ]
                 </div>
-                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-wider uppercase">
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-wider uppercase ${editableClass('title')}`}
+                >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-                <p className="text-xs text-zinc-400 leading-relaxed max-w-md font-sans">
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs text-zinc-400 leading-relaxed max-w-md mx-auto font-sans ${editableClass('slogan')}`}
+                >
                   {restaurant.description || 'Infusiones criogénicas, destilados ultrasónicos y gastronomía sintética de alta fidelidad sensorial. Bienvenido al futuro de la noche.'}
                 </p>
-                <div className="pt-2 flex flex-wrap items-center gap-3">
+                <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
                   <button
-                    onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer"
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer ${editableClass('cta_button')}`}
                   >
-                    [ INICIAR_RESERVA ]
+                    {restaurant.cta_text || '[ INICIAR_RESERVA ]'}
                   </button>
                   <button
                     type="button"
@@ -671,20 +1267,108 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   </button>
                 </div>
               </div>
-
-              <div className="lg:col-span-5 relative">
-                <div className="relative border border-cyan-500/40 p-1 bg-zinc-950">
+            ) : heroLayout === 'centered' ? (
+              <div className="space-y-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`relative border border-cyan-500/40 p-1 bg-zinc-950 ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
                   <img 
                     src={heroImage} 
                     alt={restaurant.name}
-                    className="w-full h-64 object-cover filter brightness-90 contrast-125"
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover filter brightness-90 contrast-125`}
                   />
-                  <div className="absolute bottom-2 left-2 text-[9px] text-cyan-400 font-mono">
-                    STATUS: OPTIMAL_ATMOSPHERE
+                  <div className="absolute bottom-2 left-2 text-[9px] text-cyan-400 font-mono bg-black/70 px-2 py-0.5">
+                    STATUS: OPTIMAL_ATMOSPHERE // DATA_FEED_OK
+                  </div>
+                </div>
+                <div className="text-center space-y-4 max-w-2xl mx-auto">
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-wider uppercase ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs text-zinc-400 leading-relaxed max-w-md mx-auto font-sans ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Gastronomía sintética y mixología avanzada.'}
+                  </p>
+                  <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || '[ INICIAR_RESERVA ]'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3 border border-cyan-500/50 bg-black text-cyan-400 hover:bg-cyan-950/40 text-xs uppercase tracking-wider transition cursor-pointer"
+                    >
+                      [ VER_REGISTRO_CARTA ]
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={`${getGridCols().textCol} space-y-4`}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-block px-2.5 py-1 bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[11px] uppercase tracking-wider ${editableClass('slogan')}`}
+                  >
+                    [ PROTOCOLO MIXOLOGÍA EXPERIMENTAL ]
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-wider uppercase ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs text-zinc-400 leading-relaxed max-w-md font-sans ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Infusiones criogénicas, destilados ultrasónicos y gastronomía sintética de alta fidelidad sensorial. Bienvenido al futuro de la noche.'}
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || '[ INICIAR_RESERVA ]'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3 border border-cyan-500/50 bg-black text-cyan-400 hover:bg-cyan-950/40 text-xs uppercase tracking-wider transition cursor-pointer"
+                    >
+                      [ VER_REGISTRO_CARTA ]
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} relative ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className="relative border border-cyan-500/40 p-1 bg-zinc-950">
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover filter brightness-90 contrast-125`}
+                    />
+                    <div className="absolute bottom-2 left-2 text-[9px] text-cyan-400 font-mono">
+                      STATUS: OPTIMAL_ATMOSPHERE
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -693,35 +1377,149 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           BESPOKE HERO ARCHETYPE 7: BISTRO PARISIEN (ART DÉCO & GOLD)
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'bistro_paris' && (
-        <section className="relative pt-12 pb-16 px-4 max-w-5xl mx-auto text-center font-serif">
-          <div className="p-8 sm:p-14 border border-amber-500/40 bg-[#061910] rounded-2xl shadow-2xl relative">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full border border-amber-500/40 flex items-center justify-center text-amber-400">
-              <Award className="w-6 h-6" />
-            </div>
-            <span className="text-[11px] uppercase tracking-[0.25em] text-amber-400 font-sans block mb-2 font-semibold">
-              Maison de Cuisine & Sommelier
-            </span>
-            <h1 className="text-4xl sm:text-6xl font-normal text-amber-100 tracking-normal mb-4">
-              {restaurant.name}
-            </h1>
-            <p className="text-xs sm:text-sm text-stone-300 max-w-xl mx-auto font-sans leading-relaxed mb-6 font-light">
-              {restaurant.description || 'Un homenaje a la elegancia clásica parisina, donde cada salsa se elabora a fuego pausado durante 24 horas y cada copa se marida con precisión.'}
-            </p>
-            <div className="flex justify-center gap-4 pt-2 font-sans">
-              <button
-                onClick={() => setIsBookingOpen(true)}
-                className="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer"
-              >
-                Réserver Une Table
-              </button>
-              <button
-                type="button"
-                onClick={scrollToCarta}
-                className="px-6 py-3 rounded-xl border border-amber-500/40 text-amber-200 hover:border-amber-400 text-xs font-semibold transition cursor-pointer"
-              >
-                Consulter La Carte
-              </button>
-            </div>
+        <section className="relative pt-10 pb-16 px-4 max-w-5xl mx-auto font-serif">
+          <div className="p-6 sm:p-14 border border-amber-500/40 bg-[#061910] rounded-2xl shadow-2xl relative">
+            {heroLayout === 'minimal' ? (
+              <div className="text-center max-w-xl mx-auto space-y-4">
+                <div className="w-12 h-12 mx-auto rounded-full border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <Award className="w-6 h-6" />
+                </div>
+                <span 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`text-[11px] uppercase tracking-[0.25em] text-amber-400 font-sans block font-semibold ${editableClass('slogan')}`}
+                >
+                  Maison de Cuisine & Sommelier
+                </span>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-4xl ${isMobile ? 'text-3xl' : 'sm:text-6xl'} font-normal text-amber-100 tracking-normal ${editableClass('title')}`}
+                >
+                  {restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-stone-300 font-sans leading-relaxed font-light ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'Un homenaje a la elegancia clásica parisina, donde cada salsa se elabora a fuego pausado durante 24 horas y cada copa se marida con precisión.'}
+                </p>
+                <div className="flex justify-center gap-4 pt-2 font-sans">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'Réserver Une Table'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-6 py-3 rounded-xl border border-amber-500/40 text-amber-200 hover:border-amber-400 text-xs font-semibold transition cursor-pointer"
+                  >
+                    Consulter La Carte
+                  </button>
+                </div>
+              </div>
+            ) : heroLayout === 'centered' ? (
+              <div className="space-y-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`w-full rounded-xl overflow-hidden border border-amber-500/40 shadow-2xl ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
+                  />
+                </div>
+                <div className="text-center space-y-4 max-w-xl mx-auto">
+                  <div className="w-10 h-10 mx-auto rounded-full border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-4xl ${isMobile ? 'text-3xl' : 'sm:text-6xl'} font-normal text-amber-100 ${editableClass('title')}`}
+                  >
+                    {restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-stone-300 font-sans leading-relaxed ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Elegancia clásica y alta gastronomía francesa.'}
+                  </p>
+                  <div className="flex justify-center gap-4 pt-2 font-sans">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Réserver Une Table'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-6 py-3 rounded-xl border border-amber-500/40 text-amber-200 hover:border-amber-400 text-xs font-semibold transition cursor-pointer"
+                    >
+                      Consulter La Carte
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={`${getGridCols().textCol} space-y-4`}>
+                  <div className="w-10 h-10 rounded-full border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <span 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`text-[11px] uppercase tracking-[0.25em] text-amber-400 font-sans block font-semibold ${editableClass('slogan')}`}
+                  >
+                    Maison de Cuisine & Sommelier
+                  </span>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-normal text-amber-100 tracking-normal ${editableClass('title')}`}
+                  >
+                    {restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-stone-300 font-sans leading-relaxed font-light ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Un homenaje a la elegancia clásica parisina, donde cada salsa se elabora a fuego pausado.'}
+                  </p>
+                  <div className="flex flex-wrap gap-3 pt-2 font-sans">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Réserver Une Table'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3 rounded-xl border border-amber-500/40 text-amber-200 hover:border-amber-400 text-xs font-semibold transition cursor-pointer"
+                    >
+                      Consulter La Carte
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className="rounded-xl overflow-hidden border border-amber-500/40 shadow-2xl">
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -731,48 +1529,149 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
          ───────────────────────────────────────────────────────────── */}
       {archetype === 'asador_prime' && (
         <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#230906] border border-red-950/80 p-6 sm:p-12 rounded-2xl shadow-2xl">
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-950/60 border border-red-600/50 text-red-400 text-xs font-mono uppercase tracking-wider">
-                <Flame className="w-3.5 h-3.5 text-red-500" />
-                <span>CÁMARA DRY AGED // CORTES SELECCIONADOS</span>
-              </div>
-              <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight">
-                {restaurant.slogan || restaurant.name}
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg">
-                {restaurant.description || 'Carbón vegetal de encina a 400°C, maduraciones controladas desde 45 hasta 90 días, y el respeto más puro por la infiltración de grasa y el chuletón de raza.'}
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer"
+          <div className="bg-[#230906] border border-red-950/80 p-6 sm:p-12 rounded-2xl shadow-2xl">
+            {heroLayout === 'minimal' ? (
+              <div className="max-w-2xl mx-auto text-center space-y-4 py-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-950/60 border border-red-600/50 text-red-400 text-xs font-mono uppercase tracking-wider ${editableClass('slogan')}`}
                 >
-                  Reservar Mesa de Brasa
-                </button>
-                <button
-                  type="button"
-                  onClick={scrollToCarta}
-                  className="px-5 py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 text-xs font-bold uppercase hover:border-zinc-500 transition cursor-pointer"
+                  <Flame className="w-3.5 h-3.5 text-red-500" />
+                  <span>CÁMARA DRY AGED // CORTES SELECCIONADOS</span>
+                </div>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white uppercase tracking-tight ${editableClass('title')}`}
                 >
-                  Ver Cortes & Maduración
-                </button>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 relative">
-              <div className="rounded-xl overflow-hidden border border-red-900/60 shadow-2xl relative">
-                <img 
-                  src={heroImage} 
-                  alt={restaurant.name}
-                  className="w-full h-80 object-cover filter contrast-110"
-                />
-                <div className="absolute bottom-3 left-3 right-3 bg-black/90 p-3 rounded-lg border border-red-900/40 text-[11px] font-mono text-zinc-300 flex justify-between items-center">
-                  <span>MADURACIÓN CÁMARA 1:</span>
-                  <span className="text-red-400 font-bold">60 DÍAS • BMS 7</span>
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg mx-auto ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'Carbón vegetal de encina a 400°C, maduraciones controladas desde 45 hasta 90 días, y el respeto más puro por la infiltración de grasa.'}
+                </p>
+                <div className="flex justify-center flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'Reservar Mesa de Brasa'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-5 py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 text-xs font-bold uppercase hover:border-zinc-500 transition cursor-pointer"
+                  >
+                    Ver Cortes & Maduración
+                  </button>
                 </div>
               </div>
-            </div>
+            ) : heroLayout === 'centered' ? (
+              <div className="space-y-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`rounded-xl overflow-hidden border border-red-900/60 shadow-2xl relative ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover filter contrast-110`}
+                  />
+                  <div className="absolute bottom-3 left-3 right-3 bg-black/90 p-3 rounded-lg border border-red-900/40 text-[11px] font-mono text-zinc-300 flex justify-between items-center">
+                    <span>MADURACIÓN CÁMARA 1:</span>
+                    <span className="text-red-400 font-bold">60 DÍAS • BMS 7</span>
+                  </div>
+                </div>
+                <div className="text-center space-y-4 max-w-2xl mx-auto">
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white uppercase tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Carbón vegetal de encina y cortes selectos madurados.'}
+                  </p>
+                  <div className="flex justify-center flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa de Brasa'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 text-xs font-bold uppercase hover:border-zinc-500 transition cursor-pointer"
+                    >
+                      Ver Cortes & Maduración
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={`${getGridCols().textCol} space-y-5`}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-950/60 border border-red-600/50 text-red-400 text-xs font-mono uppercase tracking-wider ${editableClass('slogan')}`}
+                  >
+                    <Flame className="w-3.5 h-3.5 text-red-500" />
+                    <span>CÁMARA DRY AGED // CORTES SELECCIONADOS</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white uppercase tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Carbón vegetal de encina a 400°C, maduraciones controladas desde 45 hasta 90 días, y el respeto más puro por la infiltración de grasa y el chuletón de raza.'}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa de Brasa'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-200 text-xs font-bold uppercase hover:border-zinc-500 transition cursor-pointer"
+                    >
+                      Ver Cortes & Maduración
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} relative ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className="rounded-xl overflow-hidden border border-red-900/60 shadow-2xl relative">
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover filter contrast-110`}
+                    />
+                    <div className="absolute bottom-3 left-3 right-3 bg-black/90 p-3 rounded-lg border border-red-900/40 text-[11px] font-mono text-zinc-300 flex justify-between items-center">
+                      <span>MADURACIÓN CÁMARA 1:</span>
+                      <span className="text-red-400 font-bold">60 DÍAS • BMS 7</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -783,24 +1682,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       {archetype === 'pasticceria_dolce' && (
         <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
           <div className="rounded-3xl border border-pink-500/30 bg-gradient-to-tr from-[#2b1824] via-[#1c1218] to-[#251520] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-pink-400/40 bg-pink-400/10 text-pink-300 text-xs font-medium">
+            {heroLayout === 'minimal' ? (
+              <div className="max-w-2xl mx-auto text-center space-y-4 py-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-pink-400/40 bg-pink-400/10 text-pink-300 text-xs font-medium ${editableClass('slogan')}`}
+                >
                   <Heart className="w-3.5 h-3.5 text-pink-400 fill-pink-400/20" />
                   <span>Obrador Artesanal & Specialty Coffee</span>
                 </div>
-                <h1 className="text-3xl sm:text-5xl font-light text-pink-100 tracking-tight">
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-light text-pink-100 tracking-tight ${editableClass('title')}`}
+                >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-                <p className="text-xs sm:text-sm text-pink-200/80 leading-relaxed max-w-lg">
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-pink-200/80 leading-relaxed max-w-lg mx-auto ${editableClass('slogan')}`}
+                >
                   {restaurant.description || 'Croissants hojaldrados de mantequilla francesa, tostas de masa madre con huevos benedictinos y café de especialidad tostado semanalmente.'}
                 </p>
-                <div className="flex flex-wrap items-center gap-3 pt-3">
+                <div className="flex justify-center flex-wrap items-center gap-3 pt-3">
                   <button
-                    onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer"
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                   >
-                    Reservar Mesa Brunch
+                    {restaurant.cta_text || 'Reservar Mesa Brunch'}
                   </button>
                   <button
                     type="button"
@@ -811,17 +1719,103 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   </button>
                 </div>
               </div>
-
-              <div className="lg:col-span-5 relative">
-                <div className="rounded-3xl overflow-hidden border border-pink-500/30 shadow-2xl p-2 bg-pink-950/20">
+            ) : heroLayout === 'centered' ? (
+              <div className="space-y-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`rounded-3xl overflow-hidden border border-pink-500/30 shadow-2xl p-2 bg-pink-950/20 ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
                   <img 
                     src={heroImage} 
                     alt={restaurant.name}
-                    className="w-full h-72 object-cover rounded-2xl"
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover rounded-2xl`}
                   />
                 </div>
+                <div className="text-center space-y-4 max-w-2xl mx-auto">
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-light text-pink-100 tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-pink-200/80 leading-relaxed ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Obrador de repostería fina y brunch.'}
+                  </p>
+                  <div className="flex justify-center flex-wrap items-center gap-3 pt-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa Brunch'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-full border border-pink-400/30 bg-white/5 text-pink-200 text-xs font-semibold hover:border-pink-300 transition cursor-pointer"
+                    >
+                      Ver Vitrina & Bebidas
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={`${getGridCols().textCol} space-y-4`}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-pink-400/40 bg-pink-400/10 text-pink-300 text-xs font-medium ${editableClass('slogan')}`}
+                  >
+                    <Heart className="w-3.5 h-3.5 text-pink-400 fill-pink-400/20" />
+                    <span>Obrador Artesanal & Specialty Coffee</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-light text-pink-100 tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-pink-200/80 leading-relaxed max-w-lg ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Croissants hojaldrados de mantequilla francesa, tostas de masa madre con huevos benedictinos y café de especialidad tostado semanalmente.'}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa Brunch'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-full border border-pink-400/30 bg-white/5 text-pink-200 text-xs font-semibold hover:border-pink-300 transition cursor-pointer"
+                    >
+                      Ver Vitrina & Bebidas
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} relative ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className="rounded-3xl overflow-hidden border border-pink-500/30 shadow-2xl p-2 bg-pink-950/20">
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover rounded-2xl`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -832,24 +1826,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       {archetype === 'craft_brewery' && (
         <section className="relative pt-8 pb-14 px-4 max-w-6xl mx-auto font-mono">
           <div className="rounded-2xl border-2 border-amber-800/60 bg-[#251508] p-6 sm:p-12 shadow-2xl relative overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs uppercase tracking-widest font-bold">
+            {heroLayout === 'minimal' ? (
+              <div className="max-w-2xl mx-auto text-center space-y-4 py-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs uppercase tracking-widest font-bold ${editableClass('slogan')}`}
+                >
                   <Beer className="w-4 h-4 text-amber-400" />
                   <span>Fábrica Cervecera // 12 Grifos en Rotación</span>
                 </div>
-                <h1 className="text-3xl sm:text-5xl font-black text-amber-100 uppercase tracking-tight">
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-amber-100 uppercase tracking-tight ${editableClass('title')}`}
+                >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-sans">
-                  {restaurant.description || 'Cerveza artesana fresca servida directamente desde nuestros tanques de maduración, combinada con bocados ahumados de pulled pork y patatas de taproom.'}
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg mx-auto font-sans ${editableClass('slogan')}`}
+                >
+                  {restaurant.description || 'Cerveza artesana fresca servida directamente desde nuestros tanques de maduración, combinada con bocados ahumados de pulled pork.'}
                 </p>
-                <div className="pt-2 flex flex-wrap items-center gap-3">
+                <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
                   <button
-                    onClick={() => setIsBookingOpen(true)}
-                    className="px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer"
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
-                    Reservar Mesa Taproom
+                    {restaurant.cta_text || 'Reservar Mesa Taproom'}
                   </button>
                   <button
                     type="button"
@@ -860,21 +1863,111 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   </button>
                 </div>
               </div>
-
-              <div className="lg:col-span-5 relative">
-                <div className="rounded-xl overflow-hidden border border-amber-700/60 shadow-2xl p-1 bg-black/40">
+            ) : heroLayout === 'centered' ? (
+              <div className="space-y-6">
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`rounded-xl overflow-hidden border border-amber-700/60 shadow-2xl p-1 bg-black/40 ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
                   <img 
                     src={heroImage} 
                     alt={restaurant.name}
-                    className="w-full h-72 object-cover rounded-lg filter contrast-105"
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover rounded-lg filter contrast-105`}
                   />
                   <div className="mt-2 bg-amber-950/80 p-2 text-[10px] text-amber-300 flex justify-between">
                     <span>LÚPULOS DE HOY: CITRA & MOSAIC</span>
                     <span className="font-bold">TEMP SERVICIO: 4°C</span>
                   </div>
                 </div>
+                <div className="text-center space-y-4 max-w-2xl mx-auto">
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-amber-100 uppercase tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Cerveza artesana fresca de tirador.'}
+                  </p>
+                  <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa Taproom'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-lg border border-amber-700/60 text-amber-200 text-xs font-bold uppercase hover:bg-amber-950/40 transition cursor-pointer"
+                    >
+                      Pizarra de Cervezas
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className={getGridCols().container}>
+                <div className={`${getGridCols().textCol} space-y-4`}>
+                  <div 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs uppercase tracking-widest font-bold ${editableClass('slogan')}`}
+                  >
+                    <Beer className="w-4 h-4 text-amber-400" />
+                    <span>Fábrica Cervecera // 12 Grifos en Rotación</span>
+                  </div>
+                  <h1 
+                    onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                    className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-amber-100 uppercase tracking-tight ${editableClass('title')}`}
+                  >
+                    {restaurant.slogan || restaurant.name}
+                  </h1>
+                  <p 
+                    onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                    className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-lg font-sans ${editableClass('slogan')}`}
+                  >
+                    {restaurant.description || 'Cerveza artesana fresca servida directamente desde nuestros tanques de maduración, combinada con bocados ahumados de pulled pork y patatas de taproom.'}
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      className={`px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
+                    >
+                      {restaurant.cta_text || 'Reservar Mesa Taproom'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={scrollToCarta}
+                      className="px-5 py-3.5 rounded-lg border border-amber-700/60 text-amber-200 text-xs font-bold uppercase hover:bg-amber-950/40 transition cursor-pointer"
+                    >
+                      Pizarra de Cervezas
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                  className={`${getGridCols().imageCol} relative ${editableClass('hero_image')}`}
+                  title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+                >
+                  <div className="rounded-xl overflow-hidden border border-amber-700/60 shadow-2xl p-1 bg-black/40">
+                    <img 
+                      src={heroImage} 
+                      alt={restaurant.name}
+                      className={`w-full ${getImageHeight(heroImageSize)} object-cover rounded-lg filter contrast-105`}
+                    />
+                    <div className="mt-2 bg-amber-950/80 p-2 text-[10px] text-amber-300 flex justify-between">
+                      <span>LÚPULOS DE HOY: CITRA & MOSAIC</span>
+                      <span className="font-bold">TEMP SERVICIO: 4°C</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -884,16 +1977,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
          ───────────────────────────────────────────────────────────── */}
       {(!['taberna_iberica', 'nocturne', 'omakase', 'street_smash', 'coastal_lonja', 'cyber_hud', 'bistro_paris', 'asador_prime', 'pasticceria_dolce', 'craft_brewery'].includes(archetype)) && (
         <section className="relative pt-8 sm:pt-12 pb-16 px-4 max-w-6xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl">
-            <div 
-              className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000"
-              style={{ backgroundImage: `url(${heroImage})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30 -z-10" />
-
-            <div className="max-w-2xl space-y-4">
+          {heroLayout === 'minimal' ? (
+            <div className="p-8 sm:p-14 rounded-3xl border border-white/10 bg-zinc-950/80 text-center max-w-3xl mx-auto space-y-4">
               <div 
-                className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider`}
+                onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
                 style={{
                   borderColor: `${primaryColor}40`,
                   backgroundColor: `${primaryColor}20`,
@@ -903,19 +1991,22 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 <IconComponent className="w-3.5 h-3.5" />
                 <span>{meta.badgeText}</span>
               </div>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+              <h1 
+                onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
+              >
                 {restaurant.slogan || restaurant.name}
               </h1>
-
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl">
+              <p 
+                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl mx-auto ${editableClass('slogan')}`}
+              >
                 {restaurant.description}
               </p>
-
-              <div className="flex flex-wrap items-center gap-3 pt-4">
+              <div className="flex justify-center flex-wrap items-center gap-3 pt-4">
                 <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer`}
+                  onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                  className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                   style={{
                     backgroundColor: primaryColor,
                     color: '#000000',
@@ -923,7 +2014,7 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                   }}
                 >
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Reservar Mesa</span>
+                  <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
                 </button>
                 <button
                   type="button"
@@ -934,7 +2025,135 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
                 </button>
               </div>
             </div>
-          </div>
+          ) : heroLayout === 'split' ? (
+            <div className={`p-6 sm:p-10 rounded-3xl border border-white/10 bg-zinc-950/60 ${getGridCols().container}`}>
+              <div className={`${getGridCols().textCol} space-y-4`}>
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
+                  style={{
+                    borderColor: `${primaryColor}40`,
+                    backgroundColor: `${primaryColor}20`,
+                    color: accentColor
+                  }}
+                >
+                  <IconComponent className="w-3.5 h-3.5" />
+                  <span>{meta.badgeText}</span>
+                </div>
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}
+                >
+                  {restaurant.description}
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-4">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
+                    style={{
+                      backgroundColor: primaryColor,
+                      color: '#000000',
+                      boxShadow: `0 0 20px ${primaryColor}40`
+                    }}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}
+                  >
+                    Ver Carta Digital
+                  </button>
+                </div>
+              </div>
+
+              <div 
+                onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+                className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
+                title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+              >
+                <div className={`rounded-2xl overflow-hidden border border-white/10 shadow-2xl`}>
+                  <img 
+                    src={heroImage} 
+                    alt={restaurant.name}
+                    className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Centered / Cover hero default for fallback */
+            <div 
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+              className={`relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl ${editableClass('hero_image')}`}
+              title={isPreview ? "Pulsa para editar la foto o elementos de portada" : undefined}
+            >
+              <div 
+                className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30 -z-10" />
+
+              <div className="max-w-2xl space-y-4">
+                <div 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
+                  style={{
+                    borderColor: `${primaryColor}40`,
+                    backgroundColor: `${primaryColor}20`,
+                    color: accentColor
+                  }}
+                >
+                  <IconComponent className="w-3.5 h-3.5" />
+                  <span>{meta.badgeText}</span>
+                </div>
+
+                <h1 
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl lg:text-6xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+
+                <p 
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}
+                >
+                  {restaurant.description}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3 pt-4">
+                  <button
+                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
+                    style={{
+                      backgroundColor: primaryColor,
+                      color: '#000000',
+                      boxShadow: `0 0 20px ${primaryColor}40`
+                    }}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}
+                  >
+                    Ver Carta Digital
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -1071,7 +2290,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       {/* ─────────────────────────────────────────────────────────────
           INFO STRIP (HOURS, ADDRESS, PHONE, BOOKING STATUS)
          ───────────────────────────────────────────────────────────── */}
-      <section className="border-y border-white/5 py-6 bg-black/40 backdrop-blur-md">
+      <section 
+        onClick={(e) => handleEdit(e, 'contact', 'Datos de Contacto')}
+        className={`border-y border-white/5 py-6 bg-black/40 backdrop-blur-md ${editableClass('contact')}`}
+        title={isPreview ? "Pulsa para editar horarios, dirección y teléfono" : undefined}
+      >
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
@@ -1168,26 +2391,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
               <span>PIZARRA DE COCINA TRADICIONAL</span>
               <span>CARTA EN VIVO</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-6'}`}>
               {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
                 <div 
                   key={item.id || itIdx} 
-                  className="p-4 rounded-xl bg-amber-950/40 border border-amber-700/30 hover:border-amber-500/60 transition flex flex-col justify-between"
+                  onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                  className={`p-4 rounded-xl bg-amber-950/40 border border-amber-700/30 hover:border-amber-500/60 transition flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                  title={isPreview ? "Pulsa para editar este plato" : undefined}
                 >
-                  <div>
-                    <div className="flex justify-between items-baseline gap-3 mb-1.5">
-                      <h3 className="font-bold text-amber-100 text-base sm:text-lg tracking-wide">
-                        {item.name}
-                      </h3>
-                      <span className="font-mono font-bold text-amber-400 text-base shrink-0">
-                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                      </span>
-                    </div>
-                    {item.description && (
-                      <p className="text-xs text-amber-200/70 font-sans font-light leading-relaxed mb-3">
-                        {item.description}
-                      </p>
+                  <div className="flex gap-4 items-start">
+                    {item.image && (
+                      <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover shrink-0 border border-amber-800/40" />
                     )}
+                    <div className="flex-1">
+                      <div className="flex justify-between items-baseline gap-3 mb-1.5">
+                        <h3 className="font-bold text-amber-100 text-base sm:text-lg tracking-wide">
+                          {item.name}
+                        </h3>
+                        <span className="font-mono font-bold text-amber-400 text-base shrink-0">
+                          {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                        </span>
+                      </div>
+                      {item.description && (
+                        <p className="text-xs text-amber-200/70 font-sans font-light leading-relaxed mb-3">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="pt-2 border-t border-amber-800/30 flex items-center justify-between text-[10px] font-sans">
                     <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">
@@ -1203,26 +2433,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 2: NOCTURNE LOUNGE (OBSIDIAN & GOLD LUXURY CARDS) ── */}
         {archetype === 'nocturne' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-2xl border border-amber-400/20 bg-[#0f0f15] hover:border-amber-400/50 transition shadow-lg flex flex-col justify-between"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 rounded-2xl border border-amber-400/20 bg-[#0f0f15] hover:border-amber-400/50 transition shadow-lg flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-baseline gap-3 mb-2">
-                    <h3 className="font-light text-white text-base sm:text-lg">
-                      {item.name}
-                    </h3>
-                    <span className="font-mono text-amber-400 font-bold text-sm shrink-0">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-zinc-400 font-light leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-amber-400/30" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-baseline gap-3 mb-2">
+                      <h3 className="font-light text-white text-base sm:text-lg">
+                        {item.name}
+                      </h3>
+                      <span className="font-mono text-amber-400 font-bold text-sm shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-zinc-400 font-light leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
                   <span className="text-amber-300/80 font-medium">{item.badge || 'Mixología de Autor'}</span>
@@ -1237,7 +2474,12 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
         {archetype === 'omakase' && (
           <div className="border border-stone-800 bg-stone-950 p-6 sm:p-10 divide-y divide-stone-800">
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
-              <div key={item.id || itIdx} className="py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 group">
+              <div 
+                key={item.id || itIdx} 
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 group cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
+              >
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
                     <span className="text-stone-500 font-mono text-xs">{(itIdx + 1).toString().padStart(2, '0')}.</span>
@@ -1266,26 +2508,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 4: STREET SMASH (POSTER CARDS WITH COMBO CHIPS) ── */}
         {archetype === 'street_smash' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-2xl border-2 border-zinc-800 bg-zinc-950 hover:border-yellow-400 transition shadow-[4px_4px_0px_rgba(250,204,21,0.4)] flex flex-col justify-between"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 rounded-2xl border-2 border-zinc-800 bg-zinc-950 hover:border-yellow-400 transition shadow-[4px_4px_0px_rgba(250,204,21,0.4)] flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-start gap-3 mb-2">
-                    <h3 className="font-black uppercase text-base text-white tracking-wide">
-                      {item.name}
-                    </h3>
-                    <span className="px-2.5 py-1 rounded-lg bg-yellow-400 text-black font-black text-sm shrink-0">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-zinc-400 font-medium leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-yellow-400/40" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start gap-3 mb-2">
+                      <h3 className="font-black uppercase text-base text-white tracking-wide">
+                        {item.name}
+                      </h3>
+                      <span className="px-2.5 py-1 rounded-lg bg-yellow-400 text-black font-black text-sm shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-zinc-400 font-medium leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-2 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
                   <span>+3.50€ COMBO PATATAS & BEBIDA</span>
@@ -1298,11 +2547,13 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 5: CYBER HUD (TELEMETRY BOXES) ── */}
         {archetype === 'cyber_hud' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'} font-mono`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-4 border border-cyan-500/40 bg-zinc-950/80 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition relative"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-4 border border-cyan-500/40 bg-zinc-950/80 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition relative cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
                 <div className="flex justify-between items-start gap-4 mb-2">
                   <div>
@@ -1334,7 +2585,12 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
           <div className="p-6 sm:p-10 border border-amber-600/30 bg-[#06140e] rounded-2xl shadow-xl font-serif">
             <div className="divide-y divide-amber-900/30">
               {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
-                <div key={item.id || itIdx} className="py-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
+                <div 
+                  key={item.id || itIdx} 
+                  onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                  className={`py-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 cursor-pointer ${editableClass('menu_item')}`}
+                  title={isPreview ? "Pulsa para editar este plato" : undefined}
+                >
                   <div>
                     <h3 className="text-base sm:text-lg text-amber-100 font-medium">
                       {item.name}
@@ -1360,26 +2616,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 7: ASADOR PRIME (CARNES MADURADAS & CORTES) ── */}
         {archetype === 'asador_prime' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-2xl border border-red-950 bg-[#1e0705] hover:border-red-600/60 transition shadow-lg flex flex-col justify-between"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 rounded-2xl border border-red-950 bg-[#1e0705] hover:border-red-600/60 transition shadow-lg flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-baseline gap-3 mb-2">
-                    <h3 className="font-bold uppercase text-white text-base tracking-wide">
-                      {item.name}
-                    </h3>
-                    <span className="font-mono text-red-400 font-bold text-base shrink-0">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-red-900/60" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-baseline gap-3 mb-2">
+                      <h3 className="font-bold uppercase text-white text-base tracking-wide">
+                        {item.name}
+                      </h3>
+                      <span className="font-mono text-red-400 font-bold text-base shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-zinc-300 leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-2 border-t border-red-900/30 flex items-center justify-between text-[10px] font-mono">
                   <span className="text-red-400 font-bold">{item.badge || 'Madurado'}</span>
@@ -1392,26 +2655,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 8: COASTAL LONJA (MARISCOS & LONJA DE HUELVA) ── */}
         {archetype === 'coastal_lonja' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-2xl border border-sky-800/50 bg-[#051c33] hover:border-sky-400 transition shadow-lg flex flex-col justify-between"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 rounded-2xl border border-sky-800/50 bg-[#051c33] hover:border-sky-400 transition shadow-lg flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-baseline gap-3 mb-2">
-                    <h3 className="font-extrabold text-white text-base">
-                      {item.name}
-                    </h3>
-                    <span className="font-mono text-sky-300 font-bold text-base shrink-0">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-sky-100/70 leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-sky-700/50" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-baseline gap-3 mb-2">
+                      <h3 className="font-extrabold text-white text-base">
+                        {item.name}
+                      </h3>
+                      <span className="font-mono text-sky-300 font-bold text-base shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-sky-100/70 leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-2 border-t border-sky-900/40 flex items-center justify-between text-[10px] font-mono">
                   <span className="text-sky-300 font-medium">{item.badge || 'Pesca del Día'}</span>
@@ -1424,26 +2694,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 9: PASTICCERIA DOLCE (BRUNCH & VITRINA PASTEL) ── */}
         {archetype === 'pasticceria_dolce' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-3xl border border-pink-500/30 bg-[#24131e] hover:border-pink-400 transition shadow-md flex flex-col justify-between"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 rounded-3xl border border-pink-500/30 bg-[#24131e] hover:border-pink-400 transition shadow-md flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-baseline gap-3 mb-2">
-                    <h3 className="font-medium text-pink-100 text-base">
-                      {item.name}
-                    </h3>
-                    <span className="font-mono text-pink-400 font-bold text-base shrink-0">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-pink-200/70 leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-2xl object-cover shrink-0 border border-pink-500/40" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-baseline gap-3 mb-2">
+                      <h3 className="font-medium text-pink-100 text-base">
+                        {item.name}
+                      </h3>
+                      <span className="font-mono text-pink-400 font-bold text-base shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-pink-200/70 leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-2 border-t border-pink-900/40 flex items-center justify-between text-[10px]">
                   <span className="text-pink-300 font-medium">{item.badge || 'Recién Horneado'}</span>
@@ -1456,26 +2733,33 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 10: CRAFT BREWERY (TAPROOM & GRIFOS) ── */}
         {archetype === 'craft_brewery' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'} font-mono`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className="p-5 rounded-xl border border-amber-800/50 bg-[#211105] hover:border-amber-500 transition shadow-md flex flex-col justify-between"
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 rounded-xl border border-amber-800/50 bg-[#211105] hover:border-amber-500 transition shadow-md flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-baseline gap-3 mb-2">
-                    <h3 className="font-bold uppercase text-amber-100 text-sm tracking-wide">
-                      {item.name}
-                    </h3>
-                    <span className="text-amber-400 font-bold text-base shrink-0">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-zinc-300 font-sans leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-amber-700/50" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-baseline gap-3 mb-2">
+                      <h3 className="font-bold uppercase text-amber-100 text-sm tracking-wide">
+                        {item.name}
+                      </h3>
+                      <span className="text-amber-400 font-bold text-base shrink-0">
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-zinc-300 font-sans leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-2 border-t border-amber-900/40 flex items-center justify-between text-[10px]">
                   <span className="text-amber-400 font-bold">{item.badge || 'Tirador Directo'}</span>
@@ -1488,30 +2772,37 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
 
         {/* ── ARCHETYPE MENU VARIANT 11: STANDARD TILED CARDS FALLBACK ── */}
         {(!['taberna_iberica', 'nocturne', 'omakase', 'street_smash', 'cyber_hud', 'bistro_paris', 'asador_prime', 'coastal_lonja', 'pasticceria_dolce', 'craft_brewery'].includes(archetype)) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
             {categories.length > 0 && categories[activeCategory] && (categories[activeCategory].items || []).map((item, itIdx) => (
               <div 
                 key={item.id || itIdx}
-                className={`p-5 ${meta.buttonShape} border ${meta.cardBorder} transition backdrop-blur-sm flex flex-col justify-between`}
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: itIdx, item })}
+                className={`p-5 ${meta.buttonShape} border ${meta.cardBorder} transition backdrop-blur-sm flex flex-col justify-between cursor-pointer ${editableClass('menu_item')}`}
                 style={{ backgroundColor: surfaceColor }}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
               >
-                <div>
-                  <div className="flex justify-between items-baseline gap-3 mb-2">
-                    <h3 className="font-bold text-white text-base tracking-tight">
-                      {item.name}
-                    </h3>
-                    <span 
-                      className="font-mono font-bold text-sm shrink-0"
-                      style={{ color: primaryColor }}
-                    >
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
-                    </span>
-                  </div>
-                  {item.description && (
-                    <p className="text-xs text-zinc-400 leading-relaxed mb-3">
-                      {item.description}
-                    </p>
+                <div className="flex gap-4 items-start">
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/10" />
                   )}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-baseline gap-3 mb-2">
+                      <h3 className="font-bold text-white text-base tracking-tight">
+                        {item.name}
+                      </h3>
+                      <span 
+                        className="font-mono font-bold text-sm shrink-0"
+                        style={{ color: primaryColor }}
+                      >
+                        {typeof item.price === 'number' ? item.price.toFixed(2) : item.price}€
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-zinc-400 leading-relaxed mb-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 {item.badge && (
                   <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px]">
@@ -1532,7 +2823,11 @@ export default function DynamicThemedTemplate({ restaurant = {}, isPreview = fal
       {/* ─────────────────────────────────────────────────────────────
           FOOTER SECTION
          ───────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/10 py-10 bg-black/70">
+      <footer 
+        onClick={(e) => handleEdit(e, 'contact', 'Pie de Página')}
+        className={`border-t border-white/10 py-10 bg-black/70 cursor-pointer ${editableClass('contact')}`}
+        title={isPreview ? "Pulsa para editar contacto" : undefined}
+      >
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
           <div className="flex items-center gap-2">
             <span className="font-bold text-white">{restaurant.name}</span>

@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { Wine, Clock, MapPin, Phone, Instagram, Calendar, ChevronRight, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
-export default function NocturneTemplate({ restaurant, isPreview = false }) {
+export default function NocturneTemplate({ 
+  restaurant, 
+  isPreview = false, 
+  previewDevice = 'desktop',
+  onSelectElement = null,
+  selectedElement = null 
+}) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
 
@@ -12,13 +18,45 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
   const surfaceColor = restaurant.surface_color || '#0d0d12';
   const categories = restaurant.menu_categories || [];
 
+  const isMobile = previewDevice === 'mobile';
+  const isTablet = previewDevice === 'tablet';
+  const heroImageSide = restaurant.hero_image_side || 'right';
+  const heroImageSize = restaurant.hero_image_size || 'md';
+
+  const handleEdit = (e, type, label, data = null) => {
+    if (isPreview && onSelectElement) {
+      e.stopPropagation();
+      onSelectElement({ type, label, data });
+    }
+  };
+
+  const editableClass = (type) => {
+    if (!isPreview) return '';
+    const isSelected = selectedElement?.type === type;
+    return `hover:ring-2 hover:ring-amber-400 hover:ring-offset-2 hover:ring-offset-black transition-all cursor-pointer ${
+      isSelected ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-black shadow-[0_0_15px_rgba(251,191,36,0.3)]' : ''
+    }`;
+  };
+
+  const getImageHeight = () => {
+    if (isMobile) return 'h-52';
+    if (isTablet) return 'h-72';
+    switch (heroImageSize) {
+      case 'sm': case 'small': return 'h-64';
+      case 'lg': case 'large': return 'h-[480px]';
+      case 'xl': case 'full': return 'h-[560px]';
+      case 'md': case 'medium':
+      default: return 'h-[380px]';
+    }
+  };
+
   const fontFamily = restaurant.font_family === 'Playfair Display' 
     ? 'font-luxury' 
     : restaurant.font_family === 'Inter' 
     ? 'font-sans' 
     : 'font-modern';
 
-  const layout = restaurant.hero_layout || 'centered';
+  const layout = restaurant.hero_layout || 'split';
   const texture = restaurant.texture || 'spotlight';
 
   return (
@@ -42,7 +80,11 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
       {/* Top Bar / Navigation */}
       <header className="sticky top-0 z-40 border-b border-white/5 backdrop-blur-xl bg-black/75">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div 
+            onClick={(e) => handleEdit(e, 'brand', 'Marca / Logo')}
+            className={`flex items-center gap-2.5 ${editableClass('brand')}`}
+            title={isPreview ? "Pulsa para editar el nombre de marca" : undefined}
+          >
             <div 
               className="w-9 h-9 rounded-xl flex items-center justify-center border font-bold text-xs shrink-0 emil-pressable"
               style={{ 
@@ -64,31 +106,36 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
           </div>
 
           <div className="flex items-center gap-2.5">
-            {restaurant.dress_code && (
+            {restaurant.dress_code && !isMobile && (
               <span className="hidden sm:inline-flex text-[10px] font-mono uppercase px-2.5 py-1 rounded-full border border-white/10 text-zinc-400">
                 {restaurant.dress_code}
               </span>
             )}
             <button
-              onClick={() => setIsBookingOpen(true)}
-              className="emil-pressable px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg touch-target-44"
+              onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+              className={`emil-pressable px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg touch-target-44 ${editableClass('cta_button')}`}
               style={{
                 backgroundColor: primaryColor,
                 color: '#000000',
                 boxShadow: `0 0 20px ${primaryColor}40`
               }}
+              title={isPreview ? "Pulsa para editar el botón de reserva" : undefined}
             >
               <Calendar className="w-3.5 h-3.5" />
-              <span>Reservar Mesa</span>
+              <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Hero Section based on hero_layout (centered, split, minimal) */}
-      <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
+      <section className="relative pt-8 sm:pt-10 pb-16 px-4 max-w-6xl mx-auto">
         {layout === 'centered' && (
-          <div className="relative rounded-3xl overflow-hidden border border-white/10 p-8 sm:p-14 min-h-[460px] flex flex-col justify-end">
+          <div 
+            onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+            className={`relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[420px] flex flex-col justify-end ${editableClass('hero_image')}`}
+            title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+          >
             <div 
               className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000"
               style={{ backgroundImage: `url(${restaurant.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80'})` }}
@@ -97,7 +144,8 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
 
             <div className="max-w-2xl space-y-4">
               <div 
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider"
+                onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
                 style={{
                   borderColor: `${primaryColor}40`,
                   backgroundColor: `${primaryColor}20`,
@@ -107,18 +155,24 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
                 <span>Experiencia Nocturna & Cocteleria de Autor</span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+              <h1 
+                onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl lg:text-6xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
+              >
                 {restaurant.slogan || restaurant.name}
               </h1>
 
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl">
+              <p 
+                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}
+              >
                 {restaurant.description}
               </p>
 
               <div className="flex flex-wrap items-center gap-3 pt-4">
                 <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-2xl"
+                  onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                  className={`px-6 py-3 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-2xl ${editableClass('cta_button')}`}
                   style={{
                     backgroundColor: primaryColor,
                     color: '#000000',
@@ -126,7 +180,7 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
                   }}
                 >
                   <Calendar className="w-4 h-4" />
-                  <span>Reservar Mesa Online</span>
+                  <span>{restaurant.cta_text || 'Reservar Mesa Online'}</span>
                 </button>
 
                 <button
@@ -143,10 +197,12 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
         )}
 
         {layout === 'split' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
-            <div className="lg:col-span-7 space-y-5">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 lg:grid-cols-12 gap-8'} items-center pt-4`}>
+            {/* Text Column */}
+            <div className={`${isMobile ? 'order-2' : heroImageSide === 'left' ? 'lg:col-span-7 order-2 lg:order-2' : 'lg:col-span-7 order-1 lg:order-1'} space-y-5`}>
               <div 
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border uppercase tracking-wider"
+                onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono border uppercase tracking-wider ${editableClass('slogan')}`}
                 style={{
                   borderColor: `${primaryColor}40`,
                   backgroundColor: `${primaryColor}15`,
@@ -156,18 +212,24 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
                 <span>Mixologia Contemporanea</span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+              <h1 
+                onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
+              >
                 {restaurant.slogan || restaurant.name}
               </h1>
 
-              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-lg">
+              <p 
+                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                className={`text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-lg ${editableClass('slogan')}`}
+              >
                 {restaurant.description}
               </p>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-2xl"
+                  onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                  className={`px-6 py-3 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-2xl ${editableClass('cta_button')}`}
                   style={{
                     backgroundColor: primaryColor,
                     color: '#000000',
@@ -175,7 +237,7 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
                   }}
                 >
                   <Calendar className="w-4 h-4" />
-                  <span>Reservar Mesa Online</span>
+                  <span>{restaurant.cta_text || 'Reservar Mesa Online'}</span>
                 </button>
                 <button
                   type="button"
@@ -187,12 +249,17 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
+            {/* Image Column */}
+            <div 
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+              className={`${isMobile ? 'order-1' : heroImageSide === 'left' ? 'lg:col-span-5 order-1 lg:order-1' : 'lg:col-span-5 order-2 lg:order-2'} ${editableClass('hero_image')}`}
+              title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+            >
               <div className="rounded-3xl overflow-hidden border border-white/10 p-2 bg-zinc-900/40">
                 <img 
                   src={restaurant.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80'}
                   alt={restaurant.name}
-                  className="w-full h-[380px] object-cover rounded-2xl"
+                  className={`w-full ${getImageHeight()} object-cover rounded-2xl`}
                 />
               </div>
             </div>
@@ -201,33 +268,46 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
 
         {layout === 'minimal' && (
           <div className="py-12 text-center max-w-3xl mx-auto space-y-6">
-            <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-widest block">
+            <span 
+              onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+              className={`text-[11px] font-mono text-zinc-400 uppercase tracking-widest block ${editableClass('slogan')}`}
+            >
               {restaurant.category === 'night_bar' ? 'Bar de Noche & Cocteleria' : 'Restaurante Exclusivo'}
             </span>
-            <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight">
+            <h1 
+              onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+              className={`text-4xl ${isMobile ? 'text-3xl' : 'sm:text-6xl'} font-black text-white tracking-tight ${editableClass('title')}`}
+            >
               {restaurant.name}
             </h1>
-            <p className="text-sm text-zinc-300 leading-relaxed max-w-xl mx-auto">
+            <p 
+              onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+              className={`text-sm text-zinc-300 leading-relaxed max-w-xl mx-auto ${editableClass('slogan')}`}
+            >
               {restaurant.slogan || restaurant.description}
             </p>
             <div className="flex justify-center gap-3 pt-2">
               <button
-                onClick={() => setIsBookingOpen(true)}
-                className="px-7 py-3 rounded-xl font-bold text-xs shadow-2xl"
+                onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                className={`px-7 py-3 rounded-xl font-bold text-xs shadow-2xl ${editableClass('cta_button')}`}
                 style={{
                   backgroundColor: primaryColor,
                   color: '#000000',
                   boxShadow: `0 0 25px ${primaryColor}40`
                 }}
               >
-                Reservar Mesa Ahora
+                {restaurant.cta_text || 'Reservar Mesa Ahora'}
               </button>
             </div>
           </div>
         )}
 
         {/* Micro info line */}
-        <div className="flex flex-wrap gap-6 pt-6 text-xs text-zinc-400 border-t border-white/5 mt-8">
+        <div 
+          onClick={(e) => handleEdit(e, 'contact', 'Datos de Contacto')}
+          className={`flex flex-wrap gap-6 pt-6 text-xs text-zinc-400 border-t border-white/5 mt-8 ${editableClass('contact')}`}
+          title={isPreview ? "Pulsa para editar contacto" : undefined}
+        >
           <span className="flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-zinc-500" />
             {restaurant.address}, {restaurant.city}
@@ -276,39 +356,46 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
         </div>
 
         {/* Menu Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(categories[activeCategory]?.items || []).map((item) => (
+        <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
+          {(categories[activeCategory]?.items || []).map((item, idx) => (
             <div 
-              key={item.id}
-              className="p-5 rounded-2xl border border-white/5 hover:border-white/20 transition-all duration-200 flex justify-between gap-4 group emil-pressable"
+              key={item.id || idx}
+              onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: idx, item })}
+              className={`p-5 rounded-2xl border border-white/5 hover:border-white/20 transition-all duration-200 flex justify-between gap-4 group emil-pressable cursor-pointer ${editableClass('menu_item')}`}
               style={{ backgroundColor: surfaceColor }}
+              title={isPreview ? "Pulsa para editar este plato" : undefined}
             >
-              <div className="space-y-1.5 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-300 transition">
-                    {item.name}
-                  </h3>
-                  {item.badge && (
-                    <span 
-                      className="px-2 py-0.5 rounded-full text-[10px] font-mono border"
-                      style={{ 
-                        borderColor: `${primaryColor}40`, 
-                        backgroundColor: `${primaryColor}15`, 
-                        color: accentColor 
-                      }}
-                    >
-                      {item.badge}
+              <div className="flex gap-4 items-start flex-1">
+                {item.image && (
+                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/10" />
+                )}
+                <div className="space-y-1.5 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-300 transition">
+                      {item.name}
+                    </h3>
+                    {item.badge && (
+                      <span 
+                        className="px-2 py-0.5 rounded-full text-[10px] font-mono border"
+                        style={{ 
+                          borderColor: `${primaryColor}40`, 
+                          backgroundColor: `${primaryColor}15`, 
+                          color: accentColor 
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
+                    {item.description}
+                  </p>
+                  {item.allergens && item.allergens.length > 0 && (
+                    <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
+                      Alergenos: {item.allergens.join(', ')}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
-                  {item.description}
-                </p>
-                {item.allergens && item.allergens.length > 0 && (
-                  <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
-                    Alergenos: {item.allergens.join(', ')}
-                  </span>
-                )}
               </div>
 
               <div className="text-right flex flex-col justify-between shrink-0 pl-2">
@@ -379,7 +466,11 @@ export default function NocturneTemplate({ restaurant, isPreview = false }) {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-10 px-4 text-xs text-zinc-500 max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-24 sm:pb-10">
+      <footer 
+        onClick={(e) => handleEdit(e, 'contact', 'Pie de Página')}
+        className={`border-t border-white/5 py-10 px-4 text-xs text-zinc-500 max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pb-24 sm:pb-10 ${editableClass('contact')}`}
+        title={isPreview ? "Pulsa para editar contacto" : undefined}
+      >
         <div>
           <span className="text-zinc-300 font-semibold">{restaurant.name}</span> • {restaurant.address}, {restaurant.city}
         </div>

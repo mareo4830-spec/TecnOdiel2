@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { Utensils, Calendar, MapPin, Clock, Phone, Sparkles, Award, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
-export default function TecnodielTemplate({ restaurant, isPreview = false }) {
+export default function TecnodielTemplate({ 
+  restaurant, 
+  isPreview = false,
+  previewDevice = 'desktop',
+  onSelectElement = null,
+  selectedElement = null
+}) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(0);
 
@@ -11,6 +17,38 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
   const bgColor = restaurant.background_color || '#000000';
   const surfaceColor = restaurant.surface_color || '#09090b';
   const categories = restaurant.menu_categories || [];
+
+  const isMobile = previewDevice === 'mobile';
+  const isTablet = previewDevice === 'tablet';
+  const heroImageSide = restaurant.hero_image_side || 'right';
+  const heroImageSize = restaurant.hero_image_size || 'md';
+
+  const handleEdit = (e, type, label, data = null) => {
+    if (isPreview && onSelectElement) {
+      e.stopPropagation();
+      onSelectElement({ type, label, data });
+    }
+  };
+
+  const editableClass = (type) => {
+    if (!isPreview) return '';
+    const isSelected = selectedElement?.type === type;
+    return `hover:ring-2 hover:ring-emerald-400 hover:ring-offset-2 hover:ring-offset-black transition-all cursor-pointer ${
+      isSelected ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : ''
+    }`;
+  };
+
+  const getImageHeight = () => {
+    if (isMobile) return 'h-52';
+    if (isTablet) return 'h-72';
+    switch (heroImageSize) {
+      case 'sm': case 'small': return 'h-64';
+      case 'lg': case 'large': return 'h-[480px]';
+      case 'xl': case 'full': return 'h-[560px]';
+      case 'md': case 'medium':
+      default: return 'h-[400px]';
+    }
+  };
 
   const fontFamily = restaurant.font_family === 'Playfair Display' 
     ? 'font-luxury' 
@@ -36,7 +74,11 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-white/5 bg-black/80 backdrop-blur-2xl">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div 
+            onClick={(e) => handleEdit(e, 'brand', 'Marca / Logo')}
+            className={`flex items-center gap-3 ${editableClass('brand')}`}
+            title={isPreview ? "Pulsa para editar el nombre" : undefined}
+          >
             <div 
               className="w-8 h-8 rounded-lg flex items-center justify-center border"
               style={{
@@ -58,47 +100,58 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
           </div>
 
           <div className="flex items-center gap-3">
-            {restaurant.dress_code && (
+            {restaurant.dress_code && !isMobile && (
               <span className="hidden md:inline-flex text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border border-white/10 text-zinc-400">
                 {restaurant.dress_code}
               </span>
             )}
             <button
-              onClick={() => setIsBookingOpen(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-emerald-400 hover:bg-emerald-300 text-black"
+              onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-emerald-400 hover:bg-emerald-300 text-black cursor-pointer ${editableClass('cta_button')}`}
+              title={isPreview ? "Pulsa para editar el botón de reserva" : undefined}
             >
               <Calendar className="w-3.5 h-3.5" />
-              <span>Reservar Experiencia</span>
+              <span>{restaurant.cta_text || 'Reservar Experiencia'}</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="pt-14 pb-16 px-4 max-w-6xl mx-auto">
+      <section className="pt-10 sm:pt-14 pb-16 px-4 max-w-6xl mx-auto">
         {layout === 'split' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-[11px] font-mono uppercase tracking-wider">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 lg:grid-cols-12 gap-8'} items-center`}>
+            {/* Text Column */}
+            <div className={`${isMobile ? 'order-2' : heroImageSide === 'left' ? 'lg:col-span-7 order-2 lg:order-2' : 'lg:col-span-7 order-1 lg:order-1'} space-y-5`}>
+              <div 
+                onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-[11px] font-mono uppercase tracking-wider ${editableClass('slogan')}`}
+              >
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Gastronomia Sensorial de Origen</span>
               </div>
 
-              <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.05]">
-                {restaurant.slogan || 'El arte culinario elevado a su maxima pureza.'}
+              <h1 
+                onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-6xl'} font-black text-white tracking-tight leading-[1.05] ${editableClass('title')}`}
+              >
+                {restaurant.slogan || restaurant.name || 'El arte culinario elevado a su maxima pureza.'}
               </h1>
 
-              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-xl">
+              <p 
+                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                className={`text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-xl ${editableClass('slogan')}`}
+              >
                 {restaurant.description}
               </p>
 
               <div className="flex flex-wrap gap-3 pt-2">
                 <button
-                  onClick={() => setIsBookingOpen(true)}
-                  className="px-6 py-3.5 rounded-xl font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-black transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.4)]"
+                  onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                  className={`px-6 py-3.5 rounded-xl font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-black transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                 >
                   <Calendar className="w-4 h-4" />
-                  <span>Reservar Mesa Online</span>
+                  <span>{restaurant.cta_text || 'Reservar Mesa Online'}</span>
                 </button>
 
                 <button
@@ -112,12 +165,17 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
+            {/* Image Column */}
+            <div 
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+              className={`${isMobile ? 'order-1' : heroImageSide === 'left' ? 'lg:col-span-5 order-1 lg:order-1' : 'lg:col-span-5 order-2 lg:order-2'} ${editableClass('hero_image')}`}
+              title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+            >
               <div className="relative rounded-3xl overflow-hidden border border-white/15 p-2 bg-zinc-900/40 backdrop-blur-xl group">
                 <img
                   src={restaurant.hero_image || 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80'}
                   alt={restaurant.name}
-                  className="w-full h-[400px] object-cover rounded-2xl group-hover:scale-105 transition duration-700"
+                  className={`w-full ${getImageHeight()} object-cover rounded-2xl group-hover:scale-105 transition duration-700`}
                 />
                 <div className="absolute bottom-5 left-5 right-5 p-3.5 rounded-xl bg-black/85 backdrop-blur-md border border-white/10 flex items-center justify-between">
                   <div>
@@ -132,32 +190,51 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
             </div>
           </div>
         ) : (
-          <div className="relative rounded-3xl overflow-hidden border border-white/10 p-8 sm:p-14 min-h-[460px] flex flex-col justify-end">
+          <div 
+            onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+            className={`relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[460px] flex flex-col justify-end ${editableClass('hero_image')}`}
+            title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
+          >
             <div 
               className="absolute inset-0 bg-cover bg-center -z-10"
               style={{ backgroundImage: `url(${restaurant.hero_image || 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80'})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent -z-10" />
             <div className="max-w-2xl space-y-4">
-              <span className="text-xs font-mono uppercase text-emerald-400 tracking-wider">Alta Cocina</span>
-              <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+              <span 
+                onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                className={`text-xs font-mono uppercase text-emerald-400 tracking-wider ${editableClass('slogan')}`}
+              >
+                Alta Cocina
+              </span>
+              <h1 
+                onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-6xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
+              >
                 {restaurant.slogan || restaurant.name}
               </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl">
+              <p 
+                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}
+              >
                 {restaurant.description}
               </p>
               <button
-                onClick={() => setIsBookingOpen(true)}
-                className="px-6 py-3 rounded-xl font-bold text-xs bg-emerald-400 text-black shadow-xl"
+                onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                className={`px-6 py-3 rounded-xl font-bold text-xs bg-emerald-400 text-black shadow-xl cursor-pointer ${editableClass('cta_button')}`}
               >
-                Reservar Mesa Online
+                {restaurant.cta_text || 'Reservar Mesa Online'}
               </button>
             </div>
           </div>
         )}
 
         {/* Schedule & Location banner */}
-        <div className="flex flex-wrap gap-6 pt-6 text-xs text-zinc-400 border-t border-white/5 mt-8">
+        <div 
+          onClick={(e) => handleEdit(e, 'contact', 'Datos de Contacto')}
+          className={`flex flex-wrap gap-6 pt-6 text-xs text-zinc-400 border-t border-white/5 mt-8 cursor-pointer ${editableClass('contact')}`}
+          title={isPreview ? "Pulsa para editar horarios y dirección" : undefined}
+        >
           <span className="flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
             {restaurant.address}, {restaurant.city}
@@ -207,32 +284,39 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(categories[selectedCategory]?.items || []).map((item) => (
+        <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
+          {(categories[selectedCategory]?.items || []).map((item, idx) => (
             <div
-              key={item.id}
-              className="p-5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition flex justify-between gap-4 group"
+              key={item.id || idx}
+              onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: selectedCategory, itemIndex: idx, item })}
+              className={`p-5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition flex justify-between gap-4 group cursor-pointer ${editableClass('menu_item')}`}
               style={{ backgroundColor: surfaceColor }}
+              title={isPreview ? "Pulsa para editar este plato" : undefined}
             >
-              <div className="space-y-1.5 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-emerald-300 transition">
-                    {item.name}
-                  </h3>
-                  {item.badge && (
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                      {item.badge}
+              <div className="flex gap-4 items-start flex-1">
+                {item.image && (
+                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-emerald-500/30" />
+                )}
+                <div className="space-y-1.5 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-emerald-300 transition">
+                      {item.name}
+                    </h3>
+                    {item.badge && (
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    {item.description}
+                  </p>
+                  {item.allergens && item.allergens.length > 0 && (
+                    <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
+                      Alergenos: {item.allergens.join(', ')}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  {item.description}
-                </p>
-                {item.allergens && item.allergens.length > 0 && (
-                  <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
-                    Alergenos: {item.allergens.join(', ')}
-                  </span>
-                )}
               </div>
               <div className="text-right shrink-0">
                 <span className="font-mono text-sm sm:text-base font-bold text-emerald-400 block">
@@ -244,6 +328,25 @@ export default function TecnodielTemplate({ restaurant, isPreview = false }) {
           ))}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer 
+        onClick={(e) => handleEdit(e, 'contact', 'Pie de Página')}
+        className={`border-t border-white/10 py-10 bg-black/80 px-4 cursor-pointer ${editableClass('contact')}`}
+        title={isPreview ? "Pulsa para editar contacto" : undefined}
+      >
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-white">{restaurant.name}</span>
+            <span>•</span>
+            <span className="font-mono text-[11px] text-zinc-500">Impulsado por TecnOdiel</span>
+          </div>
+          <div className="flex items-center gap-4 text-zinc-400">
+            {restaurant.phone && <span>Tel: {restaurant.phone}</span>}
+            {restaurant.address && <span>{restaurant.address}</span>}
+          </div>
+        </div>
+      </footer>
 
       {/* Booking Modal */}
       <BookingModal

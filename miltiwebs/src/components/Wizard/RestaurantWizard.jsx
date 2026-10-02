@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Monitor, 
   Tablet, 
@@ -38,7 +38,11 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Camera,
+  Image as ImageIcon,
+  Upload,
+  ArrowLeftRight
 } from 'lucide-react';
 import { TEMPLATES, COLOR_PALETTES, BASE_WEB_PRICE, AVAILABLE_MODULES, getPresetMenuForStyle, DEFAULT_MENUS_BY_STYLE } from '../../lib/mockData';
 import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
@@ -90,6 +94,17 @@ export const TEMPLATE_GROUPS = [
   }
 ];
 
+export const HERO_PHOTO_PRESETS = [
+  { label: 'Taberna / Jamón', url: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Burger Smash', url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Cóctel & Noche', url: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Asador & Brasa', url: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Marisco & Lonja', url: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Sushi & Omakase', url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Bistró & Elegante', url: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Brunch & Café', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1920&q=80' },
+  { label: 'Cerveza Taproom', url: 'https://images.unsplash.com/photo-1538488881522-4321453c6d4f?auto=format&fit=crop&w=1920&q=80' }
+];
 
 export default function RestaurantWizard({ onCreated, onCancel }) {
   const [activeSection, setActiveSection] = useState(1);
@@ -106,6 +121,93 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
   const [templateFilter, setTemplateFilter] = useState('all');
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
   const [activeMenuCatIdx, setActiveMenuCatIdx] = useState(0);
+
+  // Click-to-Edit Inspector State
+  const [selectedElement, setSelectedElement] = useState({
+    type: 'hero_image',
+    label: 'Foto de Portada'
+  });
+  const [isInspectorOpen, setIsInspectorOpen] = useState(true);
+
+  // File & Camera input refs for device integration
+  const heroGalleryInputRef = useRef(null);
+  const heroCameraInputRef = useRef(null);
+  const dishGalleryInputRef = useRef(null);
+  const dishCameraInputRef = useRef(null);
+
+  const compressAndLoadImage = (file, onSuccess) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 1600;
+        let width = img.width;
+        let height = img.height;
+        if (width > height && width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        onSuccess(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleHeroImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    compressAndLoadImage(file, (dataUrl) => {
+      setFormData(prev => ({ ...prev, hero_image: dataUrl }));
+      showTweakNotice('Foto de portada actualizada con éxito');
+    });
+    e.target.value = '';
+  };
+
+  const handleDishImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    compressAndLoadImage(file, (dataUrl) => {
+      if (selectedElement?.data) {
+        const { categoryIndex, itemIndex } = selectedElement.data;
+        setFormData(prev => {
+          const updatedCategories = [...prev.menu_categories];
+          if (updatedCategories[categoryIndex]?.items[itemIndex]) {
+            updatedCategories[categoryIndex].items[itemIndex] = {
+              ...updatedCategories[categoryIndex].items[itemIndex],
+              image: dataUrl
+            };
+          }
+          return { ...prev, menu_categories: updatedCategories };
+        });
+        setSelectedElement(prev => ({
+          ...prev,
+          data: {
+            ...prev.data,
+            item: { ...prev.data.item, image: dataUrl }
+          }
+        }));
+        showTweakNotice('Foto del plato guardada con éxito');
+      }
+    });
+    e.target.value = '';
+  };
+
+  const handleSelectElement = (element) => {
+    setSelectedElement(element);
+    setIsInspectorOpen(true);
+    showTweakNotice(`Editando: ${element.label}`);
+  };
 
   const showTweakNotice = (msg) => {
     setTweakNotice(msg);
@@ -125,10 +227,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     description: 'Taberna tradicional con esencia andaluza, jamón de bellota 100% ibérico cortado a cuchillo al momento, gambas de Huelva y solera en bota.',
     category: 'tapas',
     dress_code: 'Informal / Agradable',
+    cta_text: 'Reservar Mesa Online',
 
     // 7-10: Arquitectura & Hero
     template_id: 'tapas_andaluzas',
-    hero_layout: 'centered', // 'centered', 'split', 'minimal'
+    hero_layout: 'split', // 'split', 'centered', 'minimal'
+    hero_image_side: 'right', // 'right', 'left'
+    hero_image_size: 'md', // 'sm', 'md', 'lg', 'xl'
     hero_image: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1920&q=80',
     texture: 'spotlight', // 'spotlight', 'grain', 'vignette', 'clean'
 
@@ -468,37 +573,39 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
           {/* Viewport Toggles & Launch CTA */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Mobile Step 7 Preview button */}
-            <button
-              type="button"
-              onClick={() => setIsMobilePreviewOpen(true)}
-              className="md:hidden btn-industrial px-3 py-1.5 rounded-lg border border-emerald-500/50 bg-emerald-500/15 text-emerald-300 font-mono text-xs font-bold flex items-center gap-1.5 min-h-[40px] cursor-pointer"
-            >
-              <Eye className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Ver Previa</span>
-            </button>
-
-            <div className="hidden md:flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl">
+            <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl">
               <button
+                type="button"
                 onClick={() => setPreviewDevice('desktop')}
-                className={`p-1.5 rounded-lg transition ${previewDevice === 'desktop' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'}`}
+                className={`p-1.5 sm:px-2.5 sm:py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                  previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                }`}
                 title="Vista de Ordenador"
               >
-                <Monitor className="w-4 h-4" />
+                <Monitor className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Escritorio</span>
               </button>
               <button
+                type="button"
                 onClick={() => setPreviewDevice('tablet')}
-                className={`p-1.5 rounded-lg transition ${previewDevice === 'tablet' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'}`}
+                className={`p-1.5 sm:px-2.5 sm:py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                  previewDevice === 'tablet' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                }`}
                 title="Vista de Tablet"
               >
-                <Tablet className="w-4 h-4" />
+                <Tablet className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Tablet</span>
               </button>
               <button
+                type="button"
                 onClick={() => setPreviewDevice('mobile')}
-                className={`p-1.5 rounded-lg transition ${previewDevice === 'mobile' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'}`}
-                title="Vista Movil"
+                className={`p-1.5 sm:px-2.5 sm:py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                  previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                }`}
+                title="Vista Móvil"
               >
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Móvil</span>
               </button>
             </div>
 
@@ -506,9 +613,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               type="button"
               disabled={saving}
               onClick={handleSave}
-              className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-50 min-h-[40px]"
+              className="px-3.5 sm:px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-50 min-h-[40px] cursor-pointer shrink-0"
             >
-              {saving ? 'Guardando en la nube...' : 'Lanzar Mi Sitio Web'}
+              <span className="hidden sm:inline">{saving ? 'Guardando...' : 'Lanzar Web'}</span>
+              <span className="sm:hidden">{saving ? '...' : 'Lanzar'}</span>
               <CheckCircle2 className="w-4 h-4" />
             </button>
           </div>
@@ -1572,680 +1680,925 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     ) : (
       /* STEP 7: Vista Previa Final y Modificaciones en Vivo */
       <div className="flex-1 flex flex-col overflow-hidden bg-[#020203]">
-        {/* Quick Tweaks Control Bar - Collapsible & Clean Dropdown */}
-        {isTweakBarCollapsed ? (
-          <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-4 sm:px-6 py-2.5 flex items-center justify-between z-20 shadow-md">
-            <div className="flex items-center gap-2.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">VISTA PREVIA EN VIVO:</span>
-              <span className="text-xs font-bold text-white bg-zinc-900 border border-white/10 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
-                <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{TEMPLATES.find(t => t.id === formData.template_id)?.name || 'Estilo Seleccionado'}</span>
-              </span>
-              {tweakNotice && (
-                <span className="text-xs text-emerald-400 font-mono hidden md:inline animate-fadeIn">
-                  ✓ {tweakNotice}
-                </span>
-              )}
-            </div>
+        {/* Hidden Inputs for Hero Image and Dish Images (Gallery & Camera) */}
+        <input
+          type="file"
+          ref={heroGalleryInputRef}
+          accept="image/*"
+          onChange={handleHeroImageUpload}
+          className="hidden"
+        />
+        <input
+          type="file"
+          ref={heroCameraInputRef}
+          accept="image/*"
+          capture="environment"
+          onChange={handleHeroImageUpload}
+          className="hidden"
+        />
+        <input
+          type="file"
+          ref={dishGalleryInputRef}
+          accept="image/*"
+          onChange={handleDishImageUpload}
+          className="hidden"
+        />
+        <input
+          type="file"
+          ref={dishCameraInputRef}
+          accept="image/*"
+          capture="environment"
+          onChange={handleDishImageUpload}
+          className="hidden"
+        />
 
-            <div className="flex items-center gap-2">
-              <a
-                href={`/#/r/${formData.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
-                title="Abrir web completa en nueva pestaña"
-              >
-                <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="hidden sm:inline">Abrir Web</span>
-              </a>
-
-              <button
-                type="button"
-                onClick={() => setIsTweakBarCollapsed(false)}
-                className="btn-industrial px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-md cursor-pointer"
-                title="Desplegar panel para cambiar estilo, colores, módulos o textos"
-              >
-                <Sliders className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Retocar Web / Estilos</span>
-                <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-4 sm:px-6 py-3 space-y-2.5 z-20">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2">
+        {/* Clean "Pulsa lo que quieras cambiar" Bar */}
+        <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-3 sm:px-6 py-2.5 z-20 shrink-0 shadow-lg">
+          <div className="max-w-6xl mx-auto flex flex-col gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Panel de Retoques en Tiempo Real</span>
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 font-sans">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <span>Pulsa lo que quieras cambiar en tu web</span>
                 </span>
+                <span className="text-[11px] text-zinc-400 font-sans hidden md:inline">
+                  (Toca cualquier elemento en la pantalla o usa estos accesos rápidos)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
                 {tweakNotice && (
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-medium flex items-center gap-1 animate-fadeIn">
                     <Check className="w-3 h-3 text-emerald-400" />
                     <span>{tweakNotice}</span>
                   </span>
                 )}
+                <a
+                  href={`/#/r/${formData.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2.5 py-1 rounded-lg border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
+                  title="Abrir web completa en nueva pestaña"
+                >
+                  <ExternalLink className="w-3 h-3 text-emerald-400" />
+                  <span className="hidden sm:inline">Abrir Web</span>
+                </a>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-zinc-500 font-mono hidden sm:inline">
-                  Los cambios se aplican al instante
-                </span>
+            {/* Quick-Access Action Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'hero_image', label: 'Foto de Portada' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'hero_image'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Camera className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Foto de Portada</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'hero_layout', label: 'Lado y Disposición de Portada' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'hero_layout'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Cambiar Lado</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'hero_size', label: 'Tamaño de Foto de Portada' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'hero_size'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                <span>Tamaño Foto</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'title', label: 'Nombre del Local' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'title' || selectedElement?.type === 'brand'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Type className="w-3.5 h-3.5 text-purple-400" />
+                <span>Nombre</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'slogan', label: 'Lema & Filosofía' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'slogan'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Edit3 className="w-3.5 h-3.5 text-pink-400" />
+                <span>Lema & Filosofía</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'cta_button', label: 'Botón de Reserva' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'cta_button'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5 text-rose-400" />
+                <span>Botón Reserva</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const firstItem = formData.menu_categories?.[0]?.items?.[0] || { name: 'Plato estrella', price: '15€' };
+                  handleSelectElement({
+                    type: 'menu_item',
+                    label: firstItem.name || 'Plato de la Carta',
+                    data: { categoryIndex: 0, itemIndex: 0, item: firstItem }
+                  });
+                }}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'menu_item'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Utensils className="w-3.5 h-3.5 text-orange-400" />
+                <span>Platos & Fotos Carta</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'theme', label: 'Estilo Visual & Colores' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'theme'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5 text-blue-400" />
+                <span>Estilo & Colores</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectElement({ type: 'contact', label: 'Contacto & Horarios' })}
+                className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
+                  selectedElement?.type === 'contact'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold'
+                    : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                <MapPin className="w-3.5 h-3.5 text-teal-400" />
+                <span>Contacto & Horarios</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Contextual Inspector - Appears when element is touched */}
+        {isInspectorOpen && selectedElement && (
+          <div className="border-b border-white/15 bg-zinc-950/98 backdrop-blur-2xl px-3 sm:px-6 py-3.5 z-30 shadow-2xl animate-fadeIn">
+            <div className="max-w-6xl mx-auto space-y-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                    <Edit3 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Modificando: {selectedElement.label || selectedElement.type}</span>
+                  </span>
+                  <span className="text-[11px] text-zinc-400 hidden sm:inline font-sans">
+                    — Los cambios se aplican al instante en la vista previa
+                  </span>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setIsTweakBarCollapsed(true)}
-                  className="px-3 py-1 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium transition flex items-center gap-1.5 cursor-pointer"
-                  title="Ocultar este panel para ver la web a pantalla completa"
+                  onClick={() => setIsInspectorOpen(false)}
+                  className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                  title="Cerrar panel de edición"
                 >
-                  <ChevronUp className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Ocultar Panel</span>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </div>
 
-            {/* Quick Tweak Category Chips */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              {[
-                { id: 'template', label: 'Cambiar Estilo', icon: Layers },
-                { id: 'menu', label: 'Editar Carta', icon: Utensils },
-                { id: 'services', label: 'Servicios & Precio', icon: CreditCard },
-                { id: 'colors', label: 'Cambiar Colores', icon: Palette },
-                { id: 'layout', label: 'Cambiar Portada', icon: Layout },
-                { id: 'typography', label: 'Cambiar Letra', icon: Type },
-                { id: 'texture', label: 'Luz de Fondo', icon: Sparkles },
-                { id: 'quickedit', label: 'Retocar Textos', icon: Edit3 }
-              ].map(tab => {
-                const TabIcon = tab.icon;
-                const isActive = quickTweakTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setQuickTweakTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
-                      isActive 
-                        ? 'bg-emerald-400 text-black font-bold shadow-md' 
-                        : 'bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
-                    }`}
-                  >
-                    <TabIcon className="w-3.5 h-3.5" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+              {/* Inspector Body based on element type */}
+              {(selectedElement.type === 'hero_image' || selectedElement.type === 'hero_layout' || selectedElement.type === 'hero_size') && (
+                <div className="space-y-3">
+                  {/* Row 1: Side Swap & Layout Controls (Fixing "cambiar imagen de lado") */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                        ↔️ Posición de la Imagen (Lado)
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, hero_image_side: 'left', hero_layout: 'split' }));
+                            showTweakNotice('Imagen colocada a la izquierda');
+                          }}
+                          className={`py-2 px-2.5 rounded-lg text-xs font-semibold border transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                            formData.hero_image_side === 'left' && formData.hero_layout === 'split'
+                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-sm'
+                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                          <span>A la Izquierda</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, hero_image_side: 'right', hero_layout: 'split' }));
+                            showTweakNotice('Imagen colocada a la derecha');
+                          }}
+                          className={`py-2 px-2.5 rounded-lg text-xs font-semibold border transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                            formData.hero_image_side === 'right' && formData.hero_layout === 'split'
+                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-sm'
+                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          <span>A la Derecha</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
 
-            {/* Dynamic Options for Selected Quick Tweak */}
-            <div className="pt-2 border-t border-white/5">
-              {quickTweakTab === 'template' && (
-                <div className="flex flex-col md:flex-row md:items-center gap-3 pt-1 animate-fadeIn">
-                  {/* Clean categorized dropdown */}
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2">
-                    <label htmlFor="template-dropdown" className="text-xs font-mono text-zinc-400 shrink-0 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Elige Estilo:</span>
-                    </label>
-                    
-                    <div className="relative flex-1 max-w-lg">
-                      <select
-                        id="template-dropdown"
-                        value={formData.template_id}
-                        onChange={(e) => {
-                          const nextId = e.target.value;
-                          const chosen = TEMPLATES.find(t => t.id === nextId);
-                          const presetMenu = getPresetMenuForStyle(nextId);
-                          setFormData(prev => ({ 
-                            ...prev, 
-                            template_id: nextId,
-                            menu_categories: presetMenu,
-                            ...(chosen?.previewColors ? {
-                              primary_color: chosen.previewColors.primary,
-                              accent_color: chosen.previewColors.accent,
-                              background_color: chosen.previewColors.bg,
-                              surface_color: chosen.previewColors.card,
-                              hero_image: chosen.heroBg || prev.hero_image,
-                              font_family: chosen.defaultFont || prev.font_family
-                            } : {})
-                          }));
-                          setActiveMenuCatIdx(0);
-                          showTweakNotice(`Estilo cambiado a ${chosen?.name || nextId}`);
-                        }}
-                        className="w-full pl-3.5 pr-10 py-2 rounded-xl bg-zinc-900 border border-emerald-500/40 text-white font-medium text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 transition cursor-pointer appearance-none shadow-sm"
-                      >
-                        {TEMPLATE_GROUPS.map((group, gIdx) => (
-                          <optgroup key={gIdx} label={`${group.icon} ${group.name}`} className="bg-zinc-950 text-emerald-400 font-bold">
-                            {group.templates.map(item => (
-                              <option key={item.id} value={item.id} className="bg-zinc-900 text-zinc-100 font-normal py-1">
-                                {item.label}
-                              </option>
-                            ))}
-                          </optgroup>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                        📐 Tamaño / Altura de Foto
+                      </label>
+                      <div className="grid grid-cols-4 gap-1">
+                        {[
+                          { id: 'sm', label: 'S' },
+                          { id: 'md', label: 'M' },
+                          { id: 'lg', label: 'L' },
+                          { id: 'xl', label: 'XL' }
+                        ].map(sz => (
+                          <button
+                            key={sz.id}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, hero_image_size: sz.id }));
+                              showTweakNotice(`Tamaño de imagen: ${sz.label}`);
+                            }}
+                            className={`py-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
+                              (formData.hero_image_size || 'md') === sz.id
+                                ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                            }`}
+                          >
+                            {sz.label}
+                          </button>
                         ))}
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
-                        <ChevronDown className="w-4 h-4 text-emerald-400" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                        🖼️ Disposición de Portada
+                      </label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, hero_layout: 'split' }));
+                            showTweakNotice('Disposición: Foto dividida al lado');
+                          }}
+                          className={`py-2 px-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
+                            formData.hero_layout === 'split'
+                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          Dividida al Lado
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, hero_layout: 'centered' }));
+                            showTweakNotice('Disposición: Centrado con fondo completo');
+                          }}
+                          className={`py-2 px-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
+                            formData.hero_layout === 'centered'
+                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          Fondo Completo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, hero_layout: 'minimal' }));
+                            showTweakNotice('Disposición: Minimalista');
+                          }}
+                          className={`py-2 px-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
+                            formData.hero_layout === 'minimal'
+                              ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          Solo Texto
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Quick Prev / Next navigation + Active Badge */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const currentIndex = TEMPLATES.findIndex(t => t.id === formData.template_id);
-                        const safeIdx = currentIndex >= 0 ? currentIndex : 0;
-                        const prevIndex = (safeIdx - 1 + TEMPLATES.length) % TEMPLATES.length;
-                        const prevT = TEMPLATES[prevIndex];
-                        if (prevT) {
-                          const presetMenu = getPresetMenuForStyle(prevT.id);
-                          setFormData(prev => ({ 
-                            ...prev, 
-                            template_id: prevT.id,
-                            menu_categories: presetMenu,
-                            hero_image: prevT.heroBg || prev.hero_image,
-                            primary_color: prevT.previewColors?.primary || prev.primary_color,
-                            accent_color: prevT.previewColors?.accent || prev.accent_color,
-                            background_color: prevT.previewColors?.bg || prev.background_color,
-                            surface_color: prevT.previewColors?.card || prev.surface_color,
-                            font_family: prevT.defaultFont || prev.font_family
-                          }));
-                          setActiveMenuCatIdx(0);
-                          showTweakNotice(`Estilo cambiado a ${prevT.name}`);
-                        }
-                      }}
-                      className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
-                      title="Estilo anterior"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Anterior</span>
-                    </button>
-
-                    <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-semibold">
-                      {Math.max(1, TEMPLATES.findIndex(t => t.id === formData.template_id) + 1)} / {TEMPLATES.length}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const currentIndex = TEMPLATES.findIndex(t => t.id === formData.template_id);
-                        const safeIdx = currentIndex >= 0 ? currentIndex : 0;
-                        const nextIndex = (safeIdx + 1) % TEMPLATES.length;
-                        const nextT = TEMPLATES[nextIndex];
-                        if (nextT) {
-                          const presetMenu = getPresetMenuForStyle(nextT.id);
-                          setFormData(prev => ({ 
-                            ...prev, 
-                            template_id: nextT.id,
-                            menu_categories: presetMenu,
-                            hero_image: nextT.heroBg || prev.hero_image,
-                            primary_color: nextT.previewColors?.primary || prev.primary_color,
-                            accent_color: nextT.previewColors?.accent || prev.accent_color,
-                            background_color: nextT.previewColors?.bg || prev.background_color,
-                            surface_color: nextT.previewColors?.card || prev.surface_color,
-                            font_family: nextT.defaultFont || prev.font_family
-                          }));
-                          setActiveMenuCatIdx(0);
-                          showTweakNotice(`Estilo cambiado a ${nextT.name}`);
-                        }
-                      }}
-                      className="px-2.5 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
-                      title="Siguiente estilo"
-                    >
-                      <span className="hidden sm:inline">Siguiente</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setIsTweakBarCollapsed(true)}
-                      className="ml-1 sm:ml-2 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
-                      title="Ocultar controles para ver la web a pantalla completa"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Ocultar Barra</span>
-                    </button>
-
-                    <a
-                      href={`/#/r/${formData.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
-                      title="Abrir web en nueva pestaña"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Nueva Pestaña</span>
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {quickTweakTab === 'menu' && (
-                <div className="space-y-4 pt-1 animate-fadeIn">
-                  {/* Category selector row & global actions */}
-                  <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2 border-b border-white/5">
-                    <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto py-1">
-                      <span className="text-xs font-mono text-zinc-400 mr-1 flex items-center gap-1">
-                        <Utensils className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Categorías:</span>
+                  {/* Row 2: Camera & Gallery & Presets for Hero Image */}
+                  <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10 space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Camera className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Subir Foto de Portada (Galería o Cámara)</span>
                       </span>
-                      {(formData.menu_categories || []).map((cat, cIdx) => {
-                        const isCatActive = (activeMenuCatIdx || 0) === cIdx;
-                        return (
-                          <button
-                            key={cIdx}
-                            type="button"
-                            onClick={() => setActiveMenuCatIdx(cIdx)}
-                            className={`px-3 py-1 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
-                              isCatActive
-                                ? 'bg-emerald-500 text-black font-bold shadow-sm'
-                                : 'bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white hover:border-white/20'
-                            }`}
-                          >
-                            <span>{cat.category || `Sección ${cIdx + 1}`}</span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                              isCatActive ? 'bg-black/20 text-black font-bold' : 'bg-zinc-800 text-zinc-400'
-                            }`}>
-                              {(cat.items || []).length}
-                            </span>
-                          </button>
-                        );
-                      })}
-                      <button
-                        type="button"
-                        onClick={handleAddCategory}
-                        className="px-2.5 py-1 rounded-xl border border-dashed border-emerald-500/40 hover:border-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-medium transition flex items-center gap-1"
-                        title="Añadir una nueva sección a la carta"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Añadir Categoría</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => heroGalleryInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold border border-white/15 transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                        >
+                          <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Elegir de Galería</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => heroCameraInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold border border-emerald-500/40 transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                        >
+                          <Camera className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Hacer Foto con Cámara</span>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleResetMenuToPreset}
-                        className="px-2.5 py-1 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-mono transition flex items-center gap-1.5 cursor-pointer"
-                        title="Restablecer los platos sugeridos para este estilo de restaurante"
-                      >
-                        <RefreshCw className="w-3 h-3 text-emerald-400" />
-                        <span>Restablecer Ejemplo del Estilo</span>
-                      </button>
+                      <input
+                        type="text"
+                        value={formData.hero_image || ''}
+                        onChange={e => setFormData(prev => ({ ...prev, hero_image: e.target.value }))}
+                        placeholder="O pega aquí la URL de la imagen..."
+                        className="flex-1 bg-black/60 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 font-mono focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Presets Gallery */}
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase font-semibold">
+                        O elige una foto profesional en 1 clic:
+                      </span>
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                        {HERO_PHOTO_PRESETS.map((preset, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, hero_image: preset.url }));
+                              showTweakNotice(`Foto cambiada: ${preset.label}`);
+                            }}
+                            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border transition shrink-0 cursor-pointer ${
+                              formData.hero_image === preset.url
+                                ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                                : 'bg-black/50 border-white/10 text-zinc-300 hover:border-white/30'
+                            }`}
+                          >
+                            <img src={preset.url} alt={preset.label} className="w-6 h-6 rounded object-cover" />
+                            <span className="text-xs">{preset.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-
-                  {/* Active Category Editor & Dishes */}
-                  {(() => {
-                    const currentCats = formData.menu_categories || [];
-                    const safeIdx = Math.min(Math.max(0, activeMenuCatIdx || 0), Math.max(0, currentCats.length - 1));
-                    const currentCat = currentCats[safeIdx];
-                    if (!currentCat) return (
-                      <div className="p-4 text-center text-xs text-zinc-400">
-                        No hay platos configurados.{' '}
-                        <button type="button" onClick={handleResetMenuToPreset} className="text-emerald-400 underline ml-1">
-                          Cargar platos sugeridos
-                        </button>
-                      </div>
-                    );
-
-                    return (
-                      <div className="space-y-3">
-                        {/* Category Name & Actions Bar */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-zinc-900/60 p-2.5 rounded-xl border border-white/5">
-                          <div className="flex items-center gap-2 flex-1">
-                            <label className="text-xs font-mono text-zinc-400 shrink-0">Nombre de la Sección:</label>
-                            <input
-                              type="text"
-                              value={currentCat.category || ''}
-                              onChange={(e) => handleUpdateCategoryName(safeIdx, e.target.value)}
-                              placeholder="Ej: Entrantes, Carnes, Postres..."
-                              className="px-3 py-1.5 rounded-lg bg-zinc-950 border border-white/10 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none w-full max-w-xs"
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleAddDish(safeIdx)}
-                              className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition flex items-center gap-1 shadow-sm cursor-pointer"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                              <span>Añadir Plato</span>
-                            </button>
-                            {currentCats.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveCategory(safeIdx)}
-                                className="px-2.5 py-1.5 rounded-lg border border-red-500/20 hover:border-red-500/50 bg-red-500/10 text-red-300 text-xs transition flex items-center gap-1 cursor-pointer"
-                                title="Eliminar toda esta categoría de la carta"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>Eliminar Sección</span>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Dishes Cards Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
-                          {(currentCat.items || []).map((dish, dIdx) => (
-                            <div
-                              key={dIdx}
-                              className="p-3 rounded-xl bg-zinc-900/90 border border-white/10 hover:border-white/20 transition space-y-2 group"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-md bg-zinc-800 text-zinc-400 text-[10px] font-mono flex items-center justify-center font-bold">
-                                  {dIdx + 1}
-                                </span>
-                                <input
-                                  type="text"
-                                  value={dish.name || ''}
-                                  onChange={(e) => handleUpdateDish(safeIdx, dIdx, 'name', e.target.value)}
-                                  placeholder="Nombre del plato"
-                                  className="flex-1 px-2.5 py-1 rounded-lg bg-zinc-950 border border-white/10 text-xs font-semibold text-white focus:border-emerald-400 focus:outline-none"
-                                />
-                                <input
-                                  type="text"
-                                  value={dish.price || ''}
-                                  onChange={(e) => handleUpdateDish(safeIdx, dIdx, 'price', e.target.value)}
-                                  placeholder="14,00€"
-                                  className="w-20 px-2 py-1 rounded-lg bg-zinc-950 border border-white/10 text-xs font-mono font-bold text-emerald-400 text-right focus:border-emerald-400 focus:outline-none"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveDish(safeIdx, dIdx)}
-                                  className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer"
-                                  title="Eliminar este plato"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                              <textarea
-                                rows={2}
-                                value={dish.description || ''}
-                                onChange={(e) => handleUpdateDish(safeIdx, dIdx, 'description', e.target.value)}
-                                placeholder="Descripción del plato, ingredientes frescos, maridaje sugerido o alérgenos..."
-                                className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-white/5 text-[11px] text-zinc-300 focus:border-emerald-400 focus:outline-none resize-none leading-relaxed"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })()}
                 </div>
               )}
 
-            {quickTweakTab === 'services' && (
-              <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
-                <span className="text-[11px] font-mono text-zinc-400 pr-1">Servicios Activos:</span>
-                {AVAILABLE_MODULES.map(mod => {
-                  const isSel = (formData.selected_modules || []).includes(mod.id);
-                  return (
-                    <button
-                      key={mod.id}
-                      type="button"
-                      onClick={() => toggleModule(mod.id)}
-                      className={`px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 emil-pressable ${
-                        isSel
-                          ? 'border-emerald-400 bg-emerald-500/20 text-white font-bold ring-1 ring-emerald-400'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[10px] ${isSel ? 'bg-emerald-400 text-black font-black' : 'border border-zinc-600'}`}>
-                        {isSel && '✓'}
+              {/* Title / Brand Inspector */}
+              {(selectedElement.type === 'title' || selectedElement.type === 'brand') && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Nombre del Restaurante / Negocio
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name || ''}
+                      onChange={e => handleNameChange(e.target.value)}
+                      placeholder="Ej. Taberna El Albero"
+                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white font-bold focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Dirección Web Asignada (Subdominio)
+                    </label>
+                    <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-emerald-400">
+                      <span>https://{formData.slug || 'local'}.tecnodiel.app</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Slogan & Description Inspector */}
+              {selectedElement.type === 'slogan' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Lema Principal / Eslogan
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.slogan || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
+                      placeholder="Ej. Tapas de solera, jamón ibérico y vinos del sur"
+                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Historia o Filosofía del Local
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formData.description || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Breve presentación de la cocina y el ambiente..."
+                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none resize-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* CTA Button Inspector */}
+              {selectedElement.type === 'cta_button' && (
+                <div className="space-y-2">
+                  <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                    Texto del Botón Principal
+                  </label>
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                    <input
+                      type="text"
+                      value={formData.cta_text || 'Reservar Mesa Online'}
+                      onChange={e => setFormData(prev => ({ ...prev, cta_text: e.target.value }))}
+                      placeholder="Ej. Reservar Mesa Online"
+                      className="flex-1 bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] font-mono text-zinc-400">Sugerencias rápidas:</span>
+                    {['Reservar Mesa Online', 'Ver Carta & Reservar', 'Reservar Ahora', 'Pedir por WhatsApp'].map(sug => (
+                      <button
+                        key={sug}
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, cta_text: sug }));
+                          showTweakNotice(`Botón: "${sug}"`);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 text-[11px] transition cursor-pointer"
+                      >
+                        {sug}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Dish & Menu Inspector */}
+              {selectedElement.type === 'menu_item' && (() => {
+                const catIdx = selectedElement.data?.categoryIndex ?? 0;
+                const dishIdx = selectedElement.data?.itemIndex ?? 0;
+                const item = formData.menu_categories?.[catIdx]?.items?.[dishIdx] || selectedElement.data?.item || { name: '', price: '', description: '' };
+
+                return (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+                      <div className="flex items-center gap-2">
+                        <Utensils className="w-3.5 h-3.5 text-orange-400" />
+                        <span className="text-xs font-bold text-white">
+                          Plato: {item.name || 'Seleccionado'} ({formData.menu_categories?.[catIdx]?.category || 'Carta'})
+                        </span>
                       </div>
-                      <span>{mod.name}</span>
-                      <span className="text-[10px] text-emerald-400 font-mono font-bold">(+{mod.price}€)</span>
-                    </button>
-                  );
-                })}
-                <div className="ml-auto pl-2 py-1 flex items-center gap-2 font-mono text-xs">
-                  <span className="text-zinc-400">Total Actual:</span>
-                  <span className="text-emerald-400 font-extrabold text-sm">{calculatePlanPrice()}€/mes</span>
+
+                      {/* Dish category switch */}
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={catIdx}
+                          onChange={e => {
+                            const newCat = parseInt(e.target.value, 10);
+                            const firstDish = formData.menu_categories?.[newCat]?.items?.[0] || { name: 'Plato', price: '10€' };
+                            setSelectedElement({
+                              type: 'menu_item',
+                              label: firstDish.name || 'Plato',
+                              data: { categoryIndex: newCat, itemIndex: 0, item: firstDish }
+                            });
+                          }}
+                          className="bg-zinc-900 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none"
+                        >
+                          {(formData.menu_categories || []).map((cat, idx) => (
+                            <option key={idx} value={idx}>{cat.category}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                          Nombre del Plato
+                        </label>
+                        <input
+                          type="text"
+                          value={item.name || ''}
+                          onChange={e => {
+                            handleUpdateDish(catIdx, dishIdx, 'name', e.target.value);
+                            setSelectedElement(prev => ({
+                              ...prev,
+                              label: e.target.value,
+                              data: { ...prev.data, item: { ...item, name: e.target.value } }
+                            }));
+                          }}
+                          className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:border-emerald-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                          Precio
+                        </label>
+                        <input
+                          type="text"
+                          value={item.price || ''}
+                          onChange={e => {
+                            handleUpdateDish(catIdx, dishIdx, 'price', e.target.value);
+                            setSelectedElement(prev => ({
+                              ...prev,
+                              data: { ...prev.data, item: { ...item, price: e.target.value } }
+                            }));
+                          }}
+                          className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white font-mono font-bold focus:border-emerald-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-1">
+                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                          Foto del Plato (Cámara o Galería)
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          {item.image && (
+                            <img src={item.image} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-white/20 shrink-0" />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => dishGalleryInputRef.current?.click()}
+                            className="flex-1 py-1.5 px-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-semibold border border-white/15 transition flex items-center justify-center gap-1 cursor-pointer"
+                            title="Seleccionar foto de galería"
+                          >
+                            <Upload className="w-3 h-3 text-emerald-400" />
+                            <span>Galería</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => dishCameraInputRef.current?.click()}
+                            className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-semibold border border-emerald-500/40 transition flex items-center justify-center gap-1 cursor-pointer"
+                            title="Tomar foto con la cámara"
+                          >
+                            <Camera className="w-3 h-3 text-emerald-400" />
+                            <span>Cámara</span>
+                          </button>
+                          {item.image && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleUpdateDish(catIdx, dishIdx, 'image', undefined);
+                                setSelectedElement(prev => ({
+                                  ...prev,
+                                  data: { ...prev.data, item: { ...item, image: undefined } }
+                                }));
+                                showTweakNotice('Foto del plato eliminada');
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition cursor-pointer"
+                              title="Quitar foto"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                        Descripción o Ingredientes
+                      </label>
+                      <input
+                        type="text"
+                        value={item.description || ''}
+                        onChange={e => {
+                          handleUpdateDish(catIdx, dishIdx, 'description', e.target.value);
+                          setSelectedElement(prev => ({
+                            ...prev,
+                            data: { ...prev.data, item: { ...item, description: e.target.value } }
+                          }));
+                        }}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Theme & Palette Inspector */}
+              {selectedElement.type === 'theme' && (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Elige un Estilo Visual de Plantilla
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 max-h-40 overflow-y-auto pr-1">
+                      {TEMPLATES.map(tpl => (
+                        <button
+                          key={tpl.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              template_id: tpl.id,
+                              primary_color: tpl.primaryColor || prev.primary_color,
+                              accent_color: tpl.accentColor || prev.accent_color,
+                              font_family: tpl.font || prev.font_family,
+                              menu_categories: getPresetMenuForStyle(tpl.id)
+                            }));
+                            showTweakNotice(`Estilo cambiado a: ${tpl.name}`);
+                          }}
+                          className={`p-2 rounded-xl text-left border transition cursor-pointer flex flex-col gap-1 ${
+                            formData.template_id === tpl.id
+                              ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
+                              : 'bg-zinc-900/80 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          <span className="text-xs font-semibold truncate">{tpl.name}</span>
+                          <span className="text-[10px] text-zinc-400 font-mono">{tpl.archetype || 'Gastronomía'}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 pt-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Paleta de Color Principal
+                    </label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {COLOR_PALETTES.map((pal, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            handlePaletteSelect(pal);
+                            showTweakNotice(`Paleta: ${pal.name}`);
+                          }}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition cursor-pointer text-xs ${
+                            formData.primary_color === pal.primary
+                              ? 'bg-white/15 border-white text-white font-bold'
+                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          <div className="w-3.5 h-3.5 rounded-full border border-black/40" style={{ backgroundColor: pal.primary }} />
+                          <span>{pal.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-
-            {quickTweakTab === 'colors' && (
-              <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
-                <span className="text-[11px] font-mono text-zinc-400 pr-1">Elige Combinación:</span>
-                {COLOR_PALETTES.map(pal => {
-                  const isSel = formData.primary_color === pal.primary;
-                  return (
-                    <button
-                      key={pal.id}
-                      onClick={() => {
-                        setFormData(prev => ({
-                          ...prev,
-                          primary_color: pal.primary,
-                          accent_color: pal.accent,
-                          background_color: pal.bg,
-                          surface_color: pal.surface
-                        }));
-                        showTweakNotice(`Colores cambiados a ${pal.name}`);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-2 ${
-                        isSel
-                          ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: pal.primary }} />
-                      <span>{pal.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {quickTweakTab === 'layout' && (
-              <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
-                <span className="text-[11px] font-mono text-zinc-400 pr-1">Diseño de Portada:</span>
-                {[
-                  { id: 'centered', name: 'Foto completa con botón al centro' },
-                  { id: 'split', name: 'Texto a un lado y foto al otro' },
-                  { id: 'minimal', name: 'Solo texto y acceso directo' }
-                ].map(l => {
-                  const isSel = formData.hero_layout === l.id;
-                  return (
-                    <button
-                      key={l.id}
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, hero_layout: l.id }));
-                        showTweakNotice(`Portada cambiada a ${l.name}`);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 ${
-                        isSel
-                          ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <span>{l.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {quickTweakTab === 'typography' && (
-              <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
-                <span className="text-[11px] font-mono text-zinc-400 pr-1">Tipo de Letra:</span>
-                {[
-                  { id: 'Outfit', name: 'Actual y con estilo (Outfit)' },
-                  { id: 'Playfair Display', name: 'Clásica de restaurante (Playfair)' },
-                  { id: 'Cinzel', name: 'Monumental y solemne (Cinzel)' },
-                  { id: 'Plus Jakarta Sans', name: 'Moderna y geométrica (Jakarta)' },
-                  { id: 'Inter', name: 'Clara y sencilla (Inter)' }
-                ].map(f => {
-                  const isSel = formData.font_family === f.id;
-                  return (
-                    <button
-                      key={f.id}
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, font_family: f.id }));
-                        showTweakNotice(`Letra cambiada a ${f.name}`);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-xs transition ${
-                        isSel
-                          ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <span>{f.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {quickTweakTab === 'texture' && (
-              <div className="flex flex-wrap items-center gap-2 animate-fadeIn">
-                <span className="text-[11px] font-mono text-zinc-400 pr-1">Ambiente de Luz:</span>
-                {[
-                  { id: 'spotlight', name: 'Luz de noche' },
-                  { id: 'grain', name: 'Toque fotográfico' },
-                  { id: 'vignette', name: 'Borde suave' },
-                  { id: 'clean', name: 'Fondo limpio' }
-                ].map(t => {
-                  const isSel = formData.texture === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, texture: t.id }));
-                        showTweakNotice(`Ambiente cambiado a ${t.name}`);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-xs transition ${
-                        isSel
-                          ? 'border-emerald-400 bg-emerald-500/15 text-white font-bold ring-1 ring-emerald-400'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      <span>{t.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {quickTweakTab === 'quickedit' && (
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 pt-1 animate-fadeIn">
-                <div>
-                  <label className="text-[10px] font-mono text-zinc-400 block mb-0.5">Nombre de tu local:</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => handleNameChange(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-400"
-                  />
+              {/* Contact & Hours Inspector */}
+              {selectedElement.type === 'contact' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.phone || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.whatsapp_number || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
+                      className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Dirección
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.address || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
+                      Ciudad
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.city || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[10px] font-mono text-zinc-400 block mb-0.5">Lema o especialidad:</label>
-                  <input
-                    type="text"
-                    value={formData.slogan}
-                    onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-mono text-zinc-400 block mb-0.5">Móvil con WhatsApp:</label>
-                  <input
-                    type="text"
-                    value={formData.whatsapp_number}
-                    onChange={(e) => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-400"
-                  />
-                </div>
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSection(1)}
-                    className="w-full py-1.5 px-3 rounded-lg border border-white/15 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5"
-                  >
-                    <Edit3 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Volver a todas las preguntas</span>
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* Live Responsive Preview Window */}
-        <div className="flex-1 p-3 sm:p-6 flex flex-col items-center justify-start overflow-hidden relative">
+        <div className="flex-1 p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start overflow-y-auto relative">
           {/* Subtle Ambient Glow */}
           <div 
             className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[140px] pointer-events-none opacity-20"
             style={{ backgroundColor: formData.primary_color }}
           />
 
-          {/* Mobile-only Preview Launch Card (Only on Mobile) */}
-          <div className="block md:hidden w-full max-w-lg mx-auto p-4 rounded-xl bg-zinc-950 border border-zinc-800 shadow-xl space-y-3 z-10">
-            <div className="flex items-center justify-between">
+          {/* Device Mockup Wrapper */}
+          <div className="w-full flex flex-col items-center z-10 space-y-3">
+            {/* Contextual Device Toolbar */}
+            <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-zinc-400">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-mono text-xs text-white font-bold uppercase tracking-wider">
-                  Tu Web en Tiempo Real
-                </span>
-              </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
-                {formData.slug || 'local'}.tecnodiel.app
-              </span>
-            </div>
-            <p className="text-xs text-zinc-300 leading-relaxed font-sans">
-              Hemos generado tu web interactiva con la plantilla <strong>{TEMPLATES.find(t => t.id === formData.template_id)?.name || formData.template_id}</strong> y todos tus datos.
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsMobilePreviewOpen(true)}
-              className="btn-industrial w-full py-3.5 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] min-h-[48px] active:scale-98 transition cursor-pointer"
-            >
-              <Eye className="w-4 h-4 stroke-[2.5]" />
-              <span>Abrir Vista Previa Completa</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-            </button>
-          </div>
-
-          {/* Desktop-only Responsive Device Container */}
-          <div className="hidden md:flex flex-col items-center w-full max-w-4xl z-10">
-            {/* Preview Window Header Bar */}
-            <div className="w-full flex items-center justify-between pb-3 text-xs text-zinc-400">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                </div>
-                <span className="font-mono text-[11px] text-zinc-300 pl-2">
-                  https://{formData.slug || 'local'}.tecnodiel.app
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Vista Previa Interactiva de tu Web
+                  ✨ Pulsa cualquier texto, imagen o botón para editarlo
                 </span>
+              </div>
+
+              {/* Responsive Device Switcher */}
+              <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl shadow-md">
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('desktop')}
+                  className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
+                    previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                  }`}
+                  title="Vista de Ordenador"
+                >
+                  <Monitor className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Escritorio</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('tablet')}
+                  className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
+                    previewDevice === 'tablet' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                  }`}
+                  title="Vista de Tablet"
+                >
+                  <Tablet className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Tablet</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('mobile')}
+                  className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
+                    previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                  }`}
+                  title="Vista Móvil"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Móvil</span>
+                </button>
               </div>
             </div>
 
-            <div 
-              className={`w-full transition-all duration-300 rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative bg-black ${
-                previewDevice === 'desktop' ? 'max-w-4xl h-[60vh] sm:h-[64vh]' :
-                previewDevice === 'tablet' ? 'max-w-[640px] h-[60vh] sm:h-[64vh]' :
-                'max-w-[375px] h-[60vh] sm:h-[64vh]'
-              }`}
-            >
-              <div className="w-full h-full overflow-y-auto">
-                <ErrorBoundary>
-                  <TemplateRenderer restaurant={formData} isPreview={true} />
-                </ErrorBoundary>
+            {/* Responsive Device Chassis */}
+            {previewDevice === 'mobile' ? (
+              /* Realistic iPhone Frame */
+              <div className="w-full max-w-[390px] mx-auto transition-all duration-300">
+                <div className="bg-zinc-950 border-[6px] border-zinc-800 rounded-[44px] shadow-[0_0_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
+                  {/* Dynamic Island Notch */}
+                  <div className="w-full flex justify-center py-2 bg-black shrink-0 z-20">
+                    <div className="w-28 h-5 bg-zinc-900 rounded-full flex items-center justify-between px-3 border border-white/5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    </div>
+                  </div>
+
+                  {/* Web Container */}
+                  <div className="w-full h-[600px] sm:h-[660px] overflow-y-auto overscroll-contain bg-black preview-device-mobile">
+                    <ErrorBoundary>
+                      <TemplateRenderer 
+                        restaurant={formData} 
+                        isPreview={true} 
+                        previewDevice="mobile"
+                        onSelectElement={handleSelectElement}
+                        selectedElement={selectedElement}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  {/* iOS Home Indicator */}
+                  <div className="w-full flex justify-center py-2 bg-black shrink-0 z-20">
+                    <div className="w-32 h-1 bg-white/40 rounded-full" />
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : previewDevice === 'tablet' ? (
+              /* Realistic iPad Frame */
+              <div className="w-full max-w-[720px] mx-auto transition-all duration-300">
+                <div className="bg-zinc-950 border-[6px] border-zinc-800 rounded-[32px] shadow-[0_0_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
+                  {/* iPad Front Camera Bezel */}
+                  <div className="w-full flex justify-center py-1.5 bg-zinc-950 shrink-0 z-20">
+                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+                  </div>
+
+                  {/* Web Container */}
+                  <div className="w-full h-[600px] sm:h-[660px] overflow-y-auto overscroll-contain bg-black preview-device-tablet">
+                    <ErrorBoundary>
+                      <TemplateRenderer 
+                        restaurant={formData} 
+                        isPreview={true} 
+                        previewDevice="tablet"
+                        onSelectElement={handleSelectElement}
+                        selectedElement={selectedElement}
+                      />
+                    </ErrorBoundary>
+                  </div>
+
+                  {/* iPad Home Indicator */}
+                  <div className="w-full flex justify-center py-1.5 bg-zinc-950 shrink-0 z-20">
+                    <div className="w-36 h-1 bg-white/30 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Realistic Desktop Browser Window */
+              <div className="w-full max-w-5xl mx-auto transition-all duration-300">
+                <div className="bg-zinc-950 border border-white/10 rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
+                  {/* macOS / Browser Header */}
+                  <div className="w-full bg-zinc-900 px-4 py-2 border-b border-white/10 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                      </div>
+                      <span className="font-mono text-[11px] text-zinc-300 pl-2">
+                        https://{formData.slug || 'local'}.tecnodiel.app
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-zinc-400 hidden sm:inline">
+                        100% Interactivo & Editable
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Web Container */}
+                  <div className="w-full h-[600px] sm:h-[660px] overflow-y-auto overscroll-contain bg-black">
+                    <ErrorBoundary>
+                      <TemplateRenderer 
+                        restaurant={formData} 
+                        isPreview={true} 
+                        previewDevice="desktop"
+                        onSelectElement={handleSelectElement}
+                        selectedElement={selectedElement}
+                      />
+                    </ErrorBoundary>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Final Pricing & Commercial Offer Bar (Emil Kowalski spring-animated) */}
@@ -2603,7 +2956,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
         {/* Fullscreen Interactive Web View */}
         <div className="flex-1 w-full overflow-y-auto overscroll-contain bg-black">
           <ErrorBoundary>
-            <TemplateRenderer restaurant={formData} isPreview={true} />
+            <TemplateRenderer 
+              restaurant={formData} 
+              isPreview={true} 
+              previewDevice="mobile"
+              onSelectElement={handleSelectElement}
+              selectedElement={selectedElement}
+            />
           </ErrorBoundary>
         </div>
 
