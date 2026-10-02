@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
@@ -27,12 +28,16 @@ export default function MinimalistTemplate({ restaurant, isPreview = false }) {
             <span className="hidden md:inline text-zinc-500 tracking-widest text-[11px] uppercase">
               {restaurant.city || 'Sede Central'}
             </span>
-            <button
+            <motion.button
+              type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="px-5 py-2 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 text-xs tracking-widest uppercase font-light"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="px-5 py-2 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-colors text-xs tracking-widest uppercase font-light cursor-pointer interactive-button"
             >
               Solicitar Asiento
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -60,11 +65,11 @@ export default function MinimalistTemplate({ restaurant, isPreview = false }) {
 
           {/* Minimalist Floating Photo */}
           <div className="relative pt-6">
-            <div className="relative h-72 sm:h-[450px] overflow-hidden rounded-sm border border-white/10">
+            <div className="relative h-72 sm:h-[450px] overflow-hidden rounded-sm border border-white/10 group">
               <img 
                 src={restaurant.hero_image || 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80'} 
                 alt={restaurant.name}
-                className="w-full h-full object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition duration-700"
+                className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-102 transition duration-700"
               />
             </div>
             <div className="flex justify-between items-center pt-3 text-[10px] font-mono tracking-widest text-zinc-500 uppercase">
@@ -85,13 +90,16 @@ export default function MinimalistTemplate({ restaurant, isPreview = false }) {
             "{restaurant.description}"
           </p>
           <div className="pt-4">
-            <button
+            <motion.button
+              type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="inline-flex items-center gap-3 text-xs tracking-[0.2em] text-white uppercase border-b border-white/40 pb-1 hover:border-white transition"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-3 text-xs tracking-[0.2em] text-white uppercase border-b border-white/40 pb-1 hover:border-white transition-colors cursor-pointer"
             >
               <span>Consultar Disponibilidad de Mesa</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
           </div>
         </div>
       </section>
@@ -120,10 +128,15 @@ export default function MinimalistTemplate({ restaurant, isPreview = false }) {
 
             <div className="divide-y divide-white/5">
               {(cat.items || []).map((item) => (
-                <div key={item.id} className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 group">
+                <motion.div 
+                  key={item.id}
+                  whileHover={{ x: 4 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 group cursor-pointer"
+                >
                   <div className="space-y-1.5 max-w-xl">
                     <div className="flex items-center gap-3">
-                      <h4 className="text-sm text-white font-normal tracking-wide group-hover:text-zinc-300 transition">
+                      <h4 className="text-sm text-white font-normal tracking-wide group-hover:text-emerald-400 transition-colors">
                         {item.name}
                       </h4>
                       {item.badge && (
@@ -142,7 +155,7 @@ export default function MinimalistTemplate({ restaurant, isPreview = false }) {
                       {item.price.toFixed(2)} €
                     </span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -161,27 +174,34 @@ export default function MinimalistTemplate({ restaurant, isPreview = false }) {
           <p className="text-xs text-zinc-400 font-light leading-relaxed">
             Garantizamos la privacidad y tranquilidad de cada servicio. Las reservas son gestionadas directamente por el restaurante.
           </p>
-          <button
+          <motion.button
+            type="button"
             onClick={() => setIsBookingOpen(true)}
-            className="px-8 py-3.5 rounded-full border border-white text-black bg-white hover:bg-zinc-200 transition-all text-xs tracking-widest uppercase font-medium shadow-xl"
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="px-8 py-3.5 rounded-full border border-white text-black bg-white hover:bg-zinc-200 transition-colors text-xs tracking-widest uppercase font-medium shadow-[0_0_30px_rgba(255,255,255,0.3)] cursor-pointer interactive-button"
           >
             Reservar Mesa Directa
-          </button>
+          </motion.button>
         </div>
       </section>
 
-      {/* Minimalist Quiet Floating Action Bar for Mobile (Emil Kowalski style) */}
+      {/* Minimalist Quiet Floating Action Bar for Mobile */}
       <div className="sm:hidden fixed bottom-4 inset-x-6 z-40">
         <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-full px-4 py-2 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.95)]">
           <span className="text-[11px] tracking-widest text-zinc-300 uppercase font-light truncate max-w-[150px]">
             {restaurant.name}
           </span>
-          <button
+          <motion.button
+            type="button"
             onClick={() => setIsBookingOpen(true)}
-            className="emil-pressable px-4 py-2 rounded-full bg-white text-black text-[11px] tracking-widest uppercase font-medium touch-target-44 flex items-center shadow-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.94 }}
+            className="px-4 py-2 rounded-full bg-white text-black text-[11px] tracking-widest uppercase font-medium touch-target-44 flex items-center shadow-lg cursor-pointer interactive-button"
           >
             Reservar
-          </button>
+          </motion.button>
         </div>
       </div>
 

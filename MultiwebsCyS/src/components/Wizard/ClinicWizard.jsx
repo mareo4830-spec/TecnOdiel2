@@ -497,7 +497,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                             key={cat.id}
                             type="button"
                             onClick={() => handleCategorySelect(cat.id)}
-                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer interactive-selectable ${
                               formData.category === cat.id
                                 ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold shadow-sm'
                                 : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
@@ -563,7 +563,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                               menu_categories: getPresetServicesForStyle(tpl.id)
                             }));
                           }}
-                          className={`p-3.5 rounded-xl border text-left transition space-y-1.5 cursor-pointer ${
+                          className={`p-3.5 rounded-xl border text-left transition space-y-1.5 cursor-pointer interactive-selectable ${
                             formData.template_id === tpl.id
                               ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold'
                               : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
@@ -600,7 +600,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                           key={idx}
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_image: p.url })}
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs shrink-0 cursor-pointer ${
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs shrink-0 cursor-pointer interactive-selectable ${
                             formData.hero_image === p.url ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold' : 'bg-zinc-900 border-white/10 text-zinc-300'
                           }`}
                         >
@@ -638,7 +638,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                           key={idx}
                           type="button"
                           onClick={() => handlePaletteSelect(pal)}
-                          className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                          className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer interactive-selectable ${
                             formData.primary_color === pal.primary
                               ? 'bg-white/15 border-white text-white font-bold'
                               : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
@@ -661,7 +661,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                           key={f}
                           type="button"
                           onClick={() => setFormData({ ...formData, font_family: f })}
-                          className={`p-3 rounded-xl border text-center transition text-xs cursor-pointer ${
+                          className={`p-3 rounded-xl border text-center transition text-xs cursor-pointer interactive-selectable ${
                             formData.font_family === f ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold' : 'bg-zinc-900 border-white/10 text-zinc-300'
                           }`}
                         >
@@ -712,7 +712,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                             key={idx}
                             type="button"
                             onClick={() => toggleInsurance(ins)}
-                            className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between text-xs cursor-pointer ${
+                            className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between text-xs cursor-pointer interactive-selectable ${
                               isChecked
                                 ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold'
                                 : 'bg-zinc-900 border-white/10 text-zinc-400 hover:text-white'
@@ -912,7 +912,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                 <button
                   type="button"
                   onClick={() => setActiveSection(prev => prev - 1)}
-                  className="px-4 py-2.5 rounded-xl border border-white/15 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-white/15 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer interactive-button"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Anterior</span>
@@ -923,7 +923,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                 <button
                   type="button"
                   onClick={() => setActiveSection(prev => prev + 1)}
-                  className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-lg"
+                  className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-lg interactive-button"
                 >
                   <span>Siguiente Paso</span>
                   <ArrowRight className="w-4 h-4" />
@@ -932,7 +932,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                 <button
                   type="button"
                   onClick={() => setActiveSection(7)}
-                  className="px-6 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs flex items-center gap-2 transition cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                  className="px-6 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs flex items-center gap-2 transition cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.4)] interactive-button"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>Ver Mi Web Lista en Directo</span>

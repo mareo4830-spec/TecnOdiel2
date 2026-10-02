@@ -163,8 +163,11 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs, onN
               const isAvailable = sector.active;
 
               return (
-                <div
+                <motion.div
                   key={sector.id}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   onClick={() => {
                     if (isRestaurante) {
                       handleSelectRestaurant();
@@ -174,7 +177,7 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs, onN
                       handleSelectDisabled(sector.name);
                     }
                   }}
-                  className={`group relative rounded-2xl border p-4 sm:p-5 transition-all duration-300 cursor-pointer text-left ${
+                  className={`group relative rounded-2xl border p-4 sm:p-5 transition-all duration-300 cursor-pointer text-left interactive-selectable ${
                     isRestaurante
                       ? 'border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/30 hover:border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30'
                       : isClinica
@@ -184,15 +187,18 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs, onN
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl border ${
-                        isRestaurante 
-                          ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' 
-                          : isClinica
-                          ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400'
-                          : 'bg-white/5 border-white/10 text-zinc-400'
-                      }`}>
+                      <motion.div 
+                        whileHover={{ rotate: 10, scale: 1.08 }}
+                        className={`p-2.5 rounded-xl border ${
+                          isRestaurante 
+                            ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' 
+                            : isClinica
+                            ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400'
+                            : 'bg-white/5 border-white/10 text-zinc-400'
+                        }`}
+                      >
                         <Icon className="w-5 h-5" />
-                      </div>
+                      </motion.div>
                       <div>
                         <h4 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
                           {sector.name}
@@ -217,7 +223,7 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs, onN
                           : 'text-emerald-400 group-hover:text-emerald-300'
                       }`}>
                         <span>{isNavigating ? 'Abriendo Creador Web...' : sector.actionText}</span>
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1.5" />
                       </span>
                     ) : (
                       <span className="text-[11px] font-mono text-zinc-500 flex items-center gap-1.5">
@@ -226,7 +232,7 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs, onN
                       </span>
                     )}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>

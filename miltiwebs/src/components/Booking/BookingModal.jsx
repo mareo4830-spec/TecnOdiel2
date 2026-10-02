@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, Users, MapPin, CheckCircle2, Phone, Mail, MessageSquare, AlertCircle, ShieldCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Calendar, Clock, Users, MapPin, CheckCircle2, Phone, Mail, MessageSquare, AlertCircle, ShieldCheck, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createReservation } from '../../lib/supabase';
 
@@ -122,351 +123,453 @@ export default function BookingModal({ restaurant, isOpen = true, onClose }) {
   const primaryColor = restaurant.primary_color || '#10b981';
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-2xl transition-opacity duration-200">
-      <div 
-        className="relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-zinc-950 border-t sm:border border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden transition-all text-zinc-100 animate-sheet-up sm:animate-spring-in max-h-[92vh] sm:max-h-[85vh] flex flex-col"
-        style={{ borderColor: `${primaryColor}40` }}
-      >
-        {/* Mobile Pull Drag Handle Indicator (Emil Kowalski Drawer style) */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center">
-          <div className="w-10 h-1 rounded-full bg-zinc-700/80" />
-        </div>
-
-        {/* Glow Header Accent */}
-        <div 
-          className="absolute top-0 inset-x-0 h-1" 
-          style={{ background: `linear-gradient(90deg, transparent, ${primaryColor}, transparent)` }}
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
+        {/* Backdrop with fade animation */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 bg-black/85 backdrop-blur-2xl"
         />
 
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 pt-3 sm:pt-5 pb-4 border-b border-white/5 shrink-0">
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-9 h-9 rounded-xl flex items-center justify-center border font-mono text-xs font-bold shrink-0"
-              style={{ 
-                backgroundColor: `${primaryColor}15`, 
-                borderColor: `${primaryColor}40`,
-                color: primaryColor 
-              }}
-            >
-              <Calendar className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight">
-                {step === 3 ? 'Reserva Confirmada' : `Reservar Mesa en ${restaurant.name}`}
-              </h3>
-              <p className="text-[11px] text-zinc-400">
-                {step === 1 && 'Paso 1: Fecha, comensales y espacio'}
-                {step === 2 && 'Paso 2: Datos de contacto y requerimientos'}
-                {step === 3 && 'Reserva gestionada directamente por el restaurante'}
-              </p>
-            </div>
+        {/* Modal Window with spring entrance */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 24 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 24 }}
+          transition={{ type: "spring", stiffness: 380, damping: 28 }}
+          className="relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-zinc-950 border-t sm:border border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.95)] overflow-hidden text-zinc-100 max-h-[92vh] sm:max-h-[85vh] flex flex-col z-10"
+          style={{ borderColor: `${primaryColor}40` }}
+        >
+          {/* Mobile Pull Drag Handle */}
+          <div className="sm:hidden pt-3 pb-1 flex justify-center">
+            <div className="w-10 h-1 rounded-full bg-zinc-700/80" />
           </div>
-          <button 
-            onClick={onClose}
-            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition emil-pressable touch-target-44 flex items-center justify-center"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
 
-        {/* Modal Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 no-scrollbar">
-          {errorMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-              <span>{errorMsg}</span>
+          {/* Glow Header Accent */}
+          <div 
+            className="absolute top-0 inset-x-0 h-1" 
+            style={{ background: `linear-gradient(90deg, transparent, ${primaryColor}, transparent)` }}
+          />
+
+          {/* Modal Header */}
+          <div className="flex items-center justify-between px-5 sm:px-6 pt-3 sm:pt-5 pb-4 border-b border-white/5 shrink-0">
+            <div className="flex items-center gap-3">
+              <motion.div 
+                whileHover={{ rotate: 10, scale: 1.05 }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border font-mono text-xs font-bold shrink-0"
+                style={{ 
+                  backgroundColor: `${primaryColor}15`, 
+                  borderColor: `${primaryColor}40`,
+                  color: primaryColor 
+                }}
+              >
+                <Calendar className="w-4 h-4" />
+              </motion.div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight">
+                  {step === 3 ? 'Reserva Confirmada' : `Reservar Mesa en ${restaurant.name}`}
+                </h3>
+                <p className="text-[11px] text-zinc-400">
+                  {step === 1 && 'Paso 1: Fecha, comensales y espacio'}
+                  {step === 2 && 'Paso 2: Datos de contacto y requerimientos'}
+                  {step === 3 && 'Reserva gestionada directamente por el restaurante'}
+                </p>
+              </div>
             </div>
-          )}
+            <motion.button 
+              type="button"
+              onClick={onClose}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition flex items-center justify-center cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </motion.button>
+          </div>
 
-          {/* STEP 1: Date, Guests, Time, Area */}
-          {step === 1 && (
-            <form onSubmit={handleNext} className="space-y-5">
-              {/* Comensales */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-                    1. Numero de Comensales
-                  </label>
-                  <span className="text-[10px] text-zinc-500 font-mono">
-                    Max. {maxGuests} por mesa
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-                  {guestOptions.map(num => (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => setGuests(num)}
-                      className={`py-2 text-xs font-semibold rounded-xl border transition ${
-                        guests === num
-                          ? 'border-white bg-white text-black font-bold shadow-md'
-                          : 'border-white/10 bg-zinc-900/80 text-zinc-300 hover:border-white/20'
-                      }`}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
+          {/* Modal Body */}
+          <div className="p-5 sm:p-6 overflow-y-auto flex-1 no-scrollbar">
+            {errorMsg && (
+              <motion.div 
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2 shake-error"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                <span>{errorMsg}</span>
+              </motion.div>
+            )}
 
-              {/* Selector de Dias */}
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2">
-                  2. Fecha de Asistencia
-                </label>
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
-                  {days.map(d => (
-                    <button
-                      key={d.dateStr}
-                      type="button"
-                      onClick={() => setDate(d.dateStr)}
-                      className={`flex flex-col items-center py-2 px-1 rounded-xl border transition ${
-                        date === d.dateStr
-                          ? 'border-emerald-400 bg-emerald-500/10 text-white'
-                          : 'border-white/5 bg-zinc-900/60 text-zinc-400 hover:border-white/15'
-                      }`}
-                      style={date === d.dateStr ? { borderColor: primaryColor, backgroundColor: `${primaryColor}20` } : {}}
-                    >
-                      <span className="text-[10px] uppercase font-medium">{d.dayName}</span>
-                      <span className="text-sm font-bold text-white my-0.5">{d.dayNumber}</span>
-                      <span className="text-[9px] text-zinc-500">{d.month}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <AnimatePresence mode="wait">
+              {/* STEP 1: Date, Guests, Time, Area */}
+              {step === 1 && (
+                <motion.form 
+                  key="step-1"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleNext} 
+                  className="space-y-5"
+                >
+                  {/* Comensales */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-zinc-400" />
+                        <span>1. Número de Comensales</span>
+                      </label>
+                      <span className="text-[10px] text-zinc-500 font-mono">
+                        Máx. {maxGuests} por mesa
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                      {guestOptions.map(num => (
+                        <motion.button
+                          key={num}
+                          type="button"
+                          onClick={() => setGuests(num)}
+                          whileHover={{ scale: 1.08, y: -2 }}
+                          whileTap={{ scale: 0.92 }}
+                          transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                          className={`py-2 text-xs font-semibold rounded-xl border transition-colors cursor-pointer relative ${
+                            guests === num
+                              ? 'border-white bg-white text-black font-bold shadow-[0_0_15px_rgba(255,255,255,0.35)]'
+                              : 'border-white/10 bg-zinc-900/80 text-zinc-300 hover:border-white/25 hover:bg-zinc-800'
+                          }`}
+                        >
+                          {num}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Selector de Horarios */}
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2">
-                  3. Franja Horaria
-                </label>
-                <div className="space-y-3">
-                  {timeSlots.map((group, gIdx) => (
-                    <div key={gIdx} className="space-y-1.5">
-                      <span className="text-[10px] text-zinc-500 font-mono block uppercase">{group.label}</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {group.times.map(t => (
-                          <button
-                            key={t}
+                  {/* Selector de Días */}
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>2. Fecha de Asistencia</span>
+                    </label>
+                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                      {days.map(d => {
+                        const isSelected = date === d.dateStr;
+                        return (
+                          <motion.button
+                            key={d.dateStr}
                             type="button"
-                            onClick={() => setTime(t)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
-                              time === t
-                                ? 'bg-white text-black border-white font-bold'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:border-white/20'
+                            onClick={() => setDate(d.dateStr)}
+                            whileHover={{ y: -3, scale: 1.04 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            className={`flex flex-col items-center py-2 px-1 rounded-xl border transition-colors cursor-pointer relative ${
+                              isSelected
+                                ? 'border-emerald-400 bg-emerald-500/15 text-white shadow-[0_0_20px_rgba(16,185,129,0.25)]'
+                                : 'border-white/5 bg-zinc-900/60 text-zinc-400 hover:border-white/20 hover:bg-zinc-800/80'
+                            }`}
+                            style={isSelected ? { borderColor: primaryColor, backgroundColor: `${primaryColor}25` } : {}}
+                          >
+                            <span className="text-[10px] uppercase font-medium">{d.dayName}</span>
+                            <span className="text-sm font-bold text-white my-0.5">{d.dayNumber}</span>
+                            <span className="text-[9px] text-zinc-500">{d.month}</span>
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Selector de Horarios */}
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>3. Franja Horaria</span>
+                    </label>
+                    <div className="space-y-3">
+                      {timeSlots.map((group, gIdx) => (
+                        <div key={gIdx} className="space-y-1.5">
+                          <span className="text-[10px] text-zinc-500 font-mono block uppercase tracking-wider">{group.label}</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {group.times.map(t => {
+                              const isSelected = time === t;
+                              return (
+                                <motion.button
+                                  key={t}
+                                  type="button"
+                                  onClick={() => setTime(t)}
+                                  whileHover={{ scale: 1.06, y: -1.5 }}
+                                  whileTap={{ scale: 0.94 }}
+                                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-white text-black border-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.4)]'
+                                      : 'bg-zinc-900 border-white/10 text-zinc-300 hover:border-white/25 hover:bg-zinc-800'
+                                  }`}
+                                >
+                                  {t}
+                                </motion.button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Selector de Zona */}
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>4. Espacio / Zona Preferida</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(restaurant.booking_rules?.available_areas || ['Salón Central', 'Terraza']).map(a => {
+                        const isSelected = area === a;
+                        return (
+                          <motion.button
+                            key={a}
+                            type="button"
+                            onClick={() => setArea(a)}
+                            whileHover={{ scale: 1.02, y: -1.5 }}
+                            whileTap={{ scale: 0.97 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            className={`flex items-center justify-between p-2.5 rounded-xl border text-left text-xs transition-colors cursor-pointer ${
+                              isSelected
+                                ? 'border-white/50 bg-zinc-800/90 text-white font-semibold shadow-[0_0_15px_rgba(255,255,255,0.15)]'
+                                : 'border-white/5 bg-zinc-900/60 text-zinc-400 hover:border-white/20 hover:bg-zinc-800/50'
                             }`}
                           >
-                            {t}
-                          </button>
-                        ))}
-                      </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-zinc-500'}`} />
+                              <span>{a}</span>
+                            </div>
+                            {isSelected && (
+                              <motion.span 
+                                initial={{ scale: 0 }} 
+                                animate={{ scale: 1 }}
+                                className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center shrink-0"
+                              >
+                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              </motion.span>
+                            )}
+                          </motion.button>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              {/* Selector de Zona */}
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-2">
-                  4. Espacio / Zona Preferida
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(restaurant.booking_rules?.available_areas || ['Salon Central', 'Terraza']).map(a => (
-                    <button
-                      key={a}
-                      type="button"
-                      onClick={() => setArea(a)}
-                      className={`flex items-center gap-2 p-2.5 rounded-xl border text-left text-xs transition ${
-                        area === a
-                          ? 'border-white/40 bg-zinc-800 text-white font-semibold'
-                          : 'border-white/5 bg-zinc-900/60 text-zinc-400 hover:border-white/15'
-                      }`}
-                    >
-                      <MapPin className="w-3.5 h-3.5 text-zinc-500" />
-                      <span>{a}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  {/* Información de dress code */}
+                  {restaurant.dress_code && (
+                    <div className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 text-[11px] text-zinc-400 flex items-center justify-between">
+                      <span>Código de Vestimenta:</span>
+                      <span className="text-zinc-200 font-semibold">{restaurant.dress_code}</span>
+                    </div>
+                  )}
 
-              {/* Informacion de dress code si existe */}
-              {restaurant.dress_code && (
-                <div className="p-3 rounded-xl bg-zinc-900/40 border border-white/5 text-[11px] text-zinc-400 flex items-center justify-between">
-                  <span>Codigo de Vestimenta:</span>
-                  <span className="text-zinc-200 font-semibold">{restaurant.dress_code}</span>
-                </div>
+                  {/* Continuar */}
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.02, y: -1.5 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg cursor-pointer interactive-button"
+                    style={{
+                      backgroundColor: primaryColor,
+                      color: '#000000',
+                      boxShadow: `0 0 25px ${primaryColor}50`
+                    }}
+                  >
+                    <span>Siguiente: Datos de Titular</span>
+                    <Clock className="w-3.5 h-3.5" />
+                  </motion.button>
+                </motion.form>
               )}
 
-              {/* Continuar */}
-              <button
-                type="submit"
-                className="w-full py-3 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg"
-                style={{
-                  backgroundColor: primaryColor,
-                  color: '#000000',
-                  boxShadow: `0 0 20px ${primaryColor}40`
-                }}
-              >
-                <span>Siguiente: Datos de Titular</span>
-                <Clock className="w-3.5 h-3.5" />
-              </button>
-            </form>
-          )}
-
-          {/* STEP 2: Customer Contact Info */}
-          {step === 2 && (
-            <form onSubmit={handleConfirmReservation} className="space-y-4">
-              <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/5 flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-zinc-400 block text-[10px]">Detalle de reserva:</span>
-                  <span className="font-semibold text-white">
-                    {date} • {time} • {guests} comensales • {area}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="text-xs text-zinc-400 hover:text-white underline font-mono"
+              {/* STEP 2: Customer Contact Info */}
+              {step === 2 && (
+                <motion.form 
+                  key="step-2"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleConfirmReservation} 
+                  className="space-y-4"
                 >
-                  Modificar
-                </button>
-              </div>
+                  <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-zinc-400 block text-[10px]">Detalle de reserva:</span>
+                      <span className="font-semibold text-white">
+                        {date} • {time} • {guests} comensales • {area}
+                      </span>
+                    </div>
+                    <motion.button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-xs text-zinc-400 hover:text-white underline font-mono cursor-pointer"
+                    >
+                      Modificar
+                    </motion.button>
+                  </div>
 
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 block mb-1">Nombre Completo del Titular *</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej: Alejandro Morales"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40"
-                />
-              </div>
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300 block mb-1">Nombre Completo del Titular *</label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Ej: Alejandro Morales"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/30 interactive-input"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1">Telefono Movil *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+34 600 000 000"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-zinc-300 block mb-1">Correo Electronico</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@ejemplo.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40"
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-300 block mb-1">Teléfono Móvil *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+34 600 000 000"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/30 font-mono interactive-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-300 block mb-1">Correo Electrónico</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="email@ejemplo.com"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/30 interactive-input"
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 block mb-1">Observaciones, Alergenos o Peticiones Especiales</label>
-                <textarea
-                  rows="2"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ej: Intolerancia al gluten, mesa apartada, evento privado..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40 resize-none"
-                />
-              </div>
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300 block mb-1">Observaciones o Alérgenos (Opcional)</label>
+                    <textarea
+                      rows="2"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Ej: Intolerancia al gluten, mesa apartada, evento privado..."
+                      className="w-full px-3.5 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs text-white focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/30 resize-none interactive-input"
+                    />
+                  </div>
 
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="px-4 py-2.5 rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 text-xs font-semibold hover:border-white/20"
+                  <div className="flex gap-2 pt-2">
+                    <motion.button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-4 py-2.5 rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 text-xs font-semibold hover:border-white/25 hover:bg-zinc-800 cursor-pointer"
+                    >
+                      Volver
+                    </motion.button>
+                    <motion.button
+                      type="submit"
+                      disabled={submitting}
+                      whileHover={{ scale: 1.02, y: -1.5 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer interactive-button"
+                      style={{
+                        backgroundColor: primaryColor,
+                        color: '#000000',
+                        boxShadow: `0 0 25px ${primaryColor}50`
+                      }}
+                    >
+                      {submitting ? 'Procesando...' : 'Confirmar Reserva Directa'}
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    </motion.button>
+                  </div>
+                </motion.form>
+              )}
+
+              {/* STEP 3: Confirmación Exitosa */}
+              {step === 3 && confirmedBooking && (
+                <motion.div 
+                  key="step-3"
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="text-center py-4 space-y-4"
                 >
-                  Volver
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
-                  style={{
-                    backgroundColor: primaryColor,
-                    color: '#000000',
-                    boxShadow: `0 0 20px ${primaryColor}40`
-                  }}
-                >
-                  {submitting ? 'Procesando...' : 'Confirmar Reserva Directa'}
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </form>
-          )}
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 450, damping: 18, delay: 0.1 }}
+                    className="w-12 h-12 mx-auto rounded-full flex items-center justify-center border"
+                    style={{
+                      backgroundColor: `${primaryColor}20`,
+                      borderColor: primaryColor,
+                      color: primaryColor
+                    }}
+                  >
+                    <CheckCircle2 className="w-6 h-6" />
+                  </motion.div>
 
-          {/* STEP 3: Confirmacion Exitosa */}
-          {step === 3 && confirmedBooking && (
-            <div className="text-center py-4 space-y-4">
-              <div 
-                className="w-12 h-12 mx-auto rounded-full flex items-center justify-center border"
-                style={{
-                  backgroundColor: `${primaryColor}20`,
-                  borderColor: primaryColor,
-                  color: primaryColor
-                }}
-              >
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">Localizador de Reserva</span>
+                    <h4 className="text-xl font-black text-white tracking-widest mt-0.5 font-mono">
+                      #{confirmedBooking.booking_code}
+                    </h4>
+                  </div>
 
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">Localizador de Reserva</span>
-                <h4 className="text-xl font-black text-white tracking-widest mt-0.5 font-mono">
-                  #{confirmedBooking.booking_code}
-                </h4>
-              </div>
+                  <div className="p-4 rounded-2xl bg-zinc-900/90 border border-white/10 text-left space-y-2 text-xs">
+                    <div className="flex justify-between border-b border-white/5 pb-2">
+                      <span className="text-zinc-400">Establecimiento:</span>
+                      <span className="font-semibold text-white">{restaurant.name}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-white/5 pb-2">
+                      <span className="text-zinc-400">Fecha & Hora:</span>
+                      <span className="font-semibold text-white">{confirmedBooking.reservation_date} a las {confirmedBooking.reservation_time}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-white/5 pb-2">
+                      <span className="text-zinc-400">Comensales & Espacio:</span>
+                      <span className="font-semibold text-white">{confirmedBooking.guests_count} personas ({confirmedBooking.area})</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Titular:</span>
+                      <span className="font-semibold text-white">{confirmedBooking.customer_name}</span>
+                    </div>
+                  </div>
 
-              <div className="p-4 rounded-2xl bg-zinc-900/90 border border-white/10 text-left space-y-2 text-xs">
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-zinc-400">Establecimiento:</span>
-                  <span className="font-semibold text-white">{restaurant.name}</span>
-                </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-zinc-400">Fecha & Hora:</span>
-                  <span className="font-semibold text-white">{confirmedBooking.reservation_date} a las {confirmedBooking.reservation_time}</span>
-                </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-zinc-400">Comensales & Espacio:</span>
-                  <span className="font-semibold text-white">{confirmedBooking.guests_count} personas ({confirmedBooking.area})</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Titular:</span>
-                  <span className="font-semibold text-white">{confirmedBooking.customer_name}</span>
-                </div>
-              </div>
+                  <div className="space-y-2 pt-2">
+                    <motion.button
+                      type="button"
+                      onClick={handleWhatsAppRedirect}
+                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-black transition flex items-center justify-center gap-2 shadow-lg cursor-pointer interactive-button"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Enviar Confirmación a WhatsApp de Atención</span>
+                    </motion.button>
 
-              <div className="space-y-2 pt-2">
-                <button
-                  type="button"
-                  onClick={handleWhatsAppRedirect}
-                  className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-black transition flex items-center justify-center gap-2 shadow-lg"
-                >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  <span>Enviar Confirmacion a WhatsApp de Atencion</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="w-full py-2 px-4 rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 hover:text-white text-xs font-semibold"
-                >
-                  Finalizar
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+                    <motion.button
+                      type="button"
+                      onClick={onClose}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="w-full py-2 px-4 rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 hover:text-white text-xs font-semibold cursor-pointer"
+                    >
+                      Finalizar
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

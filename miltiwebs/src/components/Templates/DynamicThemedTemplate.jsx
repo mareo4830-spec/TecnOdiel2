@@ -551,7 +551,7 @@ export default function DynamicThemedTemplate({
                   setIsBookingOpen(true);
                 }
               }}
-              className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer ${editableClass('cta_button')}`}
+              className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer interactive-button ${editableClass('cta_button')}`}
               style={{
                 backgroundColor: primaryColor,
                 color: '#000000',
@@ -2742,9 +2742,9 @@ export default function DynamicThemedTemplate({
                 <button
                   key={cat.id || idx}
                   onClick={() => setActiveCategory(idx)}
-                  className={`px-4 py-2 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${meta.buttonShape} ${
+                  className={`px-4 py-2 text-xs font-semibold whitespace-nowrap transition cursor-pointer interactive-selectable ${meta.buttonShape} ${
                     activeCategory === idx 
-                      ? 'text-black font-bold shadow-md' 
+                      ? 'text-black font-bold shadow-md scale-[1.02]' 
                       : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-zinc-200'
                   }`}
                   style={activeCategory === idx ? { backgroundColor: primaryColor } : {}}

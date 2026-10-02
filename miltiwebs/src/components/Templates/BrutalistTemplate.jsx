@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Terminal, Calendar, Clock, MapPin, Phone, ArrowUpRight, Check, Zap, Flame, Shield } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
@@ -30,9 +31,12 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
       <header className="sticky top-0 z-40 border-b-2 border-white/20 bg-black/95 backdrop-blur-md px-4 sm:px-8 py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white text-black font-black flex items-center justify-center text-sm border-2 border-black shadow-[3px_3px_0px_#ccff00]">
+            <motion.div 
+              whileHover={{ rotate: -8, scale: 1.1 }}
+              className="w-8 h-8 bg-white text-black font-black flex items-center justify-center text-sm border-2 border-black shadow-[3px_3px_0px_#ccff00]"
+            >
               !
-            </div>
+            </motion.div>
             <div>
               <span className="font-black text-white text-base tracking-tighter uppercase block leading-none">
                 {restaurant.name}
@@ -49,13 +53,17 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
                 CODE: {restaurant.dress_code}
               </span>
             )}
-            <button
+            <motion.button
+              type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="px-4 py-2 bg-[#ccff00] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_#ffffff] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#ffffff] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-2"
+              whileHover={{ x: -2, y: -2, boxShadow: '6px 6px 0px #ffffff' }}
+              whileTap={{ x: 2, y: 2, boxShadow: '1px 1px 0px #ffffff' }}
+              transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              className="px-4 py-2 bg-[#ccff00] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_#ffffff] transition-colors flex items-center gap-2 cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5 stroke-[3]" />
               <span>Pase de Mesa</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -69,9 +77,12 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-4">
             <div className="lg:col-span-7 space-y-5">
-              <div className="inline-block px-3 py-1 bg-zinc-900 border border-white/20 text-[#ccff00] text-[10px] uppercase font-bold tracking-widest">
+              <motion.div 
+                whileHover={{ scale: 1.03 }}
+                className="inline-block px-3 py-1 bg-zinc-900 border border-white/20 text-[#ccff00] text-[10px] uppercase font-bold tracking-widest"
+              >
                 /// {restaurant.category === 'night_bar' ? 'UNDERGROUND DRINKS & BEATS' : 'BARRA PURA & PRODUCTO CRUDO'}
-              </div>
+              </motion.div>
 
               <h1 className="text-3xl sm:text-6xl font-black text-white tracking-tight uppercase leading-[0.95]">
                 {restaurant.name}
@@ -98,24 +109,28 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
               </div>
 
               <div className="pt-2">
-                <button
+                <motion.button
+                  type="button"
                   onClick={() => setIsBookingOpen(true)}
-                  className="w-full sm:w-auto px-6 py-3.5 bg-white text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[6px_6px_0px_#ccff00] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_#ccff00] transition-all flex items-center justify-center gap-2"
+                  whileHover={{ x: -2, y: -2, boxShadow: '8px 8px 0px #ccff00' }}
+                  whileTap={{ x: 3, y: 3, boxShadow: '2px 2px 0px #ccff00' }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  className="w-full sm:w-auto px-6 py-3.5 bg-white text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[6px_6px_0px_#ccff00] transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Reservar Mesa Sin Intermediarios</span>
                   <ArrowUpRight className="w-4 h-4 stroke-[3]" />
-                </button>
+                </motion.button>
               </div>
             </div>
 
             {/* Hero Image as Raw Industrial Frame */}
             <div className="lg:col-span-5">
               <div className="relative border-2 border-white/30 p-2 bg-black shadow-[6px_6px_0px_#ccff00]">
-                <div className="relative h-64 sm:h-80 overflow-hidden bg-zinc-900">
+                <div className="relative h-64 sm:h-80 overflow-hidden bg-zinc-900 group">
                   <img 
                     src={restaurant.hero_image || 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80'} 
                     alt={restaurant.name}
-                    className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition duration-500"
+                    className="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition duration-500"
                   />
                   <div className="absolute bottom-2 left-2 bg-black px-2 py-0.5 text-[9px] font-bold border border-white/20 text-[#ccff00]">
                     FIG. 01 // INTERIOR_VIEW
@@ -143,12 +158,16 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
           {/* Barcode & Button */}
           <div className="flex flex-col items-center sm:items-end gap-2 shrink-0">
             <div className="font-mono text-[9px] tracking-widest text-zinc-500">|||||| |||| |||||||| ||||| |||||||</div>
-            <button
+            <motion.button
+              type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="px-5 py-2.5 bg-[#ccff00] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_#ffffff]"
+              whileHover={{ x: -2, y: -2, boxShadow: '6px 6px 0px #ffffff' }}
+              whileTap={{ x: 2, y: 2, boxShadow: '1px 1px 0px #ffffff' }}
+              transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              className="px-5 py-2.5 bg-[#ccff00] text-black font-black text-xs uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_#ffffff] cursor-pointer"
             >
               Pedir Asiento en Sala
-            </button>
+            </motion.button>
           </div>
         </div>
       </section>
@@ -157,7 +176,7 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
       <section className="px-4 max-w-6xl mx-auto pb-20">
         <div className="border-b-2 border-white/20 pb-4 mb-8 flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold text-[#ccff00] tracking-widest uppercase">[ 02 // SELECCION DE BOTELLAS & PLATO ]</span>
+            <span className="text-[10px] font-bold text-[#ccff00] tracking-widest uppercase">[ 02 // SELECCIÓN DE BOTELLAS & PLATO ]</span>
             <h2 className="text-2xl font-black text-white uppercase tracking-tight">
               MANIFIESTO DE LA CARTA
             </h2>
@@ -176,12 +195,15 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {(cat.items || []).map((item) => (
-                <div 
+                <motion.div 
                   key={item.id}
-                  className="p-4 bg-zinc-950 border border-white/10 hover:border-white/40 transition group relative"
+                  whileHover={{ x: -2, y: -2, borderColor: '#ccff00' }}
+                  whileTap={{ x: 1, y: 1 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="p-4 bg-zinc-950 border border-white/10 hover:border-[#ccff00] transition-colors group relative cursor-pointer"
                 >
                   <div className="flex justify-between items-baseline gap-2 mb-1.5">
-                    <h4 className="font-bold text-sm text-white uppercase group-hover:text-[#ccff00] transition">
+                    <h4 className="font-bold text-sm text-white uppercase group-hover:text-[#ccff00] transition-colors">
                       {item.name}
                     </h4>
                     <span className="font-black text-base text-[#ccff00] shrink-0 font-mono">
@@ -206,7 +228,7 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
                       <span className="text-zinc-500 font-mono">ALERGENOS: {item.allergens.join(', ')}</span>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -220,13 +242,16 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
             <span className="block text-xs font-black text-white uppercase">{restaurant.name}</span>
             <span className="block text-[9px] text-[#ccff00] font-bold">PASE DIRECTO // SIN ESPERA</span>
           </div>
-          <button
+          <motion.button
+            type="button"
             onClick={() => setIsBookingOpen(true)}
-            className="brutalist-pressable px-4 py-2 bg-[#ccff00] text-black font-black text-xs uppercase border-2 border-black touch-target-44 flex items-center gap-1.5"
+            whileHover={{ x: -1, y: -1 }}
+            whileTap={{ x: 2, y: 2 }}
+            className="px-4 py-2 bg-[#ccff00] text-black font-black text-xs uppercase border-2 border-black touch-target-44 flex items-center gap-1.5 cursor-pointer"
           >
             <span>OBTENER PASE</span>
             <ArrowUpRight className="w-3.5 h-3.5 stroke-[3]" />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -240,12 +265,15 @@ export default function BrutalistTemplate({ restaurant, isPreview = false }) {
 
           <div className="flex items-center gap-4">
             <span className="font-bold text-white">TEL: {restaurant.phone}</span>
-            <button
+            <motion.button
+              type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="brutalist-pressable px-4 py-2 bg-zinc-900 border border-white/20 text-[#ccff00] font-bold text-xs uppercase"
+              whileHover={{ x: -2, y: -2 }}
+              whileTap={{ x: 2, y: 2 }}
+              className="px-4 py-2 bg-zinc-900 border border-white/20 text-[#ccff00] font-bold text-xs uppercase cursor-pointer"
             >
               Reservar Mesa
-            </button>
+            </motion.button>
           </div>
         </div>
       </footer>

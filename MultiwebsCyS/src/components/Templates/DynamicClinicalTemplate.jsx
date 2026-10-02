@@ -16,6 +16,7 @@ import {
   Users,
   Check
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AppointmentModal from '../Booking/AppointmentModal';
 
 export default function DynamicClinicalTemplate({ 
@@ -89,12 +90,15 @@ export default function DynamicClinicalTemplate({
             onClick={(e) => handleEdit(e, 'title', 'Nombre de la Clínica')}
             className={`flex items-center gap-3 ${editableClass('title')}`}
           >
-            <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-md shrink-0"
+            <motion.div 
+              whileHover={{ scale: 1.08, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-md shrink-0 cursor-pointer"
               style={{ backgroundColor: primaryColor }}
             >
               <HeartPulse className="w-5 h-5" />
-            </div>
+            </motion.div>
             <div>
               <h1 className="font-extrabold text-base sm:text-lg tracking-tight text-white flex items-center gap-2">
                 <span>{clinic.name || 'Centro Médico & Salud'}</span>
@@ -109,15 +113,18 @@ export default function DynamicClinicalTemplate({
             {clinic.phone && (
               <a
                 href={`tel:${clinic.phone}`}
-                className="hidden md:flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white font-mono px-3 py-1.5 rounded-lg bg-white/5 border border-white/10"
+                className="hidden md:flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white font-mono px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-colors"
               >
                 <Phone className="w-3.5 h-3.5 text-cyan-400" />
                 <span>{clinic.phone}</span>
               </a>
             )}
 
-            <button
+            <motion.button
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={(e) => {
                 if (isPreview) {
                   handleEdit(e, 'cta_button', 'Botón de Cita');
@@ -130,7 +137,7 @@ export default function DynamicClinicalTemplate({
             >
               <Calendar className="w-4 h-4 stroke-[2.5]" />
               <span>{clinic.cta_text || 'Pedir Cita Online'}</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -170,8 +177,11 @@ export default function DynamicClinicalTemplate({
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <button
+                <motion.button
                   type="button"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                   onClick={(e) => {
                     if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
                     else setIsAppointmentOpen(true);
@@ -182,7 +192,7 @@ export default function DynamicClinicalTemplate({
                   <Calendar className="w-4 h-4 stroke-[2.5]" />
                   <span>{clinic.cta_text || 'Pedir Cita Online'}</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                </button>
+                </motion.button>
               </div>
 
               {clinic.hero_image && (
@@ -224,8 +234,11 @@ export default function DynamicClinicalTemplate({
                 {clinic.description}
               </p>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={(e) => {
                   if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
                   else setIsAppointmentOpen(true);
@@ -235,7 +248,7 @@ export default function DynamicClinicalTemplate({
               >
                 <Calendar className="w-4 h-4 stroke-[2.5]" />
                 <span>{clinic.cta_text || 'Pedir Cita Online'}</span>
-              </button>
+              </motion.button>
             </div>
           ) : (
             /* Split Hero (Default & Most Popular for Clinics) */
@@ -267,23 +280,26 @@ export default function DynamicClinicalTemplate({
 
                 {/* Key Clinical Badges */}
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5">
+                  <motion.span whileHover={{ scale: 1.04 }} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5 transition-colors">
                     <Check className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Cita Previa Sin Esperas</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5">
+                  </motion.span>
+                  <motion.span whileHover={{ scale: 1.04 }} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5 transition-colors">
                     <Check className="w-3.5 h-3.5 text-cyan-400" />
                     <span>1ª Consulta & Valoración</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5">
+                  </motion.span>
+                  <motion.span whileHover={{ scale: 1.04 }} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5 transition-colors">
                     <Check className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Acepta Principales Mutuas</span>
-                  </span>
+                  </motion.span>
                 </div>
 
                 <div className="pt-2 flex flex-wrap items-center gap-3">
-                  <button
+                  <motion.button
                     type="button"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={(e) => {
                       if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
                       else setIsAppointmentOpen(true);
@@ -294,17 +310,19 @@ export default function DynamicClinicalTemplate({
                     <Calendar className="w-4 h-4 stroke-[2.5]" />
                     <span>{clinic.cta_text || 'Pedir Cita Online'}</span>
                     <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                  </button>
+                  </motion.button>
 
                   {clinic.whatsapp_number && (
-                    <a
+                    <motion.a
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                       href={`https://wa.me/${clinic.whatsapp_number.replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noreferrer"
                       className="px-4 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/15 text-white font-semibold text-xs sm:text-sm transition flex items-center gap-2"
                     >
                       <span>Consulta por WhatsApp</span>
-                    </a>
+                    </motion.a>
                   )}
                 </div>
               </div>
@@ -350,12 +368,14 @@ export default function DynamicClinicalTemplate({
 
             <div className="flex flex-wrap items-center gap-1.5">
               {clinic.accepted_insurances.map((ins, idx) => (
-                <span 
+                <motion.span 
                   key={idx}
-                  className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 text-zinc-300 font-mono text-[11px]"
+                  whileHover={{ scale: 1.06, y: -1 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 text-zinc-300 font-mono text-[11px] cursor-default"
                 >
                   {ins}
-                </span>
+                </motion.span>
               ))}
             </div>
           </div>
@@ -383,30 +403,45 @@ export default function DynamicClinicalTemplate({
           {/* Category Tabs */}
           {categories.length > 1 && (
             <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-              {categories.map((cat, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setActiveCategory(idx)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
-                    activeCategory === idx
-                      ? 'bg-cyan-500 text-black shadow-lg font-extrabold'
-                      : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10'
-                  }`}
-                >
-                  {cat.category || `Especialidad ${idx + 1}`}
-                </button>
-              ))}
+              {categories.map((cat, idx) => {
+                const isActive = activeCategory === idx;
+                return (
+                  <motion.button
+                    key={idx}
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                    onClick={() => setActiveCategory(idx)}
+                    className={`relative px-4 py-2 rounded-xl text-xs font-bold transition-colors shrink-0 cursor-pointer ${
+                      isActive
+                        ? 'text-black'
+                        : 'text-zinc-300 hover:text-white bg-zinc-900/60 border border-white/10'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeClinicalTab"
+                        className="absolute inset-0 bg-cyan-400 rounded-xl shadow-[0_0_18px_rgba(34,211,238,0.4)]"
+                        transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10">{cat.category || `Especialidad ${idx + 1}`}</span>
+                  </motion.button>
+                );
+              })}
             </div>
           )}
 
           {/* Services Grid */}
           <div className={`grid grid-cols-1 ${isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'md:grid-cols-2'} gap-4 sm:gap-6`}>
             {(currentCategory?.items || []).map((service, itemIdx) => (
-              <div
+              <motion.div
                 key={itemIdx}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={(e) => handleEdit(e, 'treatment_item', service.name, { categoryIndex: activeCategory, itemIndex: itemIdx, item: service })}
-                className={`p-5 rounded-2xl border border-white/10 transition-all hover:border-cyan-500/40 hover:shadow-xl space-y-3.5 flex flex-col justify-between ${editableClass('treatment_item')}`}
+                className={`p-5 rounded-2xl border border-white/10 transition-all hover:border-cyan-500/50 hover:shadow-[0_10px_30px_rgba(6,182,212,0.15)] space-y-3.5 flex flex-col justify-between cursor-pointer ${editableClass('treatment_item')}`}
                 style={{ backgroundColor: surfaceColor }}
               >
                 <div className="space-y-2.5">
@@ -455,8 +490,10 @@ export default function DynamicClinicalTemplate({
                   <span className="text-[11px] font-mono text-zinc-400">
                     Cita Previa Recomendada
                   </span>
-                  <button
+                  <motion.button
                     type="button"
+                    whileHover={{ x: 3 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
@@ -466,9 +503,9 @@ export default function DynamicClinicalTemplate({
                   >
                     <span>Pedir Cita</span>
                     <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

@@ -5,6 +5,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
     "./landing/src/**/*.{js,ts,jsx,tsx}",
     "./miltiwebs/src/**/*.{js,ts,jsx,tsx}",
+    "./MultiwebsCyS/src/**/*.{js,ts,jsx,tsx}",
     "./PortalDeClientes/src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {

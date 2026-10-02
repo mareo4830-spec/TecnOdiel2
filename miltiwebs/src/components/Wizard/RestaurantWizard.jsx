@@ -562,7 +562,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             key={cat.id}
                             type="button"
                             onClick={() => handleCategorySelect(cat.id)}
-                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer interactive-selectable ${
                               formData.category === cat.id
                                 ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold shadow-sm'
                                 : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
@@ -629,7 +629,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={tpl.id}
                           type="button"
                           onClick={() => handleTemplateSelect(tpl)}
-                          className={`p-3 rounded-xl border text-left transition flex items-start gap-3 cursor-pointer ${
+                          className={`p-3 rounded-xl border text-left transition flex items-start gap-3 cursor-pointer interactive-selectable ${
                             formData.template_id === tpl.id
                               ? 'bg-emerald-500/10 border-emerald-500 text-white shadow-sm'
                               : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
@@ -659,7 +659,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={idx}
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_image: p.url })}
-                          className={`relative h-20 rounded-xl overflow-hidden border transition cursor-pointer group ${
+                          className={`relative h-20 rounded-xl overflow-hidden border transition cursor-pointer group interactive-selectable ${
                             formData.hero_image === p.url ? 'border-emerald-400 ring-2 ring-emerald-400/30' : 'border-white/10'
                           }`}
                         >
@@ -791,7 +791,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={pal.id}
                           type="button"
                           onClick={() => handlePaletteSelect(pal)}
-                          className="p-3 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-left transition flex items-center justify-between cursor-pointer"
+                          className="p-3 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-left transition flex items-center justify-between cursor-pointer interactive-selectable"
                         >
                           <span className="text-xs font-semibold text-white truncate">{pal.name}</span>
                           <div className="flex items-center gap-1 shrink-0">
@@ -813,7 +813,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={f}
                           type="button"
                           onClick={() => setFormData({ ...formData, font_family: f })}
-                          className={`p-3 rounded-xl border text-center transition cursor-pointer text-xs ${
+                          className={`p-3 rounded-xl border text-center transition cursor-pointer text-xs interactive-selectable ${
                             formData.font_family === f
                               ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
                               : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
@@ -1120,7 +1120,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 type="button"
                 disabled={activeSection === 1}
                 onClick={() => setActiveSection(prev => Math.max(1, prev - 1))}
-                className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white disabled:opacity-30 transition cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white disabled:opacity-30 transition cursor-pointer interactive-button"
               >
                 Anterior
               </button>
@@ -1128,7 +1128,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               <button
                 type="button"
                 onClick={() => setActiveSection(prev => Math.min(7, prev + 1))}
-                className="px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                className="px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer shadow-md interactive-button"
               >
                 <span>{activeSection === 6 ? 'Ver Web Lista' : 'Siguiente'}</span>
                 <ArrowRight className="w-4 h-4" />

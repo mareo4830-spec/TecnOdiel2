@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { GlassWater, Calendar, Clock, MapPin, Sparkles, ShieldCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import BookingModal from '../Booking/BookingModal';
 
 export default function VelvetTemplate({ restaurant, isPreview = false }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const categories = restaurant.menu_categories || [];
+  const [activeCategory, setActiveCategory] = useState(categories[0]?.id || '');
 
   const primaryColor = restaurant.primary_color || '#e11d48';
   const bgColor = restaurant.background_color || '#070204';
@@ -15,6 +17,8 @@ export default function VelvetTemplate({ restaurant, isPreview = false }) {
     : restaurant.font_family === 'Inter' 
     ? 'font-sans' 
     : 'font-modern';
+
+  const currentCategory = categories.find((c) => c.id === activeCategory) || categories[0];
 
   return (
     <div 
@@ -46,13 +50,16 @@ export default function VelvetTemplate({ restaurant, isPreview = false }) {
                 {restaurant.dress_code}
               </span>
             )}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={() => setIsBookingOpen(true)}
               className="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_20px_rgba(225,29,72,0.4)]"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Acceso Reservado</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -81,13 +88,16 @@ export default function VelvetTemplate({ restaurant, isPreview = false }) {
             </p>
 
             <div className="flex flex-wrap gap-3 pt-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={() => setIsBookingOpen(true)}
                 className="px-6 py-3 rounded-xl font-bold text-xs bg-rose-600 hover:bg-rose-500 text-white transition flex items-center gap-2 shadow-[0_0_25px_rgba(225,29,72,0.5)]"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Reservar Mesa Privada</span>
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -107,18 +117,53 @@ export default function VelvetTemplate({ restaurant, isPreview = false }) {
 
       {/* Menu Section */}
       <section className="py-12 px-4 max-w-6xl mx-auto border-t border-rose-500/10">
-        <div className="mb-8">
-          <span className="text-[10px] uppercase font-mono tracking-widest text-rose-400 block mb-1">
-            Destilados & Creaciones
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-white">
-            Carta Privada
-          </h2>
+        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span className="text-[10px] uppercase font-mono tracking-widest text-rose-400 block mb-1">
+              Destilados & Creaciones
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              Carta Privada
+            </h2>
+          </div>
+
+          {/* Category Tabs */}
+          {categories.length > 1 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {categories.map((cat) => {
+                const isActive = (activeCategory || categories[0]?.id) === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`relative px-4 py-2 rounded-xl text-xs font-medium transition-colors whitespace-nowrap ${
+                      isActive ? 'text-rose-200' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeCategoryVelvet"
+                        className="absolute inset-0 bg-rose-950/70 border border-rose-500/40 rounded-xl"
+                        transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10">{cat.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(categories[0]?.items || []).map((item) => (
-            <div key={item.id} className="p-5 rounded-2xl border border-rose-500/10 flex justify-between gap-4" style={{ backgroundColor: surfaceColor }}>
+          {(currentCategory?.items || []).map((item) => (
+            <motion.div 
+              key={item.id} 
+              whileHover={{ y: -3, scale: 1.01 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              className="p-5 rounded-2xl border border-rose-500/15 hover:border-rose-500/40 flex justify-between gap-4 transition-all duration-200" 
+              style={{ backgroundColor: surfaceColor }}
+            >
               <div>
                 <h3 className="font-bold text-white text-base">{item.name}</h3>
                 <p className="text-xs text-zinc-400 mt-1">{item.description}</p>
@@ -126,7 +171,7 @@ export default function VelvetTemplate({ restaurant, isPreview = false }) {
               <span className="font-mono font-bold text-rose-400 text-base shrink-0">
                 {typeof item.price === 'number' ? `${item.price.toFixed(2)}€` : item.price}
               </span>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>

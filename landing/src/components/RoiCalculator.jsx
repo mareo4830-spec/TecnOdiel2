@@ -59,6 +59,43 @@ export default function RoiCalculator({ onOpenAudit }) {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-2xl shadow-xl space-y-6"
           >
+            {/* Quick Sector Presets */}
+            <div>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-2 font-semibold">
+                Perfiles Rápidos:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { label: 'Cafetería / Bar', clients: 150, ticket: 10 },
+                  { label: 'Restaurante / Tapas', clients: 350, ticket: 25 },
+                  { label: 'Asador / Finde', clients: 650, ticket: 40 },
+                  { label: 'Clínica / Salud', clients: 220, ticket: 55 },
+                ].map((preset) => {
+                  const isSelected = clientsPerMonth === preset.clients && averageTicket === preset.ticket;
+                  return (
+                    <motion.button
+                      key={preset.label}
+                      type="button"
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                      onClick={() => {
+                        setClientsPerMonth(preset.clients);
+                        setAverageTicket(preset.ticket);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-colors cursor-pointer border ${
+                        isSelected
+                          ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                          : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">

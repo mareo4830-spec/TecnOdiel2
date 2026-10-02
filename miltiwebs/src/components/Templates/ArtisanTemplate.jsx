@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Flame, Calendar, Clock, MapPin, Phone, ShieldCheck, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Flame, Calendar, Clock, MapPin, Phone, ShieldCheck, Heart, ArrowUpRight } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
 export default function ArtisanTemplate({ restaurant, isPreview = false }) {
@@ -25,9 +26,12 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
       <header className="sticky top-0 z-40 border-b border-orange-500/10 bg-[#0a0806]/90 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            <motion.div 
+              whileHover={{ rotate: 12, scale: 1.1 }}
+              className="w-8 h-8 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400"
+            >
               <Flame className="w-4 h-4" />
-            </div>
+            </motion.div>
             <div>
               <span className="font-serif font-bold text-white text-lg block leading-none">
                 {restaurant.name}
@@ -44,13 +48,17 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
                 {restaurant.dress_code}
               </span>
             )}
-            <button
+            <motion.button
+              type="button"
               onClick={() => setIsBookingOpen(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white shadow-lg"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 450, damping: 25 }}
+              className="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white shadow-[0_0_20px_rgba(234,88,12,0.4)] cursor-pointer interactive-button"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Reservar Mesa</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -65,10 +73,13 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0806] via-[#0a0806]/75 to-transparent -z-10" />
 
           <div className="max-w-2xl space-y-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-serif italic text-orange-300 bg-orange-950/60 border border-orange-500/30">
+            <motion.span 
+              whileHover={{ scale: 1.03 }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-serif italic text-orange-300 bg-orange-950/60 border border-orange-500/30"
+            >
               <ShieldCheck className="w-3.5 h-3.5 text-orange-400" />
-              <span>Tradicion, masa madre y brasas vivas</span>
-            </span>
+              <span>Tradición, masa madre y brasas vivas</span>
+            </motion.span>
 
             <h1 className="text-4xl sm:text-6xl font-serif font-bold text-white tracking-tight leading-tight">
               {restaurant.slogan || restaurant.name}
@@ -79,13 +90,17 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
             </p>
 
             <div className="flex flex-wrap gap-3 pt-4">
-              <button
+              <motion.button
+                type="button"
                 onClick={() => setIsBookingOpen(true)}
-                className="px-6 py-3 rounded-xl font-bold text-xs bg-orange-600 hover:bg-orange-500 text-white transition flex items-center gap-2 shadow-xl"
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="px-6 py-3.5 rounded-xl font-bold text-xs bg-orange-600 hover:bg-orange-500 text-white transition flex items-center gap-2 shadow-[0_0_25px_rgba(234,88,12,0.45)] cursor-pointer interactive-button"
               >
                 <Calendar className="w-4 h-4" />
                 <span>Reservar Mesa de Autor</span>
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -119,24 +134,30 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
         {categories.map((cat, cIdx) => (
           <div key={cat.id || cIdx} className="mb-10">
             <div className="flex items-center gap-3 mb-4">
-              <span className="font-serif italic text-orange-400 text-sm">{cat.name}</span>
+              <span className="font-serif italic text-orange-400 text-sm font-semibold">{cat.name}</span>
               <div className="h-[1px] flex-1 bg-orange-500/20" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {(cat.items || []).map((item) => (
-                <div 
-                  key={item.id} 
-                  className="p-5 rounded-2xl border border-orange-500/15 hover:border-orange-500/35 transition-all duration-200 flex justify-between gap-4 emil-pressable" 
+                <motion.div 
+                  key={item.id}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="p-5 rounded-2xl border border-orange-500/15 hover:border-orange-500/40 hover:shadow-[0_0_20px_rgba(234,88,12,0.15)] transition-colors flex justify-between gap-4 cursor-pointer interactive-selectable" 
                   style={{ backgroundColor: surfaceColor }}
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-serif font-bold text-white text-base">{item.name}</h3>
                       {item.badge && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-sans bg-orange-500/10 border border-orange-500/20 text-orange-300">
+                        <motion.span 
+                          whileHover={{ scale: 1.08 }}
+                          className="px-2 py-0.5 rounded-full text-[10px] font-sans bg-orange-500/10 border border-orange-500/25 text-orange-300"
+                        >
                           {item.badge}
-                        </span>
+                        </motion.span>
                       )}
                     </div>
                     <p className="text-xs text-zinc-400 leading-relaxed">{item.description}</p>
@@ -152,7 +173,7 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
                     </span>
                     <span className="text-[9px] text-zinc-500 block font-sans">IVA inc.</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -166,13 +187,16 @@ export default function ArtisanTemplate({ restaurant, isPreview = false }) {
             <span className="block text-xs font-serif font-bold text-white">{restaurant.name}</span>
             <span className="block text-[10px] text-orange-300 font-sans">Mesa de brasas garantizada</span>
           </div>
-          <button
+          <motion.button
+            type="button"
             onClick={() => setIsBookingOpen(true)}
-            className="emil-pressable px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 text-white flex items-center gap-1.5 shadow-lg touch-target-44"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.94 }}
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 text-white flex items-center gap-1.5 shadow-lg touch-target-44 cursor-pointer interactive-button"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Reservar</span>
-          </button>
+          </motion.button>
         </div>
       </div>
 

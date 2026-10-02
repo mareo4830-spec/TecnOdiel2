@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Utensils, Calendar, MapPin, Clock, Phone, Sparkles, Award, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
@@ -105,14 +106,18 @@ export default function TecnodielTemplate({
                 {restaurant.dress_code}
               </span>
             )}
-            <button
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 450, damping: 25 }}
               onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-emerald-400 hover:bg-emerald-300 text-black cursor-pointer ${editableClass('cta_button')}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] bg-emerald-400 hover:bg-emerald-300 text-black cursor-pointer interactive-button ${editableClass('cta_button')}`}
               title={isPreview ? "Pulsa para editar el botón de reserva" : undefined}
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>{restaurant.cta_text || 'Reservar Experiencia'}</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -146,22 +151,29 @@ export default function TecnodielTemplate({
               </p>
 
               <div className="flex flex-wrap gap-3 pt-2">
-                <button
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
-                  className={`px-6 py-3.5 rounded-xl font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-black transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                  className={`px-6 py-3.5 rounded-xl font-bold text-xs bg-emerald-400 hover:bg-emerald-300 text-black transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.45)] cursor-pointer interactive-button ${editableClass('cta_button')}`}
                 >
                   <Calendar className="w-4 h-4" />
                   <span>{restaurant.cta_text || 'Reservar Mesa Online'}</span>
-                </button>
+                </motion.button>
 
-                <button
+                <motion.button
                   type="button"
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   onClick={() => document.getElementById('degustacion')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="px-5 py-3.5 rounded-xl border border-white/10 bg-zinc-900/60 hover:bg-zinc-800 text-white text-xs font-semibold transition flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-3.5 rounded-xl border border-white/10 bg-zinc-900/60 hover:bg-zinc-800 text-white text-xs font-semibold transition flex items-center gap-2 cursor-pointer interactive-button"
                 >
                   <span>Descubrir Menu</span>
                   <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
-                </button>
+                </motion.button>
               </div>
             </div>
 
@@ -266,67 +278,99 @@ export default function TecnodielTemplate({
           </div>
 
           {categories.length > 1 && (
-            <div className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-zinc-900/80 border border-white/5">
-              {categories.map((cat, idx) => (
-                <button
-                  key={cat.id || idx}
-                  onClick={() => setSelectedCategory(idx)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    selectedCategory === idx
-                      ? 'bg-emerald-400 text-black font-bold shadow-md'
-                      : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-zinc-900/80 border border-white/5 relative">
+              {categories.map((cat, idx) => {
+                const isSelected = selectedCategory === idx;
+                return (
+                  <motion.button
+                    key={cat.id || idx}
+                    type="button"
+                    onClick={() => setSelectedCategory(idx)}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className={`relative z-10 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'text-black font-bold'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {isSelected && (
+                      <motion.div
+                        layoutId="activeCategoryTecnodiel"
+                        transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                        className="absolute inset-0 bg-emerald-400 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] -z-10"
+                      />
+                    )}
+                    <span>{cat.name}</span>
+                  </motion.button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
-          {(categories[selectedCategory]?.items || []).map((item, idx) => (
-            <div
-              key={item.id || idx}
-              onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: selectedCategory, itemIndex: idx, item })}
-              className={`p-5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition flex justify-between gap-4 group cursor-pointer ${editableClass('menu_item')}`}
-              style={{ backgroundColor: surfaceColor }}
-              title={isPreview ? "Pulsa para editar este plato" : undefined}
-            >
-              <div className="flex gap-4 items-start flex-1">
-                {item.image && (
-                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-emerald-500/30" />
-                )}
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-emerald-300 transition">
-                      {item.name}
-                    </h3>
-                    {item.badge && (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                        {item.badge}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={selectedCategory}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}
+          >
+            {(categories[selectedCategory]?.items || []).map((item, idx) => (
+              <motion.div
+                key={item.id || idx}
+                whileHover={{ y: -3, scale: 1.015 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: selectedCategory, itemIndex: idx, item })}
+                className={`p-5 rounded-2xl border border-white/5 hover:border-emerald-500/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all flex justify-between gap-4 group cursor-pointer interactive-selectable ${editableClass('menu_item')}`}
+                style={{ backgroundColor: surfaceColor }}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
+              >
+                <div className="flex gap-4 items-start flex-1">
+                  {item.image && (
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-16 h-16 rounded-xl object-cover shrink-0 border border-emerald-500/30 group-hover:scale-105 transition-transform duration-300" 
+                    />
+                  )}
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-emerald-300 transition-colors">
+                        {item.name}
+                      </h3>
+                      {item.badge && (
+                        <motion.span 
+                          whileHover={{ scale: 1.08 }}
+                          className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
+                        >
+                          {item.badge}
+                        </motion.span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      {item.description}
+                    </p>
+                    {item.allergens && item.allergens.length > 0 && (
+                      <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
+                        Alérgenos: {item.allergens.join(', ')}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    {item.description}
-                  </p>
-                  {item.allergens && item.allergens.length > 0 && (
-                    <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
-                      Alergenos: {item.allergens.join(', ')}
-                    </span>
-                  )}
                 </div>
-              </div>
-              <div className="text-right shrink-0">
-                <span className="font-mono text-sm sm:text-base font-bold text-emerald-400 block">
-                  {typeof item.price === 'number' ? `${item.price.toFixed(2)}€` : item.price}
-                </span>
-                <span className="text-[10px] text-zinc-500 font-mono">IVA inc.</span>
-              </div>
-            </div>
-          ))}
-        </div>
+                <div className="text-right shrink-0">
+                  <span className="font-mono text-sm sm:text-base font-bold text-emerald-400 block group-hover:text-glow-emerald transition-all">
+                    {typeof item.price === 'number' ? `${item.price.toFixed(2)}€` : item.price}
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">IVA inc.</span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </section>
 
       {/* Footer */}

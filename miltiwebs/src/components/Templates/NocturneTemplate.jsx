@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Wine, Clock, MapPin, Phone, Instagram, Calendar, ChevronRight, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
 
@@ -111,9 +112,13 @@ export default function NocturneTemplate({
                 {restaurant.dress_code}
               </span>
             )}
-            <button
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 450, damping: 25 }}
               onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
-              className={`emil-pressable px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg touch-target-44 ${editableClass('cta_button')}`}
+              className={`px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg touch-target-44 cursor-pointer interactive-button ${editableClass('cta_button')}`}
               style={{
                 backgroundColor: primaryColor,
                 color: '#000000',
@@ -123,7 +128,7 @@ export default function NocturneTemplate({
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -337,76 +342,106 @@ export default function NocturneTemplate({
           </div>
 
           {categories.length > 1 && (
-            <div className="flex overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-xl bg-zinc-900/80 border border-white/5 max-w-full">
-              {categories.map((cat, idx) => (
-                <button
-                  key={cat.id || idx}
-                  onClick={() => setActiveCategory(idx)}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition emil-pressable shrink-0 ${
-                    activeCategory === idx
-                      ? 'bg-white text-black shadow-md'
-                      : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
+            <div className="flex overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-xl bg-zinc-900/80 border border-white/5 max-w-full relative">
+              {categories.map((cat, idx) => {
+                const isSelected = activeCategory === idx;
+                return (
+                  <motion.button
+                    key={cat.id || idx}
+                    type="button"
+                    onClick={() => setActiveCategory(idx)}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className={`relative z-10 px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
+                      isSelected
+                        ? 'text-black font-bold'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    {isSelected && (
+                      <motion.div
+                        layoutId="activeCategoryNocturne"
+                        transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                        className="absolute inset-0 bg-amber-400 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.35)] -z-10"
+                      />
+                    )}
+                    <span>{cat.name}</span>
+                  </motion.button>
+                );
+              })}
             </div>
           )}
         </div>
 
         {/* Menu Items Grid */}
-        <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}>
-          {(categories[activeCategory]?.items || []).map((item, idx) => (
-            <div 
-              key={item.id || idx}
-              onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: idx, item })}
-              className={`p-5 rounded-2xl border border-white/5 hover:border-white/20 transition-all duration-200 flex justify-between gap-4 group emil-pressable cursor-pointer ${editableClass('menu_item')}`}
-              style={{ backgroundColor: surfaceColor }}
-              title={isPreview ? "Pulsa para editar este plato" : undefined}
-            >
-              <div className="flex gap-4 items-start flex-1">
-                {item.image && (
-                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/10" />
-                )}
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-300 transition">
-                      {item.name}
-                    </h3>
-                    {item.badge && (
-                      <span 
-                        className="px-2 py-0.5 rounded-full text-[10px] font-mono border"
-                        style={{ 
-                          borderColor: `${primaryColor}40`, 
-                          backgroundColor: `${primaryColor}15`, 
-                          color: accentColor 
-                        }}
-                      >
-                        {item.badge}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={activeCategory}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className={`grid ${isMobile ? 'grid-cols-1 gap-3' : isTablet ? 'grid-cols-2 gap-4' : 'grid-cols-1 md:grid-cols-2 gap-4'}`}
+          >
+            {(categories[activeCategory]?.items || []).map((item, idx) => (
+              <motion.div 
+                key={item.id || idx}
+                whileHover={{ y: -3, scale: 1.015 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                onClick={(e) => handleEdit(e, 'menu_item', item.name, { categoryIndex: activeCategory, itemIndex: idx, item })}
+                className={`p-5 rounded-2xl border border-white/5 hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] transition-all duration-200 flex justify-between gap-4 group cursor-pointer interactive-selectable ${editableClass('menu_item')}`}
+                style={{ backgroundColor: surfaceColor }}
+                title={isPreview ? "Pulsa para editar este plato" : undefined}
+              >
+                <div className="flex gap-4 items-start flex-1">
+                  {item.image && (
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-16 h-16 rounded-xl object-cover shrink-0 border border-white/10 group-hover:scale-105 transition-transform duration-300" 
+                    />
+                  )}
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-300 transition-colors">
+                        {item.name}
+                      </h3>
+                      {item.badge && (
+                        <motion.span 
+                          whileHover={{ scale: 1.08 }}
+                          className="px-2 py-0.5 rounded-full text-[10px] font-mono border"
+                          style={{ 
+                            borderColor: `${primaryColor}40`, 
+                            backgroundColor: `${primaryColor}15`, 
+                            color: accentColor 
+                          }}
+                        >
+                          {item.badge}
+                        </motion.span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
+                      {item.description}
+                    </p>
+                    {item.allergens && item.allergens.length > 0 && (
+                      <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
+                        Alérgenos: {item.allergens.join(', ')}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
-                    {item.description}
-                  </p>
-                  {item.allergens && item.allergens.length > 0 && (
-                    <span className="text-[10px] text-zinc-500 block pt-1 font-mono">
-                      Alergenos: {item.allergens.join(', ')}
-                    </span>
-                  )}
                 </div>
-              </div>
 
-              <div className="text-right flex flex-col justify-between shrink-0 pl-2">
-                <span className="font-mono font-bold text-sm sm:text-base text-white">
-                  {typeof item.price === 'number' ? `${item.price.toFixed(2)}€` : item.price}
-                </span>
-                <span className="text-[10px] text-zinc-500 font-mono">IVA inc.</span>
-              </div>
-            </div>
-          ))}
-        </div>
+                <div className="text-right flex flex-col justify-between shrink-0 pl-2">
+                  <span className="font-mono font-bold text-sm sm:text-base text-white group-hover:text-amber-300 transition-colors">
+                    {typeof item.price === 'number' ? `${item.price.toFixed(2)}€` : item.price}
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">IVA inc.</span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </section>
 
       {/* Booking CTA Banner */}
