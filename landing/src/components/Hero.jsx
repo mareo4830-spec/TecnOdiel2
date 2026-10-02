@@ -138,14 +138,14 @@ export default function Hero({ onOpenAudit }) {
           <motion.span variants={letterVariants} className="inline-block text-metallic-pure text-glow">Odiel</motion.span>
         </motion.h1>
 
-        {/* Subtitle oriented to Restaurants and all businesses */}
+        {/* Slogan */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.22 }}
-          className="mt-4 sm:mt-8 max-w-2xl text-xs xs:text-sm sm:text-lg md:text-xl font-light leading-relaxed text-zinc-300 tracking-tight px-1"
+          className="mt-4 sm:mt-8 max-w-3xl text-sm xs:text-base sm:text-xl md:text-2xl font-light leading-relaxed text-zinc-200 tracking-tight px-1"
         >
-          Hacemos páginas web para <span className="text-white font-medium underline decoration-white/40 underline-offset-4">restaurantes</span> y para <span className="text-white font-medium underline decoration-white/40 underline-offset-4">todo negocio</span> que necesite clientes de verdad. Desde Huelva.
+          Solucionamos <span className="text-white font-semibold underline decoration-emerald-400/60 underline-offset-8">problemas reales</span> de <span className="text-emerald-400 font-semibold">negocios locales</span>.
         </motion.p>
 
         {/* Practical Value Grid with Staggered Entrance */}

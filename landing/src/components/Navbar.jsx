@@ -39,7 +39,7 @@ export default function Navbar({ onOpenAudit }) {
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" title="Disponibles para nuevos proyectos" />
               </span>
               <span className="text-[9px] sm:text-[10px] tracking-widest uppercase text-zinc-400 font-mono -mt-0.5 sm:-mt-1">
-                Webs que Facturan // Huelva
+                Problemas Reales // Negocios Locales
               </span>
             </div>
           </a>

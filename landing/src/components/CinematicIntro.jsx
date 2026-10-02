@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 
-export default function CinematicIntro({ onComplete, subtitle = "Webs que Facturan • Soluciones Reales" }) {
+export default function CinematicIntro({ onComplete, subtitle = "Solucionamos problemas reales de negocios locales" }) {
   // progress represents fade state from 0 (fully visible) to 1 (fully faded out)
   const [progress, setProgress] = useState(0);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });

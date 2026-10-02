@@ -83,15 +83,15 @@ export default function MainPortalCard({ onOpenAudit }) {
               </span>
             </motion.div>
 
-            {/* High-Converting Sales Headline */}
+            {/* High-Converting Sales Headline / Eslogan Principal */}
             <motion.h1
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.15 }}
               className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-white uppercase leading-[0.95] mb-5 sm:mb-6 select-none"
             >
-              CONSIGUE MÁS CLIENTES. <br />
-              <span className="text-metallic-pure text-glow">MULTIPLICA TUS VENTAS.</span>
+              SOLUCIONAMOS PROBLEMAS REALES <br />
+              <span className="text-metallic-pure text-glow">DE NEGOCIOS LOCALES.</span>
             </motion.h1>
 
             {/* Problem-solving introduction in close marketing language */}
