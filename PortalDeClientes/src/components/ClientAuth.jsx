@@ -16,7 +16,7 @@ import {
   ShieldAlert,
   Stethoscope
 } from 'lucide-react';
-import { verifyClientAccessKey } from '../lib/supabase';
+import { verifyClientAccessKey, getClientRestaurantDetails } from '../lib/supabase';
 
 const MAX_ADMIN_ATTEMPTS = 3;
 const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutos de baneo
@@ -56,15 +56,27 @@ export default function ClientAuth({
   onAdminLogin, 
   onNavigateToLanding, 
   onNavigateToMultiwebs,
-  onNavigateToCyS 
+  onNavigateToCyS,
+  targetSlug = null
 }) {
   const [authMode, setAuthMode] = useState('client'); // 'client' | 'admin'
   const [accessKey, setAccessKey] = useState('');
   const [adminPin, setAdminPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [targetBusinessName, setTargetBusinessName] = useState('');
   const [attemptsCount, setAttemptsCount] = useState(() => getLockoutData().attempts);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  // Cargar nombre del negocio si se ha especificado un slug destino
+  useEffect(() => {
+    if (!targetSlug) return;
+    getClientRestaurantDetails(targetSlug)
+      .then(res => {
+        if (res && res.name) setTargetBusinessName(res.name);
+      })
+      .catch(() => {});
+  }, [targetSlug]);
 
   // Monitorización y cuenta atrás en tiempo real del baneo de 30 minutos
   useEffect(() => {
@@ -101,23 +113,23 @@ export default function ClientAuth({
     const cleanKey = accessKey.trim();
 
     if (!cleanKey) {
-      setErrorMsg('Por favor, introduce tu clave de acceso de cliente.');
+      setErrorMsg('Por favor, introduce tu clave privada de cliente.');
       return;
     }
 
     // Blindaje contra inyección SQL en la clave de cliente
     if (SQL_INJECTION_REGEX.test(cleanKey)) {
-      setErrorMsg('Formato de clave inválido. Caracteres no permitidos neutralizados por seguridad.');
+      setErrorMsg('Formato de clave inválido. Caracteres no permitidos por seguridad.');
       return;
     }
 
     setLoading(true);
     try {
-      const match = await verifyClientAccessKey(cleanKey);
+      const match = await verifyClientAccessKey(cleanKey, targetSlug);
       if (match) {
-        onSelectRestaurant(match.slug || match.id);
+        onSelectRestaurant(match, cleanKey);
       } else {
-        setErrorMsg('Clave no reconocida. Si eres cliente de TecnOdiel, contacta con nosotros por WhatsApp para facilitártela en el acto.');
+        setErrorMsg('Clave incorrecta. Solo el titular que ha solicitado la web tiene acceso mediante su clave privada.');
       }
     } catch (err) {
       setErrorMsg('Error de conexión al verificar la clave. Inténtalo de nuevo.');
@@ -260,29 +272,31 @@ export default function ClientAuth({
 
         {authMode === 'client' ? (
           /* =======================================================
-             CLIENT LOGIN VIEW (ISOLATED WITH UNIQUE ACCESS KEY)
+             CLIENT LOGIN VIEW (SOLO CON CLAVE PRIVADA DE ACCESO)
              ======================================================= */
           <div className="space-y-5">
             <div className="text-left space-y-1.5">
               <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                Control Total de tu Negocio o Clínica
+                {targetBusinessName ? `Acceso a ${targetBusinessName}` : 'Acceso al Portal de Clientes'}
               </h1>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
-                Actualiza tu carta o tratamientos en segundos, confirma reservas o citas al instante y gestiona todo desde tu móvil.
+                {targetBusinessName 
+                  ? `Para entrar a gestionar este negocio, introduce la clave privada que te entregamos al solicitar tu página web.` 
+                  : `Solo el titular que ha solicitado la página web tiene acceso mediante su clave privada de cliente.`}
               </p>
             </div>
 
             <form onSubmit={handleClientSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 font-mono">
-                  Tu Clave de Cliente (Restaurante o Clínica):
+                  Tu Clave Privada de Cliente:
                 </label>
                 <div className="relative">
                   <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
                   <input
                     type="text"
                     required
-                    placeholder="ej: TO-MN892, CYS-DENTAL-104 o nombre de tu web"
+                    placeholder="Introduce tu clave privada"
                     value={accessKey}
                     onChange={e => {
                       setAccessKey(e.target.value);
@@ -310,15 +324,14 @@ export default function ClientAuth({
               </button>
             </form>
 
-            {/* Quick Demo Key Hint & WhatsApp Recovery */}
+            {/* Ayuda de recuperación de clave por WhatsApp oficial */}
             <div className="p-3.5 rounded bg-zinc-900/60 border border-zinc-800 space-y-1.5 text-left font-mono">
-              <div className="text-[11px] text-zinc-300">
-                Clave demo de prueba: <code className="text-emerald-400 font-bold bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 cursor-pointer" onClick={() => setAccessKey('TO-MN892')}>TO-MN892</code>
-              </div>
               <div className="text-[11px] text-zinc-400">
-                ¿No tienes tu clave a mano?{' '}
+                ¿Has solicitado tu web y no recuerdas tu clave privada?{' '}
                 <a
-                  href={`https://wa.me/34600000000?text=${encodeURIComponent('Hola equipo TecnOdiel, necesito la clave de acceso para mi restaurante.')}`}
+                  href={`https://wa.me/34600000000?text=${encodeURIComponent(
+                    `Hola equipo TecnOdiel, he solicitado la web ${targetBusinessName ? `de ${targetBusinessName}` : ''} y necesito mi clave de acceso privado.`
+                  )}`}
                   target="_blank"
                   rel="noreferrer"
                   className="text-emerald-400 hover:underline font-medium inline-flex items-center gap-1"

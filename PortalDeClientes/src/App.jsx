@@ -6,7 +6,7 @@ import Navbar from './components/Navbar';
 import ClientAuth from './components/ClientAuth';
 import Dashboard from './components/Dashboard';
 import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
-import { getClientRestaurantDetails } from './lib/supabase';
+import { getClientRestaurantDetails, verifyClientAccessKey } from './lib/supabase';
 
 export default function App({ 
   initialSlug, 
@@ -19,11 +19,12 @@ export default function App({
   const [introFinished, setIntroFinished] = useState(initialIntroFinished);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(() => {
     if (initialSlug) return initialSlug;
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      return params.get('r') || params.get('slug') || params.get('restaurant') || localStorage.getItem('tecnodiel_client_slug') || null;
+      return params.get('r') || params.get('slug') || params.get('restaurant') || null;
     }
     return null;
   });
@@ -39,39 +40,80 @@ export default function App({
   useEffect(() => {
     if (initialSlug && initialSlug !== selectedSlug) {
       setSelectedSlug(initialSlug);
+      // Al cambiar de negocio destino, requerir autenticación con la clave correspondiente
+      if (!isAdmin && !isAdminImpersonating) {
+        setIsAuthenticated(false);
+        setRestaurantData(null);
+      }
     }
-  }, [initialSlug]);
+  }, [initialSlug, isAdmin, isAdminImpersonating]);
 
-  // Load restaurant details when slug changes
-  const loadRestaurant = async (slug) => {
-    if (!slug) {
-      setRestaurantData(null);
-      return;
+  // Verificar si existe una sesión activa y autorizada con clave en sessionStorage
+  useEffect(() => {
+    const checkActiveSession = async () => {
+      if (typeof window === 'undefined') return;
+
+      try {
+        const rawSession = sessionStorage.getItem('tecnodiel_auth_session');
+        if (rawSession) {
+          const session = JSON.parse(rawSession);
+          if (session && session.key && session.slug) {
+            // Verificar estrictamente la clave guardada
+            const verified = await verifyClientAccessKey(session.key, session.slug);
+            if (verified) {
+              setRestaurantData(verified);
+              setSelectedSlug(verified.slug);
+              setIsAuthenticated(true);
+              return;
+            } else {
+              sessionStorage.removeItem('tecnodiel_auth_session');
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Error verificando sesión activa:', err);
+      }
+
+      // Si no hay sesión válida o no coincide, no autorizar acceso directo
+      if (!isAdmin && !isAdminImpersonating) {
+        setIsAuthenticated(false);
+        setRestaurantData(null);
+      }
+    };
+
+    if (!isAdmin && !isAdminImpersonating) {
+      checkActiveSession();
     }
+  }, [isAdmin, isAdminImpersonating]);
+
+  // Recargar datos cuando el cliente ya está autenticado (para refrescar cambios de carta/reservas)
+  const loadRestaurant = async (slug) => {
+    if (!slug) return;
     setLoading(true);
     try {
       const data = await getClientRestaurantDetails(slug);
       setRestaurantData(data);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('tecnodiel_client_slug', slug);
-      }
     } catch (err) {
-      console.error('Error loading restaurant data:', err);
+      console.error('Error refreshing restaurant data:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (selectedSlug && !isAdmin) {
-      loadRestaurant(selectedSlug);
+  const handleSelectRestaurant = (matchedRestaurant, verifiedKey) => {
+    if (matchedRestaurant && matchedRestaurant.slug) {
+      setRestaurantData(matchedRestaurant);
+      setSelectedSlug(matchedRestaurant.slug);
+      setIsAuthenticated(true);
+      setIsAdmin(false);
+      setIsAdminImpersonating(false);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('tecnodiel_auth_session', JSON.stringify({
+          slug: matchedRestaurant.slug,
+          key: verifiedKey
+        }));
+      }
     }
-  }, [selectedSlug, isAdmin]);
-
-  const handleSelectRestaurant = (slug) => {
-    setSelectedSlug(slug);
-    setIsAdmin(false);
-    setIsAdminImpersonating(false);
   };
 
   const handleAdminLogin = () => {
@@ -79,12 +121,20 @@ export default function App({
     setIsAdminImpersonating(false);
     setSelectedSlug(null);
     setRestaurantData(null);
+    setIsAuthenticated(false);
   };
 
-  const handleImpersonateClient = (slugOrId) => {
+  const handleImpersonateClient = async (slugOrId) => {
     setIsAdmin(false);
     setIsAdminImpersonating(true);
     setSelectedSlug(slugOrId);
+    try {
+      const data = await getClientRestaurantDetails(slugOrId);
+      setRestaurantData(data);
+      setIsAuthenticated(true);
+    } catch (e) {
+      console.warn('Error impersonating client:', e);
+    }
   };
 
   const handleBackToAdmin = () => {
@@ -92,14 +142,17 @@ export default function App({
     setIsAdminImpersonating(false);
     setSelectedSlug(null);
     setRestaurantData(null);
+    setIsAuthenticated(false);
   };
 
   const handleSwitchRestaurant = () => {
     setSelectedSlug(null);
     setRestaurantData(null);
+    setIsAuthenticated(false);
     setIsAdmin(false);
     setIsAdminImpersonating(false);
     if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('tecnodiel_auth_session');
       localStorage.removeItem('tecnodiel_client_slug');
     }
   };
@@ -133,7 +186,7 @@ export default function App({
               onLogout={handleSwitchRestaurant}
               onNavigateToLanding={onNavigateToLanding}
             />
-          ) : restaurantData ? (
+          ) : (isAuthenticated && restaurantData) ? (
             /* CASE 2: Single Client Dashboard (Isolated) */
             <main className="flex-1 w-full min-h-screen">
               <Dashboard 
@@ -151,6 +204,7 @@ export default function App({
             /* CASE 3: Secure Login Gate (Client Key or Master Admin) */
             <main className="flex-1 flex items-center justify-center">
               <ClientAuth 
+                targetSlug={selectedSlug}
                 onSelectRestaurant={handleSelectRestaurant} 
                 onAdminLogin={handleAdminLogin}
                 onNavigateToLanding={onNavigateToLanding}

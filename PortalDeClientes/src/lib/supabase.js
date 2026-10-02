@@ -124,52 +124,44 @@ export function sanitizeSlug(input) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Verify client access key and return their restaurant (Sanitizado contra inyección SQL)
-export async function verifyClientAccessKey(rawKey) {
+// Verify client access key strictly (Solo la clave privada da acceso)
+export async function verifyClientAccessKey(rawKey, targetSlug = null) {
   if (!rawKey) return null;
   const key = rawKey.toString().trim();
   // Sanitización estricta: solo mayúsculas, números y guiones para prevenir wildcard e inyección SQL
   const cleanKey = key.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-  const cleanSlug = sanitizeSlug(key);
+  if (!cleanKey || cleanKey.length < 3) return null;
 
   try {
-    // 1. Try matching by client_access_key
-    const { data: byKey, error: errKey } = await supabase
+    // 1. Coincidencia estricta por client_access_key en Supabase
+    let query = supabase
       .from('restaurants')
       .select('*')
-      .ilike('client_access_key', cleanKey)
-      .limit(1);
+      .ilike('client_access_key', cleanKey);
+
+    if (targetSlug) {
+      query = query.eq('slug', targetSlug);
+    }
+
+    const { data: byKey, error: errKey } = await query.limit(1);
 
     if (!errKey && byKey && byKey.length > 0) {
       return byKey[0];
-    }
-
-    // 2. Try matching by slug
-    if (cleanSlug) {
-      const { data: bySlug, error: errSlug } = await supabase
-        .from('restaurants')
-        .select('*')
-        .eq('slug', cleanSlug)
-        .limit(1);
-
-      if (!errSlug && bySlug && bySlug.length > 0) {
-        return bySlug[0];
-      }
     }
   } catch (e) {
     console.warn('Error verifying client key in Supabase:', e);
   }
 
-  // Check local fallback for clinics & restaurants
+  // Comprobar restaurantes o clínicas en almacenamiento local (solo por clave exacta)
   if (typeof window !== 'undefined') {
     try {
       const localClinicsRaw = localStorage.getItem('tecnodiel_cys_clinics');
       if (localClinicsRaw) {
         const localClinics = JSON.parse(localClinicsRaw);
         const matchClinic = localClinics.find(c => 
-          (c.client_access_key && c.client_access_key.toUpperCase() === cleanKey) ||
-          (c.slug && c.slug.toLowerCase() === cleanSlug) ||
-          (c.id && c.id === key)
+          c.client_access_key && 
+          c.client_access_key.toUpperCase().trim() === cleanKey &&
+          (!targetSlug || c.slug === targetSlug)
         );
         if (matchClinic) return matchClinic;
       }
@@ -178,23 +170,20 @@ export async function verifyClientAccessKey(rawKey) {
       if (localRestsRaw) {
         const localRests = JSON.parse(localRestsRaw);
         const matchRest = localRests.find(r => 
-          (r.client_access_key && r.client_access_key.toUpperCase() === cleanKey) ||
-          (r.slug && r.slug.toLowerCase() === cleanSlug) ||
-          (r.id && r.id === key)
+          r.client_access_key && 
+          r.client_access_key.toUpperCase().trim() === cleanKey &&
+          (!targetSlug || r.slug === targetSlug)
         );
         if (matchRest) return matchRest;
       }
     } catch (_) {}
   }
 
-  // Fallback match for demo
-  if (
-    cleanKey === 'TO-MN892' || 
-    cleanKey === 'TO-MAREA-91' || 
-    cleanSlug === 'marea-negra' || 
-    cleanKey === 'MAREA'
-  ) {
-    return FALLBACK_RESTAURANT;
+  // Fallback demo estricto únicamente si se introduce la clave exacta 'TO-MN892'
+  if (cleanKey === 'TO-MN892') {
+    if (!targetSlug || targetSlug === 'marea-negra') {
+      return FALLBACK_RESTAURANT;
+    }
   }
 
   return null;

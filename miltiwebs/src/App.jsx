@@ -268,6 +268,14 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
             onCreated={(newRest) => {
               loadData();
               setActiveRestaurant(newRest);
+              if (newRest && newRest.client_access_key && newRest.slug) {
+                try {
+                  sessionStorage.setItem('tecnodiel_auth_session', JSON.stringify({
+                    slug: newRest.slug,
+                    key: newRest.client_access_key
+                  }));
+                } catch (e) {}
+              }
               if (onNavigateToPortal) {
                 onNavigateToPortal(newRest?.slug);
               } else {

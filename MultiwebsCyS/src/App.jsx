@@ -212,6 +212,14 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs, onNavi
           <ClinicWizard
             onCreated={(newClinic) => {
               loadData();
+              if (newClinic && newClinic.client_access_key && newClinic.slug) {
+                try {
+                  sessionStorage.setItem('tecnodiel_auth_session', JSON.stringify({
+                    slug: newClinic.slug,
+                    key: newClinic.client_access_key
+                  }));
+                } catch (e) {}
+              }
               window.location.hash = `#/c/${newClinic.slug}`;
             }}
             onOpenPortal={handleOpenPortal}
