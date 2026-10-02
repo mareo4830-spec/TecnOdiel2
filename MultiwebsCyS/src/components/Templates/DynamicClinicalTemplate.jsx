@@ -63,6 +63,14 @@ export default function DynamicClinicalTemplate({
     }
   };
 
+  const handleAppointmentClick = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (isPreview) {
+      handleEdit(e, 'cta_button', 'Botón de Cita');
+    }
+    setIsAppointmentOpen(true);
+  };
+
   const getImageHeight = (size) => {
     if (isMobile) return 'h-[280px]';
     if (isTablet) return 'h-[360px]';
@@ -125,13 +133,7 @@ export default function DynamicClinicalTemplate({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-              onClick={(e) => {
-                if (isPreview) {
-                  handleEdit(e, 'cta_button', 'Botón de Cita');
-                } else {
-                  setIsAppointmentOpen(true);
-                }
-              }}
+              onClick={handleAppointmentClick}
               className={`px-4 py-2 rounded-xl text-black font-extrabold text-xs transition flex items-center gap-1.5 shadow-lg ${editableClass('cta_button')}`}
               style={{ backgroundColor: primaryColor }}
             >
@@ -182,10 +184,7 @@ export default function DynamicClinicalTemplate({
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                  onClick={(e) => {
-                    if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
-                    else setIsAppointmentOpen(true);
-                  }}
+                  onClick={handleAppointmentClick}
                   className="px-6 py-3 rounded-xl text-black font-extrabold text-xs sm:text-sm transition flex items-center gap-2 shadow-xl"
                   style={{ backgroundColor: primaryColor }}
                 >
@@ -239,10 +238,7 @@ export default function DynamicClinicalTemplate({
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                onClick={(e) => {
-                  if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
-                  else setIsAppointmentOpen(true);
-                }}
+                onClick={handleAppointmentClick}
                 className="px-6 py-3 rounded-xl text-black font-extrabold text-xs sm:text-sm transition flex items-center gap-2 shadow-xl"
                 style={{ backgroundColor: primaryColor }}
               >
@@ -300,10 +296,7 @@ export default function DynamicClinicalTemplate({
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                    onClick={(e) => {
-                      if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
-                      else setIsAppointmentOpen(true);
-                    }}
+                    onClick={handleAppointmentClick}
                     className={`px-5 py-3 rounded-xl text-black font-extrabold text-xs sm:text-sm transition flex items-center gap-2 shadow-xl ${editableClass('cta_button')}`}
                     style={{ backgroundColor: primaryColor }}
                   >
@@ -494,11 +487,7 @@ export default function DynamicClinicalTemplate({
                     type="button"
                     whileHover={{ x: 3 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isPreview) handleEdit(e, 'cta_button', 'Botón de Cita');
-                      else setIsAppointmentOpen(true);
-                    }}
+                    onClick={handleAppointmentClick}
                     className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer transition"
                   >
                     <span>Pedir Cita</span>

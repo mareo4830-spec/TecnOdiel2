@@ -345,15 +345,16 @@ export default function DynamicThemedTemplate({
   const isTablet = previewDevice === 'tablet';
 
   const getImageHeight = (size = heroImageSize) => {
+    const s = String(size || '').toLowerCase();
     if (isMobile) {
-      if (size === 'small') return 'h-[200px]';
-      if (size === 'large') return 'h-[320px]';
-      if (size === 'full') return 'h-[380px]';
+      if (s === 'small' || s === 'sm') return 'h-[180px]';
+      if (s === 'large' || s === 'lg') return 'h-[320px]';
+      if (s === 'full' || s === 'xl') return 'h-[400px]';
       return 'h-[250px]';
     }
-    if (size === 'small') return 'h-[240px]';
-    if (size === 'large') return 'h-[440px]';
-    if (size === 'full') return 'h-[560px]';
+    if (s === 'small' || s === 'sm') return 'h-[240px]';
+    if (s === 'large' || s === 'lg') return 'h-[460px]';
+    if (s === 'full' || s === 'xl') return 'h-[580px]';
     return 'h-[340px]';
   };
 
@@ -388,12 +389,26 @@ export default function DynamicThemedTemplate({
     onSelectElement({ type, label: title || type, title, data: { restaurant, ...data } });
   };
 
+  const handleBookingClick = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (isPreview) {
+      handleEdit(e, 'cta_button', 'Botón de Reserva / Llamada a la acción');
+    }
+    setIsBookingOpen(true);
+  };
+
   // Smooth scroll without changing window.location.hash to prevent router resets!
   const scrollToCarta = (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
     const el = document.getElementById('carta');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const scrollParent = el.closest('.overflow-y-auto') || document.querySelector('.overflow-y-auto');
+      if (scrollParent) {
+        const topPos = el.offsetTop - 50;
+        scrollParent.scrollTo({ top: topPos, behavior: 'smooth' });
+      }
     }
   };
 
@@ -544,13 +559,7 @@ export default function DynamicThemedTemplate({
               </span>
             )}
             <button
-              onClick={(e) => {
-                if (isPreview) {
-                  handleEdit(e, 'cta_button', 'Botón de Reserva / Llamada a la acción');
-                } else {
-                  setIsBookingOpen(true);
-                }
-              }}
+              onClick={handleBookingClick}
               className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer interactive-button ${editableClass('cta_button')}`}
               style={{
                 backgroundColor: primaryColor,
@@ -604,7 +613,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex flex-wrap justify-center items-center gap-3 font-sans">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Mesa en Taberna'}
@@ -643,7 +652,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-3 font-sans">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Mesa en Taberna'}
@@ -694,7 +703,7 @@ export default function DynamicThemedTemplate({
 
                   <div className="pt-2 flex flex-wrap items-center gap-3 font-sans">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa en Taberna'}
@@ -765,7 +774,7 @@ export default function DynamicThemedTemplate({
 
                   <div className="flex flex-wrap items-center gap-3 pt-4">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                     >
                       <Calendar className="w-3.5 h-3.5" />
@@ -820,7 +829,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-3">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                   >
                     <Calendar className="w-3.5 h-3.5" />
@@ -873,7 +882,7 @@ export default function DynamicThemedTemplate({
 
                 <div className="flex flex-wrap items-center gap-3 pt-4">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold transition shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                   >
                     <Calendar className="w-3.5 h-3.5" />
@@ -931,7 +940,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex flex-wrap justify-center items-center gap-4">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Pase de Barra'}
@@ -970,7 +979,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-4">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Pase de Barra'}
@@ -1014,7 +1023,7 @@ export default function DynamicThemedTemplate({
                   
                   <div className="pt-2 flex flex-wrap items-center gap-4">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 bg-stone-100 hover:bg-white text-stone-950 font-bold text-xs tracking-wider uppercase transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Pase de Barra'}
@@ -1108,7 +1117,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="pt-2 flex flex-wrap justify-center items-center gap-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || '¡Pedir Mesa / Comer Aquí!'}
@@ -1146,7 +1155,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-3">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || '¡Pedir Mesa / Comer Aquí!'}
@@ -1184,7 +1193,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="pt-2 flex flex-wrap items-center gap-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xs uppercase tracking-wider transition shadow-lg active:translate-y-1 cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || '¡Pedir Mesa / Comer Aquí!'}
@@ -1250,7 +1259,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="flex justify-center flex-wrap items-center gap-3 pt-3">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Mesa con Salitre'}
@@ -1295,7 +1304,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex justify-center flex-wrap items-center gap-3 pt-2">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa con Salitre'}
@@ -1334,7 +1343,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3 rounded-2xl bg-sky-400 hover:bg-sky-300 text-black font-bold text-xs transition shadow-[0_0_20px_rgba(56,189,248,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa con Salitre'}
@@ -1409,7 +1418,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || '[ INICIAR_RESERVA ]'}
@@ -1454,7 +1463,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || '[ INICIAR_RESERVA ]'}
@@ -1492,7 +1501,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="pt-2 flex flex-wrap items-center gap-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition shadow-[0_0_20px_#06b6d4] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || '[ INICIAR_RESERVA ]'}
@@ -1560,7 +1569,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="flex justify-center gap-4 pt-2 font-sans">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Réserver Une Table'}
@@ -1605,7 +1614,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex justify-center gap-4 pt-2 font-sans">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Réserver Une Table'}
@@ -1646,7 +1655,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex flex-wrap gap-3 pt-2 font-sans">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Réserver Une Table'}
@@ -1709,7 +1718,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="flex justify-center flex-wrap items-center gap-3 pt-2">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Mesa de Brasa'}
@@ -1755,7 +1764,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex justify-center flex-wrap items-center gap-3 pt-2">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa de Brasa'}
@@ -1794,7 +1803,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition shadow-[0_0_25px_rgba(220,38,38,0.5)] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa de Brasa'}
@@ -1861,7 +1870,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="flex justify-center flex-wrap items-center gap-3 pt-3">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Mesa Brunch'}
@@ -1903,7 +1912,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex justify-center flex-wrap items-center gap-3 pt-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa Brunch'}
@@ -1942,7 +1951,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="flex flex-wrap items-center gap-3 pt-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-full bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition shadow-[0_0_25px_rgba(236,72,153,0.4)] cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa Brunch'}
@@ -2005,7 +2014,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                   >
                     {restaurant.cta_text || 'Reservar Mesa Taproom'}
@@ -2051,7 +2060,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="pt-2 flex justify-center flex-wrap items-center gap-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa Taproom'}
@@ -2090,7 +2099,7 @@ export default function DynamicThemedTemplate({
                   </p>
                   <div className="pt-2 flex flex-wrap items-center gap-3">
                     <button
-                      onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                      onClick={handleBookingClick}
                       className={`px-6 py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-wider transition shadow-xl cursor-pointer ${editableClass('cta_button')}`}
                     >
                       {restaurant.cta_text || 'Reservar Mesa Taproom'}
@@ -2161,7 +2170,7 @@ export default function DynamicThemedTemplate({
               </p>
               <div className="flex justify-center flex-wrap items-center gap-3 pt-4">
                 <button
-                  onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                  onClick={handleBookingClick}
                   className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                   style={{
                     backgroundColor: primaryColor,
@@ -2210,7 +2219,7 @@ export default function DynamicThemedTemplate({
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-4">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                     style={{
                       backgroundColor: primaryColor,
@@ -2288,7 +2297,7 @@ export default function DynamicThemedTemplate({
 
                 <div className="flex flex-wrap items-center gap-3 pt-4">
                   <button
-                    onClick={(e) => isPreview ? handleEdit(e, 'cta_button', 'Botón de Reserva') : setIsBookingOpen(true)}
+                    onClick={handleBookingClick}
                     className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
                     style={{
                       backgroundColor: primaryColor,

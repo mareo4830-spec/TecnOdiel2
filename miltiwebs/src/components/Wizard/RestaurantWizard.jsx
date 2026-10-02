@@ -392,6 +392,38 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
+      {/* Global Hidden File Inputs for Hero & Dishes (Available in all wizard steps including Step 7) */}
+      <input
+        type="file"
+        ref={heroGalleryInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handleHeroImageUpload}
+      />
+      <input
+        type="file"
+        ref={heroCameraInputRef}
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleHeroImageUpload}
+      />
+      <input
+        type="file"
+        ref={dishGalleryInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handleDishImageUpload}
+      />
+      <input
+        type="file"
+        ref={dishCameraInputRef}
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleDishImageUpload}
+      />
+
       {/* Top Header */}
       {activeSection <= 6 ? (
         <header className="h-16 border-b border-white/10 bg-zinc-950/90 backdrop-blur-2xl px-4 sm:px-6 flex items-center justify-between z-30">
@@ -673,21 +705,6 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
                     {/* Subida o Cámara */}
                     <div className="pt-2 flex items-center gap-2">
-                      <input
-                        type="file"
-                        ref={heroGalleryInputRef}
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleHeroImageUpload}
-                      />
-                      <input
-                        type="file"
-                        ref={heroCameraInputRef}
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={handleHeroImageUpload}
-                      />
 
                       <button
                         type="button"
@@ -1243,7 +1260,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 </div>
 
                 {/* Quick Switch Tabs */}
-                <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-zinc-900/80 border border-white/5 text-[11px] font-semibold">
+                <div className="grid grid-cols-5 gap-1 p-1 rounded-xl bg-zinc-900/80 border border-white/5 text-[11px] font-semibold">
                   <button
                     type="button"
                     onClick={() => setSelectedElement({ type: 'background', label: 'Fondo & Colores' })}
@@ -1276,6 +1293,17 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     }`}
                   >
                     Texto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'cta_button', label: 'Botón de Reserva' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'cta_button'
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Botón
                   </button>
                   <button
                     type="button"
@@ -1648,6 +1676,37 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         onChange={e => setFormData({ ...formData, cta_text: e.target.value })}
                         className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
                       />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-mono text-zinc-500 uppercase">Sugerencias rápidas</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['Reservar Mesa Online', 'Reservar Mesa', 'Hacer una Reserva', 'Pedir Mesa Ya', 'Reserva Directa'].map(txt => (
+                          <button
+                            key={txt}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, cta_text: txt }));
+                              showTweakNotice(`Botón: "${txt}"`);
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] border transition cursor-pointer ${
+                              formData.cta_text === txt
+                                ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 font-bold'
+                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white'
+                            }`}
+                          >
+                            {txt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-zinc-300 space-y-1">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Botón Interactivo Activo</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">
+                        Al pulsar este botón en la vista previa o en la web real, se abre directamente la ventana de reserva para tus clientes.
+                      </p>
                     </div>
                   </div>
                 )}
