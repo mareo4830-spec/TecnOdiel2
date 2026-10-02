@@ -83,20 +83,6 @@ export default function MainPortalCard({ onOpenAudit }) {
               </span>
             </motion.div>
 
-            {/* Brand Logo Emblem */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.12 }}
-              className="mb-4 sm:mb-5 relative flex items-center justify-center"
-            >
-              <div className="absolute inset-0 rounded-full bg-cyan-400/15 blur-xl" />
-              <img
-                src="/logo.png"
-                alt="TecnOdiel Logo"
-                className="w-16 h-16 sm:w-20 sm:h-20 object-contain relative z-10 drop-shadow-[0_0_25px_rgba(45,212,191,0.45)]"
-              />
-            </motion.div>
 
             {/* High-Converting Sales Headline / Eslogan Principal */}
             <motion.h1

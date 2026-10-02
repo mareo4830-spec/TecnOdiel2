@@ -24,10 +24,16 @@ export default function Navbar({
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl bg-black border overflow-hidden flex items-center justify-center shadow-sm ${
-            isClinic ? 'border-cyan-500/40' : 'border-emerald-500/40'
-          }`}>
-            <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain p-0.5" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
+            <img 
+              src="/logo.png" 
+              alt="TecnOdiel Logo" 
+              className={`w-full h-full object-contain ${
+                isClinic 
+                  ? 'drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' 
+                  : 'drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]'
+              }`} 
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">

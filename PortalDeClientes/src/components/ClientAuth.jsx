@@ -276,8 +276,8 @@ export default function ClientAuth({
              ======================================================= */
           <div className="space-y-5">
             <div className="flex items-center gap-3 text-left">
-              <div className="w-12 h-12 rounded-xl bg-black border border-cyan-500/30 overflow-hidden flex items-center justify-center p-1 shadow-[0_0_20px_rgba(6,182,212,0.25)] shrink-0">
-                <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain" />
+              <div className="w-11 h-11 flex items-center justify-center shrink-0">
+                <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
               </div>
               <div className="space-y-0.5">
                 <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
@@ -356,8 +356,8 @@ export default function ClientAuth({
              ======================================================= */
           <div className="space-y-5">
             <div className="flex items-center gap-3 text-left">
-              <div className="w-12 h-12 rounded-xl bg-black border border-cyan-500/30 overflow-hidden flex items-center justify-center p-1 shadow-[0_0_20px_rgba(6,182,212,0.25)] shrink-0">
-                <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain" />
+              <div className="w-11 h-11 flex items-center justify-center shrink-0">
+                <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
               </div>
               <div className="space-y-0.5">
                 <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
