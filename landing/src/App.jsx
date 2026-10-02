@@ -8,7 +8,7 @@ import CinematicBackground from './components/CinematicBackground'
 import FloatingContact from './components/FloatingContact'
 import CinematicIntro from './components/CinematicIntro'
 
-export default function App({ onNavigateToMultiwebs, initialIntroFinished = false, onIntroComplete }) {
+export default function App({ onNavigateToMultiwebs, onNavigateToCyS, initialIntroFinished = false, onIntroComplete }) {
   const [auditModalOpen, setAuditModalOpen] = useState(false)
   const [introFinished, setIntroFinished] = useState(initialIntroFinished)
 
@@ -65,6 +65,7 @@ export default function App({ onNavigateToMultiwebs, initialIntroFinished = fals
         isOpen={auditModalOpen} 
         onClose={handleCloseAudit} 
         onNavigateToMultiwebs={onNavigateToMultiwebs}
+        onNavigateToCyS={onNavigateToCyS}
       />
     </div>
   )

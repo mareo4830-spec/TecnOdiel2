@@ -59,7 +59,19 @@ export default function App() {
     return params.get('r') || params.get('slug') || params.get('restaurant') || localStorage.getItem('tecnodiel_client_slug') || null;
   });
 
-  const [hasIntroCompleted, setHasIntroCompleted] = useState(false);
+  const [hasIntroCompleted, setHasIntroCompleted] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('tecnodiel_intro_seen') === 'true';
+    }
+    return false;
+  });
+
+  const markIntroComplete = () => {
+    setHasIntroCompleted(true);
+    if (typeof window !== 'undefined') {
+      try { sessionStorage.setItem('tecnodiel_intro_seen', 'true'); } catch (_) {}
+    }
+  };
 
   // Listen to hash / popstate changes
   useEffect(() => {
@@ -149,8 +161,9 @@ export default function App() {
         <LandingApp 
           key="landing-page"
           initialIntroFinished={hasIntroCompleted}
-          onIntroComplete={() => setHasIntroCompleted(true)}
+          onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')} 
+          onNavigateToCyS={() => navigateTo('cys')}
         />
       )}
 
@@ -158,7 +171,7 @@ export default function App() {
         <MultiwebsApp 
           key="multiwebs-page"
           initialIntroFinished={hasIntroCompleted}
-          onIntroComplete={() => setHasIntroCompleted(true)}
+          onIntroComplete={markIntroComplete}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
           onNavigateToLanding={() => navigateTo('landing')}
         />
@@ -167,6 +180,8 @@ export default function App() {
       {view === 'cys' && (
         <MultiwebsCySApp 
           key="cys-page"
+          onNavigateToLanding={() => navigateTo('landing')}
+          onNavigateToMultiwebs={() => navigateTo('multiwebs')}
         />
       )}
 
@@ -175,7 +190,7 @@ export default function App() {
           key={`portal-page-${activeSlug || 'root'}`}
           initialSlug={activeSlug}
           initialIntroFinished={hasIntroCompleted}
-          onIntroComplete={() => setHasIntroCompleted(true)}
+          onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToLanding={() => navigateTo('landing')}
         />

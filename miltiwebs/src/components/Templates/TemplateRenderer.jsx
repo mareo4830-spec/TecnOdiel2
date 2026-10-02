@@ -38,27 +38,7 @@ export default function TemplateRenderer({
     selectedElement
   };
 
-  switch (templateId) {
-    case 'brutalist':
-      return <BrutalistTemplate {...commonProps} />;
-    case 'minimalist':
-      return <MinimalistTemplate {...commonProps} />;
-    case 'artisan':
-      return <ArtisanTemplate {...commonProps} />;
-    case 'velvet':
-      return <VelvetTemplate {...commonProps} />;
-    case 'nocturne':
-      return <NocturneTemplate {...commonProps} />;
-    case 'tecnodiel_elite':
-      return <TecnodielTemplate {...commonProps} />;
-    default:
-      // Dynamically handles all 25+ specialized templates:
-      // cyberpunk, tokyo_omakase, mediterranean_breeze, bistro_parisien,
-      // urban_street_smash, tapas_andaluzas, steakhouse_asador, pasticceria_dolce,
-      // botanical_garden, rooftop_sunset, trattoria_italiana, cerveceria_craft,
-      // marisqueria_costera, taqueria_fiesta, coffee_specialty, gelato_artesanal,
-      // pizzeria_napolitana, lounge_shisha, beach_club, gourmet_vanguardia,
-      // wok_asian_fusion, churreria_tradicional, bodega_enoteca, pulperia_gallega, tecnodiel_elite
-      return <DynamicThemedTemplate {...commonProps} />;
-  }
+  // DynamicThemedTemplate provides full responsive device simulation,
+  // click-to-edit on every element, side-swapping, and all 20+ bespoke culinary archetypes
+  return <DynamicThemedTemplate {...commonProps} />;
 }

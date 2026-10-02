@@ -170,6 +170,193 @@ export const TEMPLATES = [
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1920&q=80',
     tags: ['Terminal HUD', 'Mixología Molecular', 'Neón Cian 2077', 'Glitch Tech']
+  },
+  {
+    id: 'pizzeria_napolitana',
+    name: 'Estilo Pizzería Napolitana & Forno a Legna',
+    category: 'trattoria',
+    badge: 'Horno 480°C & Fermentación 72H',
+    description: 'Rojo pomodoro San Marzano, azulejo napolitano y albahaca fresca para auténticas pizzerías artesanales con borde cornicione aireado.',
+    previewColors: {
+      primary: '#e11d48',
+      accent: '#22c55e',
+      bg: '#14070a',
+      card: '#220d12'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Margherita D.O.P.', 'Forno a Legna', 'Fiordilatte', 'Cornicione']
+  },
+  {
+    id: 'trattoria_italiana',
+    name: 'Estilo Trattoria Toscana & Pasta Fresca',
+    category: 'trattoria',
+    badge: 'Pasta Fatta a Mano & Chianti',
+    description: 'Calidez rústica de taberna italiana con manteles tradicionales, pasta hecha a mano al día, burrata di bufala y vino toscano.',
+    previewColors: {
+      primary: '#f59e0b',
+      accent: '#84cc16',
+      bg: '#160d07',
+      card: '#27170e'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Tagliolini al Tartufo', 'Ragù di Cinghiale', 'Burrata', 'Chianti']
+  },
+  {
+    id: 'taqueria_fiesta',
+    name: 'Estilo Cantina Mexicana & Taquería Callejera',
+    category: 'tapas',
+    badge: 'Maíz Nixtamal & Barra de Mezcal',
+    description: 'Explosión de colores vivos cálidos, trompo al pastor, salsas tatemadas y coctelería con tequila y mezcal artesanal.',
+    previewColors: {
+      primary: '#f97316',
+      accent: '#10b981',
+      bg: '#170b04',
+      card: '#281409'
+    },
+    defaultFont: 'Outfit',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Tacos al Pastor', 'Birria de Res', 'Salsa Habanero', 'Mezcal']
+  },
+  {
+    id: 'beach_club',
+    name: 'Estilo Beach Club & Chiringuito Mediterráneo',
+    category: 'mediterranean',
+    badge: 'Sunset Sessions, Arena & Mar',
+    description: 'Azul turquesa y arena dorada, cañizo blanco, camas balinesas, paellas al fuego de leña y cócteles al atardecer frente a la costa.',
+    previewColors: {
+      primary: '#38bdf8',
+      accent: '#facc15',
+      bg: '#04151f',
+      card: '#082333'
+    },
+    defaultFont: 'Outfit',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Arroces al Sarmiento', 'Camas Balinesas', 'Sunset Cocktails', 'Frente al Mar']
+  },
+  {
+    id: 'coffee_specialty',
+    name: 'Estilo Specialty Coffee Roaster & Bakery',
+    category: 'cafe_sweet',
+    badge: 'Micro-Lotes +86 Puntos SCA & Flat White',
+    description: 'Estética nórdica e industrial de tostadero de café: acero, maderas claras, filtrados V60 y repostería artesana con masa madre.',
+    previewColors: {
+      primary: '#d97706',
+      accent: '#fbbf24',
+      bg: '#140d07',
+      card: '#23170e'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Espresso de Finca', 'V60 Pour-Over', 'Latte Art', 'Cinnamon Rolls']
+  },
+  {
+    id: 'pulperia_gallega',
+    name: 'Estilo Pulpería Tradicional da Ría',
+    category: 'tapas',
+    badge: 'Caldero de Cobre & Cuncas de Ribeiro',
+    description: 'Madera de castaño rústica, pimentón de la Vera ahumado y pulpo fresco de roca servido en plato tradicional de madera.',
+    previewColors: {
+      primary: '#dc2626',
+      accent: '#ca8a04',
+      bg: '#160907',
+      card: '#27120e'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Pulpo á Feira', 'Pimentón de la Vera', 'Pimientos de Padrón', 'Cuncas de Ribeiro']
+  },
+  {
+    id: 'bodega_enoteca',
+    name: 'Estilo Bodega Subterránea & Enoteca',
+    category: 'mediterranean',
+    badge: 'Duelas de Roble & Vinos de Guarda',
+    description: 'Atmósfera abovedada de bodega con barricas de roble, copas Riedel, quesos curados de pastor y cartas de vinos exclusivas.',
+    previewColors: {
+      primary: '#9333ea',
+      accent: '#eab308',
+      bg: '#110617',
+      card: '#1e0c27'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Cava Climatizada', 'Ribera del Duero', 'Tabla de Quesos', 'Cata Maridaje']
+  },
+  {
+    id: 'brutalist',
+    name: 'Estilo Neo-Brutalismo Industrial',
+    category: 'tapas',
+    badge: 'Raw Industrial & Ticker Marquee',
+    description: 'Contraste radical negro y amarillo ácido, bordes marcados, ticker animado continuo y estética underground contundente.',
+    previewColors: {
+      primary: '#ccff00',
+      accent: '#ffffff',
+      bg: '#050505',
+      card: '#111115'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Ticker Marquee', 'Bordes Marcados', 'Underground', 'Sin Filtros']
+  },
+  {
+    id: 'minimalist',
+    name: 'Estilo Nórdico Minimal & Silencio Visual',
+    category: 'gastronomic',
+    badge: 'Blanco y Negro Puro & Máxima Finura',
+    description: 'Monocromo de alto standing, líneas capilares ultra-limpias, tipografía de alta costura y espacios amplios de respiración.',
+    previewColors: {
+      primary: '#ffffff',
+      accent: '#a1a1aa',
+      bg: '#000000',
+      card: '#0a0a0d'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Pureza Absoluta', 'Líneas Capilares', 'Minimalismo', 'Alta Costura']
+  },
+  {
+    id: 'velvet',
+    name: 'Estilo Velvet Speakeasy & Private Booths',
+    category: 'night_bar',
+    badge: 'Terciopelo Granate & Reservados VIP',
+    description: 'Glamour de club clandestino de jazz con terciopelo burdeos, iluminación rasante ámbar y asientos reservados para noches íntimas.',
+    previewColors: {
+      primary: '#e11d48',
+      accent: '#fbbf24',
+      bg: '#0a0306',
+      card: '#180810'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Velvet Granate', 'Speakeasy', 'Reservados VIP', 'Jazz & Noche']
+  },
+  {
+    id: 'tecnodiel_elite',
+    name: 'Estilo TecnOdiel Titanium Flagship',
+    category: 'tech_elite',
+    badge: 'Titanio, Esmeralda & Carga en 0.2s',
+    description: 'El diseño oficial buque insignia de TecnOdiel: micro-animaciones kinetizadas, acento esmeralda láser y ratio de conversión récord.',
+    previewColors: {
+      primary: '#10b981',
+      accent: '#34d399',
+      bg: '#020604',
+      card: '#05140b'
+    },
+    defaultFont: 'Outfit',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Titanium Laser', 'TecnOdiel Engine', 'Máxima Conversión', '0.2s Speed']
   }
 ];
 
@@ -362,6 +549,177 @@ export const DEFAULT_MENUS_BY_STYLE = {
       items: [
         { id: 'cy-3', name: 'Bao Negro al Vapor con Panceta Confitada', description: 'Pan bao de carbón activado con panceta laqueada, mayo de kimchi y crujiente de raíz de loto.', price: 12.00, badge: 'BIO_LINK', allergens: ['Gluten', 'Sésamo'] },
         { id: 'cy-4', name: 'Edamame Trufado con Sal Volcánica de Hawái', description: 'Salteado a fuego ultra-vivo en wok con aceite virgen de trufa y copos de sal negra.', price: 7.50, badge: 'SNACK_CORE', allergens: ['Soja'] }
+      ]
+    }
+  ],
+  pizzeria_napolitana: [
+    {
+      id: 'cat-piz-1',
+      name: 'Pizze Tradizionali & Speciali (Forno 480°C)',
+      items: [
+        { id: 'pz-1', name: 'Pizza Margherita Verace D.O.P.', description: 'Pomodoro San Marzano D.O.P., fiordilatte di Agerola, basilico fresco e olio extravergine d\'oliva.', price: 11.50, badge: 'D.O.P. Verace', allergens: ['Gluten', 'Lácteos'] },
+        { id: 'pz-2', name: 'Pizza Diavola con \'Nduja di Spilinga', description: 'Pomodoro dolce, mozzarella di latte vaccino, salame piccante napoletano e \'nduja artigianale.', price: 13.50, badge: 'Piccante', allergens: ['Gluten', 'Lácteos'] },
+        { id: 'pz-3', name: 'Pizza Tartufata con Burrata Pugliese', description: 'Crema di tartufo bianco estivo, funghi porcini trifolati e burrata pugliese intera a crudo.', price: 15.50, badge: 'Firma del Pizzaiolo', allergens: ['Gluten', 'Lácteos'] },
+        { id: 'pz-4', name: 'Pizza Marinara Tradizionale di Napoli', description: 'Pomodoro San Marzano schiacciato a mano, origano dei Monti Lattari, aglio dorato e basilico.', price: 9.00, badge: 'Senza Lattosio', allergens: ['Gluten'] }
+      ]
+    },
+    {
+      id: 'cat-piz-2',
+      name: 'Antipasti & Dolci Tradizionali',
+      items: [
+        { id: 'pz-5', name: 'Frittatina di Pasta Napoletana Croccante', description: 'Bucatini di Gragnano con besciamella ricca, provola affumicata e piselli freschi dorata a legna.', price: 5.50, badge: 'Sfizio', allergens: ['Gluten', 'Lácteos'] },
+        { id: 'pz-6', name: 'Tiramisù Artigianale al Mascarpone e Caffè', description: 'Savoiardi bagnati al caffè espresso napoletano con crema vellutata e cacao amaro puro.', price: 6.50, badge: 'Fatto in Casa', allergens: ['Gluten', 'Huevos', 'Lácteos'] }
+      ]
+    }
+  ],
+  trattoria_italiana: [
+    {
+      id: 'cat-tra-1',
+      name: 'Primi Piatti & Pasta Fresca Fatta a Mano',
+      items: [
+        { id: 'tr-1', name: 'Tagliolini al Tartufo Nero Pregiato', description: 'Pasta all\'uovo trafilata al bronzo, mantecata con burro di malga e tartufo nero a lamelle.', price: 18.00, badge: 'Fatta a Mano', allergens: ['Gluten', 'Huevos', 'Lácteos'] },
+        { id: 'tr-2', name: 'Pappardelle al Ragù di Cinghiale Toscano', description: 'Ragù cotto lentamente per 8 ore con vino rosso del Chianti, bacche di ginepro e rosmarino.', price: 16.50, badge: 'Ricetta Storica', allergens: ['Gluten', 'Huevos'] },
+        { id: 'tr-3', name: 'Burrata di Andria con Pomodorini Confit', description: 'Servita con pesto genovese artigianale e focaccia calda di semola rimacinata.', price: 13.00, badge: 'Antipasto N.1', allergens: ['Gluten', 'Lácteos'] }
+      ]
+    },
+    {
+      id: 'cat-tra-2',
+      name: 'Secondi & Vini del Chianti',
+      items: [
+        { id: 'tr-4', name: 'Bistecca alla Fiorentina di Chianina (1kg)', description: 'Alla griglia su brace di quercia al sangue con sale dolce di Cervia e fagioli zolfini.', price: 55.00, badge: 'Chianina I.G.P.', allergens: [] },
+        { id: 'tr-5', name: 'Chianti Classico Riserva D.O.C.G.', description: 'Affinato in botti di rovere, profumo intenso di ciliegia marasca e spezie dolci.', price: 6.00, badge: 'Calice', allergens: [] }
+      ]
+    }
+  ],
+  taqueria_fiesta: [
+    {
+      id: 'cat-taq-1',
+      name: 'Tacos en Tortilla de Maíz Nixtamalizado',
+      items: [
+        { id: 'tq-1', name: 'Tacos al Pastor con Piña Asada al Carbón', description: 'Cerdo marinado en achiote y chiles secos, servido con piña tatemada, cilantro y cebolla (3 uds).', price: 11.50, badge: 'El Favorito ★', allergens: [] },
+        { id: 'tq-2', name: 'Tacos de Birria de Res con Consomé para Chopear', description: 'Carne jugosa cocinada a fuego lento con especias, queso Oaxaca fundido y taza de consomé.', price: 13.00, badge: 'Para Chopear', allergens: ['Lácteos'] },
+        { id: 'tq-3', name: 'Tacos de Cochinita Pibil Yucateca', description: 'Cocción tradicional en hoja de plátano con frijoles refritos y cebolla morada encurtida al habanero.', price: 11.00, badge: 'Yucatán', allergens: [] }
+      ]
+    },
+    {
+      id: 'cat-taq-2',
+      name: 'Antojitos & Coctelería de Mezcal',
+      items: [
+        { id: 'tq-4', name: 'Guacamole de Molcajete con Totopos Caseros', description: 'Aguacate hass machacado al momento con lima, jalapeño, tomate y queso cotija fresco.', price: 8.50, badge: 'Al Momento', allergens: ['Lácteos'] },
+        { id: 'tq-5', name: 'Margarita de Mezcal Espadín con Sal de Gusano', description: 'Zumo de lima recién exprimido, triple seco y mezcal artesanal oaxaqueño.', price: 9.00, badge: 'Trago Clásico', allergens: [] }
+      ]
+    }
+  ],
+  beach_club: [
+    {
+      id: 'cat-bch-1',
+      name: 'Arroces a la Leña & Pescados de Costa',
+      items: [
+        { id: 'bc-1', name: 'Arroz del Senyoret a la Leña de Sarmiento', description: 'Con rape, calamar de potera y gamba pelada con socarrat crujiente y alioli casero.', price: 21.00, badge: 'Socarrat Perfecto', allergens: ['Crustáceos', 'Pescado'] },
+        { id: 'bc-2', name: 'Lubina Salvaje a la Espalda con Patata Panadera', description: 'Pescada en el día, asada con aceite de ajos tiernos y guindilla dulce de la huerta.', price: 24.00, badge: 'Pescado del Día', allergens: ['Pescado'] },
+        { id: 'bc-3', name: 'Carpaccio de Gamba Blanca con Cítricos y Aguacate', description: 'Láminas ultrafinas con vinagreta de fruta de la pasión y aceite de oliva virgen extra.', price: 18.00, badge: 'Fresco & Ligero', allergens: ['Crustáceos'] }
+      ]
+    },
+    {
+      id: 'cat-bch-2',
+      name: 'Sunset Cocktails & Sangrías de Cava',
+      items: [
+        { id: 'bc-4', name: 'Sangría de Cava con Fresas de Huelva y Menta', description: 'Jarra de 1 litro servida con hielo frappé, fruta fresca de temporada y licor de flor de saúco.', price: 16.00, badge: 'Jarra Sunset', allergens: [] },
+        { id: 'bc-5', name: 'Passion Fruit & Coconut Mojito', description: 'Ron añejo caribeño, puré de maracuyá natural, agua de coco y hojas de hierbabuena.', price: 10.50, badge: 'Firma de la Barra', allergens: [] }
+      ]
+    }
+  ],
+  coffee_specialty: [
+    {
+      id: 'cat-cof-1',
+      name: 'Specialty Coffee & Filtrados de Origen',
+      items: [
+        { id: 'cf-1', name: 'Espresso Doble de Finca (Etiopía Yirgacheffe)', description: 'Proceso lavado, notas brillantes a flor de jazmín, melocotón dulce y acidez cítrica sedosa.', price: 2.20, badge: '+88 Puntos SCA', allergens: [] },
+        { id: 'cf-2', name: 'Flat White con Leche Fresca de Granja', description: 'Doble ristretto con leche micro-emulsionada a 62°C y latte art de campeonato.', price: 2.90, badge: 'Equilibrio Puro', allergens: ['Lácteos'] },
+        { id: 'cf-3', name: 'Filtro V60 Manual (Colombia Geisha Anaeróbico)', description: 'Extracción pausada en mesa con tetera de cuello de cisne. Notas a bergamota y miel.', price: 4.50, badge: 'Cata Guiada', allergens: [] }
+      ]
+    },
+    {
+      id: 'cat-cof-2',
+      name: 'Bakery Artesanal & Tostas Nórdicas',
+      items: [
+        { id: 'cf-4', name: 'Cinnamon Roll Glaseado con Cardamomo Sueco', description: 'Masa madre de mantequilla fermentada lentamente durante 24h, recién salido del horno.', price: 3.80, badge: 'Recién Horneado', allergens: ['Gluten', 'Lácteos'] },
+        { id: 'cf-5', name: 'Tosta de Salmón Marinado en Eneldo y Queso Crema', description: 'Sobre hogaza artesanal de centeno con alcaparras, brotes tiernos y AOVE ecológico.', price: 8.50, badge: 'Desayuno Top', allergens: ['Gluten', 'Pescado', 'Lácteos'] }
+      ]
+    }
+  ],
+  pulperia_gallega: [
+    {
+      id: 'cat-pul-1',
+      name: 'Pulpo de Roca & Especialidades da Ría',
+      items: [
+        { id: 'pl-1', name: 'Pulpo á Feira Tradicional con Cachelos', description: 'Cocido al dente en caldero de cobre, cortado a tijera con pimentón de la Vera picante y AOVE.', price: 19.50, badge: 'En Plato de Madera', allergens: ['Moluscos'] },
+        { id: 'pl-2', name: 'Empanada Gallega de Zamburiñas con Masa Fina', description: 'Receta de aldea con sofrito de cebolla pochada, pimiento rojo y zamburiñas de ría.', price: 9.50, badge: 'Artesana', allergens: ['Gluten', 'Moluscos'] },
+        { id: 'pl-3', name: 'Pimientos de Padrón Fritos en Aceite Virgen', description: 'Unos pican y otros no, con escamas de sal gruesa de salinas atlánticas.', price: 7.00, badge: 'De la Huerta', allergens: [] }
+      ]
+    },
+    {
+      id: 'cat-pul-2',
+      name: 'Vinos en Cunca Tradicional',
+      items: [
+        { id: 'pl-4', name: 'Cunca de Albariño D.O. Rías Baixas Frío', description: 'Servido en cunca blanca de loza tradicional gallega, mineral y afrutado.', price: 3.20, badge: 'Cunca Fría', allergens: [] }
+      ]
+    }
+  ],
+  bodega_enoteca: [
+    {
+      id: 'cat-bod-1',
+      name: 'Tablas de la Dehesa & Maridajes de Queso',
+      items: [
+        { id: 'bd-1', name: 'Tabla de Quesos Curados de Pastor con Frutos Secos', description: 'Selección de 5 quesos artesanos (oveja añejo, cabra payoya, idiazábal ahumado, azul y gouda viejo).', price: 18.00, badge: 'Selección Sommelier', allergens: ['Lácteos', 'Frutos de Cáscara'] },
+        { id: 'bd-2', name: 'Cecina de León I.G.P. Reserva con Almendras', description: 'Ahumada con leña de roble durante 12 meses y aliñada con aceite virgen extra picual.', price: 16.00, badge: 'Corte Fino', allergens: ['Frutos de Cáscara'] }
+      ]
+    },
+    {
+      id: 'cat-bod-2',
+      name: 'Vinos de Cava & Selección en Roble',
+      items: [
+        { id: 'bd-3', name: 'Copa de Ribera del Duero Pago Seleccionado', description: '18 meses en barrica nueva de roble francés, tanino sedoso y aromas a ciruela negra y cacao.', price: 5.50, badge: 'Copa Reserva', allergens: [] }
+      ]
+    }
+  ],
+  brutalist: [
+    {
+      id: 'cat-bru-1',
+      name: 'RAW BITES // NO COMPROMISE',
+      items: [
+        { id: 'br-1', name: 'Smoked Pastrami Sourdough Melt', description: '200g of dry-cured beef brisket, melted aged cheddar, house pickles and hot grain mustard.', price: 12.50, badge: 'HEAVY LOAD', allergens: ['Gluten', 'Lácteos'] },
+        { id: 'br-2', name: 'Triple Smash Beef with Crispy Shallots', description: 'Three 80g patties seared with extreme pressure, bone marrow mayo, toasted milk bun.', price: 13.90, badge: 'RAW MAILLARD', allergens: ['Gluten', 'Lácteos'] }
+      ]
+    }
+  ],
+  minimalist: [
+    {
+      id: 'cat-min-1',
+      name: 'GASTRONOMIE // PURETÉ DES ÉLÉMENTS',
+      items: [
+        { id: 'mi-1', name: 'Saint-Jacques Dorée au Bouillon Dashi & Truffe', description: 'Vieira salvaje de buceo sellada al segundo sobre caldo dashi clarificado y trufa negra fresca.', price: 22.00, badge: 'Épure', allergens: ['Moluscos'] },
+        { id: 'mi-2', name: 'Filet de Chevreuil aux Baies Sauvages & Cendre', description: 'Solomillo de ciervo con emulsión de arándanos silvestres y raíz de salsifí asada.', price: 29.00, badge: 'Précision', allergens: [] }
+      ]
+    }
+  ],
+  velvet: [
+    {
+      id: 'cat-vel-1',
+      name: 'Speakeasy Cocktails & Reserved Bites',
+      items: [
+        { id: 'vl-1', name: 'Black Velvet Truffle Manhattan', description: 'Rye whiskey añejado en roble carbonizado, vermut rosso infusionado en trufa negra y cereza amarena.', price: 15.00, badge: 'Private Reserve', allergens: [] },
+        { id: 'vl-2', name: 'Mini Brioches de Bogavante con Mayonesa de Yuzu', description: 'Pan brioche dorado a la mantequilla noisette con carne fresca de bogavante azul.', price: 17.50, badge: 'Bocado VIP', allergens: ['Gluten', 'Crustáceos', 'Lácteos'] }
+      ]
+    }
+  ],
+  tecnodiel_elite: [
+    {
+      id: 'cat-tec-1',
+      name: 'Platos Insignia de Alta Fidelidad',
+      items: [
+        { id: 'te-1', name: 'Chuletón Madurado 60 Días al Carbón de Encina', description: 'Infiltración premium cortado a lomo con pimientos del piquillo confitados 4 horas.', price: 65.00, badge: 'Top Ventas', allergens: [] },
+        { id: 'te-2', name: 'Arroz Meloso con Carabineros de Huelva', description: 'Fondo concentrado de marisco atlántico con dos carabineros gigantes a la brasa.', price: 26.00, badge: 'Plato Estrella', allergens: ['Crustáceos'] }
       ]
     }
   ]

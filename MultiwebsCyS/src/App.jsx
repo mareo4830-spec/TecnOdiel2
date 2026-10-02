@@ -33,7 +33,7 @@ function detectTenantSlug() {
   return null;
 }
 
-export default function App() {
+export default function App({ onNavigateToLanding, onNavigateToMultiwebs }) {
   const [clinics, setClinics] = useState([]);
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'public_clinic', 'standalone_tenant'
   const [activeClinic, setActiveClinic] = useState(null);
@@ -41,7 +41,7 @@ export default function App() {
   const [singleClinic, setSingleClinic] = useState(null);
   const [isLoadingPublic, setIsLoadingPublic] = useState(false);
   const [tenantSlug, setTenantSlug] = useState(() => detectTenantSlug());
-  const [introFinished, setIntroFinished] = useState(false);
+  const [introFinished, setIntroFinished] = useState(true);
 
   const loadData = async () => {
     const list = await fetchClinics();
@@ -209,6 +209,8 @@ export default function App() {
             onOpenWizard={handleOpenWizard}
             onViewHome={handleBackToDashboard}
             currentView={currentView}
+            onNavigateToLanding={onNavigateToLanding}
+            onNavigateToMultiwebs={onNavigateToMultiwebs}
           />
 
           <DashboardOverview

@@ -57,43 +57,19 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs que Factur
   useEffect(() => {
     let wheelTimeout = null;
 
-    // 1. Mouse wheel / trackpad: gradual progressive fade-out
+    // 1. Mouse wheel / trackpad: instant responsive dismiss
     const handleWheel = (e) => {
       if (isCompletedRef.current || isAnimatingExitRef.current) return;
-
-      if (e.deltaY > 0) {
-        // Scrolling down -> fade out
-        accumulatedScroll.current += Math.max(e.deltaY * 0.45, 10);
-      } else if (e.deltaY < 0) {
-        // Scrolling up -> fade back in
-        accumulatedScroll.current = Math.max(0, accumulatedScroll.current + e.deltaY * 0.45);
-      }
-
-      // 120px total scroll distance for complete fade
-      const targetP = Math.min(Math.max(accumulatedScroll.current / 120, 0), 1);
-      progressRef.current = targetP;
-      setProgress(targetP);
-
-      if (targetP >= 0.85) {
+      if (Math.abs(e.deltaY) > 12) {
         completeIntro();
-      } else {
-        // If user stops scrolling before completing, gently restore
-        clearTimeout(wheelTimeout);
-        wheelTimeout = setTimeout(() => {
-          if (!isCompletedRef.current && !isAnimatingExitRef.current && progressRef.current < 0.85) {
-            accumulatedScroll.current = 0;
-            animateTo(0, 280);
-          }
-        }, 900);
       }
     };
 
-    // 2. Touch gesture handling: fluid finger tracking
+    // 2. Touch gesture handling: instant fluid response
     const handleTouchStart = (e) => {
       if (isCompletedRef.current || isAnimatingExitRef.current) return;
       if (e.touches && e.touches.length > 0) {
         touchStartY.current = e.touches[0].clientY;
-        touchStartX.current = e.touches[0].clientX;
       }
     };
 
@@ -102,32 +78,16 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs que Factur
       if (touchStartY.current === null || !e.touches || e.touches.length === 0) return;
 
       const currentY = e.touches[0].clientY;
-      const currentX = e.touches[0].clientX;
       const deltaY = currentY - touchStartY.current;
-      const deltaX = currentX - touchStartX.current;
 
-      // Only respond to predominantly vertical movement
-      if (Math.abs(deltaY) > Math.abs(deltaX)) {
-        const distance = Math.abs(deltaY);
-        // 130px distance for full progressive fade
-        const p = Math.min(Math.max(distance / 130, 0), 1);
-        progressRef.current = p;
-        setProgress(p);
+      if (Math.abs(deltaY) > 18) {
+        completeIntro();
       }
     };
 
     const handleTouchEnd = () => {
       if (isCompletedRef.current || isAnimatingExitRef.current) return;
       touchStartY.current = null;
-      touchStartX.current = null;
-
-      // If user pulled past 30%, smoothly complete the exit
-      if (progressRef.current >= 0.3) {
-        completeIntro();
-      } else {
-        // Otherwise, spring back smoothly
-        animateTo(0, 240);
-      }
     };
 
     // 3. Fallback window scroll listener
@@ -235,8 +195,11 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs que Factur
           duration: 3,
           ease: 'easeInOut',
         }}
-        style={{ opacity: (1 - progress) * 0.25 }}
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-emerald-500/20 via-white/10 to-cyan-500/20 blur-[130px] rounded-full"
+        style={{ 
+          opacity: (1 - progress) * 0.35,
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.15) 45%, transparent 70%)'
+        }}
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] transform-gpu will-change-transform rounded-full"
       />
 
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-6xl">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, UtensilsCrossed, Store, Stethoscope, Briefcase, ArrowRight, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 
-export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
+export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs, onNavigateToCyS }) {
   const [selectedDisabledSector, setSelectedDisabledSector] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
 
@@ -36,10 +36,23 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
       if (onNavigateToMultiwebs) {
         onNavigateToMultiwebs();
       } else {
-        // Fallback for standalone preview
+        // Fallback for direct hash navigation
         window.location.hash = '#/multiwebs';
       }
-    }, 300);
+    }, 200);
+  };
+
+  const handleSelectClinic = () => {
+    setIsNavigating(true);
+    setTimeout(() => {
+      if (onClose) onClose();
+      if (onNavigateToCyS) {
+        onNavigateToCyS();
+      } else {
+        // Fallback for direct hash navigation
+        window.location.hash = '#/cys';
+      }
+    }, 200);
   };
 
   const handleSelectDisabled = (sectorName) => {
@@ -60,6 +73,16 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
       actionText: 'Crear Mi Web en 2 Minutos'
     },
     {
+      id: 'clinica',
+      name: 'Clínicas y Salud',
+      icon: Stethoscope,
+      active: true,
+      badge: 'DISPONIBLE AHORA',
+      badgeColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
+      description: 'Cita previa online 24/7 con selección de mutuas (Adeslas, Sanitas...), tratamientos y recordatorios automáticos.',
+      actionText: 'Crear Mi Web en 2 Minutos'
+    },
+    {
       id: 'comercio',
       name: 'Tiendas y Comercio Local',
       icon: Store,
@@ -67,16 +90,6 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
       badge: 'PRÓXIMAMENTE',
       badgeColor: 'text-zinc-400 bg-white/5 border-white/10',
       description: 'Catálogo de productos y cobros rápidos con Bizum.',
-      actionText: 'Próximamente'
-    },
-    {
-      id: 'clinica',
-      name: 'Clínicas y Salud',
-      icon: Stethoscope,
-      active: false,
-      badge: 'PRÓXIMAMENTE',
-      badgeColor: 'text-zinc-400 bg-white/5 border-white/10',
-      description: 'Cita previa online y recordatorios por WhatsApp.',
       actionText: 'Próximamente'
     },
     {
@@ -145,7 +158,9 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
           <div className="space-y-3 sm:space-y-4">
             {sectors.map((sector) => {
               const Icon = sector.icon;
-              const isRestaurante = sector.active;
+              const isRestaurante = sector.id === 'restaurante';
+              const isClinica = sector.id === 'clinica';
+              const isAvailable = sector.active;
 
               return (
                 <div
@@ -153,6 +168,8 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                   onClick={() => {
                     if (isRestaurante) {
                       handleSelectRestaurant();
+                    } else if (isClinica) {
+                      handleSelectClinic();
                     } else {
                       handleSelectDisabled(sector.name);
                     }
@@ -160,6 +177,8 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                   className={`group relative rounded-2xl border p-4 sm:p-5 transition-all duration-300 cursor-pointer text-left ${
                     isRestaurante
                       ? 'border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/30 hover:border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30'
+                      : isClinica
+                      ? 'border-cyan-500/40 bg-cyan-950/20 hover:bg-cyan-950/30 hover:border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.15)] ring-1 ring-cyan-500/30'
                       : 'border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/20 opacity-75 hover:opacity-90'
                   }`}
                 >
@@ -168,6 +187,8 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                       <div className={`p-2.5 rounded-xl border ${
                         isRestaurante 
                           ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' 
+                          : isClinica
+                          ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-400'
                           : 'bg-white/5 border-white/10 text-zinc-400'
                       }`}>
                         <Icon className="w-5 h-5" />
@@ -189,8 +210,12 @@ export default function AuditModal({ isOpen, onClose, onNavigateToMultiwebs }) {
                   </p>
 
                   <div className="sm:pl-12 flex items-center justify-between pt-1 border-t border-white/5">
-                    {isRestaurante ? (
-                      <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                    {isAvailable ? (
+                      <span className={`inline-flex items-center gap-2 text-xs font-bold transition-colors ${
+                        isClinica 
+                          ? 'text-cyan-400 group-hover:text-cyan-300' 
+                          : 'text-emerald-400 group-hover:text-emerald-300'
+                      }`}>
                         <span>{isNavigating ? 'Abriendo Creador Web...' : sector.actionText}</span>
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </span>

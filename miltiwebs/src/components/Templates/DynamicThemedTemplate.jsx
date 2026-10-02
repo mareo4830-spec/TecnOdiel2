@@ -150,6 +150,160 @@ export const TEMPLATE_THEMES = {
     defaultAccent: '#a855f7',
     defaultBg: '#010914',
     defaultSurface: '#04172a'
+  },
+  pizzeria_napolitana: {
+    icon: Pizza,
+    tagline: 'Pizzería Napolitana & Forno a Legna',
+    badgeText: 'Horno de Leña 480°C • Fermentazione 72H',
+    styleClass: 'theme-pizza',
+    archetype: 'pizzeria_napoli',
+    cardBorder: 'border-rose-900/40 hover:border-rose-500 shadow-md',
+    buttonShape: 'rounded-2xl font-serif font-bold',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#e11d48',
+    defaultAccent: '#22c55e',
+    defaultBg: '#14070a',
+    defaultSurface: '#220d12'
+  },
+  trattoria_italiana: {
+    icon: Utensils,
+    tagline: 'Trattoria Toscana & Pasta Fresca',
+    badgeText: 'Pasta Fatta a Mano & Vino Chianti',
+    styleClass: 'theme-trattoria',
+    archetype: 'trattoria_toscana',
+    cardBorder: 'border-amber-700/40 hover:border-amber-500 shadow-md',
+    buttonShape: 'rounded-xl font-serif font-bold',
+    badgeShape: 'rounded-md',
+    defaultPrimary: '#f59e0b',
+    defaultAccent: '#84cc16',
+    defaultBg: '#160d07',
+    defaultSurface: '#27170e'
+  },
+  taqueria_fiesta: {
+    icon: Flame,
+    tagline: 'Cantina Mexicana & Taquería Callejera',
+    badgeText: 'Maíz Nixtamalizado // Barra de Mezcal',
+    styleClass: 'theme-taqueria',
+    archetype: 'taqueria_mexicana',
+    cardBorder: 'border-orange-500/40 hover:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)]',
+    buttonShape: 'rounded-xl font-black uppercase tracking-wider',
+    badgeShape: 'rounded-lg',
+    defaultPrimary: '#f97316',
+    defaultAccent: '#10b981',
+    defaultBg: '#170b04',
+    defaultSurface: '#281409'
+  },
+  beach_club: {
+    icon: Sun,
+    tagline: 'Beach Club & Chiringuito Mediterráneo',
+    badgeText: 'Sunset Sessions // Arroces Frente al Mar',
+    styleClass: 'theme-beach',
+    archetype: 'beach_club_med',
+    cardBorder: 'border-sky-500/30 hover:border-sky-400 shadow-md',
+    buttonShape: 'rounded-full font-sans tracking-wide font-bold',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#38bdf8',
+    defaultAccent: '#facc15',
+    defaultBg: '#04151f',
+    defaultSurface: '#082333'
+  },
+  coffee_specialty: {
+    icon: Coffee,
+    tagline: 'Specialty Coffee Roaster & Bakery',
+    badgeText: 'Orígenes Únicos // +88 Puntos SCA',
+    styleClass: 'theme-coffee',
+    archetype: 'specialty_coffee',
+    cardBorder: 'border-amber-800/40 hover:border-amber-500 shadow-sm',
+    buttonShape: 'rounded-lg font-mono font-medium',
+    badgeShape: 'rounded-md',
+    defaultPrimary: '#d97706',
+    defaultAccent: '#fbbf24',
+    defaultBg: '#140d07',
+    defaultSurface: '#23170e'
+  },
+  pulperia_gallega: {
+    icon: Fish,
+    tagline: 'Pulpería Tradicional da Ría',
+    badgeText: 'Caldero de Cobre & Cuncas de Ribeiro',
+    styleClass: 'theme-pulperia',
+    archetype: 'pulperia_tradicional',
+    cardBorder: 'border-red-800/50 hover:border-red-500 shadow-md',
+    buttonShape: 'rounded-xl font-serif font-bold',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#dc2626',
+    defaultAccent: '#ca8a04',
+    defaultBg: '#160907',
+    defaultSurface: '#27120e'
+  },
+  bodega_enoteca: {
+    icon: Wine,
+    tagline: 'Bodega Subterránea & Enoteca',
+    badgeText: 'Duelas de Roble & Vinos de Guarda',
+    styleClass: 'theme-bodega',
+    archetype: 'bodega_enoteca',
+    cardBorder: 'border-purple-800/40 hover:border-purple-400 shadow-lg',
+    buttonShape: 'rounded-xl font-serif font-bold',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#9333ea',
+    defaultAccent: '#eab308',
+    defaultBg: '#110617',
+    defaultSurface: '#1e0c27'
+  },
+  brutalist: {
+    icon: Zap,
+    tagline: 'Raw Neo-Brutalism & Street Beats',
+    badgeText: 'RAW DESIGN // 0% COMPROMISE',
+    styleClass: 'theme-brutalist',
+    archetype: 'brutalist_raw',
+    cardBorder: 'border-2 border-yellow-300 shadow-[4px_4px_0px_#ccff00]',
+    buttonShape: 'rounded-none uppercase font-black tracking-widest',
+    badgeShape: 'rounded-none font-mono',
+    defaultPrimary: '#ccff00',
+    defaultAccent: '#ffffff',
+    defaultBg: '#050505',
+    defaultSurface: '#111115'
+  },
+  minimalist: {
+    icon: Moon,
+    tagline: 'Arquitectura Gastronómica & Silencio',
+    badgeText: 'ÉPURE // SILENCIO VISUAL',
+    styleClass: 'theme-minimalist',
+    archetype: 'minimalist_pure',
+    cardBorder: 'border-white/10 hover:border-white/40',
+    buttonShape: 'rounded-full uppercase tracking-widest text-xs font-light',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#ffffff',
+    defaultAccent: '#a1a1aa',
+    defaultBg: '#000000',
+    defaultSurface: '#0a0a0d'
+  },
+  velvet: {
+    icon: GlassWater,
+    tagline: 'Velvet Speakeasy & Private Booths',
+    badgeText: 'Clandestino Exclusivo // Velvet & Gold',
+    styleClass: 'theme-velvet',
+    archetype: 'velvet_lounge',
+    cardBorder: 'border-rose-900/40 hover:border-rose-400 shadow-lg',
+    buttonShape: 'rounded-2xl font-serif font-medium',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#e11d48',
+    defaultAccent: '#fbbf24',
+    defaultBg: '#0a0306',
+    defaultSurface: '#180810'
+  },
+  tecnodiel_elite: {
+    icon: Sparkles,
+    tagline: 'TecnOdiel Titanium Flagship',
+    badgeText: 'High-Converting Web Engine // 0.2s',
+    styleClass: 'theme-tecnodiel',
+    archetype: 'tecnodiel_titanium',
+    cardBorder: 'border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]',
+    buttonShape: 'rounded-xl font-bold tracking-tight',
+    badgeShape: 'rounded-full',
+    defaultPrimary: '#10b981',
+    defaultAccent: '#34d399',
+    defaultBg: '#020604',
+    defaultSurface: '#05140b'
   }
 };
 
@@ -2283,6 +2437,222 @@ export default function DynamicThemedTemplate({
             <span className="text-[11px] font-mono text-sky-400 bg-sky-950/60 px-3 py-1 rounded-full border border-sky-800">
               GARANTÍA DE PESCA DEL DÍA: 100% TRAZABILIDAD
             </span>
+          </div>
+        )}
+
+        {archetype === 'pizzeria_napoli' && (
+          <div className="p-5 rounded-2xl border border-rose-900/60 bg-[#1e0a0f] shadow-lg font-serif">
+            <div className="flex items-center gap-2 text-rose-400 font-bold uppercase tracking-wider text-xs mb-3">
+              <Pizza className="w-4 h-4 text-rose-500" />
+              <span>DISCIPLINA DE LA PIZZA VERACE NAPOLETANA (D.O.P.):</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs text-rose-200/90 font-sans">
+              <div className="p-3 bg-black/40 rounded-xl border border-rose-950">
+                <span className="text-white font-bold block mb-1">1. IMPASTO 72H</span>
+                Fermentación natural en frío sin prisas para máxima digestibilidad.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-rose-950">
+                <span className="text-white font-bold block mb-1">2. FORNO 480°C</span>
+                Cocción de 60 a 90 segundos sobre piedra volcánica napolitana.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-rose-950">
+                <span className="text-white font-bold block mb-1">3. CORNICIONE ALTO</span>
+                Borde inflado, elástico y con alveolado perfecto.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-rose-950">
+                <span className="text-white font-bold block mb-1">4. FIORDILATTE D.O.P.</span>
+                Queso de Agerola y tomate San Marzano triturado a mano.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'trattoria_toscana' && (
+          <div className="p-5 rounded-2xl border border-amber-800/60 bg-[#24130b] shadow-lg font-serif">
+            <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider text-xs mb-3">
+              <Utensils className="w-4 h-4 text-amber-500" />
+              <span>TRADIZIONE DI FAMIGLIA & PASTA FATTA A MANO:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-amber-200/90 font-sans">
+              <div className="p-3 bg-black/40 rounded-xl border border-amber-900/50">
+                <span className="text-white font-bold block mb-1">PASTA FRESCA AL DÍA</span>
+                Amasada cada mañana con sémola de trigo duro y huevos camperos.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-amber-900/50">
+                <span className="text-white font-bold block mb-1">RAGÙ TOSCANO 8 HORAS</span>
+                Cocción lenta con carnes selectas y vino tinto Chianti.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-amber-900/50">
+                <span className="text-white font-bold block mb-1">BURRATA DI BUFALA</span>
+                Directa desde Italia cada semana con aceite toscano.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'taqueria_mexicana' && (
+          <div className="p-5 rounded-2xl border border-orange-500/40 bg-[#261208] shadow-lg">
+            <div className="flex items-center gap-2 text-orange-400 font-bold uppercase tracking-wider text-xs mb-3">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span>FIESTA EN EL TACO // MAÍZ CRIOLLO NIXTAMALIZADO:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs text-orange-200">
+              <div className="p-3 bg-zinc-950 rounded-xl border border-orange-950">
+                <span className="text-orange-400 font-bold block mb-1">TROMPO AL PASTOR</span>
+                Cerdo al achiote cortado fino con piña asada al carbón.
+              </div>
+              <div className="p-3 bg-zinc-950 rounded-xl border border-orange-950">
+                <span className="text-orange-400 font-bold block mb-1">TORTILLAS A MANO</span>
+                Prensadas al momento sobre comal caliente de hierro.
+              </div>
+              <div className="p-3 bg-zinc-950 rounded-xl border border-orange-950">
+                <span className="text-orange-400 font-bold block mb-1">SALSAS TATEMADAS</span>
+                Desde habanero explosivo hasta salsa verde asada.
+              </div>
+              <div className="p-3 bg-zinc-950 rounded-xl border border-orange-950">
+                <span className="text-orange-400 font-bold block mb-1">BARRA DE MEZCAL</span>
+                Mezcales oaxaqueños con sal de gusano y naranja.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'beach_club_med' && (
+          <div className="p-5 rounded-2xl border border-sky-500/30 bg-[#082233] shadow-lg">
+            <div className="flex items-center gap-2 text-sky-400 font-bold uppercase tracking-wider text-xs mb-3">
+              <Sun className="w-4 h-4 text-yellow-400" />
+              <span>EXPERIENCIA BEACH CLUB // MEDITERRÁNEO & SUNSET:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-sky-200">
+              <div className="p-3 bg-black/40 rounded-xl border border-sky-900/50">
+                <span className="text-white font-bold block mb-1">ARROCES A LA LEÑA</span>
+                Cocinado sobre sarmiento con socarrat crujiente de marisco.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-sky-900/50">
+                <span className="text-white font-bold block mb-1">CAMAS BALINESAS</span>
+                Servicio exclusivo de toallas, champán y fruta fresca.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-sky-900/50">
+                <span className="text-white font-bold block mb-1">SUNSET SESSIONS</span>
+                DJ residente al atardecer y cócteles frente a las olas.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'specialty_coffee' && (
+          <div className="p-5 rounded-xl border border-amber-800/40 bg-[#1f130b] font-mono text-xs">
+            <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider mb-2">
+              <Coffee className="w-4 h-4 text-amber-500" />
+              <span>MÉTODOS DE EXTRACCIÓN & NOTAS DE CATA:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-zinc-300 text-[11px]">
+              <div className="p-2.5 bg-black/50 border border-amber-950 rounded-lg">
+                <span className="text-amber-300 font-bold block">V60 / KALITA WAVE</span>
+                Taza limpia y floral, extrayendo los matices del grano.
+              </div>
+              <div className="p-2.5 bg-black/50 border border-amber-950 rounded-lg">
+                <span className="text-amber-300 font-bold block">FLAT WHITE DE GRANJA</span>
+                Espresso doble + leche micro-emulsionada a 62°C.
+              </div>
+              <div className="p-2.5 bg-black/50 border border-amber-950 rounded-lg">
+                <span className="text-amber-300 font-bold block">COLD BREW NITRO 18H</span>
+                Maceración en frío con infusión de nitrógeno cremoso.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'pulperia_tradicional' && (
+          <div className="p-5 rounded-2xl border-2 border-red-900/50 bg-[#25100c] shadow-lg font-serif">
+            <div className="flex items-center gap-2 text-red-400 font-bold uppercase tracking-wider text-xs mb-3">
+              <Fish className="w-4 h-4 text-red-500" />
+              <span>TRADICIÓN DA RÍA // COBRE & CASTAÑO:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-red-200/90 font-sans">
+              <div className="p-3 bg-black/40 rounded-xl border border-red-950">
+                <span className="text-white font-bold block mb-1">CALDERO DE COBRE</span>
+                El pulpo se asusta tres veces y se cuece al dente en agua de mar.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-red-950">
+                <span className="text-white font-bold block mb-1">PLATO DE CASTAÑO</span>
+                La madera de castaño potencia el aroma del pimentón de la Vera.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-red-950">
+                <span className="text-white font-bold block mb-1">CUNCAS DE RIBEIRO</span>
+                Vino blanco gallego servido en cunca tradicional fría.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'bodega_enoteca' && (
+          <div className="p-5 rounded-2xl border border-purple-800/40 bg-[#1c0b25] shadow-lg font-serif">
+            <div className="flex items-center gap-2 text-purple-300 font-bold uppercase tracking-wider text-xs mb-3">
+              <Wine className="w-4 h-4 text-purple-400" />
+              <span>CAVA DE GUARDA & SELECCIÓN ENOLÓGICA:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-purple-200/90 font-sans">
+              <div className="p-3 bg-black/40 rounded-xl border border-purple-950">
+                <span className="text-white font-bold block mb-1">+250 REFERENCIAS</span>
+                Vinos de guarda, pequeños viticultores y añadas históricas.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-purple-950">
+                <span className="text-white font-bold block mb-1">COPAS RIEDEL</span>
+                Cristalería de precisión para oxigenar y revelar cada buqué.
+              </div>
+              <div className="p-3 bg-black/40 rounded-xl border border-purple-950">
+                <span className="text-white font-bold block mb-1">MARIDAJE DE QUESOS</span>
+                Quesos artesanos de pastor afinados junto a confituras.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'brutalist_raw' && (
+          <div className="border-2 border-yellow-300 bg-black p-4 font-mono text-xs shadow-[4px_4px_0px_#ccff00]">
+            <div className="flex items-center justify-between text-[#ccff00] font-black uppercase tracking-widest text-[11px] mb-2">
+              <span>/// RAW SPECIFICATION /// UNDERGROUND MODE</span>
+              <span>100% ONLINE</span>
+            </div>
+            <div className="text-zinc-300 text-[11px] flex flex-wrap gap-4">
+              <span>0% COMISIONES</span>
+              <span>SIN INTERMEDIARIOS</span>
+              <span>CARGA EN 0.1s</span>
+              <span className="text-white font-bold">RESERVAS DIRECTAS</span>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'minimalist_pure' && (
+          <div className="py-6 border-y border-white/10 text-center font-light text-zinc-400 text-xs tracking-[0.25em] uppercase">
+            <span className="text-white font-normal">ÉPURE & PRÉCISION</span> • INGREDIENTES PUROS DE TEMPORADA • ARMONÍA VISUAL
+          </div>
+        )}
+
+        {archetype === 'velvet_lounge' && (
+          <div className="p-5 rounded-2xl border border-rose-900/40 bg-[#16060e] shadow-xl">
+            <div className="flex items-center justify-between gap-4 text-xs font-mono text-rose-300">
+              <div className="flex items-center gap-2">
+                <GlassWater className="w-4 h-4 text-rose-400" />
+                <span>VELVET SPEAKEASY // RESERVADOS & JAZZ EN DIRECTO</span>
+              </div>
+              <span className="text-zinc-400 text-[11px]">COCTELERÍA CLANDESTINA • CÓDIGO ELEGANTE</span>
+            </div>
+          </div>
+        )}
+
+        {archetype === 'tecnodiel_titanium' && (
+          <div className="p-5 rounded-2xl border border-emerald-500/40 bg-zinc-950/80 shadow-[0_0_30px_rgba(16,185,129,0.15)] flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-wider">
+              <Sparkles className="w-4 h-4" />
+              <span>TECNODIEL ENGINE // MÁXIMA VELOCIDAD & CONVERSIÓN:</span>
+            </div>
+            <div className="flex items-center gap-4 text-zinc-300 text-[11px] font-mono">
+              <span>CARGA: <strong className="text-emerald-400">0.2s</strong></span>
+              <span>PEDIDOS: <strong className="text-white">WHATSAPP DIRECTO</strong></span>
+              <span>COMISIONES: <strong className="text-emerald-400">0.00€</strong></span>
+            </div>
           </div>
         )}
       </section>

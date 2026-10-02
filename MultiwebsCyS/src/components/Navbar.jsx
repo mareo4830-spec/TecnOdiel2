@@ -1,12 +1,28 @@
 import React from 'react';
 import { Plus, Stethoscope, Globe, ExternalLink, ShieldCheck } from 'lucide-react';
 
-export default function Navbar({ onOpenWizard, onViewHome, currentView }) {
+export default function Navbar({ onOpenWizard, onViewHome, currentView, onNavigateToLanding, onNavigateToMultiwebs }) {
+  const handleGoRestaurantes = () => {
+    if (onNavigateToMultiwebs) {
+      onNavigateToMultiwebs();
+    } else {
+      window.location.hash = '#/multiwebs';
+    }
+  };
+
+  const handleGoLanding = () => {
+    if (onNavigateToLanding) {
+      onNavigateToLanding();
+    } else {
+      window.location.hash = '#/';
+    }
+  };
+
   return (
     <header className="h-16 border-b border-white/10 bg-zinc-950/90 backdrop-blur-2xl px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40">
       <div className="flex items-center gap-3">
         <button
-          onClick={onViewHome}
+          onClick={onViewHome || handleGoLanding}
           className="flex items-center gap-2.5 text-left group cursor-pointer"
         >
           <div className="w-9 h-9 rounded-xl bg-cyan-950/80 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition shadow-sm">
@@ -29,16 +45,22 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView }) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        <a
-          href="http://localhost:5173"
-          target="_blank"
-          rel="noreferrer"
+        <button
+          onClick={handleGoLanding}
+          className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition hidden sm:flex items-center gap-1.5 cursor-pointer"
+          title="Ir al inicio de TecnOdiel"
+        >
+          <span>Inicio TecnOdiel</span>
+        </button>
+
+        <button
+          onClick={handleGoRestaurantes}
           className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition hidden md:flex items-center gap-1.5 cursor-pointer"
           title="Abrir plataforma de Restaurantes"
         >
           <Globe className="w-3.5 h-3.5 text-emerald-400" />
           <span>Multiwebs Restaurantes</span>
-        </a>
+        </button>
 
         <button
           onClick={onOpenWizard}

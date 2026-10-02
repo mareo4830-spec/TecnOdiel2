@@ -830,17 +830,17 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-semibold text-zinc-300">
-                      7. ¿Qué estilo de diseño le pega más a tu local? (30 Plantillas Disponibles)
+                      7. ¿Qué estilo de diseño le pega más a tu local? ({TEMPLATES.length} Plantillas Especializadas)
                     </label>
                     <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      30 Estilos Únicos
+                      {TEMPLATES.length} Estilos Únicos
                     </span>
                   </div>
 
                   {/* Filter Tabs */}
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 no-scrollbar">
                     {[
-                      { id: 'all', label: 'Todos (30)' },
+                      { id: 'all', label: `Todos (${TEMPLATES.length})` },
                       { id: 'night_bar', label: 'Copas & Noche' },
                       { id: 'gastronomic', label: 'Alta Cocina' },
                       { id: 'trattoria', label: 'Tradición & Brasa' },
