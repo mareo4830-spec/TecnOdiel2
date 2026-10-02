@@ -1058,7 +1058,7 @@ export default function DynamicThemedTemplate({
           {/* Kinetic Marquee Ticker */}
           <div className="mb-6 overflow-hidden rounded-xl bg-yellow-400 text-black py-2.5 font-black uppercase text-xs tracking-widest shadow-lg flex items-center whitespace-nowrap">
             <div className="flex items-center gap-8 animate-marquee">
-              <span>🔥 100% CARNE DE VACA MADURADA</span>
+              <span>100% CARNE DE VACA MADURADA</span>
               <span>•</span>
               <span>SMASH CRUNCHY EDGES</span>
               <span>•</span>
@@ -1068,7 +1068,7 @@ export default function DynamicThemedTemplate({
               <span>•</span>
               <span>PATATAS CORTE CASERO TRIPLE COCCIÓN</span>
               <span>•</span>
-              <span>🔥 PEDIDOS ONLINE & TAKE AWAY</span>
+              <span>PEDIDOS ONLINE & TAKE AWAY</span>
             </div>
           </div>
 
@@ -1209,7 +1209,7 @@ export default function DynamicThemedTemplate({
                       className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
                     />
                     <div className="absolute top-3 right-3 bg-yellow-400 text-black font-black text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider rotate-3 shadow-md">
-                      ★ Best Seller
+                      Top Ventas
                     </div>
                   </div>
                 </div>

@@ -112,6 +112,14 @@ export default function DashboardOverview({ clinics = [], onOpenWizard, onSelect
           </button>
           {CLINIC_CATEGORIES.map(cat => {
             const count = clinics.filter(c => c.category === cat.id).length;
+            const CategoryIcon = cat.id === 'fisioterapia' ? HeartPulse
+              : cat.id === 'estetica' ? Sparkles
+              : cat.id === 'policlinica' ? Activity
+              : cat.id === 'psicologia' ? Users
+              : cat.id === 'oftalmologia' ? Eye
+              : cat.id === 'veterinaria' ? ShieldCheck
+              : Stethoscope;
+
             return (
               <button
                 key={cat.id}
@@ -123,7 +131,7 @@ export default function DashboardOverview({ clinics = [], onOpenWizard, onSelect
                     : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
                 }`}
               >
-                <span>{cat.icon}</span>
+                <CategoryIcon className="w-3.5 h-3.5" />
                 <span>{cat.name}</span>
                 {count > 0 && <span className="opacity-70">({count})</span>}
               </button>
@@ -134,7 +142,14 @@ export default function DashboardOverview({ clinics = [], onOpenWizard, onSelect
         {/* Clinics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredClinics.map(clinic => {
-            const catObj = CLINIC_CATEGORIES.find(c => c.id === clinic.category);
+            const ClinicIcon = clinic.category === 'fisioterapia' ? HeartPulse
+              : clinic.category === 'estetica' ? Sparkles
+              : clinic.category === 'policlinica' ? Activity
+              : clinic.category === 'psicologia' ? Users
+              : clinic.category === 'oftalmologia' ? Eye
+              : clinic.category === 'veterinaria' ? ShieldCheck
+              : Stethoscope;
+
             return (
               <div
                 key={clinic.id || clinic.slug}
@@ -145,10 +160,10 @@ export default function DashboardOverview({ clinics = [], onOpenWizard, onSelect
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-md shrink-0"
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center text-cyan-400 shadow-md shrink-0"
                         style={{ backgroundColor: `${clinic.primary_color || '#06b6d4'}25` }}
                       >
-                        {catObj?.icon || '🩺'}
+                        <ClinicIcon className="w-6 h-6" />
                       </div>
                       <div>
                         <h3 className="font-bold text-base sm:text-lg text-white group-hover:text-cyan-300 transition">

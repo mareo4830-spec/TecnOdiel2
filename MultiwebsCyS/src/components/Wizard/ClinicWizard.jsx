@@ -461,21 +461,31 @@ export default function ClinicWizard({ onCreated, onCancel }) {
                       Especialidad Principal del Centro
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {CLINIC_CATEGORIES.map(cat => (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          onClick={() => handleCategorySelect(cat.id)}
-                          className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
-                            formData.category === cat.id
-                              ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold shadow-sm'
-                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                          }`}
-                        >
-                          <span className="text-lg">{cat.icon}</span>
-                          <span className="text-xs">{cat.name}</span>
-                        </button>
-                      ))}
+                      {CLINIC_CATEGORIES.map(cat => {
+                        const CategoryIcon = cat.id === 'fisioterapia' ? HeartPulse
+                          : cat.id === 'estetica' ? Sparkles
+                          : cat.id === 'policlinica' ? Activity
+                          : cat.id === 'psicologia' ? Users
+                          : cat.id === 'oftalmologia' ? Eye
+                          : cat.id === 'veterinaria' ? ShieldCheck
+                          : Stethoscope;
+
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => handleCategorySelect(cat.id)}
+                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                              formData.category === cat.id
+                                ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold shadow-sm'
+                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                            }`}
+                          >
+                            <CategoryIcon className="w-5 h-5 text-cyan-400 shrink-0" />
+                            <span className="text-xs">{cat.name}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1179,8 +1189,9 @@ export default function ClinicWizard({ onCreated, onCancel }) {
 
                       {/* Image Size */}
                       <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                          📐 Tamaño / Altura de Foto
+                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase flex items-center gap-1.5">
+                          <Sliders className="w-3.5 h-3.5 text-zinc-400" />
+                          <span>Tamaño / Altura de Foto</span>
                         </label>
                         <div className="grid grid-cols-4 gap-1">
                           {[
@@ -1210,8 +1221,9 @@ export default function ClinicWizard({ onCreated, onCancel }) {
 
                       {/* Layout */}
                       <div className="space-y-1 sm:col-span-2">
-                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                          🖼️ Disposición de Portada
+                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase flex items-center gap-1.5">
+                          <Layout className="w-3.5 h-3.5 text-zinc-400" />
+                          <span>Disposición de Portada</span>
                         </label>
                         <div className="grid grid-cols-3 gap-1.5">
                           <button
@@ -1679,8 +1691,8 @@ export default function ClinicWizard({ onCreated, onCancel }) {
               <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-zinc-400">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    ✨ Pulsa cualquier texto, imagen o botón para editarlo
+                    <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Pulsa cualquier texto, imagen o botón para editarlo</span>
                   </span>
                 </div>
 

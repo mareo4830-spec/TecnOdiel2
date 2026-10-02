@@ -174,6 +174,7 @@ export default function App() {
           onIntroComplete={markIntroComplete}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
           onNavigateToLanding={() => navigateTo('landing')}
+          onNavigateToCyS={() => navigateTo('cys')}
         />
       )}
 

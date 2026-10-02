@@ -38,7 +38,7 @@ function detectTenantSlug() {
   return null;
 }
 
-export default function App({ onNavigateToPortal, onNavigateToLanding, initialIntroFinished = false, onIntroComplete }) {
+export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigateToCyS, initialIntroFinished = false, onIntroComplete }) {
   const [restaurants, setRestaurants] = useState([]);
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'manager', 'public_restaurant', 'standalone_tenant'
   const [activeRestaurant, setActiveRestaurant] = useState(null);
@@ -288,6 +288,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, initialIn
             currentView={currentView}
             onNavigateToPortal={onNavigateToPortal}
             onNavigateToLanding={onNavigateToLanding}
+            onNavigateToCyS={onNavigateToCyS}
           />
 
           <DashboardOverview

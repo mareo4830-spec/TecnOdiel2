@@ -1,5 +1,16 @@
 // Configuracion de plantillas y datos iniciales de alta gama para restauracion
 
+export const RESTAURANT_CATEGORIES = [
+  { id: 'tapas', name: 'Taberna, Tapas & Vinos', iconKey: 'tapas' },
+  { id: 'gastronomic', name: 'Alta Cocina & Autor', iconKey: 'gastronomic' },
+  { id: 'asador', name: 'Asador, Brasas & Carnes', iconKey: 'asador' },
+  { id: 'mediterranean', name: 'Marisquería & Arroces', iconKey: 'mediterranean' },
+  { id: 'pizzeria', name: 'Pizzería Napolitana & Trattoria', iconKey: 'pizzeria' },
+  { id: 'burger', name: 'Smash Burgers & Street Food', iconKey: 'burger' },
+  { id: 'night_bar', name: 'Coctelería & Night Club', iconKey: 'night_bar' },
+  { id: 'cafe', name: 'Specialty Coffee & Brunch', iconKey: 'cafe' }
+];
+
 export const TEMPLATES = [
   {
     id: 'tapas_andaluzas',
@@ -407,7 +418,7 @@ export const DEFAULT_MENUS_BY_STYLE = {
       id: 'cat-smash-1',
       name: 'Smash Burgers & Streetwear',
       items: [
-        { id: 's-1', name: 'Double Smash Oklahoma Fried Onion', description: 'Dos discos de 90g de buey aplastados a fuego con cebolla ultrafina, doble queso cheddar americano y salsa de la casa.', price: 11.90, badge: 'Best Seller ★', allergens: ['Gluten', 'Lácteos'] },
+        { id: 's-1', name: 'Double Smash Oklahoma Fried Onion', description: 'Dos discos de 90g de buey aplastados a fuego con cebolla ultrafina, doble queso cheddar americano y salsa de la casa.', price: 11.90, badge: 'Top Ventas', allergens: ['Gluten', 'Lácteos'] },
         { id: 's-2', name: 'Truffle Bacon Jam Smash', description: 'Doble carne madurada 45 días, mermelada casera de bacon crujiente, mayonesa de trufa negra y queso gouda fundido.', price: 13.50, badge: 'Favorita', allergens: ['Gluten', 'Lácteos'] },
         { id: 's-3', name: 'Crispy Korean Chicken Burger', description: 'Contramuslo crujiente marinado en buttermilk, salsa gochujang dulce-picante, encurtidos y col blanca.', price: 10.90, badge: 'Extra Crujiente', allergens: ['Gluten', 'Sésamo'] }
       ]
@@ -596,7 +607,7 @@ export const DEFAULT_MENUS_BY_STYLE = {
       id: 'cat-taq-1',
       name: 'Tacos en Tortilla de Maíz Nixtamalizado',
       items: [
-        { id: 'tq-1', name: 'Tacos al Pastor con Piña Asada al Carbón', description: 'Cerdo marinado en achiote y chiles secos, servido con piña tatemada, cilantro y cebolla (3 uds).', price: 11.50, badge: 'El Favorito ★', allergens: [] },
+        { id: 'tq-1', name: 'Tacos al Pastor con Piña Asada al Carbón', description: 'Cerdo marinado en achiote y chiles secos, servido con piña tatemada, cilantro y cebolla (3 uds).', price: 11.50, badge: 'El Favorito', allergens: [] },
         { id: 'tq-2', name: 'Tacos de Birria de Res con Consomé para Chopear', description: 'Carne jugosa cocinada a fuego lento con especias, queso Oaxaca fundido y taza de consomé.', price: 13.00, badge: 'Para Chopear', allergens: ['Lácteos'] },
         { id: 'tq-3', name: 'Tacos de Cochinita Pibil Yucateca', description: 'Cocción tradicional en hoja de plátano con frijoles refritos y cebolla morada encurtida al habanero.', price: 11.00, badge: 'Yucatán', allergens: [] }
       ]

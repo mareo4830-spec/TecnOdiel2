@@ -56,15 +56,15 @@ export const MEDICAL_INSURANCES = [
 ];
 
 export const CLINIC_CATEGORIES = [
-  { id: 'dental', name: 'Clínica Dental & Odontología', icon: '🦷' },
-  { id: 'policlinica', name: 'Centro Médico & Policlínica', icon: '🩺' },
-  { id: 'fisioterapia', name: 'Fisioterapia & Rehabilitación', icon: '💆' },
-  { id: 'estetica', name: 'Medicina Estética & Dermatología', icon: '✨' },
-  { id: 'psicologia', name: 'Psicología & Salud Mental', icon: '🧠' },
-  { id: 'veterinaria', name: 'Clínica & Hospital Veterinario', icon: '🐾' },
-  { id: 'oftalmologia', name: 'Oftalmología & Visión', icon: '👁️' },
-  { id: 'podologia', name: 'Podología & Biomecánica', icon: '🦶' },
-  { id: 'nutricion', name: 'Nutrición Clínica & Dietética', icon: '🥗' }
+  { id: 'dental', name: 'Clínica Dental & Odontología', iconKey: 'dental' },
+  { id: 'policlinica', name: 'Centro Médico & Policlínica', iconKey: 'policlinica' },
+  { id: 'fisioterapia', name: 'Fisioterapia & Rehabilitación', iconKey: 'fisioterapia' },
+  { id: 'estetica', name: 'Medicina Estética & Dermatología', iconKey: 'estetica' },
+  { id: 'psicologia', name: 'Psicología & Salud Mental', iconKey: 'psicologia' },
+  { id: 'veterinaria', name: 'Clínica & Hospital Veterinario', iconKey: 'veterinaria' },
+  { id: 'oftalmologia', name: 'Oftalmología & Visión', iconKey: 'oftalmologia' },
+  { id: 'podologia', name: 'Podología & Biomecánica', iconKey: 'podologia' },
+  { id: 'nutricion', name: 'Nutrición Clínica & Dietética', iconKey: 'nutricion' }
 ];
 
 export const TEMPLATES = [
