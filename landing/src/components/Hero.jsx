@@ -127,6 +127,21 @@ export default function Hero({ onOpenAudit }) {
           </span>
         </motion.div>
 
+        {/* Brand Logo Emblem */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.1 }}
+          className="mb-4 sm:mb-6 relative flex items-center justify-center"
+        >
+          <div className="absolute inset-0 rounded-full bg-cyan-400/20 blur-xl" />
+          <img
+            src="/logo.png"
+            alt="TecnOdiel Logo"
+            className="w-20 h-20 sm:w-28 sm:h-28 object-contain relative z-10 drop-shadow-[0_0_25px_rgba(45,212,191,0.5)]"
+          />
+        </motion.div>
+
         {/* Massive Cinematic Title with Split Staggered Spring Reveal */}
         <motion.h1
           variants={titleVariants}

@@ -233,6 +233,21 @@ export default function CinematicIntro({ onComplete, subtitle = "Solucionamos pr
           </span>
         </motion.div>
 
+        {/* Brand Cyber Logo Emblem */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
+          className="mb-4 sm:mb-6 relative flex items-center justify-center"
+        >
+          <div className="absolute inset-0 rounded-full bg-cyan-400/20 blur-2xl animate-pulse" />
+          <img
+            src="/logo.png"
+            alt="TecnOdiel Logo"
+            className="w-20 h-20 xs:w-24 xs:h-24 sm:w-32 sm:h-32 object-contain relative z-10 drop-shadow-[0_0_35px_rgba(45,212,191,0.6)]"
+          />
+        </motion.div>
+
         {/* Massive Giant Title */}
         <motion.h1
           variants={containerVariants}

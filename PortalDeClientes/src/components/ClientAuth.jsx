@@ -275,16 +275,24 @@ export default function ClientAuth({
              CLIENT LOGIN VIEW (SOLO CON CLAVE PRIVADA DE ACCESO)
              ======================================================= */
           <div className="space-y-5">
-            <div className="text-left space-y-1.5">
-              <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                {targetBusinessName ? `Acceso a ${targetBusinessName}` : 'Acceso al Portal de Clientes'}
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
-                {targetBusinessName 
-                  ? `Para entrar a gestionar este negocio, introduce la clave privada que te entregamos al solicitar tu página web.` 
-                  : `Solo el titular que ha solicitado la página web tiene acceso mediante su clave privada de cliente.`}
-              </p>
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-12 h-12 rounded-xl bg-black border border-cyan-500/30 overflow-hidden flex items-center justify-center p-1 shadow-[0_0_20px_rgba(6,182,212,0.25)] shrink-0">
+                <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain" />
+              </div>
+              <div className="space-y-0.5">
+                <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
+                  {targetBusinessName ? `Acceso a ${targetBusinessName}` : 'Acceso al Portal de Clientes'}
+                </h1>
+                <p className="text-[11px] font-mono text-cyan-400">
+                  TecnOdiel // Identificación Segura
+                </p>
+              </div>
             </div>
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal text-left">
+              {targetBusinessName 
+                ? `Para entrar a gestionar este negocio, introduce la clave privada que te entregamos al solicitar tu página web.` 
+                : `Solo el titular que ha solicitado la página web tiene acceso mediante su clave privada de cliente.`}
+            </p>
 
             <form onSubmit={handleClientSubmit} className="space-y-4">
               <div>
@@ -347,17 +355,22 @@ export default function ClientAuth({
              SUPER ADMIN MASTER LOGIN VIEW
              ======================================================= */
           <div className="space-y-5">
-            <div className="text-left space-y-1.5">
-              <div className="w-10 h-10 rounded bg-zinc-900 border border-zinc-700 flex items-center justify-center text-emerald-400">
-                <Lock className="w-5 h-5" />
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-12 h-12 rounded-xl bg-black border border-cyan-500/30 overflow-hidden flex items-center justify-center p-1 shadow-[0_0_20px_rgba(6,182,212,0.25)] shrink-0">
+                <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain" />
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                Acceso de Administración
-              </h1>
-              <p className="text-xs text-zinc-300 leading-relaxed font-normal">
-                Monitorización técnica de clientes, presupuestos, estados y despliegues.
-              </p>
+              <div className="space-y-0.5">
+                <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
+                  Acceso de Administración
+                </h1>
+                <p className="text-[11px] font-mono text-cyan-400">
+                  TecnOdiel // Panel Maestro
+                </p>
+              </div>
             </div>
+            <p className="text-xs text-zinc-300 leading-relaxed font-normal text-left">
+              Monitorización técnica de clientes, presupuestos, estados y despliegues.
+            </p>
 
             <form onSubmit={handleAdminSubmit} className="space-y-4">
               {/* Alerta de Baneo por 30 Minutos */}

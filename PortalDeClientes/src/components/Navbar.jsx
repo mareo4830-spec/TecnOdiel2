@@ -24,17 +24,10 @@ export default function Navbar({
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl bg-black border flex items-center justify-center shadow-sm ${
-            isClinic ? 'border-cyan-500/40 text-cyan-400' : 'border-emerald-500/40 text-emerald-400'
+          <div className={`w-9 h-9 rounded-xl bg-black border overflow-hidden flex items-center justify-center shadow-sm ${
+            isClinic ? 'border-cyan-500/40' : 'border-emerald-500/40'
           }`}>
-            {isClinic ? (
-              <Stethoscope className="w-5 h-5 text-cyan-400" />
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-5 h-5">
-                <path d="M30 70 L50 30 L70 70" stroke="#10b981" strokeWidth="10" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                <circle cx="50" cy="30" r="7" fill="#34d399" />
-              </svg>
-            )}
+            <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
             <div className="flex items-center gap-2">

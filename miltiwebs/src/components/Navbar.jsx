@@ -40,8 +40,8 @@ export default function Navbar({
           onClick={onViewHome || handleGoLanding}
           className="flex items-center gap-2.5 text-left group cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition shadow-sm">
-            <Utensils className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-black border border-emerald-500/30 overflow-hidden flex items-center justify-center group-hover:scale-105 group-hover:border-emerald-400 transition shadow-sm">
+            <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
             <div className="flex items-center gap-2">

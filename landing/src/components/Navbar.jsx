@@ -29,9 +29,9 @@ export default function Navbar({ onOpenAudit }) {
             className="group flex items-center gap-2.5 sm:gap-3 text-white transition-opacity hover:opacity-90"
             aria-label="TecnOdiel - Inicio"
           >
-            <div className="relative flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-zinc-900 border border-white/15 transition-transform duration-300 group-hover:scale-105 group-hover:border-white/40">
-              <span className="font-mono text-[11px] sm:text-xs font-bold text-white tracking-widest">TO</span>
-              <div className="absolute -inset-0.5 rounded-lg bg-white/10 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-black border border-cyan-500/30 overflow-hidden transition-transform duration-300 group-hover:scale-105 group-hover:border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+              <img src="/logo.png" alt="TecnOdiel Logo" className="h-full w-full object-contain p-0.5" />
+              <div className="absolute -inset-0.5 rounded-xl bg-cyan-400/10 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="flex flex-col">
               <span className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-1.5">

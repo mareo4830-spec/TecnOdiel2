@@ -75,12 +75,27 @@ export default function MainPortalCard({ onOpenAudit }) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="mb-5 sm:mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 backdrop-blur-md"
+              className="mb-4 sm:mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 backdrop-blur-md"
             >
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-emerald-300 font-medium">
                 MÁS CLIENTES PARA TU NEGOCIO // HUELVA
               </span>
+            </motion.div>
+
+            {/* Brand Logo Emblem */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.12 }}
+              className="mb-4 sm:mb-5 relative flex items-center justify-center"
+            >
+              <div className="absolute inset-0 rounded-full bg-cyan-400/15 blur-xl" />
+              <img
+                src="/logo.png"
+                alt="TecnOdiel Logo"
+                className="w-16 h-16 sm:w-20 sm:h-20 object-contain relative z-10 drop-shadow-[0_0_25px_rgba(45,212,191,0.45)]"
+              />
             </motion.div>
 
             {/* High-Converting Sales Headline / Eslogan Principal */}
