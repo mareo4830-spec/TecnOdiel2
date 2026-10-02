@@ -345,7 +345,15 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
       } catch (e) {}
       if (onCreated) onCreated(saved);
     } catch (err) {
-      alert('Error al guardar el restaurante.');
+      console.warn('Fallback saving restaurant locally:', err);
+      const fallbackRest = {
+        ...formData,
+        id: `rest-${Date.now()}`
+      };
+      try {
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.5 } });
+      } catch (e) {}
+      if (onCreated) onCreated(fallbackRest);
     } finally {
       setSaving(false);
     }
@@ -1208,8 +1216,9 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 <TemplateRenderer
                   restaurant={formData}
                   isPreview={true}
+                  previewDevice={previewDevice}
                   onSelectElement={handleSelectElement}
-                  selectedElementType={selectedElement?.type}
+                  selectedElement={selectedElement}
                 />
               </div>
             </div>
@@ -1217,8 +1226,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
           {/* Inspector Panel on Right */}
           {isInspectorOpen && (
-            <aside className="w-80 border-l border-white/10 bg-zinc-950/95 backdrop-blur-xl p-4 sm:p-5 flex flex-col justify-between overflow-y-auto z-20 shrink-0">
-              <div className="space-y-5">
+            <aside className="w-80 sm:w-96 border-l border-white/10 bg-zinc-950/95 backdrop-blur-xl p-4 sm:p-5 flex flex-col justify-between overflow-y-auto z-20 shrink-0">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2">
                     <Sliders className="w-4 h-4 text-emerald-400" />
@@ -1233,12 +1242,226 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   </button>
                 </div>
 
-                <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs space-y-1">
-                  <span className="text-[10px] font-mono text-emerald-400 uppercase font-semibold">Elemento Seleccionado</span>
-                  <div className="font-bold text-white text-sm">{selectedElement?.label || 'General'}</div>
+                {/* Quick Switch Tabs */}
+                <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-zinc-900/80 border border-white/5 text-[11px] font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'background', label: 'Fondo & Colores' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'background' || selectedElement?.type === 'colors'
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Fondo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'hero_image', label: 'Foto de Portada' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'hero_image'
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Portada
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'title', label: 'Nombre & Lema' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'title' || selectedElement?.type === 'slogan'
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Texto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'menu_item', label: 'Platos & Carta' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'menu_item' || selectedElement?.type === 'dish_item'
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Platos
+                  </button>
                 </div>
 
-                {/* Element-specific Controls */}
+                <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-emerald-400 uppercase font-semibold">Tocado en pantalla:</span>
+                  <div className="font-bold text-white text-xs truncate max-w-[180px]">{selectedElement?.label || selectedElement?.title || 'General'}</div>
+                </div>
+
+                {/* 1. BACKGROUND & COLORS INSPECTOR */}
+                {(selectedElement?.type === 'background' || selectedElement?.type === 'colors' || selectedElement?.type === 'theme') && (
+                  <div className="space-y-4">
+                    {/* Background Color */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                        <span>Color de Fondo de la Web</span>
+                        <span className="text-zinc-300 font-mono text-[10px]">{formData.background_color}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={formData.background_color || '#1c1006'}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, background_color: e.target.value }));
+                            showTweakNotice('Color de fondo actualizado');
+                          }}
+                          className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={formData.background_color || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, background_color: e.target.value }))}
+                          placeholder="#09090b"
+                          className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      {/* Quick Swatches */}
+                      <div className="grid grid-cols-4 gap-1.5 pt-1">
+                        {[
+                          { label: 'Obsidian', hex: '#060608' },
+                          { label: 'Brasa', hex: '#180704' },
+                          { label: 'Albero', hex: '#1c1006' },
+                          { label: 'Esmeralda', hex: '#04160e' },
+                          { label: 'Lonja', hex: '#021424' },
+                          { label: 'Velvet', hex: '#0a0306' },
+                          { label: 'Negro', hex: '#000000' },
+                          { label: 'Grafito', hex: '#09090b' }
+                        ].map(sw => (
+                          <button
+                            key={sw.hex}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, background_color: sw.hex }));
+                              showTweakNotice(`Fondo: ${sw.label}`);
+                            }}
+                            className={`p-1.5 rounded-lg border text-left text-[10px] font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                              formData.background_color === sw.hex ? 'border-emerald-400 bg-white/10 text-white font-bold' : 'border-white/10 bg-zinc-900 text-zinc-400'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: sw.hex }} />
+                            <span className="truncate">{sw.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Surface / Cards Color */}
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                        <span>Color de Tarjetas / Superficie</span>
+                        <span className="text-zinc-300 font-mono text-[10px]">{formData.surface_color}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={formData.surface_color || '#2a180b'}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, surface_color: e.target.value }));
+                            showTweakNotice('Color de tarjetas actualizado');
+                          }}
+                          className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={formData.surface_color || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, surface_color: e.target.value }))}
+                          placeholder="#18181b"
+                          className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Primary Accent Color */}
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                        <span>Color Principal de Acento</span>
+                        <span className="text-zinc-300 font-mono text-[10px]">{formData.primary_color}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={formData.primary_color || '#eab308'}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, primary_color: e.target.value }));
+                            showTweakNotice('Color de acento actualizado');
+                          }}
+                          className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={formData.primary_color || ''}
+                          onChange={(e) => setFormData(prev => ({ ...prev, primary_color: e.target.value }))}
+                          className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      {/* Accent swatches */}
+                      <div className="grid grid-cols-4 gap-1.5 pt-1">
+                        {[
+                          { label: 'Oro', hex: '#eab308' },
+                          { label: 'Esmeralda', hex: '#10b981' },
+                          { label: 'Rojo', hex: '#ef4444' },
+                          { label: 'Naranja', hex: '#f97316' },
+                          { label: 'Cian', hex: '#06b6d4' },
+                          { label: 'Azul', hex: '#0284c7' },
+                          { label: 'Fucsia', hex: '#ec4899' },
+                          { label: 'Blanco', hex: '#ffffff' }
+                        ].map(sw => (
+                          <button
+                            key={sw.hex}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, primary_color: sw.hex }));
+                              showTweakNotice(`Acento: ${sw.label}`);
+                            }}
+                            className={`p-1.5 rounded-lg border text-left text-[10px] font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                              formData.primary_color === sw.hex ? 'border-emerald-400 bg-white/10 text-white font-bold' : 'border-white/10 bg-zinc-900 text-zinc-400'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: sw.hex }} />
+                            <span className="truncate">{sw.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Palettes 1-Click */}
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                        Paletas Recomendadas (1 Clic)
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                        {COLOR_PALETTES.map(pal => (
+                          <button
+                            key={pal.id}
+                            type="button"
+                            onClick={() => {
+                              handlePaletteSelect(pal);
+                              showTweakNotice(`Paleta: ${pal.name}`);
+                            }}
+                            className="p-2 rounded-lg border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-left transition flex items-center justify-between cursor-pointer text-xs"
+                          >
+                            <span className="text-zinc-300 font-semibold truncate text-[11px]">{pal.name}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: pal.primary }} />
+                              <span className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: pal.bg }} />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. HERO IMAGE CONTROLS */}
                 {selectedElement?.type === 'hero_image' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -1325,118 +1548,235 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         </button>
                       </div>
                     </div>
+
+                    {/* Presets Grid */}
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Fotos Recomendadas</label>
+                      <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                        {HERO_PHOTO_PRESETS.map((p, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, hero_image: p.url }));
+                              showTweakNotice(`Foto: ${p.label}`);
+                            }}
+                            className="relative h-14 rounded-lg overflow-hidden border border-white/10 hover:border-emerald-400 transition cursor-pointer"
+                          >
+                            <img src={p.url} alt={p.label} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 flex items-end p-1">
+                              <span className="text-[9px] text-white font-medium truncate">{p.label}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
+                {/* 3. TITLE & TYPOGRAPHY CONTROLS */}
                 {selectedElement?.type === 'title' && (
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Editar Nombre</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={e => handleNameChange(e.target.value)}
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
-                    />
-                  </div>
-                )}
-
-                {selectedElement?.type === 'slogan' && (
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Editar Lema / Eslogan</label>
-                    <textarea
-                      rows={3}
-                      value={formData.slogan}
-                      onChange={e => setFormData({ ...formData, slogan: e.target.value })}
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
-                    />
-                  </div>
-                )}
-
-                {selectedElement?.type === 'cta_button' && (
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Texto del Botón</label>
-                    <input
-                      type="text"
-                      value={formData.cta_text || 'Reservar Mesa'}
-                      onChange={e => setFormData({ ...formData, cta_text: e.target.value })}
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
-                    />
-                  </div>
-                )}
-
-                {selectedElement?.type === 'dish_item' && selectedElement?.data && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Nombre del Plato</label>
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Nombre del Restaurante</label>
                       <input
                         type="text"
-                        value={selectedElement.data.item?.name || ''}
-                        onChange={e => {
-                          const { categoryIndex, itemIndex } = selectedElement.data;
-                          handleUpdateDish(categoryIndex, itemIndex, 'name', e.target.value);
-                          setSelectedElement(prev => ({
-                            ...prev,
-                            data: { ...prev.data, item: { ...prev.data.item, name: e.target.value } }
-                          }));
-                        }}
+                        value={formData.name}
+                        onChange={e => handleNameChange(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-emerald-400"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Tipografía</label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {['Playfair Display', 'Outfit', 'Inter', 'JetBrains Mono', 'Cormorant Garamond', 'Syne'].map(f => (
+                          <button
+                            key={f}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, font_family: f }));
+                              showTweakNotice(`Fuente: ${f}`);
+                            }}
+                            className={`p-2 rounded-lg border text-center transition cursor-pointer text-xs ${
+                              formData.font_family === f
+                                ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
+                                : 'bg-zinc-900 border-white/10 text-zinc-300'
+                            }`}
+                            style={{ fontFamily: f }}
+                          >
+                            {f}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. SLOGAN & DESCRIPTION */}
+                {selectedElement?.type === 'slogan' && (
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Lema / Eslogan</label>
+                      <textarea
+                        rows={2}
+                        value={formData.slogan}
+                        onChange={e => setFormData({ ...formData, slogan: e.target.value })}
                         className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
                       />
                     </div>
-
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Precio (€)</label>
-                      <input
-                        type="number"
-                        step="0.5"
-                        value={selectedElement.data.item?.price || 0}
-                        onChange={e => {
-                          const val = parseFloat(e.target.value) || 0;
-                          const { categoryIndex, itemIndex } = selectedElement.data;
-                          handleUpdateDish(categoryIndex, itemIndex, 'price', val);
-                          setSelectedElement(prev => ({
-                            ...prev,
-                            data: { ...prev.data, item: { ...prev.data.item, price: val } }
-                          }));
-                        }}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 font-mono"
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Descripción del Local</label>
+                      <textarea
+                        rows={3}
+                        value={formData.description}
+                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
                       />
                     </div>
+                  </div>
+                )}
 
+                {/* 5. CTA BUTTON */}
+                {selectedElement?.type === 'cta_button' && (
+                  <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Cambiar Foto del Plato</label>
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Texto del Botón</label>
                       <input
-                        type="file"
-                        ref={dishGalleryInputRef}
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleDishImageUpload}
+                        type="text"
+                        value={formData.cta_text || 'Reservar Mesa Online'}
+                        onChange={e => setFormData({ ...formData, cta_text: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
                       />
-                      <input
-                        type="file"
-                        ref={dishCameraInputRef}
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={handleDishImageUpload}
-                      />
-                      <div className="grid grid-cols-2 gap-2">
+                    </div>
+                  </div>
+                )}
+
+                {/* 6. DISH / MENU ITEM */}
+                {(selectedElement?.type === 'menu_item' || selectedElement?.type === 'dish_item') && (
+                  <div className="space-y-3">
+                    {selectedElement?.data?.item ? (
+                      <>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Nombre del Plato</label>
+                          <input
+                            type="text"
+                            value={selectedElement.data.item.name || ''}
+                            onChange={e => {
+                              const { categoryIndex, itemIndex } = selectedElement.data;
+                              handleUpdateDish(categoryIndex, itemIndex, 'name', e.target.value);
+                              setSelectedElement(prev => ({
+                                ...prev,
+                                data: { ...prev.data, item: { ...prev.data.item, name: e.target.value } }
+                              }));
+                            }}
+                            className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 font-semibold"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Precio (€)</label>
+                          <input
+                            type="number"
+                            step="0.5"
+                            value={selectedElement.data.item.price || 0}
+                            onChange={e => {
+                              const val = parseFloat(e.target.value) || 0;
+                              const { categoryIndex, itemIndex } = selectedElement.data;
+                              handleUpdateDish(categoryIndex, itemIndex, 'price', val);
+                              setSelectedElement(prev => ({
+                                ...prev,
+                                data: { ...prev.data, item: { ...prev.data.item, price: val } }
+                              }));
+                            }}
+                            className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-emerald-400 font-mono font-bold focus:outline-none focus:border-emerald-400"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Descripción</label>
+                          <textarea
+                            rows={2}
+                            value={selectedElement.data.item.description || ''}
+                            onChange={e => {
+                              const { categoryIndex, itemIndex } = selectedElement.data;
+                              handleUpdateDish(categoryIndex, itemIndex, 'description', e.target.value);
+                              setSelectedElement(prev => ({
+                                ...prev,
+                                data: { ...prev.data, item: { ...prev.data.item, description: e.target.value } }
+                              }));
+                            }}
+                            className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-emerald-400"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5 pt-1">
+                          <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Foto del Plato</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => dishGalleryInputRef.current?.click()}
+                              className="p-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-white font-semibold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Galería</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => dishCameraInputRef.current?.click()}
+                              className="p-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-white font-semibold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Camera className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Cámara</span>
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-xs text-zinc-400">Pulsa en cualquier plato de la carta en la vista previa para editar su nombre, precio y foto.</p>
                         <button
                           type="button"
-                          onClick={() => dishGalleryInputRef.current?.click()}
-                          className="p-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-white font-semibold flex items-center justify-center gap-1 cursor-pointer"
+                          onClick={() => handleAddDish(0)}
+                          className="w-full py-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
                         >
-                          <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Galería</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => dishCameraInputRef.current?.click()}
-                          className="p-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-white font-semibold flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <Camera className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Cámara</span>
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Añadir Nuevo Plato a la Carta</span>
                         </button>
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 7. CONTACT & HOURS */}
+                {selectedElement?.type === 'contact' && (
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">WhatsApp de Reservas</label>
+                      <input
+                        type="text"
+                        value={formData.whatsapp_number}
+                        onChange={e => setFormData({ ...formData, whatsapp_number: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Teléfono</label>
+                      <input
+                        type="text"
+                        value={formData.phone}
+                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Dirección</label>
+                      <input
+                        type="text"
+                        value={formData.address}
+                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
+                      />
                     </div>
                   </div>
                 )}

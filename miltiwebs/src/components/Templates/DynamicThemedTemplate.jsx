@@ -384,8 +384,8 @@ export default function DynamicThemedTemplate({
 
   const handleEdit = (e, type, title = '', data = {}) => {
     if (!isPreview || !onSelectElement) return;
-    e.stopPropagation();
-    onSelectElement({ type, title, data: { restaurant, ...data } });
+    if (e && e.stopPropagation) e.stopPropagation();
+    onSelectElement({ type, label: title || type, title, data: { restaurant, ...data } });
   };
 
   // Smooth scroll without changing window.location.hash to prevent router resets!
@@ -399,8 +399,10 @@ export default function DynamicThemedTemplate({
 
   return (
     <div 
-      className="min-h-screen text-zinc-100 selection:bg-white selection:text-black relative overflow-x-hidden font-sans"
+      onClick={(e) => handleEdit(e, 'background', 'Fondo y Color de la Web')}
+      className={`min-h-screen text-zinc-100 selection:bg-white selection:text-black relative overflow-x-hidden font-sans ${isPreview ? 'cursor-pointer' : ''}`}
       style={{ backgroundColor: bgColor }}
+      title={isPreview ? "Pulsa para cambiar el color de fondo o la paleta cromática" : undefined}
     >
       {/* ─────────────────────────────────────────────────────────────
           ARCHETYPE-SPECIFIC ATMOSPHERIC BACKGROUND EFFECTS

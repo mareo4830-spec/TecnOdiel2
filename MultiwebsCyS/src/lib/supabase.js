@@ -227,74 +227,67 @@ export async function createClinic(clinicData) {
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      // First attempt insert into clinics table
-      const { data: cData, error: cErr } = await supabase
-        .from('clinics')
-        .insert([{
-          slug: newClinic.slug,
-          subdomain: newClinic.cloudflare_domain || newClinic.subdomain,
-          name: newClinic.name,
-          slogan: newClinic.slogan,
-          description: newClinic.description,
-          category: newClinic.category,
-          template_id: newClinic.template_id,
-          hero_layout: newClinic.hero_layout,
-          primary_color: newClinic.primary_color,
-          accent_color: newClinic.accent_color,
-          background_color: newClinic.background_color,
-          surface_color: newClinic.surface_color,
-          font_family: newClinic.font_family,
-          hero_image: newClinic.hero_image,
-          phone: newClinic.phone,
-          whatsapp_number: newClinic.whatsapp_number,
-          email: newClinic.email,
-          address: newClinic.address,
-          city: newClinic.city,
-          collegiate_number: newClinic.collegiate_number,
-          accepted_insurances: newClinic.accepted_insurances,
-          menu_categories: newClinic.menu_categories,
-          cloudflare_url: newClinic.cloudflare_url,
-          published_url: newClinic.published_url
-        }])
-        .select()
-        .single();
+      const rowPayload = {
+        slug: newClinic.slug,
+        subdomain: newClinic.cloudflare_domain || newClinic.subdomain,
+        name: newClinic.name,
+        slogan: newClinic.slogan,
+        description: newClinic.description,
+        category: newClinic.category,
+        dress_code: newClinic.collegiate_number,
+        dietary_filters: newClinic.accepted_insurances,
+        template_id: newClinic.template_id,
+        hero_layout: newClinic.hero_layout,
+        primary_color: newClinic.primary_color,
+        accent_color: newClinic.accent_color,
+        background_color: newClinic.background_color,
+        surface_color: newClinic.surface_color,
+        font_family: newClinic.font_family,
+        hero_image: newClinic.hero_image,
+        phone: newClinic.phone,
+        whatsapp_number: newClinic.whatsapp_number,
+        email: newClinic.email,
+        address: newClinic.address,
+        city: newClinic.city,
+        client_access_key: newClinic.client_access_key,
+        cloudflare_url: newClinic.cloudflare_url,
+        published_url: newClinic.published_url
+      };
 
-      if (!cErr && cData) {
-        newClinic.id = cData.id;
-      } else {
-        // Transparent fallback to central restaurants table in same database
-        const { data: rData } = await supabase
+      // Check if already exists to do upsert
+      const { data: existingRow } = await supabase
+        .from('restaurants')
+        .select('id')
+        .eq('slug', newClinic.slug)
+        .maybeSingle();
+
+      if (existingRow && existingRow.id) {
+        const { data: uData } = await supabase
           .from('restaurants')
-          .insert([{
-            slug: newClinic.slug,
-            subdomain: newClinic.cloudflare_domain || newClinic.subdomain,
-            name: newClinic.name,
-            slogan: newClinic.slogan,
-            description: newClinic.description,
-            category: newClinic.category,
-            dress_code: newClinic.collegiate_number,
-            dietary_filters: newClinic.accepted_insurances,
-            template_id: newClinic.template_id,
-            hero_layout: newClinic.hero_layout,
-            primary_color: newClinic.primary_color,
-            accent_color: newClinic.accent_color,
-            background_color: newClinic.background_color,
-            surface_color: newClinic.surface_color,
-            font_family: newClinic.font_family,
-            hero_image: newClinic.hero_image,
-            phone: newClinic.phone,
-            whatsapp_number: newClinic.whatsapp_number,
-            email: newClinic.email,
-            address: newClinic.address,
-            city: newClinic.city,
-            client_access_key: newClinic.client_access_key,
-            cloudflare_url: newClinic.cloudflare_url,
-            published_url: newClinic.published_url
-          }])
+          .update(rowPayload)
+          .eq('id', existingRow.id)
+          .select()
+          .single();
+        if (uData) newClinic.id = uData.id;
+      } else {
+        const { data: iData, error: iErr } = await supabase
+          .from('restaurants')
+          .insert([rowPayload])
           .select()
           .single();
 
-        if (rData) newClinic.id = rData.id;
+        if (!iErr && iData) {
+          newClinic.id = iData.id;
+        } else if (iErr?.code === '23505') {
+          // Fallback update on conflict
+          const { data: uData } = await supabase
+            .from('restaurants')
+            .update(rowPayload)
+            .eq('slug', newClinic.slug)
+            .select()
+            .single();
+          if (uData) newClinic.id = uData.id;
+        }
       }
     } catch (e) {
       console.warn('Supabase clinic insert failed, saving to local store', e);
