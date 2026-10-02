@@ -59,18 +59,19 @@ export default function App() {
     return params.get('r') || params.get('slug') || params.get('restaurant') || localStorage.getItem('tecnodiel_client_slug') || null;
   });
 
-  const [hasIntroCompleted, setHasIntroCompleted] = useState(() => {
+  const [hasIntroCompleted, setHasIntroCompleted] = useState(false);
+
+  // Limpiar cualquier flag persistido en sessionStorage para que la animación siempre se ejecute al recargar la web
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('tecnodiel_intro_seen') === 'true';
+      try {
+        sessionStorage.removeItem('tecnodiel_intro_seen');
+      } catch (_) {}
     }
-    return false;
-  });
+  }, []);
 
   const markIntroComplete = () => {
     setHasIntroCompleted(true);
-    if (typeof window !== 'undefined') {
-      try { sessionStorage.setItem('tecnodiel_intro_seen', 'true'); } catch (_) {}
-    }
   };
 
   // Listen to hash / popstate changes

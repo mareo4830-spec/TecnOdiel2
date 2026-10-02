@@ -54,12 +54,27 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
     });
   }, [animateTo, onComplete]);
 
+  const mountTimeRef = useRef(0);
+
+  useEffect(() => {
+    mountTimeRef.current = Date.now();
+    if (typeof window !== 'undefined') {
+      try {
+        if ('scrollRestoration' in window.history) {
+          window.history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+      } catch (_) {}
+    }
+  }, []);
+
   useEffect(() => {
     let wheelTimeout = null;
 
     // 1. Mouse wheel / trackpad: gradual progressive fade-out
     const handleWheel = (e) => {
       if (isCompletedRef.current || isAnimatingExitRef.current) return;
+      if (Date.now() - mountTimeRef.current < 350) return;
 
       if (e.deltaY > 0) {
         // Scrolling down -> fade out
@@ -132,6 +147,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Webs para Resta
 
     // 3. Fallback window scroll listener
     const handleScroll = () => {
+      if (Date.now() - mountTimeRef.current < 450) return;
       if (window.scrollY > 8 && !isCompletedRef.current) {
         completeIntro();
       }

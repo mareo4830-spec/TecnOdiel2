@@ -54,12 +54,27 @@ export default function CinematicIntro({ onComplete, subtitle = "Solucionamos pr
     });
   }, [animateTo, onComplete]);
 
+  const mountTimeRef = useRef(0);
+
+  useEffect(() => {
+    mountTimeRef.current = Date.now();
+    if (typeof window !== 'undefined') {
+      try {
+        if ('scrollRestoration' in window.history) {
+          window.history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+      } catch (_) {}
+    }
+  }, []);
+
   useEffect(() => {
     let wheelTimeout = null;
 
     // 1. Mouse wheel / trackpad: instant responsive dismiss
     const handleWheel = (e) => {
       if (isCompletedRef.current || isAnimatingExitRef.current) return;
+      if (Date.now() - mountTimeRef.current < 350) return; // Evitar cierre accidental al recargar
       if (Math.abs(e.deltaY) > 12) {
         completeIntro();
       }
@@ -75,6 +90,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Solucionamos pr
 
     const handleTouchMove = (e) => {
       if (isCompletedRef.current || isAnimatingExitRef.current) return;
+      if (Date.now() - mountTimeRef.current < 250) return;
       if (touchStartY.current === null || !e.touches || e.touches.length === 0) return;
 
       const currentY = e.touches[0].clientY;
@@ -92,6 +108,7 @@ export default function CinematicIntro({ onComplete, subtitle = "Solucionamos pr
 
     // 3. Fallback window scroll listener
     const handleScroll = () => {
+      if (Date.now() - mountTimeRef.current < 450) return; // Evitar que el scroll previo al refrescar descarte la intro
       if (window.scrollY > 8 && !isCompletedRef.current) {
         completeIntro();
       }
