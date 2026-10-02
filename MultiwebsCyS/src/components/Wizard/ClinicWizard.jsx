@@ -34,7 +34,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   ArrowUpRight,
-  Users
+  Users,
+  LayoutDashboard
 } from 'lucide-react';
 import { 
   TEMPLATES, 
@@ -51,7 +52,7 @@ import TemplateRenderer from '../Templates/TemplateRenderer';
 import ErrorBoundary from '../ErrorBoundary';
 import confetti from 'canvas-confetti';
 
-export default function ClinicWizard({ onCreated, onCancel }) {
+export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
   const [activeSection, setActiveSection] = useState(1);
   const [previewDevice, setPreviewDevice] = useState('desktop');
   const [saving, setSaving] = useState(false);
@@ -400,6 +401,18 @@ export default function ClinicWizard({ onCreated, onCancel }) {
                 <span className="hidden lg:inline">Móvil</span>
               </button>
             </div>
+
+            {onOpenPortal && (
+              <button
+                type="button"
+                onClick={() => onOpenPortal()}
+                className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 hover:text-white font-semibold transition hidden sm:flex items-center gap-1.5 cursor-pointer"
+                title="Abrir portal de clientes"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Portal Clientes</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -2046,11 +2059,12 @@ export default function ClinicWizard({ onCreated, onCancel }) {
 
                   <button
                     type="button"
-                    onClick={() => setIsContractModalOpen(true)}
-                    className="btn-industrial w-full sm:w-auto px-5 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.35)] cursor-pointer"
+                    disabled={saving}
+                    onClick={handleSave}
+                    className="btn-industrial w-full sm:w-auto px-5 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.35)] disabled:opacity-50 cursor-pointer"
                   >
                     <FileText className="w-4 h-4" />
-                    <span>Activar Web Clínica</span>
+                    <span>{saving ? 'Publicando...' : 'Activar Web Clínica'}</span>
                     <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 </div>

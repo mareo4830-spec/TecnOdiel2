@@ -160,6 +160,33 @@ export async function verifyClientAccessKey(rawKey) {
     console.warn('Error verifying client key in Supabase:', e);
   }
 
+  // Check local fallback for clinics & restaurants
+  if (typeof window !== 'undefined') {
+    try {
+      const localClinicsRaw = localStorage.getItem('tecnodiel_cys_clinics');
+      if (localClinicsRaw) {
+        const localClinics = JSON.parse(localClinicsRaw);
+        const matchClinic = localClinics.find(c => 
+          (c.client_access_key && c.client_access_key.toUpperCase() === cleanKey) ||
+          (c.slug && c.slug.toLowerCase() === cleanSlug) ||
+          (c.id && c.id === key)
+        );
+        if (matchClinic) return matchClinic;
+      }
+
+      const localRestsRaw = localStorage.getItem('tecnodiel_restaurants');
+      if (localRestsRaw) {
+        const localRests = JSON.parse(localRestsRaw);
+        const matchRest = localRests.find(r => 
+          (r.client_access_key && r.client_access_key.toUpperCase() === cleanKey) ||
+          (r.slug && r.slug.toLowerCase() === cleanSlug) ||
+          (r.id && r.id === key)
+        );
+        if (matchRest) return matchRest;
+      }
+    } catch (_) {}
+  }
+
   // Fallback match for demo
   if (
     cleanKey === 'TO-MN892' || 
@@ -175,6 +202,7 @@ export async function verifyClientAccessKey(rawKey) {
 
 // Fetch all available restaurants for Super Admin monitoring
 export async function getAllRestaurantsForAdmin() {
+  let list = [];
   try {
     const { data, error } = await supabase
       .from('restaurants')
@@ -182,10 +210,10 @@ export async function getAllRestaurantsForAdmin() {
       .order('created_at', { ascending: false });
     
     if (!error && data && data.length > 0) {
-      return data.map(r => ({
+      list = data.map(r => ({
         ...r,
         client_access_key: r.client_access_key || `TO-${(r.slug || 'CLIENT').toUpperCase().slice(0, 6)}-${Math.floor(100 + Math.random() * 900)}`,
-        plan_name: r.plan_name || 'Plan Hostelería Pro',
+        plan_name: r.plan_name || (r.category && ['dental', 'policlinica', 'fisioterapia', 'estetica', 'psicologia', 'veterinaria', 'oftalmologia', 'podologia'].includes(r.category) ? 'Plan Clínica & Salud Pro' : 'Plan Hostelería Pro'),
         budget: r.budget || 99.00,
         billing_plan: r.billing_plan || 'monthly',
         contract_status: r.contract_status || 'active',
@@ -196,7 +224,32 @@ export async function getAllRestaurantsForAdmin() {
   } catch (e) {
     console.warn('Supabase admin fetch failed:', e);
   }
-  return [FALLBACK_RESTAURANT];
+
+  // Also include locally stored clinics if not already present
+  if (typeof window !== 'undefined') {
+    try {
+      const localClinicsRaw = localStorage.getItem('tecnodiel_cys_clinics');
+      if (localClinicsRaw) {
+        const localClinics = JSON.parse(localClinicsRaw);
+        localClinics.forEach(c => {
+          if (!list.some(r => r.slug === c.slug || r.id === c.id)) {
+            list.push({
+              ...c,
+              client_access_key: c.client_access_key || `CYS-${(c.slug || 'CLINIC').toUpperCase().slice(0, 6)}-104`,
+              plan_name: c.plan_name || 'Plan Clínica & Salud Pro',
+              budget: c.budget || 99.00,
+              billing_plan: c.billing_plan || 'monthly',
+              contract_status: c.contract_status || 'active',
+              pending_tasks: c.pending_tasks || DEFAULT_PENDING_TASKS,
+              admin_notes: c.admin_notes || ''
+            });
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
+  return list.length > 0 ? list : [FALLBACK_RESTAURANT];
 }
 
 // Fetch full restaurant by slug or ID with categories, items, and reservations
@@ -245,6 +298,64 @@ export async function getClientRestaurantDetails(slugOrId) {
     }
   } catch (e) {
     console.warn('Supabase fetch details failed, using fallback:', e);
+  }
+
+  // Check local fallback
+  if (typeof window !== 'undefined') {
+    try {
+      const cleanSlug = sanitizeSlug((slugOrId || '').toString());
+      const localClinicsRaw = localStorage.getItem('tecnodiel_cys_clinics');
+      if (localClinicsRaw) {
+        const localClinics = JSON.parse(localClinicsRaw);
+        const matchClinic = localClinics.find(c => 
+          c.slug === cleanSlug || 
+          c.subdomain === cleanSlug || 
+          c.id === slugOrId || 
+          (c.client_access_key && c.client_access_key.toUpperCase() === (slugOrId || '').toString().trim().toUpperCase())
+        );
+        if (matchClinic) {
+          return {
+            ...matchClinic,
+            client_access_key: matchClinic.client_access_key || `CYS-${matchClinic.slug.toUpperCase().slice(0, 6)}-104`,
+            plan_name: matchClinic.plan_name || 'Plan Clínica & Salud Pro',
+            budget: matchClinic.budget || 99.00,
+            billing_plan: matchClinic.billing_plan || 'monthly',
+            contract_status: matchClinic.contract_status || 'active',
+            pending_tasks: matchClinic.pending_tasks || DEFAULT_PENDING_TASKS,
+            admin_notes: matchClinic.admin_notes || '',
+            cloudflare_url: matchClinic.cloudflare_url || `https://${matchClinic.slug}.pages.dev`,
+            menu_categories: matchClinic.menu_categories || matchClinic.treatments || [],
+            reservations: matchClinic.appointments || matchClinic.reservations || []
+          };
+        }
+      }
+
+      const localRestsRaw = localStorage.getItem('tecnodiel_restaurants');
+      if (localRestsRaw) {
+        const localRests = JSON.parse(localRestsRaw);
+        const matchRest = localRests.find(r => 
+          r.slug === cleanSlug || 
+          r.subdomain === cleanSlug || 
+          r.id === slugOrId || 
+          (r.client_access_key && r.client_access_key.toUpperCase() === (slugOrId || '').toString().trim().toUpperCase())
+        );
+        if (matchRest) {
+          return {
+            ...matchRest,
+            client_access_key: matchRest.client_access_key || `TO-${matchRest.slug.toUpperCase().slice(0, 6)}-892`,
+            plan_name: matchRest.plan_name || 'Plan Hostelería Pro',
+            budget: matchRest.budget || 99.00,
+            billing_plan: matchRest.billing_plan || 'monthly',
+            contract_status: matchRest.contract_status || 'active',
+            pending_tasks: matchRest.pending_tasks || DEFAULT_PENDING_TASKS,
+            admin_notes: matchRest.admin_notes || '',
+            cloudflare_url: matchRest.cloudflare_url || `https://${matchRest.slug}.pages.dev`,
+            menu_categories: matchRest.menu_categories || [],
+            reservations: matchRest.reservations || []
+          };
+        }
+      }
+    } catch (_) {}
   }
 
   return FALLBACK_RESTAURANT;

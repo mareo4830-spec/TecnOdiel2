@@ -12,11 +12,19 @@ import {
   Sparkles, 
   Eye,
   HeartPulse,
-  Phone
+  Phone,
+  Edit3,
+  LayoutDashboard
 } from 'lucide-react';
 import { CLINIC_CATEGORIES } from '../../lib/mockData';
 
-export default function DashboardOverview({ clinics = [], onOpenWizard, onSelectClinic }) {
+export default function DashboardOverview({ 
+  clinics = [], 
+  onOpenWizard, 
+  onSelectClinic,
+  onManageClinic,
+  onOpenPortal 
+}) {
   const [filterCategory, setFilterCategory] = useState('all');
   const [copiedSlug, setCopiedSlug] = useState(null);
 
@@ -52,13 +60,28 @@ export default function DashboardOverview({ clinics = [], onOpenWizard, onSelect
               </p>
             </div>
 
-            <button
-              onClick={onOpenWizard}
-              className="btn-industrial px-6 py-3.5 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-sm transition flex items-center gap-2.5 shadow-[0_0_30px_rgba(6,182,212,0.4)] shrink-0 cursor-pointer"
-            >
-              <Plus className="w-5 h-5 stroke-[3]" />
-              <span>Crear Nueva Web Clínica</span>
-            </button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenPortal) onOpenPortal();
+                  else window.location.hash = '#/portal';
+                }}
+                className="px-4 py-3.5 rounded-2xl border border-white/10 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                title="Acceder al portal de clientes para gestionar citas y tratamientos"
+              >
+                <LayoutDashboard className="w-4 h-4 text-cyan-400" />
+                <span>Portal Clientes</span>
+              </button>
+
+              <button
+                onClick={onOpenWizard}
+                className="btn-industrial px-6 py-3.5 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-sm transition flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(6,182,212,0.4)] cursor-pointer"
+              >
+                <Plus className="w-5 h-5 stroke-[3]" />
+                <span>Crear Nueva Web Clínica</span>
+              </button>
+            </div>
           </div>
 
           {/* Quick Metrics */}
@@ -212,13 +235,31 @@ export default function DashboardOverview({ clinics = [], onOpenWizard, onSelect
                     <span>{copiedSlug === clinic.slug ? 'Copiado' : 'Copiar URL'}</span>
                   </button>
 
-                  <a
-                    href={`/#/c/${clinic.slug}`}
-                    className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer"
-                  >
-                    <Eye className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>Ver Web Clínica</span>
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onManageClinic) {
+                          onManageClinic(clinic);
+                        } else {
+                          window.location.hash = `#/portal?r=${clinic.slug}`;
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
+                      title="Gestionar citas, tratamientos y portal del paciente"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Gestionar</span>
+                    </button>
+
+                    <a
+                      href={`/#/c/${clinic.slug}`}
+                      className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Ver Web</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             );

@@ -27,7 +27,8 @@ import {
   Key,
   Lock,
   Headphones,
-  Check
+  Check,
+  Stethoscope
 } from 'lucide-react';
 import { 
   toggleMenuItemStock, 
@@ -68,8 +69,15 @@ export default function Dashboard({ restaurant, onRefresh }) {
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const liveUrl = restaurant.custom_domain ? `https://${restaurant.custom_domain}` : `/#/r/${restaurant.slug}`;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/#/r/${restaurant.slug}` : liveUrl)}`;
+  const isClinic = !!(
+    restaurant?.collegiate_number || 
+    ['dental', 'policlinica', 'fisioterapia', 'estetica', 'psicologia', 'veterinaria', 'oftalmologia', 'podologia', 'nutricion'].includes(restaurant?.category)
+  );
+
+  const liveUrl = restaurant.custom_domain 
+    ? `https://${restaurant.custom_domain}` 
+    : (isClinic ? `/#/c/${restaurant.slug}` : `/#/r/${restaurant.slug}`);
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}${isClinic ? '/#/c/' : '/#/r/'}${restaurant.slug}` : liveUrl)}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(liveUrl);
@@ -202,7 +210,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
             className="px-4 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold text-emerald-300 transition flex items-center gap-2"
           >
             <QrCode className="w-4 h-4 text-emerald-400" />
-            <span>Ver Cartel QR Mesas</span>
+            <span>{isClinic ? 'Ver Cartel QR Consulta' : 'Ver Cartel QR Mesas'}</span>
           </button>
 
           <a
@@ -221,7 +229,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 px-4 sm:px-6 py-3 rounded-2xl bg-zinc-950/70 border border-white/10 text-[11px] text-zinc-300 font-mono">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>0€ Comisiones por Reserva</span>
+          <span>{isClinic ? '0€ Comisiones por Cita Médica' : '0€ Comisiones por Reserva'}</span>
         </div>
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-amber-400 shrink-0" />
@@ -229,7 +237,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
         </div>
         <div className="flex items-center gap-2">
           <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Carta QR Lista para Mesas</span>
+          <span>{isClinic ? 'QR Listo para Mostrador / Consulta' : 'Carta QR Lista para Mesas'}</span>
         </div>
         <div className="flex items-center gap-2">
           <Headphones className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -241,9 +249,9 @@ export default function Dashboard({ restaurant, onRefresh }) {
       <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto scrollbar-none">
         {[
           { id: 'overview', label: 'Resumen', icon: Globe },
-          { id: 'menu', label: `Carta Digital (${totalDishes})`, icon: Utensils },
-          { id: 'bookings', label: `Reservas (${reservationsList.length})`, icon: Calendar },
-          { id: 'hours', label: 'Horarios y Datos', icon: Clock },
+          { id: 'menu', label: isClinic ? `Tratamientos (${totalDishes})` : `Carta Digital (${totalDishes})`, icon: isClinic ? Stethoscope : Utensils },
+          { id: 'bookings', label: isClinic ? `Citas Médicas (${reservationsList.length})` : `Reservas (${reservationsList.length})`, icon: Calendar },
+          { id: 'hours', label: isClinic ? 'Horarios de Consulta' : 'Horarios y Datos', icon: Clock },
           { id: 'billing', label: 'Mi Plan y Cobertura', icon: CreditCard }
         ].map(tab => {
           const Icon = tab.icon;
@@ -275,7 +283,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
                 {restaurant.slug}.pages.dev
               </div>
               <span className="text-[10px] text-emerald-400 block pt-1">
-                ✓ Carga en 0.2s en móvil
+                Carga en 0.2s en móvil
               </span>
             </div>
 
@@ -580,11 +588,11 @@ export default function Dashboard({ restaurant, onRefresh }) {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 pt-0.5">
-                      <span>📅 {res.reservation_date}</span>
-                      <span>⏰ {res.reservation_time}</span>
-                      <span>👥 {res.guests_count} comensales</span>
-                      {res.area && <span>📍 {res.area}</span>}
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 pt-0.5 font-mono">
+                      <span>Fecha: {res.reservation_date}</span>
+                      <span>Hora: {res.reservation_time}</span>
+                      <span>{res.guests_count} {isClinic ? 'pacientes' : 'comensales'}</span>
+                      {res.area && <span>Área: {res.area}</span>}
                     </div>
 
                     {res.special_requests && (
@@ -751,7 +759,7 @@ export default function Dashboard({ restaurant, onRefresh }) {
                 <div className="text-sm font-bold text-white">
                   {restaurant.plan_name || 'Plan Crecimiento Gastronómico'}
                 </div>
-                <span className="text-[11px] text-emerald-400 block">✓ Estado: Activo y Protegido</span>
+                <span className="text-[11px] text-emerald-400 block">Estado: Activo y Protegido</span>
               </div>
 
               <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-1">

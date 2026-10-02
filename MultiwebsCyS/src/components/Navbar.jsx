@@ -1,7 +1,14 @@
 import React from 'react';
-import { Plus, Stethoscope, Globe, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Plus, Stethoscope, Globe, ExternalLink, ShieldCheck, LayoutDashboard } from 'lucide-react';
 
-export default function Navbar({ onOpenWizard, onViewHome, currentView, onNavigateToLanding, onNavigateToMultiwebs }) {
+export default function Navbar({ 
+  onOpenWizard, 
+  onViewHome, 
+  currentView, 
+  onNavigateToLanding, 
+  onNavigateToMultiwebs,
+  onNavigateToPortal
+}) {
   const handleGoRestaurantes = () => {
     if (onNavigateToMultiwebs) {
       onNavigateToMultiwebs();
@@ -15,6 +22,14 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
       onNavigateToLanding();
     } else {
       window.location.hash = '#/';
+    }
+  };
+
+  const handleGoPortal = () => {
+    if (onNavigateToPortal) {
+      onNavigateToPortal();
+    } else {
+      window.location.hash = '#/portal';
     }
   };
 
@@ -60,6 +75,15 @@ export default function Navbar({ onOpenWizard, onViewHome, currentView, onNaviga
         >
           <Globe className="w-3.5 h-3.5 text-emerald-400" />
           <span>Multiwebs Restaurantes</span>
+        </button>
+
+        <button
+          onClick={handleGoPortal}
+          className="px-3 py-1.5 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition hidden lg:flex items-center gap-1.5 cursor-pointer"
+          title="Abrir portal de clientes y gestión médica"
+        >
+          <LayoutDashboard className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Portal Clientes</span>
         </button>
 
         <button

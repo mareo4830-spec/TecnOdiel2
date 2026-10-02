@@ -1,38 +1,56 @@
 import React from 'react';
-import { Globe, LogOut, ExternalLink, ShieldCheck, Sparkles, ArrowLeft, UtensilsCrossed, Shield } from 'lucide-react';
+import { Globe, LogOut, ExternalLink, ShieldCheck, Sparkles, ArrowLeft, UtensilsCrossed, Shield, Stethoscope } from 'lucide-react';
 
 export default function Navbar({ 
   restaurant, 
   onSwitchRestaurant, 
   onNavigateToMultiwebs, 
+  onNavigateToCyS,
   onNavigateToLanding,
   isAdminImpersonating,
   onBackToAdmin
 }) {
-  const liveUrl = restaurant?.custom_domain ? `https://${restaurant.custom_domain}` : `/#/r/${restaurant?.slug || ''}`;
+  const isClinic = !!(
+    restaurant?.collegiate_number || 
+    ['dental', 'policlinica', 'fisioterapia', 'estetica', 'psicologia', 'veterinaria', 'oftalmologia', 'podologia', 'nutricion'].includes(restaurant?.category)
+  );
+
+  const liveUrl = restaurant?.custom_domain 
+    ? `https://${restaurant.custom_domain}` 
+    : (isClinic ? `/#/c/${restaurant?.slug || ''}` : `/#/r/${restaurant?.slug || ''}`);
 
   return (
     <nav className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-black border border-emerald-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-5 h-5">
-              <path d="M30 70 L50 30 L70 70" stroke="#10b981" strokeWidth="10" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="50" cy="30" r="7" fill="#34d399" />
-            </svg>
+          <div className={`w-9 h-9 rounded-xl bg-black border flex items-center justify-center shadow-sm ${
+            isClinic ? 'border-cyan-500/40 text-cyan-400' : 'border-emerald-500/40 text-emerald-400'
+          }`}>
+            {isClinic ? (
+              <Stethoscope className="w-5 h-5 text-cyan-400" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-5 h-5">
+                <path d="M30 70 L50 30 L70 70" stroke="#10b981" strokeWidth="10" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="50" cy="30" r="7" fill="#34d399" />
+              </svg>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-black text-white text-base tracking-tight leading-none">
                 TecnOdiel
               </span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold uppercase">
-                {isAdminImpersonating ? 'Vista Admin' : 'Tu Portal'}
+              <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border font-semibold uppercase ${
+                isClinic 
+                  ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' 
+                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              }`}>
+                {isAdminImpersonating ? 'Vista Admin' : (isClinic ? 'Portal Clínico' : 'Tu Portal')}
               </span>
             </div>
             <span className="text-[10px] text-zinc-400 font-mono tracking-wider block">
-              {restaurant?.name || 'Panel de Gestión'}
+              {restaurant?.name || (isClinic ? 'Gestión Clínica' : 'Panel de Gestión')}
             </span>
           </div>
         </div>
@@ -64,7 +82,7 @@ export default function Navbar({
             </button>
           )}
 
-          {/* Navigate to Multiwebs */}
+          {/* Navigate to Multiwebs Restaurantes */}
           {onNavigateToMultiwebs && (
             <button
               type="button"
@@ -73,7 +91,20 @@ export default function Navbar({
               title="Ver catálogo de restaurantes"
             >
               <UtensilsCrossed className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden md:inline">Multiwebs</span>
+              <span className="hidden md:inline">Restaurantes</span>
+            </button>
+          )}
+
+          {/* Navigate to Multiwebs Clínicas */}
+          {onNavigateToCyS && (
+            <button
+              type="button"
+              onClick={onNavigateToCyS}
+              className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] sm:min-h-[44px] cursor-pointer"
+              title="Ver catálogo de clínicas y salud"
+            >
+              <Stethoscope className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="hidden md:inline">Clínicas</span>
             </button>
           )}
 

@@ -33,7 +33,7 @@ function detectTenantSlug() {
   return null;
 }
 
-export default function App({ onNavigateToLanding, onNavigateToMultiwebs }) {
+export default function App({ onNavigateToLanding, onNavigateToMultiwebs, onNavigateToPortal }) {
   const [clinics, setClinics] = useState([]);
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'public_clinic', 'standalone_tenant'
   const [activeClinic, setActiveClinic] = useState(null);
@@ -89,6 +89,15 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs }) {
         }
       }
 
+      if (hash.startsWith('#/portal') || hash.startsWith('#portal')) {
+        if (onNavigateToPortal) {
+          const qParams = new URLSearchParams(hash.split('?')[1] || '');
+          const s = qParams.get('r') || qParams.get('c') || qParams.get('slug');
+          onNavigateToPortal(s);
+          return;
+        }
+      }
+
       if (hash.startsWith('#c/') || hash.startsWith('#/c/') || hash.startsWith('#clinic/') || hash.startsWith('#/clinic/') || hash.startsWith('#r/') || hash.startsWith('#/r/')) {
         const rawPath = hash.replace(/^#\/?(c|clinic|r)\//, '');
         const cleanPath = rawPath.split('?')[0].replace(/\/$/, '');
@@ -104,7 +113,15 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs }) {
     handleRouting();
     window.addEventListener('hashchange', handleRouting);
     return () => window.removeEventListener('hashchange', handleRouting);
-  }, [clinics]);
+  }, [clinics, onNavigateToPortal]);
+
+  const handleOpenPortal = (slug = null) => {
+    if (onNavigateToPortal) {
+      onNavigateToPortal(slug);
+    } else {
+      window.location.hash = slug ? `#/portal?r=${slug}` : '#/portal';
+    }
+  };
 
   const handleOpenWizard = () => {
     window.location.hash = '#/wizard';
@@ -197,6 +214,7 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs }) {
               loadData();
               window.location.hash = `#/c/${newClinic.slug}`;
             }}
+            onOpenPortal={handleOpenPortal}
             onCancel={handleBackToDashboard}
           />
         </ErrorBoundary>
@@ -211,11 +229,14 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs }) {
             currentView={currentView}
             onNavigateToLanding={onNavigateToLanding}
             onNavigateToMultiwebs={onNavigateToMultiwebs}
+            onNavigateToPortal={handleOpenPortal}
           />
 
           <DashboardOverview
             clinics={clinics}
             onOpenWizard={handleOpenWizard}
+            onManageClinic={(clinic) => handleOpenPortal(clinic.slug)}
+            onOpenPortal={handleOpenPortal}
           />
         </div>
       )}

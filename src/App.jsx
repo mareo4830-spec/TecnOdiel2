@@ -183,6 +183,7 @@ export default function App() {
           key="cys-page"
           onNavigateToLanding={() => navigateTo('landing')}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
+          onNavigateToPortal={(slug) => navigateTo('portal', slug)}
         />
       )}
 
@@ -193,6 +194,7 @@ export default function App() {
           initialIntroFinished={hasIntroCompleted}
           onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
+          onNavigateToCyS={() => navigateTo('cys')}
           onNavigateToLanding={() => navigateTo('landing')}
         />
       )}

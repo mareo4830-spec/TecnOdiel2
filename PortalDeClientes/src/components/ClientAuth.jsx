@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Ban,
   Clock,
-  ShieldAlert
+  ShieldAlert,
+  Stethoscope
 } from 'lucide-react';
 import { verifyClientAccessKey } from '../lib/supabase';
 
@@ -54,7 +55,8 @@ export default function ClientAuth({
   onSelectRestaurant, 
   onAdminLogin, 
   onNavigateToLanding, 
-  onNavigateToMultiwebs 
+  onNavigateToMultiwebs,
+  onNavigateToCyS 
 }) {
   const [authMode, setAuthMode] = useState('client'); // 'client' | 'admin'
   const [accessKey, setAccessKey] = useState('');
@@ -214,8 +216,20 @@ export default function ClientAuth({
                 className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] cursor-pointer"
                 title="Ver red de restaurantes"
               >
-                <Globe className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Multiwebs</span>
+                <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Restaurantes</span>
+              </button>
+            )}
+
+            {onNavigateToCyS && (
+              <button
+                type="button"
+                onClick={onNavigateToCyS}
+                className="btn-industrial px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition flex items-center gap-1.5 min-h-[40px] cursor-pointer"
+                title="Ver red de clínicas y salud"
+              >
+                <Stethoscope className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Clínicas</span>
               </button>
             )}
           </div>
@@ -240,7 +254,7 @@ export default function ClientAuth({
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="font-mono text-xs uppercase tracking-wider text-emerald-300 font-semibold">
-            {authMode === 'client' ? '// PANEL DE CLIENTE // 0€ COMISIONES' : '// PANEL DE ADMINISTRACIÓN // MASTER'}
+            {authMode === 'client' ? '// PANEL DE CLIENTE // RESTAURANTES & CLÍNICAS // 0€ COMISIONES' : '// PANEL DE ADMINISTRACIÓN // MASTER'}
           </span>
         </div>
 
@@ -251,24 +265,24 @@ export default function ClientAuth({
           <div className="space-y-5">
             <div className="text-left space-y-1.5">
               <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                Control Total de tu Local
+                Control Total de tu Negocio o Clínica
               </h1>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
-                Actualiza tu carta en segundos, confirma reservas al instante y multiplica tus clientes desde tu móvil.
+                Actualiza tu carta o tratamientos en segundos, confirma reservas o citas al instante y gestiona todo desde tu móvil.
               </p>
             </div>
 
             <form onSubmit={handleClientSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 font-mono">
-                  Tu Clave de Cliente:
+                  Tu Clave de Cliente (Restaurante o Clínica):
                 </label>
                 <div className="relative">
                   <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
                   <input
                     type="text"
                     required
-                    placeholder="ej: TO-MN892 o nombre de tu web"
+                    placeholder="ej: TO-MN892, CYS-DENTAL-104 o nombre de tu web"
                     value={accessKey}
                     onChange={e => {
                       setAccessKey(e.target.value);

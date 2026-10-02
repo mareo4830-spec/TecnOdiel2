@@ -16,7 +16,8 @@ import {
   AlertCircle,
   ArrowRight,
   Share2,
-  FileText
+  FileText,
+  X
 } from 'lucide-react';
 
 const INITIAL_ADMINS = [
@@ -407,18 +408,18 @@ export default function AdminTeamWorkspace() {
 
   // Copy team report for WhatsApp or meeting
   const handleCopyReport = () => {
-    let report = `📊 REPORTE DE EQUIPO TECNODIEL - MARIO, JAVIER & DANIEL\n`;
+    let report = `[REPORTE DE EQUIPO TECNODIEL - MARIO, JAVIER & DANIEL]\n`;
     report += `Total Horas Invertidas: ${totalTeamHours.toFixed(1)}h | Tareas Hechas: ${totalCompletedTasks} | Objetivos: ${totalPendingObjectives}\n\n`;
 
     admins.forEach(a => {
-      report += `👤 ${a.name.toUpperCase()} - ${a.totalHours}h totales\n`;
-      report += `✅ LO QUE HA HECHO:\n`;
+      report += `* ${a.name.toUpperCase()} - ${a.totalHours}h totales\n`;
+      report += `[TRABAJO REALIZADO]:\n`;
       (a.doneTasks || []).slice(0, 4).forEach(t => {
-        report += `  • ${t.title} (${t.hours}h)\n`;
+        report += `  - ${t.title} (${t.hours}h)\n`;
       });
-      report += `🎯 LO QUE QUIERE HACER:\n`;
+      report += `[PROXIMOS OBJETIVOS]:\n`;
       (a.todoTasks || []).slice(0, 3).forEach(t => {
-        report += `  → [${t.priority}] ${t.title}\n`;
+        report += `  -> [${t.priority}] ${t.title}\n`;
       });
       report += `\n`;
     });
@@ -724,9 +725,10 @@ export default function AdminTeamWorkspace() {
               <button
                 type="button"
                 onClick={() => setIsAddDoneModalOpen(false)}
-                className="text-zinc-500 hover:text-white text-xs font-mono"
+                className="text-zinc-500 hover:text-white p-1 rounded-lg transition-colors"
+                title="Cerrar"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -816,9 +818,10 @@ export default function AdminTeamWorkspace() {
               <button
                 type="button"
                 onClick={() => setIsAddTodoModalOpen(false)}
-                className="text-zinc-500 hover:text-white text-xs font-mono"
+                className="text-zinc-500 hover:text-white p-1 rounded-lg transition-colors"
+                title="Cerrar"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

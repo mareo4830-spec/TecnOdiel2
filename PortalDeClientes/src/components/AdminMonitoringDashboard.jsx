@@ -392,7 +392,7 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
                           {restaurant.phone && (
                             <>
                               <span>•</span>
-                              <span>📞 {restaurant.phone}</span>
+                              <span>Tel: {restaurant.phone}</span>
                             </>
                           )}
                         </div>
@@ -598,7 +598,7 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
             </div>
 
             <p className="text-xs text-rose-300/90 leading-relaxed bg-rose-500/5 p-3 rounded-xl border border-rose-500/20">
-              ⚠️ Se borrarán todos los datos del restaurante, su carta digital con platos y categorías, y las reservas registradas.
+              Aviso: Se borrarán todos los datos del proyecto, su contenido y las reservas o citas registradas.
             </p>
 
             <div className="flex items-center justify-end gap-2.5 pt-2">

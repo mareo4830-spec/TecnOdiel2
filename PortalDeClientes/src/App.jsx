@@ -8,7 +8,14 @@ import Dashboard from './components/Dashboard';
 import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
 import { getClientRestaurantDetails } from './lib/supabase';
 
-export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLanding, initialIntroFinished = false, onIntroComplete }) {
+export default function App({ 
+  initialSlug, 
+  onNavigateToMultiwebs, 
+  onNavigateToCyS,
+  onNavigateToLanding, 
+  initialIntroFinished = false, 
+  onIntroComplete 
+}) {
   const [introFinished, setIntroFinished] = useState(initialIntroFinished);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
@@ -133,6 +140,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
                 restaurant={restaurantData} 
                 onSwitchRestaurant={handleSwitchRestaurant}
                 onNavigateToMultiwebs={onNavigateToMultiwebs}
+                onNavigateToCyS={onNavigateToCyS}
                 onNavigateToLanding={onNavigateToLanding}
                 isAdminImpersonating={isAdminImpersonating}
                 onBackToAdmin={handleBackToAdmin}
@@ -152,6 +160,7 @@ export default function App({ initialSlug, onNavigateToMultiwebs, onNavigateToLa
                 onAdminLogin={handleAdminLogin}
                 onNavigateToLanding={onNavigateToLanding}
                 onNavigateToMultiwebs={onNavigateToMultiwebs}
+                onNavigateToCyS={onNavigateToCyS}
               />
             </main>
           )}
