@@ -40,11 +40,106 @@ export function getSupabaseClient() {
   return null;
 }
 
+// Clinic detection helper to guarantee total isolation between restaurants and clinics
+export function isClinicEntity(item) {
+  if (!item) return false;
+
+  // 1. Explicit clinical categories
+  const CLINIC_CATEGORIES = new Set([
+    'dental', 'policlinica', 'fisioterapia', 'estetica', 
+    'psicologia', 'veterinaria', 'oftalmologia', 'podologia', 
+    'nutricion', 'clinica', 'salud', 'medica', 'medico', 'hospital'
+  ]);
+  const cat = (item.category || '').toLowerCase().trim();
+  if (CLINIC_CATEGORIES.has(cat)) return true;
+
+  // 2. Client access key starts with CYS
+  const key = (item.client_access_key || '').toUpperCase().trim();
+  if (key.startsWith('CYS-') || key.startsWith('CYS')) return true;
+
+  // 3. Dress code used for medical collegiate number
+  const collegiate = (item.collegiate_number || item.dress_code || '').toLowerCase();
+  if (
+    collegiate.includes('col.') || 
+    collegiate.includes('colegiad') || 
+    collegiate.includes('odontólog') || 
+    collegiate.includes('odontolog') || 
+    collegiate.includes('médic') || 
+    collegiate.includes('medic')
+  ) return true;
+
+  // 4. Slug & Subdomain contains clinic keywords
+  const slug = (item.slug || '').toLowerCase();
+  const sub = (item.subdomain || '').toLowerCase();
+  if (
+    slug.startsWith('cys-') || 
+    slug.includes('clinic') || 
+    slug.includes('dental') || 
+    slug.includes('fisioterap') || 
+    slug.includes('policlinic') || 
+    slug.includes('oftalmo') || 
+    slug.includes('psicol') ||
+    sub.startsWith('cys-') ||
+    sub.includes('clinic')
+  ) return true;
+
+  // 5. Name contains clinic words
+  const name = (item.name || '').toLowerCase();
+  if (
+    name.includes('clínica') || 
+    name.includes('clinica') || 
+    name.includes('policlínica') || 
+    name.includes('policlinica') || 
+    name.includes('odontol') || 
+    name.includes('fisioterapia') || 
+    name.includes('oftalmolog') || 
+    name.includes('podolog') || 
+    name.includes('centro médico') || 
+    name.includes('centro medico')
+  ) return true;
+
+  // 6. Template IDs from CyS
+  const templateId = (item.template_id || '').toLowerCase();
+  const CLINIC_TEMPLATES = [
+    'dental_pure', 'medica_policlinica', 'fisio_sport', 'estetica_glow', 
+    'psico_mente', 'vet_care', 'oftalmo_vision', 'podologia_laser', 'nutri_metabol'
+  ];
+  if (
+    CLINIC_TEMPLATES.includes(templateId) || 
+    templateId.startsWith('dental') || 
+    templateId.startsWith('medica') || 
+    templateId.startsWith('fisio') || 
+    templateId.startsWith('estetica') || 
+    templateId.startsWith('psico') || 
+    templateId.startsWith('vet_') || 
+    templateId.startsWith('oftalmo') || 
+    templateId.startsWith('podolog') || 
+    templateId.startsWith('nutri_')
+  ) return true;
+
+  // 7. Plan name
+  const plan = (item.plan_name || '').toLowerCase();
+  if (plan.includes('clínica') || plan.includes('clinica') || plan.includes('salud') || plan.includes('cys')) return true;
+
+  return false;
+}
+
 // Local Storage Multi-Tenant Store (Offline-first & fallback)
 export function getLocalClinics() {
   try {
     const data = localStorage.getItem(STORAGE_KEY_CLINICS);
-    if (data) return JSON.parse(data);
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        const onlyClinics = parsed.filter(isClinicEntity);
+        if (onlyClinics.length > 0) {
+          if (onlyClinics.length !== parsed.length) {
+            localStorage.setItem(STORAGE_KEY_CLINICS, JSON.stringify(onlyClinics));
+          }
+          return onlyClinics;
+        }
+      }
+    }
   } catch (e) {
     console.error('Error reading local clinics', e);
   }
@@ -54,7 +149,8 @@ export function getLocalClinics() {
 
 export function saveLocalClinics(clinics) {
   try {
-    localStorage.setItem(STORAGE_KEY_CLINICS, JSON.stringify(clinics));
+    const onlyClinics = Array.isArray(clinics) ? clinics.filter(isClinicEntity) : [];
+    localStorage.setItem(STORAGE_KEY_CLINICS, JSON.stringify(onlyClinics));
   } catch (e) {
     console.error('Error saving local clinics', e);
   }
@@ -83,7 +179,7 @@ function rowToClinic(row) {
   };
 }
 
-// API: Get all clinics from database (with local fallback)
+// API: Get all clinics from database (strictly excluding restaurants)
 export async function fetchClinics() {
   const supabase = getSupabaseClient();
   if (supabase) {
@@ -95,18 +191,22 @@ export async function fetchClinics() {
         .order('created_at', { ascending: false });
 
       if (!cErr && cData && cData.length > 0) {
-        return cData.map(rowToClinic);
+        const onlyClinics = cData.filter(isClinicEntity).map(rowToClinic);
+        if (onlyClinics.length > 0) return onlyClinics;
       }
 
-      // 2. Fallback to 'restaurants' table filtering by medical categories or prefixes
+      // 2. Fetch from 'restaurants' table filtering for clinic entities
       const { data: rData, error: rErr } = await supabase
         .from('restaurants')
         .select('*')
-        .or('slug.ilike.cys-%,category.in.(dental,policlinica,fisioterapia,estetica,psicologia,veterinaria,oftalmologia,podologia,nutricion)')
         .order('created_at', { ascending: false });
 
       if (!rErr && rData && rData.length > 0) {
-        return rData.map(rowToClinic);
+        const onlyClinics = rData.filter(isClinicEntity).map(rowToClinic);
+        if (onlyClinics.length > 0) {
+          saveLocalClinics(onlyClinics);
+          return onlyClinics;
+        }
       }
     } catch (e) {
       console.warn('Supabase fetch clinics failed, using local store', e);
@@ -115,7 +215,7 @@ export async function fetchClinics() {
   return getLocalClinics();
 }
 
-// API: Get single clinic by slug or subdomain
+// API: Get single clinic by slug or subdomain (strictly excluding restaurants)
 export async function fetchClinicBySlug(slugOrSubdomain) {
   if (!slugOrSubdomain) return null;
   const clean = sanitizeSlug(slugOrSubdomain);
@@ -132,7 +232,7 @@ export async function fetchClinicBySlug(slugOrSubdomain) {
         query = query.or(`slug.eq.${clean},subdomain.eq.${clean}`);
       }
       const { data, error } = await query.maybeSingle();
-      if (!error && data) {
+      if (!error && data && isClinicEntity(data)) {
         return rowToClinic(data);
       }
 
@@ -144,7 +244,7 @@ export async function fetchClinicBySlug(slugOrSubdomain) {
         rQuery = rQuery.or(`slug.eq.${clean},subdomain.eq.${clean}`);
       }
       const { data: rData, error: rErr } = await rQuery.maybeSingle();
-      if (!rErr && rData) {
+      if (!rErr && rData && isClinicEntity(rData)) {
         return rowToClinic(rData);
       }
     } catch (e) {
@@ -153,7 +253,7 @@ export async function fetchClinicBySlug(slugOrSubdomain) {
   }
 
   const all = getLocalClinics();
-  const found = all.find(c => c.slug === clean || c.subdomain === clean || c.id === slugOrSubdomain);
+  const found = all.find(c => (c.slug === clean || c.subdomain === clean || c.id === slugOrSubdomain) && isClinicEntity(c));
   return found || null;
 }
 

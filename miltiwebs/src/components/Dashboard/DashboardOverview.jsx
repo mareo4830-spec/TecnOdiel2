@@ -18,6 +18,7 @@ import {
   Edit3
 } from 'lucide-react';
 import { RESTAURANT_CATEGORIES } from '../../lib/mockData';
+import { isRestaurantEntity } from '../../lib/supabase';
 
 export default function DashboardOverview({ 
   restaurants = [], 
@@ -27,13 +28,16 @@ export default function DashboardOverview({
   const [filterCategory, setFilterCategory] = useState('all');
   const [copiedId, setCopiedId] = useState(null);
 
-  const totalReservations = restaurants.reduce(
+  // Guarantee only restaurant entities are processed (total clinic isolation)
+  const pureRestaurants = restaurants.filter(isRestaurantEntity);
+
+  const totalReservations = pureRestaurants.reduce(
     (acc, r) => acc + (r.reservations?.length || 0), 0
   );
 
   const filteredRestaurants = filterCategory === 'all'
-    ? restaurants
-    : restaurants.filter(r => r.category === filterCategory);
+    ? pureRestaurants
+    : pureRestaurants.filter(r => r.category === filterCategory);
 
   const handleCopyLink = (rest) => {
     const url = rest.custom_domain 
@@ -102,7 +106,7 @@ export default function DashboardOverview({
                 <Utensils className="w-4 h-4" />
                 <span>RESTAURANTES ACTIVOS</span>
               </div>
-              <div className="text-2xl font-black text-white font-mono">{restaurants.length}</div>
+              <div className="text-2xl font-black text-white font-mono">{pureRestaurants.length}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
@@ -142,10 +146,10 @@ export default function DashboardOverview({
                 : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
             }`}
           >
-            Todos los Estilos ({restaurants.length})
+            Todos los Estilos ({pureRestaurants.length})
           </button>
           {RESTAURANT_CATEGORIES.map(cat => {
-            const count = restaurants.filter(r => r.category === cat.id).length;
+            const count = pureRestaurants.filter(r => r.category === cat.id).length;
             const CategoryIcon = getCategoryIcon(cat.id);
             return (
               <button

@@ -42,11 +42,111 @@ export function getSupabaseClient() {
   return null;
 }
 
+// Clinic detection helper to guarantee total isolation between restaurants and clinics
+export function isClinicEntity(item) {
+  if (!item) return false;
+
+  // 1. Explicit clinical categories
+  const CLINIC_CATEGORIES = new Set([
+    'dental', 'policlinica', 'fisioterapia', 'estetica', 
+    'psicologia', 'veterinaria', 'oftalmologia', 'podologia', 
+    'nutricion', 'clinica', 'salud', 'medica', 'medico', 'hospital'
+  ]);
+  const cat = (item.category || '').toLowerCase().trim();
+  if (CLINIC_CATEGORIES.has(cat)) return true;
+
+  // 2. Client access key starts with CYS
+  const key = (item.client_access_key || '').toUpperCase().trim();
+  if (key.startsWith('CYS-') || key.startsWith('CYS')) return true;
+
+  // 3. Dress code used for medical collegiate number
+  const collegiate = (item.collegiate_number || item.dress_code || '').toLowerCase();
+  if (
+    collegiate.includes('col.') || 
+    collegiate.includes('colegiad') || 
+    collegiate.includes('odontólog') || 
+    collegiate.includes('odontolog') || 
+    collegiate.includes('médic') || 
+    collegiate.includes('medic')
+  ) return true;
+
+  // 4. Slug & Subdomain contains clinic keywords
+  const slug = (item.slug || '').toLowerCase();
+  const sub = (item.subdomain || '').toLowerCase();
+  if (
+    slug.startsWith('cys-') || 
+    slug.includes('clinic') || 
+    slug.includes('dental') || 
+    slug.includes('fisioterap') || 
+    slug.includes('policlinic') || 
+    slug.includes('oftalmo') || 
+    slug.includes('psicol') ||
+    sub.startsWith('cys-') ||
+    sub.includes('clinic')
+  ) return true;
+
+  // 5. Name contains clinic words
+  const name = (item.name || '').toLowerCase();
+  if (
+    name.includes('clínica') || 
+    name.includes('clinica') || 
+    name.includes('policlínica') || 
+    name.includes('policlinica') || 
+    name.includes('odontol') || 
+    name.includes('fisioterapia') || 
+    name.includes('oftalmolog') || 
+    name.includes('podolog') || 
+    name.includes('centro médico') || 
+    name.includes('centro medico')
+  ) return true;
+
+  // 6. Template IDs from CyS
+  const templateId = (item.template_id || '').toLowerCase();
+  const CLINIC_TEMPLATES = [
+    'dental_pure', 'medica_policlinica', 'fisio_sport', 'estetica_glow', 
+    'psico_mente', 'vet_care', 'oftalmo_vision', 'podologia_laser', 'nutri_metabol'
+  ];
+  if (
+    CLINIC_TEMPLATES.includes(templateId) || 
+    templateId.startsWith('dental') || 
+    templateId.startsWith('medica') || 
+    templateId.startsWith('fisio') || 
+    templateId.startsWith('estetica') || 
+    templateId.startsWith('psico') || 
+    templateId.startsWith('vet_') || 
+    templateId.startsWith('oftalmo') || 
+    templateId.startsWith('podolog') || 
+    templateId.startsWith('nutri_')
+  ) return true;
+
+  // 7. Plan name
+  const plan = (item.plan_name || '').toLowerCase();
+  if (plan.includes('clínica') || plan.includes('clinica') || plan.includes('salud') || plan.includes('cys')) return true;
+
+  return false;
+}
+
+export function isRestaurantEntity(item) {
+  return !isClinicEntity(item);
+}
+
 // Local Storage Multi-Tenant Store (Offline-first & fallback)
-function getLocalRestaurants() {
+export function getLocalRestaurants() {
   try {
     const data = localStorage.getItem(STORAGE_KEY_RESTAURANTS);
-    if (data) return JSON.parse(data);
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        // Strip out any mistakenly saved clinics from restaurant store
+        const onlyRest = parsed.filter(isRestaurantEntity);
+        if (onlyRest.length > 0) {
+          if (onlyRest.length !== parsed.length) {
+            localStorage.setItem(STORAGE_KEY_RESTAURANTS, JSON.stringify(onlyRest));
+          }
+          return onlyRest;
+        }
+      }
+    }
   } catch (e) {
     console.error('Error reading local restaurants', e);
   }
@@ -55,9 +155,10 @@ function getLocalRestaurants() {
   return INITIAL_RESTAURANTS;
 }
 
-function saveLocalRestaurants(restaurants) {
+export function saveLocalRestaurants(restaurants) {
   try {
-    localStorage.setItem(STORAGE_KEY_RESTAURANTS, JSON.stringify(restaurants));
+    const onlyRest = Array.isArray(restaurants) ? restaurants.filter(isRestaurantEntity) : [];
+    localStorage.setItem(STORAGE_KEY_RESTAURANTS, JSON.stringify(onlyRest));
   } catch (e) {
     console.error('Error saving local restaurants', e);
   }
@@ -74,7 +175,7 @@ export function sanitizeSlug(input) {
     .replace(/^-+|-+$/g, '');
 }
 
-// API: Get all restaurants
+// API: Get all restaurants (Clinics strictly excluded)
 export async function fetchRestaurants() {
   const supabase = getSupabaseClient();
   if (supabase) {
@@ -85,7 +186,11 @@ export async function fetchRestaurants() {
         .order('created_at', { ascending: false });
       
       if (!error && data && data.length > 0) {
-        return data;
+        const onlyRest = data.filter(isRestaurantEntity);
+        if (onlyRest.length > 0) {
+          saveLocalRestaurants(onlyRest);
+          return onlyRest;
+        }
       }
     } catch (e) {
       console.warn('Supabase fetch failed, using local store', e);
@@ -94,7 +199,7 @@ export async function fetchRestaurants() {
   return getLocalRestaurants();
 }
 
-// API: Get single restaurant by slug or subdomain
+// API: Get single restaurant by slug or subdomain (Clinics strictly excluded)
 export async function fetchRestaurantBySlug(slugOrSubdomain) {
   if (!slugOrSubdomain) return null;
   const clean = sanitizeSlug(slugOrSubdomain);
@@ -111,7 +216,7 @@ export async function fetchRestaurantBySlug(slugOrSubdomain) {
       }
       const { data, error } = await query.maybeSingle();
       
-      if (!error && data) {
+      if (!error && data && isRestaurantEntity(data)) {
         // Also fetch menu categories & items
         const { data: categories } = await supabase
           .from('menu_categories')
@@ -130,7 +235,7 @@ export async function fetchRestaurantBySlug(slugOrSubdomain) {
   }
   
   const all = getLocalRestaurants();
-  const found = all.find(r => r.slug === clean || r.subdomain === clean || r.id === slugOrSubdomain);
+  const found = all.find(r => (r.slug === clean || r.subdomain === clean || r.id === slugOrSubdomain) && isRestaurantEntity(r));
   return found || null;
 }
 

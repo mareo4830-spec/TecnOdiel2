@@ -17,6 +17,7 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import { CLINIC_CATEGORIES } from '../../lib/mockData';
+import { isClinicEntity } from '../../lib/supabase';
 
 export default function DashboardOverview({ 
   clinics = [], 
@@ -28,9 +29,12 @@ export default function DashboardOverview({
   const [filterCategory, setFilterCategory] = useState('all');
   const [copiedSlug, setCopiedSlug] = useState(null);
 
+  // Guarantee only clinic entities are processed (total restaurant isolation)
+  const pureClinics = clinics.filter(isClinicEntity);
+
   const filteredClinics = filterCategory === 'all'
-    ? clinics
-    : clinics.filter(c => c.category === filterCategory);
+    ? pureClinics
+    : pureClinics.filter(c => c.category === filterCategory);
 
   const handleCopyLink = (slug) => {
     const url = `${window.location.origin}/#/c/${slug}`;
@@ -91,7 +95,7 @@ export default function DashboardOverview({
                 <HeartPulse className="w-4 h-4" />
                 <span>CLÍNICAS ACTIVAS</span>
               </div>
-              <div className="text-2xl font-black text-white font-mono">{clinics.length}</div>
+              <div className="text-2xl font-black text-white font-mono">{pureClinics.length}</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
@@ -131,10 +135,10 @@ export default function DashboardOverview({
                 : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
             }`}
           >
-            Todas las Especialidades ({clinics.length})
+            Todas las Especialidades ({pureClinics.length})
           </button>
           {CLINIC_CATEGORIES.map(cat => {
-            const count = clinics.filter(c => c.category === cat.id).length;
+            const count = pureClinics.filter(c => c.category === cat.id).length;
             const CategoryIcon = cat.id === 'fisioterapia' ? HeartPulse
               : cat.id === 'estetica' ? Sparkles
               : cat.id === 'policlinica' ? Activity
