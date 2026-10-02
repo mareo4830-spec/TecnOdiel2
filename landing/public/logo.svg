@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&amp;display=swap');
+      .brand-text {
+        font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+        font-weight: 800;
+        fill: url(#textGrad);
+      }
+    </style>
+
+    <!-- Exact TecnOdiel Brand Gradient (Cyan to Emerald) -->
+    <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="42%" stop-color="#22d3ee" />
+      <stop offset="72%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+
+    <!-- Cyber Luminescence Filters -->
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="blur1" />
+      <feGaussianBlur stdDeviation="9" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="nodeGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Balanced Arc for Curved Typography (Center 300, 300 - Radius 118) -->
+    <path id="textArc" d="M 195,285 A 118,118 0 0,0 405,285" fill="none" />
+  </defs>
+
+  <g filter="url(#neonGlow)">
+    <!-- 1. Left Vertical Outer Guide Line & Tangent Arc -->
+    <path d="M 145,145 L 145,300 A 155,155 0 0,0 300,455" 
+          fill="none" 
+          stroke="url(#orbitGrad)" 
+          stroke-width="5" 
+          stroke-linecap="round" />
+
+    <!-- 2. Right Vertical Outer Guide Line & Tangent Arc -->
+    <path d="M 455,455 L 455,300 A 155,155 0 0,0 300,145" 
+          fill="none" 
+          stroke="url(#orbitGrad)" 
+          stroke-width="5" 
+          stroke-linecap="round" />
+
+    <!-- 3. Concentric Outer Arc Segments -->
+    <path d="M 300,118 A 182,182 0 0,1 435,185" 
+          fill="none" 
+          stroke="#22d3ee" 
+          stroke-width="4.5" 
+          stroke-linecap="round" 
+          opacity="0.95" />
+
+    <path d="M 300,482 A 182,182 0 0,1 165,415" 
+          fill="none" 
+          stroke="#10b981" 
+          stroke-width="4.5" 
+          stroke-linecap="round" 
+          opacity="0.95" />
+
+    <!-- 4. Main Orbit Circle (r = 155) -->
+    <circle cx="300" cy="300" r="155" 
+            fill="none" 
+            stroke="url(#orbitGrad)" 
+            stroke-width="6.5" />
+
+    <!-- 5. Orbital Satellite Nodes with Bright White Luminescent Core -->
+    <g filter="url(#nodeGlow)">
+      <circle cx="190" cy="190" r="13.5" fill="#22d3ee" />
+      <circle cx="190" cy="190" r="5.5" fill="#ffffff" />
+    </g>
+
+    <g filter="url(#nodeGlow)">
+      <circle cx="410" cy="410" r="13.5" fill="#34d399" />
+      <circle cx="410" cy="410" r="5.5" fill="#ffffff" />
+    </g>
+
+    <!-- 6. Circuit Accent Dots -->
+    <circle cx="145" cy="125" r="5" fill="#22d3ee" />
+    <circle cx="455" cy="475" r="5" fill="#34d399" />
+    <circle cx="286" cy="118" r="4" fill="#22d3ee" />
+    <circle cx="314" cy="482" r="4" fill="#34d399" />
+  </g>
+
+  <!-- 7. Premium Brand Typography in Space Grotesk -->
+  <text class="brand-text"
+        font-size="26"
+        letter-spacing="6"
+        filter="url(#neonGlow)">
+    <textPath href="#textArc" startOffset="50%" text-anchor="middle">
+      TECNODIEL
+    </textPath>
+  </text>
+</svg>
