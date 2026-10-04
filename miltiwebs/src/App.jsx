@@ -8,6 +8,7 @@ import TemplateRenderer from './components/Templates/TemplateRenderer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { fetchRestaurants, fetchRestaurantBySlug } from './lib/supabase';
 import { ArrowLeft } from 'lucide-react';
+import StandaloneCartaView from './components/Carta/StandaloneCartaView';
 
 // Helper to detect distinct tenant subdomain (e.g. "marea-negra.vercel.app" or "marea-negra.localhost")
 function detectTenantSlug() {
@@ -93,8 +94,8 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
       const hash = window.location.hash;
       const pathname = window.location.pathname;
 
-      // Ignore in-page section jumps (#carta, #menu, etc.) so they never re-trigger intro or reset view
-      if (/^#(carta|degustacion|menu|reservas|contacto|info|horarios)/i.test(hash)) {
+      // Ignore in-page section jumps (#degustacion, #menu, etc.) so they never re-trigger intro or reset view
+      if (/^#(degustacion|menu|reservas|contacto|info|horarios)$/i.test(hash)) {
         return;
       }
 
@@ -152,6 +153,11 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
           window.location.hash = `#/portal?r=${target?.slug || id}`;
         }
         return;
+      } else if (hash.startsWith('#carta/') || hash.startsWith('#/carta/')) {
+        const raw = hash.replace(/^#\/?carta\//, '');
+        const slug = raw.split('?')[0];
+        setPublicSlug(slug);
+        setCurrentView('standalone_carta');
       } else {
         setCurrentView('dashboard');
       }
@@ -161,6 +167,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
     window.addEventListener('hashchange', handleRouting);
     return () => window.removeEventListener('hashchange', handleRouting);
   }, [restaurants]);
+
 
   // Handle navigation helpers
   const handleOpenWizard = () => {

@@ -4,13 +4,29 @@ import {
   Palmtree, Gem, Crown, Compass, Waves, Sun, Moon, Zap, 
   ShieldCheck, MapPin, Phone, Instagram, Calendar, Clock, 
   ChevronRight, ArrowUpRight, Check, Heart, Award, Star, GlassWater,
-  Thermometer, Gauge, Tag, Info, Terminal, Radio, Eye, Layers
+  Thermometer, Gauge, Tag, Info, Terminal, Radio, Eye, Layers, QrCode
 } from 'lucide-react';
 import BookingModal from '../Booking/BookingModal';
+import CinematicScrollHero from './CinematicScrollHero';
+import QrCodeModal from '../Carta/QrCodeModal';
 import { normalizeTemplateId } from './templateNormalizer';
 
-// Template metadata definitions for the 10 Curated Iconic Archetypes
+// Template metadata definitions for the Curated Iconic Archetypes
 export const TEMPLATE_THEMES = {
+  cinematic_experience: {
+    icon: Flame,
+    tagline: 'Experiencia Cinemática & Brasa Viva',
+    badgeText: 'DEL FUEGO AL PLATO // STORYTELLING AL SCROLL',
+    styleClass: 'theme-cinematic',
+    archetype: 'cinematic_scroll',
+    cardBorder: 'border-orange-500/40 hover:border-orange-400 shadow-[0_0_30px_rgba(249,115,22,0.2)]',
+    buttonShape: 'rounded-xl font-bold tracking-tight',
+    badgeShape: 'rounded-full font-mono',
+    defaultPrimary: '#f97316',
+    defaultAccent: '#ef4444',
+    defaultBg: '#080302',
+    defaultSurface: '#160a07'
+  },
   tapas_andaluzas: {
     icon: Sun,
     tagline: 'Taberna de Solera & Jamón de Bellota',
@@ -321,6 +337,7 @@ export default function DynamicThemedTemplate({
   selectedElement = null
 }) {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
 
   const rawId = restaurant?.template_id;
@@ -559,6 +576,15 @@ export default function DynamicThemedTemplate({
               </span>
             )}
             <button
+              type="button"
+              onClick={() => setIsQrModalOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/15 bg-zinc-900/80 hover:bg-zinc-800 text-xs text-zinc-200 hover:text-white transition cursor-pointer"
+              title="Ver código QR para las mesas del restaurante"
+            >
+              <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Carta QR Mesa</span>
+            </button>
+            <button
               onClick={handleBookingClick}
               className={`px-4 py-2 sm:px-5 sm:py-2.5 ${meta.buttonShape} text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer interactive-button ${editableClass('cta_button')}`}
               style={{
@@ -574,6 +600,24 @@ export default function DynamicThemedTemplate({
           </div>
         </div>
       </header>
+
+      {/* ─────────────────────────────────────────────────────────────
+          BESPOKE HERO ARCHETYPE 0: CINEMATIC SCROLL STORYTELLING (DEL FUEGO AL PLATO)
+         ───────────────────────────────────────────────────────────── */}
+      {archetype === 'cinematic_scroll' && (
+        <CinematicScrollHero
+          restaurant={restaurant}
+          isPreview={isPreview}
+          isMobile={isMobile}
+          handleEdit={handleEdit}
+          editableClass={editableClass}
+          handleBookingClick={handleBookingClick}
+          scrollToCarta={scrollToCarta}
+          primaryColor={primaryColor}
+          accentColor={accentColor}
+          onOpenQrModal={() => setIsQrModalOpen(true)}
+        />
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           BESPOKE HERO ARCHETYPE 1: TABERNA IBÉRICA & TAPAS (ALBERO & MADERA)
@@ -2137,182 +2181,467 @@ export default function DynamicThemedTemplate({
         </section>
       )}
 
+
       {/* ─────────────────────────────────────────────────────────────
-          BESPOKE HERO ARCHETYPE 11: GENERAL FALLBACK
+          BESPOKE HEROES FOR REMAINING ARCHETYPES (GROUPED FALLBACK)
          ───────────────────────────────────────────────────────────── */}
-      {(!['taberna_iberica', 'nocturne', 'omakase', 'street_smash', 'coastal_lonja', 'cyber_hud', 'bistro_paris', 'asador_prime', 'pasticceria_dolce', 'craft_brewery'].includes(archetype)) && (
+
+      {/* ── BRUTALIST RAW: Giant acid-green typographic slab, no image ── */}
+      {archetype === 'brutalist_raw' && (
+        <section className="relative pt-10 pb-16 px-4 max-w-6xl mx-auto">
+          <div className="relative border-4 border-[#ccff00] bg-black p-6 sm:p-12 overflow-hidden shadow-[8px_8px_0px_#ccff00]">
+            {/* Marquee bar */}
+            <div className="mb-8 overflow-hidden border-b-4 border-[#ccff00] pb-3">
+              <div className="font-mono font-black text-[#ccff00] text-xs uppercase tracking-[0.3em] animate-pulse">
+                ▶ RAW DESIGN // 0% COMPROMISE // NO FILTERS // BRUTALIST FOOD ◀ &nbsp;&nbsp; ▶ RAW DESIGN // 0% COMPROMISE ◀
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch">
+              <div className="space-y-6 pr-0 lg:pr-8 border-r-0 lg:border-r-4 border-[#ccff00]">
+                <div
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-block px-3 py-1 border-2 border-[#ccff00] text-[#ccff00] text-[10px] font-black uppercase tracking-[0.4em] ${editableClass('slogan')}`}
+                >
+                  {meta.badgeText}
+                </div>
+                <h1
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                  className={`text-[clamp(2.5rem,8vw,5.5rem)] font-black text-white leading-none uppercase tracking-tighter ${editableClass('title')}`}
+                  style={{ textShadow: '4px 4px 0px #ccff00' }}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-sm text-zinc-400 font-mono leading-relaxed max-w-lg ${editableClass('slogan')}`}
+                >
+                  {restaurant.description}
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={handleBookingClick}
+                    className={`px-7 py-4 border-2 border-white bg-[#ccff00] text-black text-xs font-black uppercase tracking-widest transition hover:bg-white cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'RESERVAR'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={scrollToCarta}
+                    className="px-6 py-4 border-2 border-zinc-600 text-zinc-300 text-xs font-black uppercase tracking-widest hover:border-white hover:text-white transition cursor-pointer"
+                  >
+                    VER CARTA
+                  </button>
+                </div>
+              </div>
+              <div className="hidden lg:flex items-center justify-center pl-8">
+                <div className="text-[180px] leading-none font-black text-[#ccff00]/10 select-none" style={{ textShadow: '0 0 60px #ccff0040' }}>
+                  RAW
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── MINIMALIST PURE: Full-bleed whitespace, giant type, no colour ── */}
+      {archetype === 'minimalist_pure' && (
+        <section className="relative pt-16 pb-20 px-4 max-w-5xl mx-auto">
+          <div className="text-center space-y-8">
+            <div
+              onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+              className={`inline-flex items-center gap-3 ${editableClass('slogan')}`}
+            >
+              <span className="h-px w-12 bg-white/30 inline-block" />
+              <span className="text-[10px] font-mono tracking-[0.5em] text-zinc-400 uppercase">{meta.badgeText}</span>
+              <span className="h-px w-12 bg-white/30 inline-block" />
+            </div>
+            <h1
+              onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+              className={`text-[clamp(2.5rem,9vw,7rem)] font-thin text-white leading-none tracking-tighter ${editableClass('title')}`}
+            >
+              {restaurant.slogan || restaurant.name}
+            </h1>
+            <div
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen')}
+              className={`mx-auto w-full max-w-2xl aspect-[16/7] overflow-hidden ${editableClass('hero_image')}`}
+              title={isPreview ? 'Pulsa para editar la imagen' : undefined}
+            >
+              <img
+                src={heroImage}
+                alt={restaurant.name}
+                className="w-full h-full object-cover filter grayscale contrast-125"
+              />
+            </div>
+            <p
+              onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+              className={`text-xs sm:text-sm text-zinc-500 leading-relaxed max-w-xl mx-auto font-light tracking-wide ${editableClass('slogan')}`}
+            >
+              {restaurant.description}
+            </p>
+            <div className="flex justify-center flex-wrap items-center gap-4 pt-4">
+              <button
+                onClick={handleBookingClick}
+                className={`px-10 py-3.5 rounded-full border border-white text-white text-xs font-light uppercase tracking-[0.3em] hover:bg-white hover:text-black transition cursor-pointer ${editableClass('cta_button')}`}
+              >
+                {restaurant.cta_text || 'Reservar'}
+              </button>
+              <button
+                type="button"
+                onClick={scrollToCarta}
+                className="px-8 py-3.5 rounded-full border border-zinc-700 text-zinc-400 text-xs font-light uppercase tracking-[0.3em] hover:border-zinc-400 hover:text-white transition cursor-pointer"
+              >
+                Carta Digital
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── VELVET LOUNGE: Dark-wine full cover with glow rim ── */}
+      {archetype === 'velvet_lounge' && (
+        <section className="relative pt-6 pb-14 px-4 max-w-6xl mx-auto">
+          <div
+            onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
+            className={`relative rounded-3xl overflow-hidden min-h-[500px] flex flex-col justify-end p-8 sm:p-14 border border-rose-900/60 shadow-[0_0_80px_rgba(225,29,72,0.2)] ${editableClass('hero_image')}`}
+            title={isPreview ? 'Pulsa para editar la imagen' : undefined}
+          >
+            <div className="absolute inset-0 bg-cover bg-center -z-10" style={{ backgroundImage: `url(${heroImage})` }} />
+            <div className="absolute inset-0 -z-10" style={{ background: 'linear-gradient(135deg, rgba(10,3,6,0.97) 0%, rgba(30,8,16,0.85) 50%, rgba(10,3,6,0.97) 100%)' }} />
+            {/* Velvet rim effect */}
+            <div className="absolute inset-0 border-[3px] border-rose-900/30 rounded-3xl -z-5 pointer-events-none" style={{ boxShadow: 'inset 0 0 80px rgba(225,29,72,0.08)' }} />
+            <div className="max-w-xl space-y-5">
+              <div
+                onClick={(e) => { e.stopPropagation(); handleEdit(e, 'slogan', 'Lema'); }}
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-rose-500/40 bg-rose-950/60 text-rose-300 text-[11px] font-serif italic tracking-wider ${editableClass('slogan')}`}
+              >
+                <Wine className="w-3.5 h-3.5" />
+                <span>{meta.badgeText}</span>
+              </div>
+              <h1
+                onClick={(e) => { e.stopPropagation(); handleEdit(e, 'title', 'Nombre'); }}
+                className={`text-4xl sm:text-6xl font-black text-rose-50 leading-tight font-serif ${editableClass('title')}`}
+                style={{ textShadow: '0 2px 40px rgba(225,29,72,0.4)' }}
+              >
+                {restaurant.slogan || restaurant.name}
+              </h1>
+              <p
+                onClick={(e) => { e.stopPropagation(); handleEdit(e, 'slogan', 'Descripción'); }}
+                className={`text-sm text-rose-200/70 leading-relaxed font-serif italic ${editableClass('slogan')}`}
+              >
+                {restaurant.description}
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  onClick={handleBookingClick}
+                  className={`px-8 py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-serif italic font-semibold transition flex items-center gap-2 shadow-[0_0_30px_rgba(225,29,72,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{restaurant.cta_text || 'Reservar Mesa Privada'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={scrollToCarta}
+                  className="px-6 py-3.5 rounded-2xl border border-rose-900/60 bg-black/40 text-rose-200 text-xs font-serif italic hover:bg-rose-950/60 transition cursor-pointer"
+                >
+                  Ver Cartas
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── BODEGA ENOTECA: Purple-underground split layout, serif heavy ── */}
+      {archetype === 'bodega_enoteca' && (
+        <section className="relative pt-6 pb-14 px-4 max-w-6xl mx-auto font-serif">
+          <div className="rounded-3xl border-2 border-purple-900/60 bg-[#110617] p-6 sm:p-12 shadow-2xl overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-purple-900/20 rounded-full blur-[100px] pointer-events-none" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center relative z-10">
+              <div className="space-y-6">
+                <div
+                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-purple-500/40 bg-purple-950/60 text-purple-300 text-xs font-mono ${editableClass('slogan')}`}
+                >
+                  <Wine className="w-3.5 h-3.5" />
+                  <span>{meta.badgeText}</span>
+                </div>
+                <h1
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre')}
+                  className={`text-4xl sm:text-6xl font-black text-purple-50 leading-tight italic ${editableClass('title')}`}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-sm text-purple-200/70 leading-relaxed ${editableClass('slogan')}`}
+                >
+                  {restaurant.description}
+                </p>
+                <div className="grid grid-cols-3 gap-3 py-3 border-t border-purple-900/60">
+                  {[['D.O.Ca Rioja', 'Selección'], ['Maduración', '+18 Meses'], ['Quesos', 'Artesanos']].map(([k, v]) => (
+                    <div key={k} className="text-center p-2 rounded-xl bg-purple-950/60 border border-purple-800/40">
+                      <div className="text-[10px] font-mono text-purple-400 uppercase">{k}</div>
+                      <div className="text-xs font-bold text-purple-100 mt-0.5">{v}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={handleBookingClick}
+                    className={`px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold italic transition shadow-lg cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    {restaurant.cta_text || 'Reservar Cata Privada'}
+                  </button>
+                  <button type="button" onClick={scrollToCarta} className="px-5 py-3.5 rounded-xl border border-purple-700/50 text-purple-300 text-xs hover:bg-purple-900/40 transition cursor-pointer">Ver Bodega</button>
+                </div>
+              </div>
+              <div
+                onClick={(e) => handleEdit(e, 'hero_image', 'Imagen')}
+                className={`${editableClass('hero_image')} relative`}
+                title={isPreview ? 'Pulsa para editar' : undefined}
+              >
+                <div className="rounded-2xl overflow-hidden border-2 border-purple-700/40 shadow-[0_0_50px_rgba(147,51,234,0.25)]">
+                  <img src={heroImage} alt={restaurant.name} className={`w-full ${getImageHeight(heroImageSize)} object-cover filter contrast-110`} />
+                  <div className="p-3 bg-purple-950 border-t border-purple-800/40 text-[10px] font-mono text-purple-300 flex justify-between">
+                    <span>CAVA CLIMATIZADA 14°C</span>
+                    <span className="font-bold">D.O. PREMIUM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── SPECIALTY COFFEE: Nordic warm split, brew stats ── */}
+      {archetype === 'specialty_coffee' && (
+        <section className="relative pt-6 pb-14 px-4 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden border border-amber-900/40 shadow-2xl">
+            {/* Left: photo */}
+            <div
+              onClick={(e) => handleEdit(e, 'hero_image', 'Imagen')}
+              className={`relative ${editableClass('hero_image')}`}
+              title={isPreview ? 'Pulsa para editar' : undefined}
+            >
+              <img src={heroImage} alt={restaurant.name} className="w-full h-full min-h-[280px] object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#140d07]/70" />
+            </div>
+            {/* Right: content */}
+            <div className="bg-[#1c1207] p-7 sm:p-10 flex flex-col justify-center space-y-5 border-l-0 lg:border-l border-amber-900/30">
+              <div
+                onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-600/20 border border-amber-600/40 text-amber-300 text-[11px] font-mono uppercase tracking-widest ${editableClass('slogan')}`}
+              >
+                <Coffee className="w-3.5 h-3.5" />
+                <span>{meta.badgeText}</span>
+              </div>
+              <h1
+                onClick={(e) => handleEdit(e, 'title', 'Nombre')}
+                className={`text-3xl sm:text-5xl font-black text-amber-50 leading-tight ${editableClass('title')}`}
+              >
+                {restaurant.slogan || restaurant.name}
+              </h1>
+              <p
+                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                className={`text-sm text-amber-200/70 leading-relaxed ${editableClass('slogan')}`}
+              >
+                {restaurant.description}
+              </p>
+              <div className="grid grid-cols-3 gap-2 py-3 border-t border-amber-900/40">
+                {[['SCA Score', '+88pts'], ['Origen', 'Finca Única'], ['Método', 'Pour-Over']].map(([k, v]) => (
+                  <div key={k} className="text-center p-2 rounded-xl bg-amber-950/60 border border-amber-800/30">
+                    <div className="text-[10px] font-mono text-amber-500 uppercase">{k}</div>
+                    <div className="text-xs font-bold text-amber-100 mt-0.5">{v}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleBookingClick}
+                  className={`px-6 py-3.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-black text-xs font-black uppercase tracking-wider transition cursor-pointer ${editableClass('cta_button')}`}
+                >
+                  {restaurant.cta_text || 'Reservar Mesa'}
+                </button>
+                <button type="button" onClick={scrollToCarta} className="px-5 py-3.5 rounded-lg border border-amber-700/50 text-amber-200 text-xs font-bold uppercase hover:bg-amber-950/40 transition cursor-pointer">Ver Carta</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── TECNODIEL TITANIUM: Emerald HUD with metrics ── */}
+      {archetype === 'tecnodiel_titanium' && (
+        <section className="relative pt-8 pb-16 px-4 max-w-6xl mx-auto">
+          <div className="relative rounded-3xl border border-emerald-500/30 bg-[#020a05] p-6 sm:p-12 overflow-hidden shadow-[0_0_60px_rgba(16,185,129,0.15)]">
+            <div className="absolute inset-0 pointer-events-none opacity-15" style={{ backgroundImage: 'linear-gradient(to right, #10b98125 1px, transparent 1px), linear-gradient(to bottom, #10b98125 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_10px_#10b981]" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              <div className="lg:col-span-7 space-y-5">
+                <div className="flex items-center gap-2 text-emerald-400 text-[11px] font-mono uppercase tracking-widest">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>TECNODIEL // PERFORMANCE WEB ENGINE TITANIUM</span>
+                </div>
+                <h1
+                  onClick={(e) => handleEdit(e, 'title', 'Nombre')}
+                  className={`text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight ${editableClass('title')}`}
+                  style={{ textShadow: '0 0 40px rgba(16,185,129,0.3)' }}
+                >
+                  {restaurant.slogan || restaurant.name}
+                </h1>
+                <p
+                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
+                  className={`text-sm text-emerald-100/60 leading-relaxed ${editableClass('slogan')}`}
+                >
+                  {restaurant.description}
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[['Velocidad', '0.2s', 'LCP'], ['Conversión', '+340%', 'vs PDF'], ['Uptime', '99.99%', 'SLA'], ['QR Mesas', '∞', 'Escaneos']].map(([label, val, sub]) => (
+                    <div key={label} className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/25 text-center">
+                      <div className="text-[10px] font-mono text-emerald-500 uppercase">{label}</div>
+                      <div className="text-lg font-black text-emerald-300 my-0.5">{val}</div>
+                      <div className="text-[9px] font-mono text-emerald-600">{sub}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={handleBookingClick}
+                    className={`px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold tracking-tight transition flex items-center gap-2 shadow-[0_0_25px_rgba(16,185,129,0.4)] cursor-pointer ${editableClass('cta_button')}`}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
+                  </button>
+                  <button type="button" onClick={scrollToCarta} className="px-6 py-3.5 rounded-xl border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-950/40 transition cursor-pointer">Ver Carta QR</button>
+                </div>
+              </div>
+              <div
+                onClick={(e) => handleEdit(e, 'hero_image', 'Imagen')}
+                className={`lg:col-span-5 ${editableClass('hero_image')}`}
+                title={isPreview ? 'Pulsa para editar' : undefined}
+              >
+                <div className="rounded-2xl overflow-hidden border border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
+                  <img src={heroImage} alt={restaurant.name} className={`w-full ${getImageHeight(heroImageSize)} object-cover filter contrast-110 brightness-90`} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── GENERIC FALLBACK for remaining archetypes (pizza, trattoria, taqueria, beach, pulperia, etc.) ── */}
+      {(!['cinematic_scroll', 'taberna_iberica', 'nocturne', 'omakase', 'street_smash', 'coastal_lonja', 'cyber_hud', 'bistro_paris', 'asador_prime', 'pasticceria_dolce', 'craft_brewery', 'brutalist_raw', 'minimalist_pure', 'velvet_lounge', 'bodega_enoteca', 'specialty_coffee', 'tecnodiel_titanium'].includes(archetype)) && (
         <section className="relative pt-8 sm:pt-12 pb-16 px-4 max-w-6xl mx-auto">
           {heroLayout === 'minimal' ? (
             <div className="p-8 sm:p-14 rounded-3xl border border-white/10 bg-zinc-950/80 text-center max-w-3xl mx-auto space-y-4">
-              <div 
+              <div
                 onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
                 className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
-                style={{
-                  borderColor: `${primaryColor}40`,
-                  backgroundColor: `${primaryColor}20`,
-                  color: accentColor
-                }}
+                style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}20`, color: accentColor }}
               >
                 <IconComponent className="w-3.5 h-3.5" />
                 <span>{meta.badgeText}</span>
               </div>
-              <h1 
+              <h1
                 onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
                 className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
               >
                 {restaurant.slogan || restaurant.name}
               </h1>
-              <p 
-                onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
-                className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl mx-auto ${editableClass('slogan')}`}
-              >
+              <p onClick={(e) => handleEdit(e, 'slogan', 'Descripción')} className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl mx-auto ${editableClass('slogan')}`}>
                 {restaurant.description}
               </p>
               <div className="flex justify-center flex-wrap items-center gap-3 pt-4">
                 <button
                   onClick={handleBookingClick}
                   className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
-                  style={{
-                    backgroundColor: primaryColor,
-                    color: '#000000',
-                    boxShadow: `0 0 20px ${primaryColor}40`
-                  }}
+                  style={{ backgroundColor: primaryColor, color: '#000000', boxShadow: `0 0 20px ${primaryColor}40` }}
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={scrollToCarta}
-                  className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}
-                >
+                <button type="button" onClick={scrollToCarta} className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}>
                   Ver Carta Digital
                 </button>
               </div>
             </div>
           ) : heroLayout === 'split' ? (
-            <div className={`p-6 sm:p-10 rounded-3xl border border-white/10 bg-zinc-950/60 ${getGridCols().container}`}>
+            <div className={`p-6 sm:p-10 rounded-3xl border border-white/10 shadow-2xl ${getGridCols().container}`} style={{ backgroundColor: `${bgColor}ee` }}>
               <div className={`${getGridCols().textCol} space-y-4`}>
-                <div 
+                <div
                   onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
                   className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
-                  style={{
-                    borderColor: `${primaryColor}40`,
-                    backgroundColor: `${primaryColor}20`,
-                    color: accentColor
-                  }}
+                  style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}20`, color: accentColor }}
                 >
                   <IconComponent className="w-3.5 h-3.5" />
                   <span>{meta.badgeText}</span>
                 </div>
-                <h1 
+                <h1
                   onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
                   className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
                 >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-                <p 
-                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
-                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}
-                >
+                <p onClick={(e) => handleEdit(e, 'slogan', 'Descripción')} className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}>
                   {restaurant.description}
                 </p>
                 <div className="flex flex-wrap items-center gap-3 pt-4">
                   <button
                     onClick={handleBookingClick}
                     className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
-                    style={{
-                      backgroundColor: primaryColor,
-                      color: '#000000',
-                      boxShadow: `0 0 20px ${primaryColor}40`
-                    }}
+                    style={{ backgroundColor: primaryColor, color: '#000000', boxShadow: `0 0 20px ${primaryColor}40` }}
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={scrollToCarta}
-                    className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}
-                  >
+                  <button type="button" onClick={scrollToCarta} className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}>
                     Ver Carta Digital
                   </button>
                 </div>
               </div>
-
-              <div 
-                onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
-                className={`${getGridCols().imageCol} ${editableClass('hero_image')}`}
-                title={isPreview ? "Pulsa para editar la foto de portada" : undefined}
-              >
-                <div className={`rounded-2xl overflow-hidden border border-white/10 shadow-2xl`}>
-                  <img 
-                    src={heroImage} 
-                    alt={restaurant.name}
-                    className={`w-full ${getImageHeight(heroImageSize)} object-cover`}
-                  />
+              <div onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')} className={`${getGridCols().imageCol} ${editableClass('hero_image')}`} title={isPreview ? 'Pulsa para editar' : undefined}>
+                <div className={`rounded-2xl overflow-hidden shadow-2xl`} style={{ borderColor: `${primaryColor}30`, borderWidth: 2, borderStyle: 'solid' }}>
+                  <img src={heroImage} alt={restaurant.name} className={`w-full ${getImageHeight(heroImageSize)} object-cover`} />
                 </div>
               </div>
             </div>
           ) : (
-            /* Centered / Cover hero default for fallback */
-            <div 
+            /* Centered / Cover hero */
+            <div
               onClick={(e) => handleEdit(e, 'hero_image', 'Imagen de Portada')}
-              className={`relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl ${editableClass('hero_image')}`}
-              title={isPreview ? "Pulsa para editar la foto o elementos de portada" : undefined}
+              className={`relative rounded-3xl overflow-hidden border p-6 sm:p-14 min-h-[440px] flex flex-col justify-end shadow-2xl ${editableClass('hero_image')}`}
+              style={{ borderColor: `${primaryColor}30` }}
+              title={isPreview ? 'Pulsa para editar' : undefined}
             >
-              <div 
-                className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000"
-                style={{ backgroundImage: `url(${heroImage})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30 -z-10" />
-
+              <div className="absolute inset-0 bg-cover bg-center -z-10 scale-105 transition duration-1000" style={{ backgroundImage: `url(${heroImage})` }} />
+              <div className="absolute inset-0 -z-10" style={{ background: `linear-gradient(to top, ${bgColor} 0%, ${bgColor}cc 40%, ${bgColor}50 100%)` }} />
               <div className="max-w-2xl space-y-4">
-                <div 
-                  onClick={(e) => handleEdit(e, 'slogan', 'Lema')}
+                <div
+                  onClick={(e) => { e.stopPropagation(); handleEdit(e, 'slogan', 'Lema'); }}
                   className={`inline-flex items-center gap-2 px-3 py-1 ${meta.badgeShape} text-[11px] font-mono border backdrop-blur-md uppercase tracking-wider ${editableClass('slogan')}`}
-                  style={{
-                    borderColor: `${primaryColor}40`,
-                    backgroundColor: `${primaryColor}20`,
-                    color: accentColor
-                  }}
+                  style={{ borderColor: `${primaryColor}40`, backgroundColor: `${primaryColor}20`, color: accentColor }}
                 >
                   <IconComponent className="w-3.5 h-3.5" />
                   <span>{meta.badgeText}</span>
                 </div>
-
-                <h1 
-                  onClick={(e) => handleEdit(e, 'title', 'Nombre del Restaurante')}
+                <h1
+                  onClick={(e) => { e.stopPropagation(); handleEdit(e, 'title', 'Nombre'); }}
                   className={`text-3xl ${isMobile ? 'text-2xl' : 'sm:text-5xl lg:text-6xl'} font-black text-white tracking-tight leading-tight ${editableClass('title')}`}
                 >
                   {restaurant.slogan || restaurant.name}
                 </h1>
-
-                <p 
-                  onClick={(e) => handleEdit(e, 'slogan', 'Descripción')}
-                  className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}
-                >
+                <p onClick={(e) => { e.stopPropagation(); handleEdit(e, 'slogan', 'Descripción'); }} className={`text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl ${editableClass('slogan')}`}>
                   {restaurant.description}
                 </p>
-
                 <div className="flex flex-wrap items-center gap-3 pt-4">
                   <button
                     onClick={handleBookingClick}
                     className={`px-6 py-3.5 ${meta.buttonShape} text-xs font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${editableClass('cta_button')}`}
-                    style={{
-                      backgroundColor: primaryColor,
-                      color: '#000000',
-                      boxShadow: `0 0 20px ${primaryColor}40`
-                    }}
+                    style={{ backgroundColor: primaryColor, color: '#000000', boxShadow: `0 0 20px ${primaryColor}40` }}
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{restaurant.cta_text || 'Reservar Mesa'}</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={scrollToCarta}
-                    className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}
-                  >
+                  <button type="button" onClick={scrollToCarta} className={`px-5 py-3.5 ${meta.buttonShape} border border-white/20 hover:border-white/40 text-xs font-semibold text-white transition cursor-pointer`}>
                     Ver Carta Digital
                   </button>
                 </div>
@@ -2321,6 +2650,7 @@ export default function DynamicThemedTemplate({
           )}
         </section>
       )}
+
 
       {/* ─────────────────────────────────────────────────────────────
           ARCHETYPE SIGNATURE INTERACTIVE WIDGET
@@ -3229,6 +3559,13 @@ export default function DynamicThemedTemplate({
           onClose={() => setIsBookingOpen(false)} 
         />
       )}
+
+      {/* Standalone Table QR Modal */}
+      <QrCodeModal
+        restaurant={restaurant}
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+      />
     </div>
   );
 }

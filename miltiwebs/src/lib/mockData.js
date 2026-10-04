@@ -13,6 +13,23 @@ export const RESTAURANT_CATEGORIES = [
 
 export const TEMPLATES = [
   {
+    id: 'cinematic_experience',
+    name: 'Estilo Cinemático & Storytelling (Chuletón a la Brasa)',
+    category: 'asador',
+    badge: '★ NUEVO • STORYTELLING AL SCROLL',
+    description: 'Experiencia inmersiva estilo Apple / Awwwards: el chuletón humeando en las brasas que se posa y trincha en el plato al deslizar la página, con textos narrativos a la izquierda y carta QR directa.',
+    previewColors: {
+      primary: '#f97316',
+      accent: '#ef4444',
+      bg: '#080302',
+      card: '#160a07'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Brasa al Carbón', 'Trinchado al Scroll', 'Storytelling Cinemático', 'Efecto Fuego & Humo']
+  },
+  {
     id: 'tapas_andaluzas',
     name: 'Estilo Taberna & Solera Andaluza',
     category: 'tapas',

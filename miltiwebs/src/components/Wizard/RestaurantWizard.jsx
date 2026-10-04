@@ -655,8 +655,46 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
                       Elige tu Plantilla ({TEMPLATES.length} Disponibles)
                     </label>
+
+                    {/* ★ FEATURED: Cinemático — Full-Width Hero Card */}
+                    {(() => {
+                      const cinematicTpl = TEMPLATES.find(t => t.id === 'cinematic_experience');
+                      if (!cinematicTpl) return null;
+                      const isSel = formData.template_id === cinematicTpl.id;
+                      return (
+                        <button
+                          key={cinematicTpl.id}
+                          type="button"
+                          onClick={() => handleTemplateSelect(cinematicTpl)}
+                          className={`w-full p-4 rounded-2xl border-2 text-left transition flex items-start gap-4 cursor-pointer interactive-selectable relative overflow-hidden ${
+                            isSel
+                              ? 'bg-orange-500/15 border-orange-500 text-white shadow-[0_0_25px_rgba(249,115,22,0.3)]'
+                              : 'bg-gradient-to-r from-zinc-900 via-[#160a03] to-zinc-900 border-orange-500/40 hover:border-orange-400 hover:bg-orange-500/10'
+                          }`}
+                        >
+                          <div className="absolute top-2 right-3 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/50 text-orange-300 uppercase tracking-widest">
+                            ★ NUEVO — EXCLUSIVO
+                          </div>
+                          <div className="w-12 h-12 rounded-xl shrink-0 mt-0.5 border-2 border-orange-500/60 shadow-[0_0_20px_rgba(249,115,22,0.4)] flex items-center justify-center text-2xl" style={{ backgroundColor: '#160a03' }}>
+                            🔥
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="font-extrabold text-sm text-orange-200 flex items-center gap-2">{cinematicTpl.name}</div>
+                            <div className="text-[11px] text-orange-400/90 font-mono">{cinematicTpl.badge}</div>
+                            <div className="text-[11px] text-zinc-400 leading-snug max-w-md">{cinematicTpl.description}</div>
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {cinematicTpl.tags?.map(tag => (
+                                <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-orange-950/60 border border-orange-500/30 text-orange-300 font-mono">{tag}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })()}
+
+                    {/* Rest of templates in grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-                      {TEMPLATES.map(tpl => (
+                      {TEMPLATES.filter(t => t.id !== 'cinematic_experience').map(tpl => (
                         <button
                           key={tpl.id}
                           type="button"
