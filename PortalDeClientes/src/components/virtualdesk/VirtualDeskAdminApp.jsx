@@ -48,6 +48,7 @@ import {
   Eye
 } from 'lucide-react';
 import { MOCK_TENANTS } from '../../../../src/multi-tenant/mockTenants.js';
+import { fetchLeads, updateLead } from '../../../../src/lib/leads.js';
 
 // ── CONFIGURACIÓN & METADATOS EXACTOS DE VIRTUALDESK-MAIN ──
 export const APP_CONFIG = {
@@ -86,6 +87,7 @@ const STATUS_META = {
 };
 
 const PIPELINE_STAGES = [
+  { id: 'nuevo', label: 'Solicitudes nuevas' },
   { id: 'contactado', label: 'Contactado' },
   { id: 'reunion', label: 'Reunión' },
   { id: 'propuesta', label: 'Propuesta' },
@@ -287,6 +289,31 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
     { id: 'l5', businessName: 'Noir & Atelier', contactName: 'Sébastien Leclair', city: 'Huelva', stage: 'cerrado', value: 850, owner: 'mario', days: 0 },
     { id: 'l6', businessName: 'Swiss Dental Luxury', contactName: 'Dra. Beatríz Von', city: 'Sevilla', stage: 'cerrado', value: 950, owner: 'mario', days: 0 }
   ]);
+
+  // Solicitudes reales enviadas desde el formulario de la landing
+  const [webLeads, setWebLeads] = useState([]);
+  const [leadsError, setLeadsError] = useState(null);
+  const [leadsLoading, setLeadsLoading] = useState(false);
+
+  const loadWebLeads = useCallback(async () => {
+    setLeadsLoading(true);
+    const { rows, error } = await fetchLeads();
+    setWebLeads(rows);
+    setLeadsError(error);
+    setLeadsLoading(false);
+  }, []);
+
+  useEffect(() => { loadWebLeads(); }, [loadWebLeads]);
+
+  const moveWebLead = async (lead, stage) => {
+    setWebLeads(prev => prev.map(l => (l.id === lead.id ? { ...l, stage } : l)));
+    await updateLead(lead.id, { stage });
+  };
+
+  const createSiteForLead = (lead) => {
+    const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '');
+    window.location.hash = isHealth ? '#/cys' : '#/multiwebs';
+  };
 
   // Chats
   const [chatTab, setChatTab] = useState('clientes'); // 'clientes' o 'equipo'
@@ -1134,8 +1161,12 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-bold text-white">Pipeline de Clientes (CRM)</h2>
-                  <p className="text-xs text-gray-400">Embudo comercial de prospectos en Huelva y Sevilla.</p>
+                  <p className="text-xs text-gray-400">Embudo comercial de prospectos en Huelva y Sevilla. Las solicitudes del formulario de la web llegan a «Solicitudes nuevas».</p>
+                  {leadsError && <p className="text-[11px] text-amber-400 mt-1">No se pudieron leer las solicitudes de la base de datos ({leadsError}). ¿Has ejecutado supabase_leads.sql?</p>}
                 </div>
+                <button onClick={loadWebLeads} className="px-4 py-2 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 text-xs font-semibold cursor-pointer">
+                  {leadsLoading ? 'Actualizando…' : 'Actualizar solicitudes'}
+                </button>
                 <button
                   onClick={() => {
                     const name = prompt('Nombre del negocio:');
@@ -1154,7 +1185,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
               </div>
 
               {/* 5 Columnas del Pipeline */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-3">
                 {PIPELINE_STAGES.map(stage => {
                   const leads = crmLeads.filter(l => l.stage === stage.id);
                   return (
@@ -1166,6 +1197,35 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
                         </span>
                       </div>
                       <div className="space-y-2 min-h-[260px]">
+                        {webLeads.filter(w => (w.stage || 'nuevo') === stage.id).map(w => (
+                          <div key={w.id} className="p-3 rounded-xl bg-gray-950 border border-emerald-500/30 space-y-1.5 shadow-sm">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs font-bold text-white truncate">{w.business_name || w.name}</p>
+                              <span className="text-[9px] font-mono uppercase text-emerald-400 shrink-0">web</span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 truncate">{w.name}{w.sector ? ` · ${w.sector}` : ''}</p>
+                            {(w.phone || w.email) && <p className="text-[11px] text-gray-300 truncate">{[w.phone, w.email].filter(Boolean).join(' · ')}</p>}
+                            {w.services?.length > 0 && <p className="text-[10px] text-gray-500 leading-snug">{w.services.join(', ')}</p>}
+                            {w.message && <p className="text-[10px] text-gray-500 italic leading-snug line-clamp-3">“{w.message}”</p>}
+                            <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-gray-800/80 text-[10px]">
+                              <span className="text-gray-600">{w.created_at ? new Date(w.created_at).toLocaleDateString('es-ES') : ''}{w.pending_sync ? ' · sin sincronizar' : ''}</span>
+                              {w.phone && (
+                                <a href={`https://wa.me/${String(w.phone).replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">WhatsApp</a>
+                              )}
+                            </div>
+                            <select
+                              value={w.stage || 'nuevo'}
+                              onChange={(e) => moveWebLead(w, e.target.value)}
+                              className="w-full rounded-lg bg-gray-900 border border-gray-800 text-[11px] text-gray-300 px-2 py-1.5 cursor-pointer"
+                              aria-label="Mover solicitud de etapa"
+                            >
+                              {PIPELINE_STAGES.map(st => <option key={st.id} value={st.id}>{st.label}</option>)}
+                            </select>
+                            <button onClick={() => createSiteForLead(w)} className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold py-1.5 cursor-pointer">
+                              Crear su web
+                            </button>
+                          </div>
+                        ))}
                         {leads.map(lead => (
                           <div key={lead.id} className="p-3 rounded-xl bg-gray-950 border border-gray-800 space-y-1.5 shadow-sm">
                             <p className="text-xs font-bold text-white truncate">{lead.businessName}</p>

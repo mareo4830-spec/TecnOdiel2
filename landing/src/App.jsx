@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import BanchLanding from './components/BanchLanding';
+import HomePage from './components/home/HomePage';
 import AuditModal from './components/AuditModal';
 import FloatingContact from './components/FloatingContact';
 
@@ -22,12 +22,10 @@ export default function App({
 
   return (
     <div className="relative min-h-[100dvh] w-full bg-[#121212] text-white selection:bg-[#6DD94B] selection:text-black overflow-x-hidden">
-      {/* ── LANDING PRINCIPAL CON LA ESTÉTICA EXACTA DE BANCH BAUSOLA ── */}
-      <BanchLanding 
+      <HomePage
         onNavigateToMultiwebs={onNavigateToMultiwebs}
         onNavigateToCyS={onNavigateToCyS}
         onNavigateToPortal={onNavigateToPortal}
-        onOpenAudit={handleOpenAudit}
       />
 
       {/* Floating Interactive WhatsApp Quick Contact */}

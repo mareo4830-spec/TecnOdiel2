@@ -4,6 +4,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: { fs: { allow: ['..'] } },
   plugins: [react(), viteSingleFile()],
   build: {
     target: 'esnext',
