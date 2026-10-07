@@ -38,7 +38,11 @@ import {
   ChevronLeft, 
   ChevronRight,
   ArrowUpRight,
-  QrCode
+  QrCode,
+  ShoppingBag,
+  CreditCard,
+  Layers,
+  ChevronDown
 } from 'lucide-react';
 import { 
   TEMPLATES, 
@@ -52,6 +56,7 @@ import {
 import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
 import TemplateRenderer from '../Templates/TemplateRenderer';
 import ErrorBoundary from '../ErrorBoundary';
+import SlideCommit from '../ui/SlideCommit';
 import confetti from 'canvas-confetti';
 
 export const HERO_PHOTO_PRESETS = [
@@ -190,6 +195,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     surface_color: '#2a180b',
     font_family: 'Playfair Display',
 
+    owner_name: 'Manuel Soto Jiménez',
     phone: '+34 959 28 30 40',
     whatsapp_number: '+34611223344',
     email: 'contacto@tabernaelalbero.es',
@@ -197,6 +203,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
     city: 'Huelva',
     postal_code: '21001',
     google_maps_url: 'https://maps.google.com',
+    instagram_url: 'https://instagram.com/tabernaelalbero',
+    facebook_url: '',
 
     lunch_shift: { enabled: true, open: '13:00', close: '16:30' },
     dinner_shift: { enabled: true, open: '20:30', close: '00:00' },
@@ -564,6 +572,33 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 </div>
 
                 <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
+                        Nombre Completo del Titular / Propietario *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.owner_name}
+                        onChange={e => setFormData({ ...formData, owner_name: e.target.value })}
+                        placeholder="Ej. Manuel Soto Jiménez"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-medium focus:border-emerald-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
+                        Email Oficial del Titular *
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="contacto@tabernaelalbero.es"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-medium focus:border-emerald-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1.5">
                     <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
                       Nombre del Restaurante o Bar *
@@ -966,6 +1001,33 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
+                        Instagram del Local
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.instagram_url}
+                        onChange={e => setFormData({ ...formData, instagram_url: e.target.value })}
+                        placeholder="https://instagram.com/mi_restaurante"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
+                        Facebook / Redes Sociales
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.facebook_url}
+                        onChange={e => setFormData({ ...formData, facebook_url: e.target.value })}
+                        placeholder="https://facebook.com/mi_restaurante"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
                     <div className="space-y-1">
                       <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Horario Mediodía</label>
@@ -1169,24 +1231,45 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               </div>
             )}
 
-            {/* Bottom Stepper Buttons */}
-            <div className="flex items-center justify-between pt-4">
+            {/* Bottom Stepper Navigation Pills (Inspirado en DdMiQCJyBZt) */}
+            <div className="flex items-center justify-between pt-6 border-t border-white/10">
               <button
                 type="button"
                 disabled={activeSection === 1}
                 onClick={() => setActiveSection(prev => Math.max(1, prev - 1))}
-                className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white disabled:opacity-30 transition cursor-pointer interactive-button"
+                className="group relative px-5 py-2.5 rounded-full border border-white/15 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:text-white disabled:opacity-25 transition-all flex items-center gap-2 cursor-pointer shadow-lg active:scale-95"
               >
-                Anterior
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>Paso Anterior</span>
               </button>
+
+              {/* Indicador de píldoras centrales */}
+              <div className="hidden sm:flex items-center gap-1.5 p-1.5 rounded-full bg-zinc-900/90 border border-white/10 shadow-inner">
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setActiveSection(num)}
+                    className={`w-7 h-7 rounded-full text-[11px] font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
+                      activeSection === num
+                        ? 'bg-emerald-400 text-black shadow-[0_0_12px_rgba(16,185,129,0.5)] scale-110'
+                        : activeSection > num
+                        ? 'bg-zinc-800 text-emerald-400 border border-emerald-500/30'
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {activeSection > num ? <Check className="w-3.5 h-3.5" /> : `0${num}`}
+                  </button>
+                ))}
+              </div>
 
               <button
                 type="button"
                 onClick={() => setActiveSection(prev => Math.min(7, prev + 1))}
-                className="px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer shadow-md interactive-button"
+                className="group relative px-6 py-2.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-mono font-black transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-95"
               >
-                <span>{activeSection === 6 ? 'Ver Web Lista' : 'Siguiente'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>{activeSection === 6 ? 'Ver Esqueleto Web' : 'Siguiente Paso'}</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 stroke-[2.5]" />
               </button>
             </div>
           </div>
@@ -1258,24 +1341,359 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 </div>
               )}
 
-              {/* The Actual Render Frame */}
+            {/* Header explicativo del Esqueleto */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950/90 border border-white/10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-6xl">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                    Esqueleto Visual de Previsualización (4 Cuadros Interactivos)
+                  </span>
+                </div>
+                <h2 className="text-base sm:text-lg font-bold text-white font-sans">
+                  Prueba tipografías, colores y estilos antes de que activemos tu portal
+                </h2>
+                <p className="text-xs text-zinc-400 leading-relaxed max-w-2xl">
+                  Estos cuadros son esquemas estáticos para definir el tono estético de tu marca. Tus datos reales se gestionarán en tu portal de cliente privado tras la validación de administración.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1.5 p-1 bg-zinc-900 border border-white/10 rounded-xl shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('desktop')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                    previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Monitor className="w-3.5 h-3.5" />
+                  <span>Escritorio</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('mobile')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                    previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Móvil</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Grid de los 4 Cuadros Estáticos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-6xl">
+              
+              {/* CUADRO 1: CARTA DIGITAL & MENÚ */}
               <div 
-                className={`transition-all duration-300 ease-out bg-black rounded-3xl overflow-hidden border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative ${
-                  previewDevice === 'mobile' 
-                    ? 'w-[390px] min-h-[780px] ring-8 ring-zinc-900' 
-                    : previewDevice === 'tablet' 
-                    ? 'w-[768px] min-h-[900px] ring-8 ring-zinc-900' 
-                    : 'w-full max-w-6xl min-h-[800px]'
-                }`}
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                style={{ 
+                  backgroundColor: formData.surface_color || '#18181b',
+                  borderColor: `${formData.primary_color}40`,
+                  fontFamily: formData.font_family || 'Playfair Display'
+                }}
               >
-                <TemplateRenderer
-                  restaurant={formData}
-                  isPreview={true}
-                  previewDevice={previewDevice}
-                  onSelectElement={handleSelectElement}
-                  selectedElement={selectedElement}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                    <div className="flex items-center gap-2">
+                      <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                        <Utensils className="w-4 h-4" style={{ color: formData.primary_color }} />
+                      </span>
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400 font-sans">
+                          Cuadro 1 // Esqueleto Carta
+                        </span>
+                        <h4 className="text-sm font-bold text-white">Carta & Menú Digital QR</h4>
+                      </div>
+                    </div>
+                    <span 
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase"
+                      style={{ backgroundColor: `${formData.primary_color}20`, color: formData.primary_color }}
+                    >
+                      QR Autónomo
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {[
+                      { name: 'Chuletón Madurado Dry Aged', price: '48,00€', badge: 'Especialidad', desc: 'Carbón de encina y flor de sal del Atlántico' },
+                      { name: 'Jamón 100% Ibérico de Bellota', price: '24,50€', badge: 'Cortado a Cuchillo', desc: 'Denominación de Origen Jabugo' },
+                      { name: 'Gamba Blanca de Huelva a la Sal', price: '22,00€', badge: 'Lonja Matinal', desc: 'Recién llegada de la costa de Huelva' }
+                    ].map((item, idx) => (
+                      <div 
+                        key={idx}
+                        className="p-3 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between gap-3"
+                      >
+                        <div className="space-y-0.5 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-white truncate">{item.name}</span>
+                            <span 
+                              className="text-[9px] font-sans px-1.5 py-0.2 rounded font-semibold shrink-0"
+                              style={{ backgroundColor: `${formData.primary_color}30`, color: formData.primary_color }}
+                            >
+                              {item.badge}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-zinc-400 font-sans truncate">{item.desc}</p>
+                        </div>
+                        <span className="text-xs font-mono font-bold text-white shrink-0">
+                          {item.price}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                  <span>Tipografía: <strong className="text-white font-mono">{formData.font_family}</strong></span>
+                  <span className="flex items-center gap-1 font-mono text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Página QR Lista
+                  </span>
+                </div>
+              </div>
+
+              {/* CUADRO 2: LANDING PAGE & HERO */}
+              <div 
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                style={{ 
+                  backgroundColor: formData.background_color || '#09090b',
+                  borderColor: `${formData.primary_color}40`,
+                  fontFamily: formData.font_family || 'Playfair Display'
+                }}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                    <div className="flex items-center gap-2">
+                      <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                        <Globe className="w-4 h-4" style={{ color: formData.primary_color }} />
+                      </span>
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400 font-sans">
+                          Cuadro 2 // Esqueleto Landing
+                        </span>
+                        <h4 className="text-sm font-bold text-white">Portada Web Principal</h4>
+                      </div>
+                    </div>
+                    <span 
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase"
+                      style={{ backgroundColor: `${formData.accent_color}20`, color: formData.accent_color }}
+                    >
+                      Dominio Propio
+                    </span>
+                  </div>
+
+                  <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/60 p-4 space-y-3">
+                    <div className="flex items-center justify-between text-[10px] font-sans text-zinc-400 pb-2 border-b border-white/5">
+                      <span className="font-bold text-white">{formData.name}</span>
+                      <div className="flex gap-2">
+                        <span>Carta</span>
+                        <span>Reservas</span>
+                        <span>Contacto</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 py-2">
+                      <span 
+                        className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full inline-block"
+                        style={{ backgroundColor: `${formData.primary_color}25`, color: formData.primary_color }}
+                      >
+                        {formData.slogan || 'Gastronomía de Autor'}
+                      </span>
+                      <h3 className="text-lg font-black text-white leading-tight">
+                        La experiencia culinaria que distingue a tu mesa
+                      </h3>
+                      <p className="text-[11px] text-zinc-400 font-sans line-clamp-2">
+                        {formData.description || 'Cocina tradicional y vanguardia con producto de primera calidad.'}
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        className="px-4 py-2 rounded-xl text-xs font-sans font-bold text-black transition flex items-center gap-1.5 shadow"
+                        style={{ backgroundColor: formData.primary_color }}
+                      >
+                        <span>{formData.cta_text || 'Reservar Mesa Online'}</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                  <span>Disposición: <strong className="text-white font-mono">{formData.hero_layout}</strong></span>
+                  <span className="flex items-center gap-1 font-mono text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Diseño Responsive
+                  </span>
+                </div>
+              </div>
+
+              {/* CUADRO 3: SISTEMA DE RESERVAS */}
+              <div 
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                style={{ 
+                  backgroundColor: formData.surface_color || '#18181b',
+                  borderColor: `${formData.primary_color}40`,
+                  fontFamily: formData.font_family || 'Playfair Display'
+                }}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                    <div className="flex items-center gap-2">
+                      <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                        <Calendar className="w-4 h-4" style={{ color: formData.primary_color }} />
+                      </span>
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400 font-sans">
+                          Cuadro 3 // Esqueleto Reservas
+                        </span>
+                        <h4 className="text-sm font-bold text-white">Motor de Reservas Directas</h4>
+                      </div>
+                    </div>
+                    <span 
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase"
+                      style={{ backgroundColor: 'rgba(16,185,129,0.15)', color: '#10b981' }}
+                    >
+                      0€ Comisiones
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-black/50 border border-white/10 space-y-3 font-sans">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="p-2 rounded-lg bg-zinc-900 border border-white/5 space-y-0.5">
+                        <span className="text-[10px] text-zinc-400 font-mono">FECHA</span>
+                        <div className="text-white font-bold">Hoy, 21:30h</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-zinc-900 border border-white/5 space-y-0.5">
+                        <span className="text-[10px] text-zinc-400 font-mono">COMENSALES</span>
+                        <div className="text-white font-bold">4 Personas</div>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/30 text-[11px] text-emerald-300 flex items-center justify-between">
+                      <span>WhatsApp Directo:</span>
+                      <span className="font-mono font-bold">{formData.whatsapp_number}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="w-full py-2.5 rounded-xl text-xs font-bold text-black transition flex items-center justify-center gap-2"
+                      style={{ backgroundColor: formData.primary_color }}
+                    >
+                      <span>Confirmar Reserva Inmediata</span>
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                  <span>Confirmación: <strong className="text-white font-mono">WhatsApp 24/7</strong></span>
+                  <span className="flex items-center gap-1 font-mono text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Enlace Directo
+                  </span>
+                </div>
+              </div>
+
+              {/* CUADRO 4: PANEL DE GESTIÓN & CLIENTE */}
+              <div 
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                style={{ 
+                  backgroundColor: formData.background_color || '#09090b',
+                  borderColor: `${formData.primary_color}40`,
+                  fontFamily: 'Inter, sans-serif'
+                }}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                    <div className="flex items-center gap-2">
+                      <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                        <ShieldCheck className="w-4 h-4" style={{ color: formData.primary_color }} />
+                      </span>
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400">
+                          Cuadro 4 // Esqueleto Panel
+                        </span>
+                        <h4 className="text-sm font-bold text-white font-sans">Panel de Control & Clientes</h4>
+                      </div>
+                    </div>
+                    <span 
+                      className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-cyan-500/15 text-cyan-400"
+                    >
+                      Google OAuth
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-3 rounded-xl bg-black/60 border border-white/10">
+                        <span className="text-[10px] text-zinc-400 font-mono block">RESERVAS HOY</span>
+                        <span className="text-xl font-black text-white font-mono">14 Mesas</span>
+                        <span className="text-[10px] text-emerald-400 block pt-0.5">+100% Sin Comisiones</span>
+                      </div>
+                      <div className="p-3 rounded-xl bg-black/60 border border-white/10">
+                        <span className="text-[10px] text-zinc-400 font-mono block">VISITAS CARTA QR</span>
+                        <span className="text-xl font-black text-cyan-300 font-mono">284</span>
+                        <span className="text-[10px] text-zinc-400 block pt-0.5">Escaneos en vivo</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                        <span className="text-zinc-300 font-medium">Carta Digital QR Actualizada</span>
+                      </div>
+                      <span className="font-mono text-zinc-400 text-[11px]">En Línea</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                  <span>Acceso: <strong className="text-white font-mono">{formData.email}</strong></span>
+                  <span className="flex items-center gap-1 font-mono text-cyan-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Portal Listo
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Final Action: SlideCommit Button */}
+            <div className="w-full max-w-2xl p-6 rounded-3xl bg-zinc-950/90 border border-white/10 shadow-2xl flex flex-col items-center text-center space-y-4">
+              <div className="space-y-1">
+                <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold">
+                  // FINALIZAR Y ENVIAR RESPUESTAS
+                </span>
+                <h3 className="text-lg font-bold text-white">
+                  Desliza para enviar tu configuración al equipo de TecnOdiel
+                </h3>
+                <p className="text-xs text-zinc-400 max-w-md">
+                  Guardaremos tu solicitud para que los administradores generen tu web definitiva con la plantilla acordada. Podrás acceder a tu portal con tu cuenta de Google.
+                </p>
+              </div>
+
+              <div className="w-full flex justify-center pt-2">
+                <SlideCommit
+                  label="Desliza para enviar y crear tu cuenta"
+                  doneLabel="¡Enviado con Éxito!"
+                  width={340}
+                  handleColor={formData.primary_color || '#10b981'}
+                  successColor="#10b981"
+                  onDone={handleSave}
                 />
               </div>
+
+              <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveSection(6)}
+                  className="hover:text-white transition underline cursor-pointer"
+                >
+                  ← Volver a editar respuestas
+                </button>
+                <span>•</span>
+                <span className="text-emerald-400">Garantía TecnOdiel 100% a Medida</span>
+              </div>
+            </div>
             </div>
           </div>
 

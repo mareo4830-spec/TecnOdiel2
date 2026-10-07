@@ -189,6 +189,67 @@ export async function verifyClientAccessKey(rawKey, targetSlug = null) {
   return null;
 }
 
+// Verify client by submitted email (Para autenticación por Google OAuth o Email)
+export async function verifyClientByEmail(rawEmail, targetSlug = null) {
+  if (!rawEmail) return null;
+  const cleanEmail = rawEmail.toString().trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) return null;
+
+  try {
+    let query = supabase
+      .from('restaurants')
+      .select('*')
+      .ilike('email', cleanEmail);
+
+    if (targetSlug) {
+      query = query.eq('slug', targetSlug);
+    }
+
+    const { data: byEmail, error } = await query.limit(1);
+    if (!error && byEmail && byEmail.length > 0) {
+      return byEmail[0];
+    }
+  } catch (e) {
+    console.warn('Error verifying client email in Supabase:', e);
+  }
+
+  // Comprobar restaurantes o clínicas en almacenamiento local
+  if (typeof window !== 'undefined') {
+    try {
+      const localClinicsRaw = localStorage.getItem('tecnodiel_cys_clinics');
+      if (localClinicsRaw) {
+        const localClinics = JSON.parse(localClinicsRaw);
+        const matchClinic = localClinics.find(c =>
+          c.email &&
+          c.email.toString().trim().toLowerCase() === cleanEmail &&
+          (!targetSlug || c.slug === targetSlug)
+        );
+        if (matchClinic) return matchClinic;
+      }
+
+      const localRestsRaw = localStorage.getItem('tecnodiel_restaurants');
+      if (localRestsRaw) {
+        const localRests = JSON.parse(localRestsRaw);
+        const matchRest = localRests.find(r =>
+          r.email &&
+          r.email.toString().trim().toLowerCase() === cleanEmail &&
+          (!targetSlug || r.slug === targetSlug)
+        );
+        if (matchRest) return matchRest;
+      }
+    } catch (_) {}
+  }
+
+  // Fallback demo si el email coincide con el restaurante demo
+  if (cleanEmail === (FALLBACK_RESTAURANT.email || '').toLowerCase()) {
+    if (!targetSlug || targetSlug === 'marea-negra') {
+      return FALLBACK_RESTAURANT;
+    }
+  }
+
+  return null;
+}
+
 // Fetch all available restaurants for Super Admin monitoring
 export async function getAllRestaurantsForAdmin() {
   let list = [];

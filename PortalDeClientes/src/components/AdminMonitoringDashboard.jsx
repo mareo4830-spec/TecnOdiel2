@@ -35,7 +35,10 @@ import {
   Activity,
   Check,
   RefreshCw,
-  Filter
+  Filter,
+  Plus,
+  Wrench,
+  X
 } from 'lucide-react';
 import { 
   getAllRestaurantsForAdmin, 
@@ -44,6 +47,19 @@ import {
   deleteRestaurant 
 } from '../lib/supabase';
 import AdminTeamWorkspace from './AdminTeamWorkspace';
+
+// Plantillas disponibles y diferenciadas para instanciar webs desde formulario
+const AVAILABLE_TEMPLATES = [
+  { id: 'cinematic', name: 'Estilo Cinemático Chuletón', type: 'restaurant', desc: 'Narrativa visual inmersiva con vídeo, brasas y carta lateral fluida.' },
+  { id: 'taberna_andaluza', name: 'Taberna Andaluza Tradicional', type: 'restaurant', desc: 'Tonos albero, solera andaluza, azulejos y carta de raciones.' },
+  { id: 'nocturne', name: 'Nocturne Velvet Lounge', type: 'restaurant', desc: 'Alta coctelería y gastronomía nocturna en atmósfera oscura e íntima.' },
+  { id: 'tokyo_omakase', name: 'Tokyo Omakase Minimal', type: 'restaurant', desc: 'Estética japonesa zen, líneas limpias y exclusividad por pases.' },
+  { id: 'mediterraneo_bistro', name: 'Bistró Mediterráneo', type: 'restaurant', desc: 'Frescura marinera, luz natural y cocina de lonja directa.' },
+  { id: 'dental_pure', name: 'Dental Pure & Estética', type: 'clinic', desc: 'Diseño clínico higiénico, cian sanitario y cita 3D de alta gama.' },
+  { id: 'policlinica_central', name: 'Policlínica & Cuadro Médico', type: 'clinic', desc: 'Estructura multiespecialidad con gestión de mutuas y agendas médicas.' },
+  { id: 'fisioterapia_elite', name: 'Fisioterapia & Readaptación', type: 'clinic', desc: 'Enfoque deportivo activo con reserva de sesiones y patologías.' },
+  { id: 'derma_laser', name: 'Dermatología & Láser Avanzado', type: 'clinic', desc: 'Estética médica de vanguardia con catálogo de tratamientos y diagnóstico.' }
+];
 
 export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout, onNavigateToLanding }) {
   const [activeAdminTab, setActiveAdminTab] = useState('clients'); // 'clients' | 'team'
@@ -58,6 +74,31 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
   const [restaurantToDelete, setRestaurantToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteSuccessMsg, setDeleteSuccessMsg] = useState('');
+
+  // Modal: Añadir Web desde Formulario
+  const [isAddWebModalOpen, setIsAddWebModalOpen] = useState(false);
+  const [isCreatingWeb, setIsCreatingWeb] = useState(false);
+  const [newWebData, setNewWebData] = useState({
+    businessType: 'restaurant', // 'restaurant' | 'clinic'
+    owner_name: '',
+    name: '',
+    slug: '',
+    email: '',
+    phone: '',
+    whatsapp_number: '',
+    address: '',
+    city: 'Huelva',
+    postal_code: '21001',
+    template_id: 'cinematic',
+    primary_color: '#10b981',
+    accent_color: '#06b6d4',
+    font_family: 'Playfair Display',
+    slogan: '',
+    description: '',
+    instagram_url: '',
+    collegiate_number: '',
+    budget: 99.00
+  });
 
   const loadData = async () => {
     setLoading(true);
@@ -128,6 +169,74 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
     } else {
       alert('No se pudo eliminar el negocio. Inténtalo de nuevo.');
     }
+  };
+
+  // Instanciar web a partir de las respuestas del formulario
+  const handleCreateWebFromForm = async (e) => {
+    e.preventDefault();
+    if (!newWebData.name.trim()) return;
+
+    setIsCreatingWeb(true);
+    const cleanSlug = newWebData.slug.trim() || newWebData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const prefix = newWebData.businessType === 'clinic' ? 'CYS' : 'TO';
+    const accessKey = `${prefix}-${cleanSlug.toUpperCase().slice(0, 6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const newEntry = {
+      id: `gen-${Date.now()}`,
+      name: newWebData.name,
+      owner_name: newWebData.owner_name || 'Titular Registrado',
+      slug: cleanSlug,
+      email: newWebData.email.toLowerCase().trim(),
+      phone: newWebData.phone,
+      whatsapp_number: newWebData.whatsapp_number || newWebData.phone,
+      address: newWebData.address,
+      city: newWebData.city,
+      postal_code: newWebData.postal_code,
+      template_id: newWebData.template_id,
+      category: newWebData.businessType === 'clinic' ? 'dental' : 'traditional',
+      primary_color: newWebData.primary_color,
+      accent_color: newWebData.accent_color,
+      font_family: newWebData.font_family,
+      slogan: newWebData.slogan || (newWebData.businessType === 'clinic' ? 'Salud y Cuidado Integral' : 'Gastronomía de Calidad'),
+      description: newWebData.description || 'Página web profesional gestionada por TecnOdiel.',
+      instagram_url: newWebData.instagram_url,
+      collegiate_number: newWebData.collegiate_number,
+      client_access_key: accessKey,
+      plan_name: newWebData.businessType === 'clinic' ? 'Plan Clínica & Salud Pro' : 'Plan Hostelería Pro',
+      budget: parseFloat(newWebData.budget) || 99.00,
+      billing_plan: 'monthly',
+      contract_status: 'active',
+      published_url: `https://${cleanSlug}.pages.dev`,
+      cloudflare_url: `https://${cleanSlug}.pages.dev`,
+      pending_tasks: [
+        { id: 'task-1', label: 'Verificar respuestas y estilos del formulario', done: true },
+        { id: 'task-2', label: 'Ajustar carta / servicios al gusto del cliente', done: false },
+        { id: 'task-3', label: 'Conectar Google OAuth y enviar enlace al cliente', done: false }
+      ],
+      admin_notes: `Creado desde formulario por admin. Titular: ${newWebData.owner_name}. Plantilla asignada: ${newWebData.template_id}.`
+    };
+
+    // Guardar en Supabase o en persistencia local
+    try {
+      const { data, error } = await supabase.from('restaurants').insert([newEntry]).select().single();
+      if (!error && data) {
+        setRestaurants(prev => [data, ...prev]);
+      } else {
+        // Fallback local storage
+        const storageKey = newWebData.businessType === 'clinic' ? 'tecnodiel_cys_clinics' : 'tecnodiel_restaurants';
+        const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        existing.unshift(newEntry);
+        localStorage.setItem(storageKey, JSON.stringify(existing));
+        setRestaurants(prev => [newEntry, ...prev]);
+      }
+    } catch (_) {
+      setRestaurants(prev => [newEntry, ...prev]);
+    }
+
+    setIsCreatingWeb(false);
+    setIsAddWebModalOpen(false);
+    setDeleteSuccessMsg(`¡Web "${newEntry.name}" creada con éxito! Clave generada: ${accessKey}`);
+    setTimeout(() => setDeleteSuccessMsg(''), 6000);
   };
 
   // Clasificación clínica vs restaurante
@@ -251,6 +360,16 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>Cloudflare & Supabase Activos</span>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAddWebModalOpen(true)}
+            className="px-4 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_20px_rgba(16,185,129,0.35)] cursor-pointer"
+            title="Crear una web instanciada directamente a partir del formulario"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>Añadir Web desde Formulario</span>
+          </button>
 
           {onNavigateToLanding && (
             <button
@@ -707,6 +826,283 @@ export default function AdminMonitoringDashboard({ onImpersonateClient, onLogout
                 <span>{isDeleting ? 'Eliminando...' : 'Eliminar Definitivamente'}</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: AÑADIR WEB DESDE FORMULARIO */}
+      {isAddWebModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-2xl bg-zinc-950 border border-white/10 rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_rgba(0,0,0,0.9)] space-y-6 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white font-sans">
+                    Añadir Web desde Formulario
+                  </h3>
+                  <p className="text-xs text-zinc-400 font-mono">
+                    Genera la web y portal del cliente con todas las respuestas del cuestionario
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddWebModalOpen(false)}
+                className="p-2 rounded-xl hover:bg-white/10 text-zinc-400 hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWebFromForm} className="space-y-4 font-sans text-xs">
+              
+              {/* Selector de Tipo de Negocio */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                  Sector del Formulario
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewWebData(prev => ({ 
+                      ...prev, 
+                      businessType: 'restaurant',
+                      template_id: 'cinematic',
+                      primary_color: '#10b981',
+                      budget: 99.00
+                    }))}
+                    className={`p-3 rounded-2xl border text-left font-semibold transition cursor-pointer flex items-center gap-2.5 ${
+                      newWebData.businessType === 'restaurant'
+                        ? 'border-emerald-500/50 bg-emerald-500/10 text-white'
+                        : 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Utensils className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <div className="font-bold">Restauración & Hostelería</div>
+                      <div className="text-[10px] text-zinc-400 font-normal">Chuletón, Taberna, Nocturne, Omakase</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setNewWebData(prev => ({ 
+                      ...prev, 
+                      businessType: 'clinic',
+                      template_id: 'dental_pure',
+                      primary_color: '#06b6d4',
+                      budget: 119.00
+                    }))}
+                    className={`p-3 rounded-2xl border text-left font-semibold transition cursor-pointer flex items-center gap-2.5 ${
+                      newWebData.businessType === 'clinic'
+                        ? 'border-cyan-500/50 bg-cyan-500/10 text-white'
+                        : 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Stethoscope className="w-4 h-4 text-cyan-400" />
+                    <div>
+                      <div className="font-bold">Clínica & Salud (CyS)</div>
+                      <div className="text-[10px] text-zinc-400 font-normal">Dental, Policlínica, Fisioterapia, Láser</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Datos del Titular y Negocio */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                    Nombre Completo del Titular *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Manuel García Rodríguez"
+                    value={newWebData.owner_name}
+                    onChange={e => setNewWebData({ ...newWebData, owner_name: e.target.value })}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                    Nombre del Negocio / Local *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Asador El Candil / Clínica Dental Vital"
+                    value={newWebData.name}
+                    onChange={e => {
+                      const name = e.target.value;
+                      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                      setNewWebData({ ...newWebData, name, slug });
+                    }}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Email (para Google OAuth) y Teléfono */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                    <span>Email del Cliente (Google OAuth) *</span>
+                    <span className="text-emerald-400 font-mono text-[10px]">Acceso Portal</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="cliente@gmail.com"
+                    value={newWebData.email}
+                    onChange={e => setNewWebData({ ...newWebData, email: e.target.value })}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                    WhatsApp / Teléfono *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="+34 600 12 34 56"
+                    value={newWebData.whatsapp_number}
+                    onChange={e => setNewWebData({ ...newWebData, whatsapp_number: e.target.value, phone: e.target.value })}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Dirección y Ciudad */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2 space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                    Dirección
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Calle Marina, 12"
+                    value={newWebData.address}
+                    onChange={e => setNewWebData({ ...newWebData, address: e.target.value })}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                    Municipio
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Huelva"
+                    value={newWebData.city}
+                    onChange={e => setNewWebData({ ...newWebData, city: e.target.value })}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Redes Sociales y Datos Colegiados */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                    Instagram del Negocio
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://instagram.com/tunegocio"
+                    value={newWebData.instagram_url}
+                    onChange={e => setNewWebData({ ...newWebData, instagram_url: e.target.value })}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs"
+                  />
+                </div>
+
+                {newWebData.businessType === 'clinic' ? (
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                      Nº Colegiado / Registro Sanitario
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: COL-21094 / NICA 4512"
+                      value={newWebData.collegiate_number}
+                      onChange={e => setNewWebData({ ...newWebData, collegiate_number: e.target.value })}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs font-mono"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">
+                      Lema / Slogan
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Brasas, solera y producto de Huelva"
+                      value={newWebData.slogan}
+                      onChange={e => setNewWebData({ ...newWebData, slogan: e.target.value })}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Selección de Plantilla Diferenciada */}
+              <div className="space-y-2 pt-2 border-t border-white/10">
+                <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
+                  <span>Plantilla Diferenciada a Instanciar</span>
+                  <span className="text-zinc-500 text-[10px]">Las plantillas no se parecen entre sí</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {AVAILABLE_TEMPLATES
+                    .filter(t => t.type === newWebData.businessType)
+                    .map(tpl => (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => setNewWebData(prev => ({ ...prev, template_id: tpl.id }))}
+                        className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
+                          newWebData.template_id === tpl.id
+                            ? 'border-emerald-400 bg-white/10 text-white shadow-md'
+                            : 'border-white/5 bg-zinc-900/80 text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white text-xs">{tpl.name}</span>
+                          {newWebData.template_id === tpl.id && (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          )}
+                        </div>
+                        <p className="text-[10px] text-zinc-400 pt-1 leading-snug">{tpl.desc}</p>
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Botones de Envío del Modal */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsAddWebModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-white/10 text-zinc-300 hover:text-white text-xs font-semibold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingWeb}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-bold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4 stroke-[2.5]" />
+                  <span>{isCreatingWeb ? 'Instanciando...' : 'Crear Web y Generar Acceso'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

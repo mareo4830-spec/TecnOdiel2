@@ -50,6 +50,7 @@ import {
 import { createClinic, sanitizeSlug } from '../../lib/supabase';
 import TemplateRenderer from '../Templates/TemplateRenderer';
 import ErrorBoundary from '../ErrorBoundary';
+import SlideCommit from '../ui/SlideCommit';
 import confetti from 'canvas-confetti';
 
 export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
@@ -178,6 +179,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
     surface_color: '#08253a',
     font_family: 'Inter',
 
+    owner_name: 'Dra. Carmen Odiel Valdivia',
     phone: '+34 959 28 30 40',
     whatsapp_number: '+34611223344',
     email: 'citas@dentalsonrisas.es',
@@ -185,6 +187,8 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
     city: 'Huelva',
     postal_code: '21003',
     google_maps_url: 'https://maps.google.com',
+    instagram_url: 'https://instagram.com/dentalsonrisas_huelva',
+    facebook_url: '',
 
     lunch_shift: { enabled: true, open: '09:00', close: '14:00' },
     dinner_shift: { enabled: true, open: '16:00', close: '20:30' },
@@ -460,6 +464,33 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                 </div>
 
                 <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
+                        Nombre Completo del Director / Titular *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.owner_name}
+                        onChange={e => setFormData({ ...formData, owner_name: e.target.value })}
+                        placeholder="Ej. Dra. Carmen Odiel Valdivia"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-medium focus:border-cyan-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
+                        Email Oficial del Centro *
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="citas@dentalsonrisas.es"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-medium focus:border-cyan-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1.5">
                     <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
                       Nombre de la Clínica o Centro de Salud *
@@ -869,6 +900,29 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase">Instagram / Redes Sociales</label>
+                      <input
+                        type="text"
+                        value={formData.instagram_url}
+                        onChange={e => setFormData({ ...formData, instagram_url: e.target.value })}
+                        placeholder="https://instagram.com/mi_clinica"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase">Nº Colegiado / Registro Sanitario</label>
+                      <input
+                        type="text"
+                        value={formData.collegiate_number}
+                        onChange={e => setFormData({ ...formData, collegiate_number: e.target.value })}
+                        placeholder="Col. 21/0482 o NICA 48192"
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2 pt-2">
                     <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
                       Módulos & Servicios Digitales de TecnOdiel CyS
@@ -906,708 +960,531 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
               </div>
             )}
 
-            {/* Stepper Navigation Buttons */}
-            <div className="flex items-center justify-between pt-2">
-              {activeSection > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setActiveSection(prev => prev - 1)}
-                  className="px-4 py-2.5 rounded-xl border border-white/15 bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer interactive-button"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Anterior</span>
-                </button>
-              ) : <div />}
+            {/* Stepper Navigation Pills (Inspirado en DdMiQCJyBZt) */}
+            <div className="flex items-center justify-between pt-6 border-t border-white/10">
+              <button
+                type="button"
+                disabled={activeSection === 1}
+                onClick={() => setActiveSection(prev => Math.max(1, prev - 1))}
+                className="group relative px-5 py-2.5 rounded-full border border-white/15 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:text-white disabled:opacity-25 transition-all flex items-center gap-2 cursor-pointer shadow-lg active:scale-95"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <span>Paso Anterior</span>
+              </button>
 
-              {activeSection < 6 ? (
-                <button
-                  type="button"
-                  onClick={() => setActiveSection(prev => prev + 1)}
-                  className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-lg interactive-button"
-                >
-                  <span>Siguiente Paso</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setActiveSection(7)}
-                  className="px-6 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs flex items-center gap-2 transition cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.4)] interactive-button"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Ver Mi Web Lista en Directo</span>
-                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                </button>
-              )}
+              {/* Indicador de píldoras centrales */}
+              <div className="hidden sm:flex items-center gap-1.5 p-1.5 rounded-full bg-zinc-900/90 border border-white/10 shadow-inner">
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setActiveSection(num)}
+                    className={`w-7 h-7 rounded-full text-[11px] font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
+                      activeSection === num
+                        ? 'bg-cyan-400 text-black shadow-[0_0_12px_rgba(6,182,212,0.5)] scale-110'
+                        : activeSection > num
+                        ? 'bg-zinc-800 text-cyan-400 border border-cyan-500/30'
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {activeSection > num ? <Check className="w-3.5 h-3.5" /> : `0${num}`}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveSection(prev => Math.min(7, prev + 1))}
+                className="group relative px-6 py-2.5 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-mono font-black transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.4)] active:scale-95"
+              >
+                <span>{activeSection === 6 ? 'Ver Esqueleto Clínico' : 'Siguiente Paso'}</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 stroke-[2.5]" />
+              </button>
             </div>
           </div>
         </div>
       ) : (
-        /* STEP 7: Interactive Live Preview & Touch-to-Edit Engine */
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#030712]">
-          {/* Hidden File & Camera Inputs */}
-          <input
-            type="file"
-            ref={heroGalleryInputRef}
-            accept="image/*"
-            onChange={handleHeroImageUpload}
-            className="hidden"
-          />
-          <input
-            type="file"
-            ref={heroCameraInputRef}
-            accept="image/*"
-            capture="environment"
-            onChange={handleHeroImageUpload}
-            className="hidden"
-          />
-          <input
-            type="file"
-            ref={treatmentGalleryInputRef}
-            accept="image/*"
-            onChange={handleTreatmentImageUpload}
-            className="hidden"
-          />
-          <input
-            type="file"
-            ref={treatmentCameraInputRef}
-            accept="image/*"
-            capture="environment"
-            onChange={handleTreatmentImageUpload}
-            className="hidden"
-          />
+        /* STEP 7: Esqueleto Visual Estático (4 Cuadros) & SlideCommit */
+        <div className="flex-1 flex overflow-hidden relative">
+          {/* Live Responsive Skeleton Area — Left */}
+          <div className="flex-1 p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start overflow-y-auto relative">
+            {/* Ambient Glow */}
+            <div
+              className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[140px] pointer-events-none opacity-20"
+              style={{ backgroundColor: formData.primary_color }}
+            />
 
-          {/* Clean "Pulsa lo que quieras cambiar" Bar */}
-          <div className="border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl px-3 sm:px-6 py-2.5 z-20 shrink-0 shadow-lg">
-            <div className="max-w-6xl mx-auto flex flex-col gap-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+            {/* Device Mockup Toolbar */}
+            <div className="w-full flex flex-col items-center z-10 space-y-3">
+              <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-zinc-400">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                  <span className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 font-sans">
-                    <Sparkles className="w-4 h-4 text-cyan-400" />
-                    <span>Pulsa lo que quieras cambiar en tu web</span>
-                  </span>
-                  <span className="text-[11px] text-zinc-400 font-sans hidden md:inline">
-                    (Toca cualquier elemento en la pantalla o usa estos accesos rápidos)
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
+                    <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Pulsa cualquier cuadro para ajustar colores o tipografía</span>
                   </span>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  {tweakNotice && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[11px] font-medium flex items-center gap-1 animate-fadeIn">
-                      <Check className="w-3 h-3 text-cyan-400" />
-                      <span>{tweakNotice}</span>
-                    </span>
-                  )}
-                  <a
-                    href={`/#/c/${formData.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-2.5 py-1 rounded-lg border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
-                    title="Abrir web clínica en pestaña completa"
+                <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl shadow-md">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'}`}
+                    title="Vista de Ordenador"
                   >
-                    <ExternalLink className="w-3 h-3 text-cyan-400" />
-                    <span className="hidden sm:inline">Abrir Web</span>
-                  </a>
+                    <Monitor className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Escritorio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'}`}
+                    title="Vista de Móvil"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Móvil</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Quick-Access Pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'background', label: 'Fondo y Colores de la Clínica' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    (selectedElement?.type === 'background' || selectedElement?.type === 'colors' || selectedElement?.type === 'theme')
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Palette className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Fondo y Colores</span>
-                </button>
+              {/* Toast Feedback */}
+              {tweakNotice && (
+                <div className="px-4 py-2 rounded-xl bg-zinc-900/90 border border-cyan-500/40 text-cyan-300 font-mono text-xs shadow-xl animate-fadeIn">
+                  {tweakNotice}
+                </div>
+              )}
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'hero_image', label: 'Foto de Portada' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'hero_image'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Foto de Portada</span>
-                </button>
+              {/* Header explicativo del Esqueleto Clínico */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950/90 border border-white/10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 w-full max-w-6xl">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400">
+                      Esqueleto Visual Médico (4 Cuadros Interactivos)
+                    </span>
+                  </div>
+                  <h2 className="text-base sm:text-lg font-bold text-white font-sans">
+                    Verifica la estética de tu centro médico antes de activar el portal
+                  </h2>
+                  <p className="text-xs text-zinc-400 leading-relaxed max-w-2xl">
+                    Estos 4 cuadros estáticos te permiten probar tipografías, colores de confianza médica y estructura. Tus datos clínicos reales se cargarán desde administración en tu portal de cliente con Google OAuth.
+                  </p>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'hero_layout', label: 'Lado y Disposición de Portada' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'hero_layout'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Cambiar Lado</span>
-                </button>
+                <div className="flex items-center gap-1.5 p-1 bg-zinc-900 border border-white/10 rounded-xl shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                      previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Monitor className="w-3.5 h-3.5" />
+                    <span>Escritorio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono transition flex items-center gap-1.5 cursor-pointer ${
+                      previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow' : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Móvil</span>
+                  </button>
+                </div>
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'hero_size', label: 'Tamaño de Foto de Portada' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'hero_size'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Tamaño Foto</span>
-                </button>
+              {/* Grid de los 4 Cuadros Estáticos de Clínica */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-6xl">
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'title', label: 'Nombre de la Clínica' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'title'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Type className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Nombre Clínica</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'slogan', label: 'Especialidad & Lema' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'slogan'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-pink-400" />
-                  <span>Lema & Filosofía</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'cta_button', label: 'Botón de Cita Online' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'cta_button'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Calendar className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Botón de Cita</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const firstItem = formData.menu_categories?.[0]?.items?.[0] || { name: 'Consulta Médica', price: '45€' };
-                    handleSelectElement({
-                      type: 'treatment_item',
-                      label: firstItem.name || 'Tratamiento Clínico',
-                      data: { categoryIndex: 0, itemIndex: 0, item: firstItem }
-                    });
+                {/* CUADRO 1: TRATAMIENTOS & ESPECIALIDADES MÉDICAS */}
+                <div
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  style={{
+                    backgroundColor: formData.surface_color || '#0a1017',
+                    borderColor: `${formData.primary_color}40`,
+                    fontFamily: formData.font_family || 'Inter, sans-serif'
                   }}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'treatment_item'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
                 >
-                  <Stethoscope className="w-3.5 h-3.5 text-orange-400" />
-                  <span>Tratamientos & Fotos</span>
-                </button>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                          <Activity className="w-4 h-4" style={{ color: formData.primary_color }} />
+                        </span>
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400 font-sans">
+                            Cuadro 1 // Esqueleto Cuadro Médico
+                          </span>
+                          <h4 className="text-sm font-bold text-white">Especialidades & Tratamientos</h4>
+                        </div>
+                      </div>
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase"
+                        style={{ backgroundColor: `${formData.primary_color}20`, color: formData.primary_color }}
+                      >
+                        Cuadro Médico
+                      </span>
+                    </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'theme', label: 'Estilo Visual & Colores' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'theme'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
-                >
-                  <Palette className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Estilo & Colores</span>
-                </button>
+                    <div className="space-y-2.5">
+                      {[
+                        { name: 'Odontología & Estética Dental', time: '1ª Consulta Gratuita', badge: 'Alta Demanda', desc: 'Diagnóstico 3D, carillas de porcelana e implantes de carga inmediata.' },
+                        { name: 'Fisioterapia & Readaptación', time: 'Sesiones 50 min', badge: 'Especialista', desc: 'Terapia manual avanzada, punción seca y recuperación funcional.' },
+                        { name: 'Medicina General & Analíticas', time: 'Atención Inmediata', badge: 'Diario', desc: 'Control preventivo de salud y recetas oficiales homologadas.' }
+                      ].map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between gap-3"
+                        >
+                          <div className="space-y-0.5 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-white truncate">{item.name}</span>
+                              <span
+                                className="text-[9px] font-sans px-1.5 py-0.2 rounded font-semibold shrink-0"
+                                style={{ backgroundColor: `${formData.primary_color}30`, color: formData.primary_color }}
+                              >
+                                {item.badge}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-zinc-400 font-sans truncate">{item.desc}</p>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-cyan-300 shrink-0">
+                            {item.time}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectElement({ type: 'contact', label: 'Contacto & Horarios' })}
-                  className={`px-3 py-1.5 rounded-lg border transition shrink-0 flex items-center gap-1.5 cursor-pointer text-xs ${
-                    selectedElement?.type === 'contact'
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
-                      : 'bg-zinc-900/90 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-                  }`}
+                  <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                    <span>Tipografía: <strong className="text-white font-mono">{formData.font_family}</strong></span>
+                    <span className="flex items-center gap-1 font-mono text-cyan-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Catálogo Homologado
+                    </span>
+                  </div>
+                </div>
+
+                {/* CUADRO 2: LANDING PAGE MÉDICA & HERO */}
+                <div
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  style={{
+                    backgroundColor: formData.background_color || '#041724',
+                    borderColor: `${formData.primary_color}40`,
+                    fontFamily: formData.font_family || 'Inter, sans-serif'
+                  }}
                 >
-                  <MapPin className="w-3.5 h-3.5 text-teal-400" />
-                  <span>Contacto & Horarios</span>
-                </button>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                          <Globe className="w-4 h-4" style={{ color: formData.primary_color }} />
+                        </span>
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400 font-sans">
+                            Cuadro 2 // Esqueleto Landing Médica
+                          </span>
+                          <h4 className="text-sm font-bold text-white">Portada Médica & Prestigio</h4>
+                        </div>
+                      </div>
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase"
+                        style={{ backgroundColor: `${formData.accent_color}20`, color: formData.accent_color }}
+                      >
+                        RGPD & Sanidad
+                      </span>
+                    </div>
+
+                    <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/60 p-4 space-y-3">
+                      <div className="flex items-center justify-between text-[10px] font-sans text-zinc-400 pb-2 border-b border-white/5">
+                        <span className="font-bold text-white">{formData.name}</span>
+                        <div className="flex gap-2">
+                          <span>Especialidades</span>
+                          <span>Equipo</span>
+                          <span>Cita Online</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 py-2">
+                        <span
+                          className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full inline-block"
+                          style={{ backgroundColor: `${formData.primary_color}25`, color: formData.primary_color }}
+                        >
+                          {formData.slogan || 'Cuidado de vanguardia y cercanía para tu salud'}
+                        </span>
+                        <h3 className="text-lg font-black text-white leading-tight">
+                          Excelencia médica y tecnología diagnóstica en cada consulta
+                        </h3>
+                        <p className="text-[11px] text-zinc-400 font-sans line-clamp-2">
+                          {formData.description || 'Instalaciones sanitarias de última generación con equipo clínico colegiado.'}
+                        </p>
+                      </div>
+
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          className="px-4 py-2 rounded-xl text-xs font-sans font-bold text-black transition flex items-center gap-1.5 shadow"
+                          style={{ backgroundColor: formData.primary_color }}
+                        >
+                          <span>{formData.cta_text || 'Pedir Cita Online 24/7'}</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                    <span>Disposición: <strong className="text-white font-mono">{formData.hero_layout}</strong></span>
+                    <span className="flex items-center gap-1 font-mono text-cyan-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Colegiado: {formData.collegiate_number || 'Oficial'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* CUADRO 3: SISTEMA DE CITA PREVIA & MUTUAS */}
+                <div
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  style={{
+                    backgroundColor: formData.surface_color || '#0a1017',
+                    borderColor: `${formData.primary_color}40`,
+                    fontFamily: formData.font_family || 'Inter, sans-serif'
+                  }}
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                          <Calendar className="w-4 h-4" style={{ color: formData.primary_color }} />
+                        </span>
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400 font-sans">
+                            Cuadro 3 // Esqueleto Citas & Mutuas
+                          </span>
+                          <h4 className="text-sm font-bold text-white">Cita Previa Automatizada</h4>
+                        </div>
+                      </div>
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase"
+                        style={{ backgroundColor: 'rgba(6,182,212,0.15)', color: '#06b6d4' }}
+                      >
+                        24 Horas / Día
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-black/50 border border-white/10 space-y-3 font-sans">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="p-2 rounded-lg bg-zinc-900 border border-white/5 space-y-0.5">
+                          <span className="text-[10px] text-zinc-400 font-mono">MUTUA O PRIVADO</span>
+                          <div className="text-white font-bold truncate">Adeslas / Sanitas / Privado</div>
+                        </div>
+                        <div className="p-2 rounded-lg bg-zinc-900 border border-white/5 space-y-0.5">
+                          <span className="text-[10px] text-zinc-400 font-mono">PRIMER HUECO</span>
+                          <div className="text-cyan-300 font-bold">Mañana, 10:15h</div>
+                        </div>
+                      </div>
+
+                      <div className="p-2.5 rounded-lg bg-cyan-950/20 border border-cyan-500/30 text-[11px] text-cyan-300 flex items-center justify-between">
+                        <span>WhatsApp Clínico Directo:</span>
+                        <span className="font-mono font-bold">{formData.whatsapp_number}</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="w-full py-2.5 rounded-xl text-xs font-bold text-black transition flex items-center justify-center gap-2"
+                        style={{ backgroundColor: formData.primary_color }}
+                      >
+                        <span>Reservar Cita en Calendario</span>
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                    <span>Recordatorios: <strong className="text-white font-mono">SMS / WhatsApp</strong></span>
+                    <span className="flex items-center gap-1 font-mono text-cyan-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> 0% Ausencias
+                    </span>
+                  </div>
+                </div>
+
+                {/* CUADRO 4: FICHA PACIENTE & PORTAL CLÍNICO */}
+                <div
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  style={{
+                    backgroundColor: formData.background_color || '#041724',
+                    borderColor: `${formData.primary_color}40`,
+                    fontFamily: 'Inter, sans-serif'
+                  }}
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${formData.primary_color}25` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="p-2 rounded-xl bg-black/40 border border-white/10">
+                          <ShieldCheck className="w-4 h-4" style={{ color: formData.primary_color }} />
+                        </span>
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-wider block text-zinc-400">
+                            Cuadro 4 // Esqueleto Portal Médico
+                          </span>
+                          <h4 className="text-sm font-bold text-white font-sans">Portal de Gestión & Pacientes</h4>
+                        </div>
+                      </div>
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-cyan-500/15 text-cyan-400"
+                      >
+                        Google OAuth
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-3 rounded-xl bg-black/60 border border-white/10">
+                          <span className="text-[10px] text-zinc-400 font-mono block">CITAS DE HOY</span>
+                          <span className="text-xl font-black text-white font-mono">18 Pacientes</span>
+                          <span className="text-[10px] text-cyan-400 block pt-0.5">Sincronizado 100%</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-black/60 border border-white/10">
+                          <span className="text-[10px] text-zinc-400 font-mono block">CONSULTAS ONLINE</span>
+                          <span className="text-xl font-black text-cyan-300 font-mono">42</span>
+                          <span className="text-[10px] text-zinc-400 block pt-0.5">Pacientes activos</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                          <span className="text-zinc-300 font-medium">Cuadro Médico & Horarios</span>
+                        </div>
+                        <span className="font-mono text-zinc-400 text-[11px]">En Línea</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t flex items-center justify-between text-[11px] font-sans text-zinc-400" style={{ borderColor: `${formData.primary_color}20` }}>
+                    <span>Acceso Titular: <strong className="text-white font-mono">{formData.email}</strong></span>
+                    <span className="flex items-center gap-1 font-mono text-cyan-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Portal Clínico Listo
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Final Action: SlideCommit Button */}
+              <div className="w-full max-w-2xl p-6 rounded-3xl bg-zinc-950/90 border border-white/10 shadow-2xl flex flex-col items-center text-center space-y-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold">
+                    // FINALIZAR Y ENVIAR RESPUESTAS
+                  </span>
+                  <h3 className="text-lg font-bold text-white">
+                    Desliza para enviar tu configuración al equipo de TecnOdiel
+                  </h3>
+                  <p className="text-xs text-zinc-400 max-w-md">
+                    Guardaremos tu solicitud médica para que los administradores generen tu web definitiva con la plantilla acordada. Podrás acceder a tu portal con tu cuenta de Google.
+                  </p>
+                </div>
+
+                <div className="w-full flex justify-center pt-2">
+                  <SlideCommit
+                    label="Desliza para enviar y crear tu cuenta médica"
+                    doneLabel="¡Enviado con Éxito!"
+                    width={340}
+                    handleColor={formData.primary_color || '#06b6d4'}
+                    successColor="#06b6d4"
+                    onDone={handleSave}
+                  />
+                </div>
+
+                <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection(6)}
+                    className="hover:text-white transition underline cursor-pointer"
+                  >
+                    ← Volver a editar respuestas
+                  </button>
+                  <span>•</span>
+                  <span className="text-cyan-400">Garantía TecnOdiel 100% a Medida</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Dynamic Contextual Inspector */}
-          {isInspectorOpen && selectedElement && (
-            <div className="border-b border-white/15 bg-zinc-950/98 backdrop-blur-2xl px-3 sm:px-6 py-3.5 z-30 shadow-2xl animate-fadeIn">
-              <div className="max-w-6xl mx-auto space-y-3">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+          {/* Inspector Panel on Right */}
+          {isInspectorOpen && (
+            <aside className="w-80 sm:w-96 border-l border-white/10 bg-zinc-950/95 backdrop-blur-xl p-4 sm:p-5 flex flex-col justify-between overflow-y-auto z-20 shrink-0">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                    <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                      <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Modificando: {selectedElement.label || selectedElement.type}</span>
-                    </span>
-                    <span className="text-[11px] text-zinc-400 hidden sm:inline font-sans">
-                      — Se actualiza al instante en la pantalla
-                    </span>
+                    <Sliders className="w-4 h-4 text-cyan-400" />
+                    <span className="font-bold text-xs uppercase tracking-wider text-white">Inspector Visual</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsInspectorOpen(false)}
-                    className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
-                    title="Cerrar panel de edición"
+                    className="p-1 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Inspector Body based on element type */}
-                {(selectedElement.type === 'hero_image' || selectedElement.type === 'hero_layout' || selectedElement.type === 'hero_size') && (
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                      {/* Side Swap */}
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                          ↔️ Posición de la Imagen (Lado)
-                        </label>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, hero_image_side: 'left', hero_layout: 'split' }));
-                              showTweakNotice('Imagen colocada a la izquierda');
-                            }}
-                            className={`py-2 px-2.5 rounded-lg text-xs font-semibold border transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                              formData.hero_image_side === 'left' && formData.hero_layout === 'split'
-                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold shadow-sm'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            <ChevronLeft className="w-3.5 h-3.5" />
-                            <span>A la Izquierda</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, hero_image_side: 'right', hero_layout: 'split' }));
-                              showTweakNotice('Imagen colocada a la derecha');
-                            }}
-                            className={`py-2 px-2.5 rounded-lg text-xs font-semibold border transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                              formData.hero_image_side === 'right' && formData.hero_layout === 'split'
-                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold shadow-sm'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            <span>A la Derecha</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
+                {/* Quick Switch Tabs */}
+                <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-zinc-900/80 border border-white/5 text-[11px] font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'background', label: 'Fondo & Colores' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'background' || selectedElement?.type === 'colors'
+                        ? 'bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Fondo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'hero_image', label: 'Portada & Layout' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'hero_image' || selectedElement?.type === 'hero_layout'
+                        ? 'bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Portada
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'title', label: 'Nombre & Lema' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'title' || selectedElement?.type === 'slogan'
+                        ? 'bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Texto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedElement({ type: 'cta_button', label: 'Botón de Cita' })}
+                    className={`py-1.5 px-1 rounded-lg text-center transition cursor-pointer truncate ${
+                      selectedElement?.type === 'cta_button'
+                        ? 'bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/40'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Botón
+                  </button>
+                </div>
 
-                      {/* Image Size */}
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase flex items-center gap-1.5">
-                          <Sliders className="w-3.5 h-3.5 text-zinc-400" />
-                          <span>Tamaño / Altura de Foto</span>
-                        </label>
-                        <div className="grid grid-cols-4 gap-1">
-                          {[
-                            { id: 'sm', label: 'S' },
-                            { id: 'md', label: 'M' },
-                            { id: 'lg', label: 'L' },
-                            { id: 'xl', label: 'XL' }
-                          ].map(sz => (
-                            <button
-                              key={sz.id}
-                              type="button"
-                              onClick={() => {
-                                setFormData(prev => ({ ...prev, hero_image_size: sz.id }));
-                                showTweakNotice(`Tamaño de imagen: ${sz.label}`);
-                              }}
-                              className={`py-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
-                                (formData.hero_image_size || 'md') === sz.id
-                                ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                              }`}
-                            >
-                              {sz.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                <div className="p-2.5 rounded-xl bg-cyan-950/20 border border-cyan-500/30 text-xs flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-cyan-400 uppercase font-semibold">Tocado en pantalla:</span>
+                  <div className="font-bold text-white text-xs truncate max-w-[180px]">{selectedElement?.label || selectedElement?.title || 'General'}</div>
+                </div>
 
-                      {/* Layout */}
-                      <div className="space-y-1 sm:col-span-2">
-                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase flex items-center gap-1.5">
-                          <Layout className="w-3.5 h-3.5 text-zinc-400" />
-                          <span>Disposición de Portada</span>
-                        </label>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, hero_layout: 'split' }));
-                              showTweakNotice('Disposición: Foto dividida al lado');
-                            }}
-                            className={`py-2 px-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
-                              formData.hero_layout === 'split'
-                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            Dividida al Lado
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, hero_layout: 'centered' }));
-                              showTweakNotice('Disposición: Fondo completo');
-                            }}
-                            className={`py-2 px-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
-                              formData.hero_layout === 'centered'
-                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            Fondo Completo
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, hero_layout: 'minimal' }));
-                              showTweakNotice('Disposición: Minimalista');
-                            }}
-                            className={`py-2 px-2 rounded-lg text-xs font-semibold border transition text-center cursor-pointer ${
-                              formData.hero_layout === 'minimal'
-                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            Solo Texto
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Camera & Gallery Upload Controls */}
-                    <div className="p-3 rounded-xl bg-zinc-900/70 border border-white/10 space-y-2.5">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                          <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                          <span>Subir Foto del Centro (Galería o Cámara)</span>
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => heroGalleryInputRef.current?.click()}
-                            className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold border border-white/15 transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-                          >
-                            <Upload className="w-3.5 h-3.5 text-cyan-400" />
-                            <span>Elegir de Galería</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => heroCameraInputRef.current?.click()}
-                            className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-semibold border border-cyan-500/40 transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-                          >
-                            <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                            <span>Hacer Foto con Cámara</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={formData.hero_image || ''}
-                          onChange={e => setFormData(prev => ({ ...prev, hero_image: e.target.value }))}
-                          placeholder="O pega aquí la URL de la imagen..."
-                          className="flex-1 bg-black/60 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 font-mono focus:border-cyan-400 focus:outline-none"
-                        />
-                      </div>
-
-                      {/* Presets */}
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-mono text-zinc-400 uppercase font-semibold">
-                          O elige una foto clínica en 1 clic:
-                        </span>
-                        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                          {CLINIC_PHOTO_PRESETS.map((preset, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => {
-                                setFormData(prev => ({ ...prev, hero_image: preset.url }));
-                                showTweakNotice(`Foto cambiada: ${preset.label}`);
-                              }}
-                              className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border transition shrink-0 cursor-pointer ${
-                                formData.hero_image === preset.url
-                                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
-                                  : 'bg-black/50 border-white/10 text-zinc-300 hover:border-white/30'
-                              }`}
-                            >
-                              <img src={preset.url} alt={preset.label} className="w-6 h-6 rounded object-cover" />
-                              <span className="text-xs">{preset.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Title Inspector */}
-                {selectedElement.type === 'title' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Nombre de la Clínica o Centro
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name || ''}
-                        onChange={e => handleNameChange(e.target.value)}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white font-bold focus:border-cyan-400 focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Dirección Web Asignada (Subdominio)
-                      </label>
-                      <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-cyan-400">
-                        <span>https://{formData.slug || 'clinica'}.tecnodiel.app</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Slogan & Philosophy Inspector */}
-                {selectedElement.type === 'slogan' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Lema o Especialidad Destacada
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.slogan || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Descripción o Compromiso Médico
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={formData.description || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none resize-none"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* CTA Button Inspector */}
-                {selectedElement.type === 'cta_button' && (
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                      Texto del Botón de Cita Médica
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.cta_text || 'Pedir Cita Online'}
-                      onChange={e => setFormData(prev => ({ ...prev, cta_text: e.target.value }))}
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white font-bold focus:border-cyan-400 focus:outline-none"
-                    />
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                      <span className="text-[10px] font-mono text-zinc-400">Sugerencias:</span>
-                      {['Pedir Cita Online Gratuita', 'Reservar Cita Médica', 'Pedir Cita con Especialista', 'Cita por WhatsApp'].map(sug => (
-                        <button
-                          key={sug}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, cta_text: sug }));
-                            showTweakNotice(`Botón: "${sug}"`);
-                          }}
-                          className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 text-[11px] transition cursor-pointer"
-                        >
-                          {sug}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Treatment & Services Inspector */}
-                {selectedElement.type === 'treatment_item' && (() => {
-                  const catIdx = selectedElement.data?.categoryIndex ?? 0;
-                  const itemIdx = selectedElement.data?.itemIndex ?? 0;
-                  const item = formData.menu_categories?.[catIdx]?.items?.[itemIdx] || selectedElement.data?.item || { name: '', price: '', description: '' };
-
-                  return (
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
-                        <div className="flex items-center gap-2">
-                          <Stethoscope className="w-3.5 h-3.5 text-cyan-400" />
-                          <span className="text-xs font-bold text-white">
-                            Tratamiento: {item.name || 'Seleccionado'} ({formData.menu_categories?.[catIdx]?.category || 'Cuadro Clínico'})
-                          </span>
-                        </div>
-
-                        {/* Switch specialty category */}
-                        <div className="flex items-center gap-2">
-                          <select
-                            value={catIdx}
-                            onChange={e => {
-                              const newCat = parseInt(e.target.value, 10);
-                              const firstItem = formData.menu_categories?.[newCat]?.items?.[0] || { name: 'Tratamiento', price: '40€' };
-                              setSelectedElement({
-                                type: 'treatment_item',
-                                label: firstItem.name || 'Tratamiento',
-                                data: { categoryIndex: newCat, itemIndex: 0, item: firstItem }
-                              });
-                            }}
-                            className="bg-zinc-900 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none"
-                          >
-                            {(formData.menu_categories || []).map((cat, idx) => (
-                              <option key={idx} value={idx}>{cat.category}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                            Nombre del Tratamiento
-                          </label>
-                          <input
-                            type="text"
-                            value={item.name || ''}
-                            onChange={e => {
-                              handleUpdateTreatment(catIdx, itemIdx, 'name', e.target.value);
-                              setSelectedElement(prev => ({
-                                ...prev,
-                                label: e.target.value,
-                                data: { ...prev.data, item: { ...item, name: e.target.value } }
-                              }));
-                            }}
-                            className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:border-cyan-400 focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                            Precio o Tarifa
-                          </label>
-                          <input
-                            type="text"
-                            value={item.price || ''}
-                            onChange={e => {
-                              handleUpdateTreatment(catIdx, itemIdx, 'price', e.target.value);
-                              setSelectedElement(prev => ({
-                                ...prev,
-                                data: { ...prev.data, item: { ...item, price: e.target.value } }
-                              }));
-                            }}
-                            className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white font-mono font-bold focus:border-cyan-400 focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                            Foto del Tratamiento (Cámara / Galería)
-                          </label>
-                          <div className="flex items-center gap-1.5">
-                            {item.image && (
-                              <img src={item.image} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-white/20 shrink-0" />
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => treatmentGalleryInputRef.current?.click()}
-                              className="flex-1 py-1.5 px-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-semibold border border-white/15 transition flex items-center justify-center gap-1 cursor-pointer"
-                              title="Seleccionar foto de galería"
-                            >
-                              <Upload className="w-3 h-3 text-cyan-400" />
-                              <span>Galería</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => treatmentCameraInputRef.current?.click()}
-                              className="flex-1 py-1.5 px-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-[11px] font-semibold border border-cyan-500/40 transition flex items-center justify-center gap-1 cursor-pointer"
-                              title="Tomar foto con cámara"
-                            >
-                              <Camera className="w-3 h-3 text-cyan-400" />
-                              <span>Cámara</span>
-                            </button>
-                            {item.image && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  handleUpdateTreatment(catIdx, itemIdx, 'image', undefined);
-                                  setSelectedElement(prev => ({
-                                    ...prev,
-                                    data: { ...prev.data, item: { ...item, image: undefined } }
-                                  }));
-                                  showTweakNotice('Foto eliminada');
-                                }}
-                                className="p-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                          Descripción Clínica o Explicación
-                        </label>
-                        <input
-                          type="text"
-                          value={item.description || ''}
-                          onChange={e => {
-                            handleUpdateTreatment(catIdx, itemIdx, 'description', e.target.value);
-                            setSelectedElement(prev => ({
-                              ...prev,
-                              data: { ...prev.data, item: { ...item, description: e.target.value } }
-                            }));
-                          }}
-                          className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Theme, Background & Palette Inspector */}
-                {(selectedElement.type === 'theme' || selectedElement.type === 'background' || selectedElement.type === 'colors') && (
+                {/* 1. BACKGROUND & COLORS INSPECTOR */}
+                {(selectedElement?.type === 'background' || selectedElement?.type === 'colors' || selectedElement?.type === 'theme') && (
                   <div className="space-y-4">
-                    {/* Background Color Picker & Swatches */}
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
-                        <span>Color de Fondo Principal</span>
+                        <span>Color de Fondo de la Web</span>
                         <span className="text-zinc-300 font-mono text-[10px]">{formData.background_color}</span>
                       </label>
                       <div className="flex items-center gap-2">
@@ -1629,7 +1506,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                         />
                       </div>
 
-                      {/* Quick Dark Presets */}
+                      {/* Quick Swatches */}
                       <div className="grid grid-cols-4 gap-1.5 pt-1">
                         {[
                           { label: 'Océano', hex: '#041724' },
@@ -1659,7 +1536,6 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                       </div>
                     </div>
 
-                    {/* Surface / Cards Color */}
                     <div className="space-y-1.5 pt-2 border-t border-white/10">
                       <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
                         <span>Color de Tarjetas / Superficie</span>
@@ -1668,10 +1544,10 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                       <div className="flex items-center gap-2">
                         <input
                           type="color"
-                          value={formData.surface_color || '#08253a'}
+                          value={formData.surface_color || '#0a1017'}
                           onChange={(e) => {
                             setFormData(prev => ({ ...prev, surface_color: e.target.value }));
-                            showTweakNotice('Color de tarjetas actualizado');
+                            showTweakNotice('Superficie actualizada');
                           }}
                           className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
                         />
@@ -1679,13 +1555,12 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                           type="text"
                           value={formData.surface_color || ''}
                           onChange={(e) => setFormData(prev => ({ ...prev, surface_color: e.target.value }))}
-                          placeholder="#08253a"
+                          placeholder="#0a1017"
                           className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
                         />
                       </div>
                     </div>
 
-                    {/* Primary Accent Color */}
                     <div className="space-y-1.5 pt-2 border-t border-white/10">
                       <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold flex items-center justify-between">
                         <span>Color Principal de Acento</span>
@@ -1697,7 +1572,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                           value={formData.primary_color || '#06b6d4'}
                           onChange={(e) => {
                             setFormData(prev => ({ ...prev, primary_color: e.target.value }));
-                            showTweakNotice('Color de acento actualizado');
+                            showTweakNotice('Color principal actualizado');
                           }}
                           className="w-10 h-9 rounded-lg bg-transparent border border-white/20 cursor-pointer"
                         />
@@ -1705,372 +1580,118 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                           type="text"
                           value={formData.primary_color || ''}
                           onChange={(e) => setFormData(prev => ({ ...prev, primary_color: e.target.value }))}
+                          placeholder="#06b6d4"
                           className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
                         />
                       </div>
-
-                      {/* Accent swatches */}
-                      <div className="grid grid-cols-4 gap-1.5 pt-1">
-                        {[
-                          { label: 'Cian', hex: '#06b6d4' },
-                          { label: 'Turquesa', hex: '#14b8a6' },
-                          { label: 'Esmeralda', hex: '#10b981' },
-                          { label: 'Azul', hex: '#0284c7' },
-                          { label: 'Violeta', hex: '#8b5cf6' },
-                          { label: 'Lima', hex: '#84cc16' },
-                          { label: 'Oro', hex: '#eab308' },
-                          { label: 'Blanco', hex: '#ffffff' }
-                        ].map(sw => (
-                          <button
-                            key={sw.hex}
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, primary_color: sw.hex }));
-                              showTweakNotice(`Acento: ${sw.label}`);
-                            }}
-                            className={`p-1.5 rounded-lg border text-left text-[10px] font-mono transition flex items-center gap-1.5 cursor-pointer ${
-                              formData.primary_color === sw.hex ? 'border-cyan-400 bg-white/10 text-white font-bold' : 'border-white/10 bg-zinc-900 text-zinc-400'
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: sw.hex }} />
-                            <span className="truncate">{sw.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Template Visual Styles */}
-                    <div className="space-y-1 pt-2 border-t border-white/10">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Elige un Estilo Visual de Plantilla Clínica
-                      </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-36 overflow-y-auto pr-1">
-                        {TEMPLATES.map(tpl => (
-                          <button
-                            key={tpl.id}
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({
-                                ...prev,
-                                template_id: tpl.id,
-                                primary_color: tpl.previewColors.primary,
-                                accent_color: tpl.previewColors.accent,
-                                background_color: tpl.previewColors.bg,
-                                surface_color: tpl.previewColors.card,
-                                font_family: tpl.defaultFont,
-                                menu_categories: getPresetServicesForStyle(tpl.id)
-                              }));
-                              showTweakNotice(`Estilo: ${tpl.name}`);
-                            }}
-                            className={`p-2 rounded-xl text-left border transition cursor-pointer flex flex-col gap-1 ${
-                              formData.template_id === tpl.id
-                                ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold'
-                                : 'bg-zinc-900/80 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            <span className="text-xs font-semibold truncate">{tpl.name}</span>
-                            <span className="text-[10px] text-zinc-400 font-mono">{tpl.archetype}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Palettes 1-Click */}
-                    <div className="space-y-1 pt-2 border-t border-white/10">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">
-                        Paleta de Color Principal (1 Clic)
-                      </label>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {COLOR_PALETTES.map((pal, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              handlePaletteSelect(pal);
-                              showTweakNotice(`Paleta: ${pal.name}`);
-                            }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition cursor-pointer text-xs ${
-                              formData.primary_color === pal.primary
-                                ? 'bg-white/15 border-white text-white font-bold'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                            }`}
-                          >
-                            <div className="w-3.5 h-3.5 rounded-full border border-black/40" style={{ backgroundColor: pal.primary }} />
-                            <span>{pal.name}</span>
-                          </button>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 )}
 
-                {/* Contact Inspector */}
-                {selectedElement.type === 'contact' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">Teléfono</label>
+                {/* 2. TYPOGRAPHY */}
+                {selectedElement?.type === 'title' && (
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold block">Tipografía Médica</label>
+                    <div className="space-y-1.5">
+                      {[
+                        { label: 'Inter (Clara & Moderna)', value: 'Inter, sans-serif' },
+                        { label: 'Plus Jakarta Sans (Moderna)', value: 'Plus Jakarta Sans, sans-serif' },
+                        { label: 'Outfit (Vanguardista)', value: 'Outfit, sans-serif' },
+                        { label: 'Playfair Display (Elegante & Exclusiva)', value: 'Playfair Display, serif' }
+                      ].map(font => (
+                        <button
+                          key={font.value}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, font_family: font.value }));
+                            showTweakNotice(`Fuente: ${font.label}`);
+                          }}
+                          className={`w-full p-2.5 rounded-xl border text-left text-xs transition cursor-pointer flex items-center justify-between ${
+                            formData.font_family === font.value
+                              ? 'border-cyan-400 bg-cyan-500/10 text-white font-bold'
+                              : 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-white'
+                          }`}
+                          style={{ fontFamily: font.value }}
+                        >
+                          <span>{font.label}</span>
+                          {formData.font_family === font.value && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-1.5 pt-2 border-t border-white/10">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Lema / Slogan</label>
                       <input
                         type="text"
-                        value={formData.phone || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none"
+                        value={formData.slogan || ''}
+                        onChange={e => setFormData({ ...formData, slogan: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">WhatsApp</label>
+                  </div>
+                )}
+
+                {/* 3. CTA BUTTON */}
+                {selectedElement?.type === 'cta_button' && (
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Texto del Botón de Cita</label>
                       <input
                         type="text"
-                        value={formData.whatsapp_number || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none"
+                        value={formData.cta_text || 'Pedir Cita Online'}
+                        onChange={e => setFormData({ ...formData, cta_text: e.target.value })}
+                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">Dirección</label>
-                      <input
-                        type="text"
-                        value={formData.address || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-mono text-zinc-400 font-semibold uppercase">Ciudad</label>
-                      <input
-                        type="text"
-                        value={formData.city || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                        className="w-full bg-zinc-900 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none"
-                      />
+                  </div>
+                )}
+
+                {/* 4. HERO LAYOUT */}
+                {(selectedElement?.type === 'hero_image' || selectedElement?.type === 'hero_layout') && (
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold block">Disposición del Hero</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: 'Centrado Clásico', value: 'centered' },
+                        { label: 'Split con Imagen', value: 'split' },
+                        { label: 'Pantalla Completa', value: 'fullscreen' },
+                        { label: 'Tarjetas Múltiples', value: 'cards' }
+                      ].map(layout => (
+                        <button
+                          key={layout.value}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, hero_layout: layout.value }));
+                            showTweakNotice(`Disposición: ${layout.label}`);
+                          }}
+                          className={`p-2.5 rounded-xl border text-center text-xs transition cursor-pointer ${
+                            formData.hero_layout === layout.value
+                              ? 'border-cyan-400 bg-cyan-500/10 text-white font-bold'
+                              : 'border-white/10 bg-zinc-900 text-zinc-400 hover:text-white'
+                          }`}
+                        >
+                          {layout.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+
+              {/* Inspector Bottom Launch */}
+              <div className="pt-4 border-t border-white/10 space-y-2">
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={handleSave}
+                  className="w-full py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
+                >
+                  <span>{saving ? 'Guardando...' : 'Lanzar Web Clínica'}</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                </button>
+              </div>
+            </aside>
           )}
-
-          {/* Live Responsive Preview Window Container */}
-          <div className="flex-1 p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start overflow-y-auto relative">
-            {/* Ambient Glow */}
-            <div 
-              className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full blur-[140px] pointer-events-none opacity-20"
-              style={{ backgroundColor: formData.primary_color }}
-            />
-
-            {/* Device Mockup Wrapper */}
-            <div className="w-full flex flex-col items-center z-10 space-y-3">
-              {/* Contextual Device Toolbar */}
-              <div className="w-full max-w-5xl flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-zinc-400">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
-                    <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Pulsa cualquier texto, imagen o botón para editarlo</span>
-                  </span>
-                </div>
-
-                {/* Device Switcher */}
-                <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl shadow-md">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewDevice('desktop')}
-                    className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
-                      previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
-                    }`}
-                    title="Vista de Ordenador"
-                  >
-                    <Monitor className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Escritorio</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewDevice('tablet')}
-                    className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
-                      previewDevice === 'tablet' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
-                    }`}
-                    title="Vista de Tablet"
-                  >
-                    <Tablet className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Tablet</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewDevice('mobile')}
-                    className={`px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer ${
-                      previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
-                    }`}
-                    title="Vista Móvil"
-                  >
-                    <Smartphone className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Móvil</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Realistic Device Chassis */}
-              {previewDevice === 'mobile' ? (
-                /* iPhone Frame */
-                <div className="w-full max-w-[390px] mx-auto transition-all duration-300">
-                  <div className="bg-zinc-950 border-[6px] border-zinc-800 rounded-[44px] shadow-[0_0_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
-                    {/* Dynamic Island Notch */}
-                    <div className="w-full flex justify-center py-2 bg-black shrink-0 z-20">
-                      <div className="w-28 h-5 bg-zinc-900 rounded-full flex items-center justify-between px-3 border border-white/5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
-                        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                      </div>
-                    </div>
-
-                    {/* Web Container */}
-                    <div className="w-full h-[600px] sm:h-[660px] overflow-y-auto overscroll-contain bg-black preview-device-mobile">
-                      <ErrorBoundary>
-                        <TemplateRenderer 
-                          clinic={formData} 
-                          isPreview={true} 
-                          previewDevice="mobile"
-                          onSelectElement={handleSelectElement}
-                          selectedElement={selectedElement}
-                        />
-                      </ErrorBoundary>
-                    </div>
-
-                    {/* iOS Home Indicator */}
-                    <div className="w-full flex justify-center py-2 bg-black shrink-0 z-20">
-                      <div className="w-32 h-1 bg-white/40 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-              ) : previewDevice === 'tablet' ? (
-                /* iPad Frame */
-                <div className="w-full max-w-[720px] mx-auto transition-all duration-300">
-                  <div className="bg-zinc-950 border-[6px] border-zinc-800 rounded-[32px] shadow-[0_0_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
-                    {/* iPad Camera Dot */}
-                    <div className="w-full flex justify-center py-1.5 bg-zinc-950 shrink-0 z-20">
-                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
-                    </div>
-
-                    {/* Web Container */}
-                    <div className="w-full h-[600px] sm:h-[660px] overflow-y-auto overscroll-contain bg-black preview-device-tablet">
-                      <ErrorBoundary>
-                        <TemplateRenderer 
-                          clinic={formData} 
-                          isPreview={true} 
-                          previewDevice="tablet"
-                          onSelectElement={handleSelectElement}
-                          selectedElement={selectedElement}
-                        />
-                      </ErrorBoundary>
-                    </div>
-
-                    {/* iPad Home Indicator */}
-                    <div className="w-full flex justify-center py-1.5 bg-zinc-950 shrink-0 z-20">
-                      <div className="w-36 h-1 bg-white/30 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Desktop Browser Frame */
-                <div className="w-full max-w-5xl mx-auto transition-all duration-300">
-                  <div className="bg-zinc-950 border border-white/10 rounded-2xl shadow-[0_0_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
-                    {/* Header */}
-                    <div className="w-full bg-zinc-900 px-4 py-2 border-b border-white/10 flex items-center justify-between shrink-0">
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-1.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                          <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                          <div className="w-2.5 h-2.5 rounded-full bg-cyan-500/80" />
-                        </div>
-                        <span className="font-mono text-[11px] text-zinc-300 pl-2">
-                          https://{formData.slug || 'clinica'}.tecnodiel.app
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-zinc-400 hidden sm:inline">
-                        100% Interactivo & Cita Previa 24/7
-                      </span>
-                    </div>
-
-                    {/* Web Container */}
-                    <div className="w-full h-[600px] sm:h-[660px] overflow-y-auto overscroll-contain bg-black">
-                      <ErrorBoundary>
-                        <TemplateRenderer 
-                          clinic={formData} 
-                          isPreview={true} 
-                          previewDevice="desktop"
-                          onSelectElement={handleSelectElement}
-                          selectedElement={selectedElement}
-                        />
-                      </ErrorBoundary>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Pricing Bar */}
-            <div className="w-full max-w-5xl mt-3 sm:mt-4 z-20 animate-spring-in">
-              <div className="bg-zinc-950/95 border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-[0_10px_40px_rgba(0,0,0,0.9)] backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="space-y-1.5 text-center md:text-left flex-1">
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-bold">
-                      Web Clínica Base Completa ({BASE_WEB_PRICE}€/mes)
-                    </span>
-                    {(formData.selected_modules || []).map(modId => {
-                      const mod = AVAILABLE_MODULES.find(m => m.id === modId);
-                      if (!mod) return null;
-                      return (
-                        <span key={mod.id} className="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase bg-zinc-900 text-zinc-300 border border-white/10">
-                          + {mod.name.split(' ')[0]} ({mod.price}€)
-                        </span>
-                      );
-                    })}
-                  </div>
-                  <div className="flex items-baseline justify-center md:justify-start gap-2 pt-0.5">
-                    <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-mono">
-                      {calculatePlanPrice()}€
-                    </span>
-                    <span className="text-xs text-zinc-400 font-mono">
-                      / mes {billingPlan === 'annual' ? `(facturado ${calculatePlanPrice() * 12}€/año)` : '(sin permanencia)'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    Tarifa plana para clínicas y centros de salud. Sin costes ocultos por paciente y sin intermediarios.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full md:w-auto">
-                  <div className="flex items-center p-1 rounded-xl bg-zinc-900 border border-white/10 text-xs w-full sm:w-auto justify-center">
-                    <button
-                      type="button"
-                      onClick={() => setBillingPlan('monthly')}
-                      className={`px-3 py-1.5 rounded-lg transition font-medium ${
-                        billingPlan === 'monthly' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      Mensual
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setBillingPlan('annual')}
-                      className={`px-3 py-1.5 rounded-lg transition font-medium ${
-                        billingPlan === 'annual' ? 'bg-cyan-500 text-black font-extrabold shadow-sm' : 'text-zinc-400 hover:text-white'
-                      }`}
-                    >
-                      Anual (-20%)
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={handleSave}
-                    className="btn-industrial w-full sm:w-auto px-5 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs transition flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.35)] disabled:opacity-50 cursor-pointer"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>{saving ? 'Publicando...' : 'Activar Web Clínica'}</span>
-                    <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </div>
