@@ -76,10 +76,15 @@ export async function fetchLeads() {
   let error = null;
   try {
     const res = await fetch(`${ENDPOINT}?select=*&order=created_at.desc&limit=500`, { headers: headers() });
-    if (res.ok) remoteRows = await res.json();
-    else error = `HTTP ${res.status}`;
+    if (res.ok) {
+      const data = await res.json();
+      remoteRows = Array.isArray(data) ? data : [];
+    } else {
+      error = `HTTP ${res.status}`;
+    }
   } catch (e) { error = e.message; }
-  return { rows: [...readLocal(), ...remoteRows], error };
+  const local = Array.isArray(readLocal()) ? readLocal() : [];
+  return { rows: [...local, ...remoteRows], error };
 }
 
 export async function updateLead(id, fields) {

@@ -324,11 +324,17 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
   const [leadsLoading, setLeadsLoading] = useState(false);
 
   const loadWebLeads = useCallback(async () => {
-    setLeadsLoading(true);
-    const { rows, error } = await fetchLeads();
-    setWebLeads(rows);
-    setLeadsError(error);
-    setLeadsLoading(false);
+    try {
+      setLeadsLoading(true);
+      const res = await fetchLeads();
+      setWebLeads(Array.isArray(res?.rows) ? res.rows : []);
+      setLeadsError(res?.error || null);
+    } catch (err) {
+      console.warn('Error cargando solicitudes:', err);
+      setWebLeads([]);
+    } finally {
+      setLeadsLoading(false);
+    }
   }, []);
 
   useEffect(() => { loadWebLeads(); }, [loadWebLeads]);
@@ -1072,8 +1078,8 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                     </span>
                   </div>
                   <h3 className="text-base sm:text-lg font-black text-white">
-                    {webLeads.filter(l => !l.site_deployed).length > 0 
-                      ? `${webLeads.filter(l => !l.site_deployed).length} Solicitud(es) pendiente(s) de montar web`
+                    {(Array.isArray(webLeads) ? webLeads : []).filter(l => !l?.site_deployed).length > 0 
+                      ? `${(Array.isArray(webLeads) ? webLeads : []).filter(l => !l?.site_deployed).length} Solicitud(es) pendiente(s) de montar web`
                       : 'Todas las solicitudes están atendidas'}
                   </h3>
                   <p className="text-xs text-zinc-400 max-w-xl">
@@ -1085,7 +1091,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                     onClick={() => setActiveTab('leads')}
                     className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs shadow-lg shadow-[#6DD94B]/20 transition cursor-pointer"
                   >
-                    <span>Ver Solicitudes ({webLeads.length})</span>
+                    <span>Ver Solicitudes ({(Array.isArray(webLeads) ? webLeads : []).length})</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>

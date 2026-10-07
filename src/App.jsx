@@ -5,6 +5,49 @@ import PortalApp from '../PortalDeClientes/src/App.jsx';
 import MultiwebsCySApp from '../MultiwebsCyS/src/App.jsx';
 import TenantProvider from './multi-tenant/TenantProvider.jsx';
 import TenantRouter from './multi-tenant/TenantRouter.jsx';
+import VirtualDeskAdminApp from '../PortalDeClientes/src/components/virtualdesk/VirtualDeskAdminApp.jsx';
+
+class AdminErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Admin portal initialization error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#121212] text-white flex flex-col items-center justify-center p-6 text-center">
+          <div className="p-6 max-w-md bg-zinc-900 border border-[#6DD94B]/30 rounded-2xl shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-2">Panel de Administrador</h2>
+            <p className="text-xs text-zinc-400 mb-4">Error al inicializar el panel. Pulsa para reintentar.</p>
+            <div className="flex items-center justify-center gap-3">
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-[#6DD94B] text-black font-bold text-xs rounded-xl"
+              >
+                Recargar
+              </button>
+              {this.props.onNavigateToLanding && (
+                <button 
+                  onClick={this.props.onNavigateToLanding} 
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl"
+                >
+                  Volver al Inicio
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const [view, setView] = useState(() => {
@@ -218,11 +261,21 @@ export default function App() {
         </TenantProvider>
       )}
 
-      {(view === 'portal' || view === 'admin') && (
+      {view === 'admin' && (
+        <AdminErrorBoundary onNavigateToLanding={() => navigateTo('landing')}>
+          <VirtualDeskAdminApp 
+            key="admin-page"
+            onSwitchToClientView={() => navigateTo('portal')}
+            onNavigateToLanding={() => navigateTo('landing')}
+          />
+        </AdminErrorBoundary>
+      )}
+
+      {view === 'portal' && (
         <PortalApp 
-          key={`portal-page-${view === 'admin' ? 'admin' : (activeSlug || 'root')}`}
+          key={`portal-page-${activeSlug || 'root'}`}
           initialSlug={activeSlug}
-          initialAdmin={view === 'admin'}
+          initialAdmin={false}
           initialIntroFinished={true}
           onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}

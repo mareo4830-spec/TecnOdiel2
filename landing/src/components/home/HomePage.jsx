@@ -147,10 +147,44 @@ function Hero() {
               <li key={t} className="flex items-center gap-2"><Check className="h-4 w-4 text-[#6DD94B]" />{t}</li>
             ))}
           </ul>
+
+          {/* Escaparate rotatorio de proyectos reales y plantillas: más chico y abajo a la izquierda */}
+          <div className="mt-8">
+            <HeroShowcase />
+          </div>
         </div>
 
-        {/* Escaparate rotatorio de proyectos reales y plantillas disponibles */}
-        <HeroShowcase />
+        {/* Columna derecha: Indicadores de impacto y garantías TecnOdiel */}
+        <div className="hidden lg:flex flex-col gap-4 self-center pl-6">
+          <div className="rounded-3xl border border-white/10 bg-[#161616]/80 backdrop-blur-md p-6 space-y-4 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#6DD94B] animate-ping" />
+              <span className="text-[11px] font-mono text-[#6DD94B] uppercase tracking-wider font-bold">Rendimiento & Garantías</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                <p className="text-2xl font-black text-white">48 h</p>
+                <p className="text-xs text-zinc-400 mt-1">Web y dominio listos</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-[#6DD94B]/10 border border-[#6DD94B]/25">
+                <p className="text-2xl font-black text-[#6DD94B]">0 €</p>
+                <p className="text-xs text-zinc-300 mt-1">Comisiones de reservas</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                <p className="text-2xl font-black text-white">100%</p>
+                <p className="text-xs text-zinc-400 mt-1">A medida sin plantillas lentas</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                <p className="text-2xl font-black text-white">24/7</p>
+                <p className="text-xs text-zinc-400 mt-1">Disponibilidad en Huelva</p>
+              </div>
+            </div>
+            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
+              <span>Soporte técnico directo sin esperas</span>
+              <span className="text-[#6DD94B] font-mono font-bold">TecnOdiel</span>
+            </div>
+          </div>
+        </div>
       </div>
       <a href="#por-que" onClick={goTo('#por-que')} aria-label="Bajar" className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 text-[#6DD94B] sm:block"><ChevronDown className="h-6 w-6 animate-bounce" /></a>
     </section>
