@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import HomePage from './components/home/HomePage';
 import AuditModal from './components/AuditModal';
-import FloatingContact from './components/FloatingContact';
-
 export default function App({ 
   onNavigateToMultiwebs, 
   onNavigateToCyS, 
@@ -29,9 +27,6 @@ export default function App({
         onNavigateToPortal={onNavigateToPortal}
         onNavigateToAdmin={onNavigateToAdmin}
       />
-
-      {/* Floating Interactive WhatsApp Quick Contact */}
-      <FloatingContact onOpenAudit={handleOpenAudit} />
 
       {/* Interactive & Secure Technical Audit Diagnostic Modal with Direct Restaurant Routing */}
       <AuditModal 
