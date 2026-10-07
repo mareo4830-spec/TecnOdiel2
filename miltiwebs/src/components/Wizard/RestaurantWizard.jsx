@@ -18,6 +18,7 @@ import {
   Layers
 } from 'lucide-react';
 import { createRestaurant, sanitizeSlug } from '../../lib/supabase';
+import { submitLead } from '../../../../src/lib/leads.js';
 import confetti from 'canvas-confetti';
 
 // Las 6 plantillas de la landing tal cual, con su imagen de fondo real
@@ -169,6 +170,32 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
     try {
       const saved = await createRestaurant(fullPayload);
+
+      // Guardar también como Solicitud / Lead completo para el Panel Admin
+      try {
+        const tObj = RESTAURANT_TEMPLATES.find(t => t.id === formData.template_id);
+        await submitLead({
+          name: formData.name || finalBusinessName,
+          business_name: finalBusinessName,
+          phone: formData.phone,
+          email: formData.email,
+          sector: 'Restaurante / Hostelería',
+          template_id: formData.template_id,
+          template_name: tObj ? `${tObj.num} - ${tObj.name}` : formData.template_id,
+          services: formData.selected_services,
+          instagram_url: formData.instagram_url,
+          current_website: formData.current_website,
+          client_access_key: fullPayload.client_access_key,
+          slug: slug,
+          site_deployed: true,
+          live_url: `#/r/${slug}`,
+          stage: 'propuesta',
+          message: `Configuración completada en el Wizard. Plantilla: ${tObj?.name || formData.template_id}. Servicios: ${formData.selected_services.join(', ')}`
+        });
+      } catch (leadErr) {
+        console.warn('Error guardando lead de wizard:', leadErr);
+      }
+
       try {
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
       } catch (_) {}

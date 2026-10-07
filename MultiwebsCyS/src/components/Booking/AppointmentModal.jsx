@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createAppointment } from '../../lib/supabase';
+import { submitLead } from '../../../../src/lib/leads.js';
 import { MEDICAL_INSURANCES } from '../../lib/mockData';
 
 export default function AppointmentModal({ clinic, isOpen, onClose }) {
@@ -72,6 +73,21 @@ export default function AppointmentModal({ clinic, isOpen, onClose }) {
     try {
       const saved = await createAppointment(clinic.id, formData);
       setConfirmedAppointment(saved);
+
+      try {
+        await submitLead({
+          name: formData.name,
+          business_name: clinic?.name || 'Clínica',
+          phone: formData.phone,
+          email: formData.email,
+          sector: 'Clínica / Salud',
+          services: [formData.treatment, formData.insurance].filter(Boolean),
+          message: `Cita solicitada para el ${formData.date} a las ${formData.time}. Tratamiento: ${formData.treatment}. Seguro: ${formData.insurance}. Notas: ${formData.notes || 'Ninguna'}`,
+          source: 'cita_online',
+          stage: 'nuevo'
+        });
+      } catch (_) {}
+
       try {
         confetti({ particleCount: 90, spread: 65, origin: { y: 0.55 } });
       } catch (err) {}

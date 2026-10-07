@@ -45,12 +45,24 @@ import {
   ShieldCheck,
   Calendar,
   Phone,
-  Eye
+  Eye,
+  Inbox,
+  Globe,
+  Copy,
+  Check,
+  Share2,
+  ShoppingBag,
+  Server,
+  Zap
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { MOCK_TENANTS } from '../../../../src/multi-tenant/mockTenants.js';
 import { fetchLeads, updateLead } from '../../../../src/lib/leads.js';
+import { createRestaurant, sanitizeSlug } from '../../../../miltiwebs/src/lib/supabase.js';
+import { RESTAURANT_TEMPLATES } from '../../../../miltiwebs/src/components/Wizard/RestaurantWizard.jsx';
+import DeployDomainModal from './DeployDomainModal.jsx';
 
-// ── CONFIGURACIÓN & METADATOS EXACTOS DE VIRTUALDESK-MAIN ──
+// ── CONFIGURACIÓN & METADATOS EXACTOS DE TECNODIEL ADMIN ──
 export const APP_CONFIG = {
   name: 'TECNODIEL',
   shortName: 'TO',
@@ -59,19 +71,20 @@ export const APP_CONFIG = {
 };
 
 export const PARTNERS = [
-  { id: 'mario', name: 'Mario', role: 'Full-Stack Architect', email: 'mario@tecnodiel.es', availability: 'Tiempo completo', avatar: 'M', color: 'bg-indigo-600' },
-  { id: 'dani', name: 'Dani', role: 'UI/UX & Creative', email: 'dani@tecnodiel.es', availability: 'Tiempo completo', avatar: 'D', color: 'bg-purple-600' },
+  { id: 'mario', name: 'Mario', role: 'Full-Stack Architect', email: 'mario@tecnodiel.es', availability: 'Tiempo completo', avatar: 'M', color: 'bg-[#0D844A]' },
+  { id: 'dani', name: 'Dani', role: 'UI/UX & Creative', email: 'dani@tecnodiel.es', availability: 'Tiempo completo', avatar: 'D', color: 'bg-[#6DD94B] text-black font-black' },
   { id: 'javier', name: 'Javier', role: 'Operations & Business', email: 'javier@tecnodiel.es', availability: 'Media jornada', avatar: 'J', color: 'bg-emerald-600' }
 ];
 
 export const NAV_ITEMS = [
   { id: 'dashboard', label: 'Panel', title: 'Panel general', icon: LayoutDashboard },
-  { id: 'projects', label: 'Proyectos', title: 'Proyectos', icon: FolderKanban },
-  { id: 'kanban', label: 'Kanban', title: 'Kanban', icon: SquareKanban },
+  { id: 'leads', label: 'Solicitudes', title: 'Solicitudes & Formularios Recibidos', icon: Inbox },
+  { id: 'projects', label: 'Proyectos & Webs', title: 'Proyectos y Webs Montadas', icon: FolderKanban },
+  { id: 'kanban', label: 'Kanban', title: 'Kanban de Trabajos', icon: SquareKanban },
   { id: 'hours', label: 'Horas y Reparto', title: 'Horas y Reparto', icon: Clock },
-  { id: 'crm', label: 'CRM', title: 'CRM de clientes', icon: Handshake },
-  { id: 'chats', label: 'Chats', title: 'Chats', icon: MessagesSquare },
-  { id: 'settings', label: 'Ajustes', title: 'Ajustes', icon: Settings }
+  { id: 'crm', label: 'CRM', title: 'CRM Comercial de Clientes', icon: Handshake },
+  { id: 'chats', label: 'Chats', title: 'Chats con Clientes y Equipo', icon: MessagesSquare },
+  { id: 'settings', label: 'Ajustes', title: 'Ajustes de la Plataforma', icon: Settings }
 ];
 
 const BUSINESS_TYPE_META = {
@@ -310,9 +323,98 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
     await updateLead(lead.id, { stage });
   };
 
-  const createSiteForLead = (lead) => {
+  // Estados de Despliegue de Webs y Dominio en 1 Clic
+  const [deployModalData, setDeployModalData] = useState(null);
+  const [deployingLeadId, setDeployingLeadId] = useState(null);
+  const [leadFilter, setLeadFilter] = useState('all'); // 'all' | 'pending' | 'deployed'
+
+  const handleDeployWeb = async (lead) => {
+    setDeployingLeadId(lead.id);
+    try {
+      const finalBusinessName = lead.business_name || lead.name || 'Nuevo Negocio';
+      const cleanSlug = sanitizeSlug(finalBusinessName) || `negocio-${Date.now().toString().slice(-4)}`;
+      const accessKey = lead.client_access_key || `TO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '');
+
+      const tId = lead.template_id || (isHealth ? 'the-editorial-print' : 'the-awwwards-cinematic');
+      const tObj = RESTAURANT_TEMPLATES.find(t => t.id === tId);
+
+      const restaurantPayload = {
+        name: finalBusinessName,
+        slug: cleanSlug,
+        subdomain: `${cleanSlug}.pages.dev`,
+        slogan: isHealth ? 'Atención médica y bienestar de confianza' : 'Cocina de calidad y buen servicio',
+        description: lead.message || 'Carta digital, reservas directas y presencia web moderna.',
+        category: isHealth ? 'dental' : 'tapas',
+        template_id: tId,
+        hero_image: tObj?.image || '/demos/noir-atelier.jpg',
+        phone: lead.phone || '+34 600 000 000',
+        whatsapp_number: lead.phone || '+34 600 000 000',
+        email: lead.email || 'contacto@tecnodiel.com',
+        instagram_url: lead.instagram_url || '',
+        current_website: lead.current_website || '',
+        selected_modules: Array.isArray(lead.services) && lead.services.length > 0
+          ? lead.services 
+          : ['Carta digital QR', 'Reserva de mesas', 'Página web completa'],
+        client_access_key: accessKey
+      };
+
+      await createRestaurant(restaurantPayload);
+
+      // Actualizar el estado del lead para que quede registrado como montado
+      const updatedFields = {
+        site_deployed: true,
+        slug: cleanSlug,
+        live_url: `#/r/${cleanSlug}`,
+        client_access_key: accessKey,
+        stage: 'propuesta'
+      };
+
+      await updateLead(lead.id, updatedFields);
+
+      setWebLeads(prev => prev.map(l => l.id === lead.id ? { ...l, ...updatedFields } : l));
+
+      try {
+        confetti({ particleCount: 100, spread: 75, origin: { y: 0.55 } });
+      } catch (_) {}
+
+      // Abrir de inmediato el modal de despliegue y dominio
+      setDeployModalData({
+        lead,
+        slug: cleanSlug,
+        accessKey,
+        businessName: finalBusinessName,
+        templateName: tObj ? `${tObj.num} - ${tObj.name}` : tId,
+        services: lead.services || [],
+        phone: lead.phone,
+        email: lead.email,
+        isHealth
+      });
+    } catch (err) {
+      console.error('Error montando la web del lead:', err);
+    } finally {
+      setDeployingLeadId(null);
+    }
+  };
+
+  const openDeployModal = (lead) => {
+    const finalBusinessName = lead.business_name || lead.name || 'Negocio';
+    const cleanSlug = lead.slug || sanitizeSlug(finalBusinessName);
+    const accessKey = lead.client_access_key || 'TO-892';
     const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '');
-    window.location.hash = isHealth ? '#/cys' : '#/multiwebs';
+    const tObj = RESTAURANT_TEMPLATES.find(t => t.id === lead.template_id);
+
+    setDeployModalData({
+      lead,
+      slug: cleanSlug,
+      accessKey,
+      businessName: finalBusinessName,
+      templateName: tObj ? `${tObj.num} - ${tObj.name}` : (lead.template_id || 'Cinematográfico'),
+      services: lead.services || [],
+      phone: lead.phone,
+      email: lead.email,
+      isHealth
+    });
   };
 
   // Chats
@@ -402,9 +504,24 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
   const activeNavItem = NAV_ITEMS.find(i => i.id === activeTab) || NAV_ITEMS[0];
 
   return (
-    <div className="min-h-screen bg-[#121212] text-zinc-100 flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black">
+    <div className="min-h-screen bg-[#0e0e0e] text-zinc-100 flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black relative">
+      {/* Fondo estético con glow verde esmeralda y cuadrícula idéntico a la Landing */}
+      <div 
+        className="pointer-events-none fixed inset-0 opacity-25 z-0" 
+        style={{ 
+          backgroundImage: 'radial-gradient(60% 50% at 85% 15%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 15% 85%, rgba(13,132,74,0.25), transparent 70%)' 
+        }} 
+      />
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 opacity-30" 
+        style={{ 
+          backgroundSize: '64px 64px', 
+          backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)' 
+        }} 
+      />
+
       {/* ── BARRA LATERAL (SIDEBAR TECNODIEL) ── */}
-      <aside className="w-full lg:w-64 border-r border-white/10 bg-[#161616] flex flex-col shrink-0 select-none">
+      <aside className="relative z-10 w-full lg:w-64 border-r border-white/10 bg-[#161616]/95 backdrop-blur-xl flex flex-col shrink-0 select-none">
         {/* Brand Header */}
         <div className="h-16 px-5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -465,8 +582,14 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 <Icon className={`h-4 w-4 shrink-0 transition-colors ${isActive ? 'text-[#6DD94B]' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
                 <span className="flex-1 text-left">{item.label}</span>
 
+                {item.id === 'leads' && webLeads.length > 0 && (
+                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#6DD94B] px-1.5 text-[11px] font-black text-black animate-pulse">
+                    {webLeads.length}
+                  </span>
+                )}
+
                 {item.id === 'chats' && (
-                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#6DD94B] px-1.5 text-[11px] font-black text-black">
+                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-white/10 px-1.5 text-[11px] font-bold text-zinc-300">
                     2
                   </span>
                 )}
@@ -690,6 +813,35 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
           {/* TAB 1: PANEL / DASHBOARD (6 WIDGETS EXACTOS) */}
           {activeTab === 'dashboard' && (
             <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-12 animate-fadeIn">
+              {/* WIDGET HERO: SOLICITUDES RECIENTES & MONTAR WEB CON 1 CLIC */}
+              <div className="md:col-span-2 xl:col-span-12 rounded-3xl border border-[#6DD94B]/30 bg-[#161616] p-5 sm:p-6 shadow-[0_0_35px_rgba(109,217,75,0.1)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-[#6DD94B] animate-ping" />
+                    <span className="text-[11px] font-mono uppercase text-[#6DD94B] font-bold tracking-wider">
+                      GESTIÓN AUTOMATIZADA DE CLIENTES
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    {webLeads.filter(l => !l.site_deployed).length > 0 
+                      ? `${webLeads.filter(l => !l.site_deployed).length} Solicitud(es) pendiente(s) de montar web`
+                      : 'Todas las solicitudes están atendidas'}
+                  </h3>
+                  <p className="text-xs text-zinc-400 max-w-xl">
+                    Cada vez que alguien envía el formulario de la landing o el configurador, puedes montar su web completa en 1 clic y enviarle el enlace directo por WhatsApp.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                  <button
+                    onClick={() => setActiveTab('leads')}
+                    className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs shadow-lg shadow-[#6DD94B]/20 transition cursor-pointer"
+                  >
+                    <span>Ver Solicitudes ({webLeads.length})</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
               {/* WIDGET 1: KANBAN DE TRABAJOS (8 COLUMNAS XL) */}
               <div className="md:col-span-2 xl:col-span-8 rounded-2xl border border-gray-800 bg-gray-900/90 p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-3">
@@ -924,7 +1076,274 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
             </div>
           )}
 
-          {/* TAB 2: PROYECTOS & TENANTS */}
+          {/* TAB 2: SOLICITUDES & FORMULARIOS (TODAS LAS RESPUESTAS GUARDADAS + 1 CLIC MONTAR WEB) */}
+          {activeTab === 'leads' && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Header de la sección */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl bg-[#161616] border border-white/10 relative overflow-hidden">
+                <div className="space-y-1 z-10">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-[#6DD94B] animate-ping" />
+                    <span className="text-[11px] font-mono uppercase text-[#6DD94B] font-bold tracking-wider">
+                      ENTRADA DE CLIENTES EN TIEMPO REAL
+                    </span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">
+                    Solicitudes y Formularios Recibidos
+                  </h2>
+                  <p className="text-xs text-zinc-400 max-w-2xl">
+                    Aquí se guardan automáticamente todas las respuestas que los clientes rellenan en la web. Dale a <strong className="text-[#6DD94B]">«⚡ Montar Web con 1 Clic»</strong> para generar su web completa, verla en directo y conectarle su dominio.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 z-10 w-full sm:w-auto">
+                  <button
+                    onClick={loadWebLeads}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 hover:border-white/20 bg-black/40 text-xs font-bold text-zinc-300 hover:text-white transition cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${leadsLoading ? 'animate-spin text-[#6DD94B]' : ''}`} />
+                    <span>{leadsLoading ? 'Actualizando...' : 'Actualizar'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Métricas rápidas */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl bg-[#161616] border border-white/10 flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-mono uppercase text-zinc-400">Total Solicitudes</p>
+                    <p className="text-2xl font-black text-white mt-0.5">{webLeads.length}</p>
+                  </div>
+                  <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-zinc-300">
+                    <Inbox className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#161616] border border-amber-500/20 flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-mono uppercase text-amber-400">Pendientes de Montar</p>
+                    <p className="text-2xl font-black text-white mt-0.5">
+                      {webLeads.filter(l => !l.site_deployed).length}
+                    </p>
+                  </div>
+                  <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/30 grid place-items-center text-amber-400">
+                    <Zap className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#161616] border border-[#6DD94B]/30 flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-mono uppercase text-[#6DD94B]">Webs Listas / Operativas</p>
+                    <p className="text-2xl font-black text-white mt-0.5">
+                      {webLeads.filter(l => l.site_deployed).length}
+                    </p>
+                  </div>
+                  <div className="h-10 w-10 rounded-xl bg-[#6DD94B]/10 border border-[#6DD94B]/30 grid place-items-center text-[#6DD94B]">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Filtros de estado */}
+              <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+                <span className="text-xs text-zinc-400 font-mono mr-2">Filtrar:</span>
+                {[
+                  { id: 'all', label: `Todas (${webLeads.length})` },
+                  { id: 'pending', label: `🟡 Pendientes (${webLeads.filter(l => !l.site_deployed).length})` },
+                  { id: 'deployed', label: `🟢 Montadas (${webLeads.filter(l => l.site_deployed).length})` }
+                ].map(f => (
+                  <button
+                    key={f.id}
+                    onClick={() => setLeadFilter(f.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      leadFilter === f.id
+                        ? 'bg-[#6DD94B] text-black shadow-md shadow-[#6DD94B]/20'
+                        : 'bg-[#181818] text-zinc-400 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Listado de Solicitudes */}
+              {webLeads.length === 0 ? (
+                <div className="p-12 text-center rounded-3xl bg-[#161616] border border-white/10 space-y-3">
+                  <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 grid place-items-center mx-auto text-zinc-400">
+                    <Inbox className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base font-bold text-white">No hay solicitudes registradas todavía</h3>
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                    Cuando un usuario rellene el formulario de la landing o configure un restaurante, aparecerá aquí con todas sus respuestas guardadas.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {webLeads
+                    .filter(lead => {
+                      if (leadFilter === 'pending') return !lead.site_deployed;
+                      if (leadFilter === 'deployed') return lead.site_deployed;
+                      return true;
+                    })
+                    .map(lead => {
+                      const isDeployed = Boolean(lead.site_deployed);
+                      const isDeploying = deployingLeadId === lead.id;
+                      const cleanPhone = String(lead.phone || '').replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1');
+
+                      return (
+                        <div
+                          key={lead.id}
+                          className={`p-6 rounded-3xl bg-[#161616] border transition-all duration-300 space-y-4 flex flex-col justify-between ${
+                            isDeployed
+                              ? 'border-[#6DD94B]/30 hover:border-[#6DD94B]/60 shadow-[0_4px_20px_rgba(109,217,75,0.06)]'
+                              : 'border-white/10 hover:border-amber-500/40'
+                          }`}
+                        >
+                          <div className="space-y-3">
+                            {/* Cabecera de la tarjeta */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                                  {lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Reciente'}
+                                </span>
+                                <h3 className="text-lg font-black text-white truncate mt-0.5">
+                                  {lead.business_name || lead.name || 'Sin Nombre'}
+                                </h3>
+                                <p className="text-xs text-zinc-400 truncate">
+                                  Contacto: <strong className="text-zinc-200">{lead.name}</strong>
+                                </p>
+                              </div>
+
+                              {/* Badge de estado */}
+                              <span
+                                className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+                                  isDeployed
+                                    ? 'bg-[#6DD94B]/15 text-[#6DD94B] border border-[#6DD94B]/30'
+                                    : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                }`}
+                              >
+                                {isDeployed ? (
+                                  <>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#6DD94B]" />
+                                    Web Montada
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
+                                    Pendiente
+                                  </>
+                                )}
+                              </span>
+                            </div>
+
+                            {/* Datos de contacto (Teléfono con WhatsApp + Email) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                              {lead.phone && (
+                                <a
+                                  href={`https://wa.me/${cleanPhone}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-2 rounded-xl bg-black/40 border border-white/5 hover:border-[#25D366]/40 text-zinc-300 hover:text-white transition group"
+                                >
+                                  <Phone className="w-3.5 h-3.5 text-[#25D366]" />
+                                  <span className="font-mono truncate">{lead.phone}</span>
+                                </a>
+                              )}
+                              {lead.email && (
+                                <div className="flex items-center gap-2 p-2 rounded-xl bg-black/40 border border-white/5 text-zinc-300 truncate">
+                                  <span className="text-zinc-500">@</span>
+                                  <span className="truncate">{lead.email}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Respuestas del Formulario */}
+                            <div className="space-y-2 pt-2 border-t border-white/5 text-xs">
+                              {/* Sector */}
+                              <div className="flex items-center justify-between text-zinc-400">
+                                <span>Sector:</span>
+                                <span className="font-bold text-white">{lead.sector || 'Hostelería'}</span>
+                              </div>
+
+                              {/* Plantilla elegida */}
+                              {(lead.template_name || lead.template_id) && (
+                                <div className="flex items-center justify-between text-zinc-400">
+                                  <span>Plantilla elegida:</span>
+                                  <span className="font-mono font-bold text-[#6DD94B]">
+                                    {lead.template_name || lead.template_id}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Servicios que le interesan */}
+                              {Array.isArray(lead.services) && lead.services.length > 0 && (
+                                <div className="space-y-1 pt-1">
+                                  <span className="text-[11px] text-zinc-400">Servicios solicitados:</span>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {lead.services.map((srv, sIdx) => (
+                                      <span
+                                        key={sIdx}
+                                        className="text-[10px] px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-zinc-300 font-medium"
+                                      >
+                                        {srv}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Mensaje / Notas */}
+                              {lead.message && (
+                                <p className="text-[11px] text-zinc-400 italic bg-black/30 p-2.5 rounded-xl border border-white/5 leading-relaxed line-clamp-2">
+                                  "{lead.message}"
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Botón de Acción Principal */}
+                          <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center gap-2">
+                            {!isDeployed ? (
+                              <button
+                                onClick={() => handleDeployWeb(lead)}
+                                disabled={isDeploying}
+                                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs shadow-[0_0_25px_rgba(109,217,75,0.4)] transition cursor-pointer disabled:opacity-50"
+                              >
+                                <Zap className="w-4 h-4 fill-black stroke-black" />
+                                <span>{isDeploying ? 'Montando web...' : '⚡ Montar Web con 1 Clic'}</span>
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => openDeployModal(lead)}
+                                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 font-bold text-xs transition cursor-pointer"
+                                >
+                                  <Globe className="w-3.5 h-3.5" />
+                                  <span>Gestionar Dominio & Web</span>
+                                </button>
+                                {lead.slug && (
+                                  <a
+                                    href={`#/r/${lead.slug}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2.5 rounded-xl border border-white/10 hover:border-white text-zinc-400 hover:text-white transition"
+                                    title="Ver Web en Vivo"
+                                  >
+                                    <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: PROYECTOS & TENANTS */}
           {activeTab === 'projects' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -1232,9 +1651,24 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                             >
                               {PIPELINE_STAGES.map(st => <option key={st.id} value={st.id}>{st.label}</option>)}
                             </select>
-                            <button onClick={() => createSiteForLead(w)} className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold py-1.5 cursor-pointer">
-                              Crear su web
-                            </button>
+                            {!w.site_deployed ? (
+                              <button 
+                                onClick={() => handleDeployWeb(w)} 
+                                disabled={deployingLeadId === w.id}
+                                className="w-full rounded-xl bg-[#6DD94B] hover:bg-white text-black text-[11px] font-black py-2 cursor-pointer shadow-[0_0_15px_rgba(109,217,75,0.3)] flex items-center justify-center gap-1.5 transition disabled:opacity-50"
+                              >
+                                <Zap className="w-3.5 h-3.5 fill-black stroke-black" />
+                                <span>{deployingLeadId === w.id ? 'Montando web...' : '⚡ Montar Web con 1 Clic'}</span>
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => openDeployModal(w)} 
+                                className="w-full rounded-xl bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 text-[11px] font-bold py-1.5 cursor-pointer flex items-center justify-center gap-1.5 transition"
+                              >
+                                <Globe className="w-3.5 h-3.5" />
+                                <span>Ver Web & Dominio</span>
+                              </button>
+                            )}
                           </div>
                         ))}
                         {leads.map(lead => (
@@ -1600,6 +2034,13 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
           </div>
         </div>
       )}
+
+      {/* ── MODAL DE DESPLIEGUE & DOMINIO EN 1 CLIC ── */}
+      <DeployDomainModal 
+        isOpen={Boolean(deployModalData)} 
+        onClose={() => setDeployModalData(null)} 
+        data={deployModalData} 
+      />
     </div>
   );
 }
