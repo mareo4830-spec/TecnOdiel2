@@ -88,15 +88,15 @@ export const NAV_ITEMS = [
 ];
 
 const BUSINESS_TYPE_META = {
-  hosteleria: { label: 'Hostelería', icon: Utensils, tint: 'bg-amber-500/15 text-amber-300' },
-  clinica: { label: 'Clínica & Salud', icon: Stethoscope, tint: 'bg-cyan-500/15 text-cyan-300' },
-  saas: { label: 'SaaS Multi-Tenant', icon: Boxes, tint: 'bg-indigo-500/15 text-indigo-300' }
+  hosteleria: { label: 'Hostelería', icon: Utensils, tint: 'bg-amber-500/15 text-amber-400' },
+  clinica: { label: 'Clínica & Salud', icon: Stethoscope, tint: 'bg-[#6DD94B]/15 text-[#6DD94B]' },
+  saas: { label: 'SaaS Multi-Tenant', icon: Boxes, tint: 'bg-[#0D844A]/20 text-[#6DD94B]' }
 };
 
 const STATUS_META = {
-  planeado: { label: 'Planeado', badge: 'bg-gray-800 text-gray-300 ring-1 ring-gray-700' },
-  en_progreso: { label: 'En progreso', badge: 'bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-500/30' },
-  hecho: { label: 'Hecho', badge: 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30' }
+  planeado: { label: 'Planeado', badge: 'bg-zinc-800 text-zinc-300 ring-1 ring-zinc-700' },
+  en_progreso: { label: 'En progreso', badge: 'bg-[#6DD94B]/15 text-[#6DD94B] ring-1 ring-[#6DD94B]/30' },
+  hecho: { label: 'Hecho', badge: 'bg-[#0D844A]/25 text-emerald-400 ring-1 ring-[#0D844A]/40' }
 };
 
 const PIPELINE_STAGES = [
@@ -502,21 +502,142 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
   }, [searchQuery, projectsList, kanbanTasks, crmLeads]);
 
   const activeNavItem = NAV_ITEMS.find(i => i.id === activeTab) || NAV_ITEMS[0];
+  const isLight = theme === 'light';
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] text-zinc-100 flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black relative">
-      {/* Fondo estético con glow verde esmeralda y cuadrícula idéntico a la Landing */}
+    <div className={`min-h-screen ${isLight ? 'vd-admin-theme-light bg-[#f8fafc] text-zinc-900' : 'bg-[#0e0e0e] text-zinc-100'} flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black relative transition-colors duration-200`}>
+      {/* Estilos dedicados para el modo Blanco y Verde activado con el Sol */}
+      {isLight && (
+        <style>{`
+          .vd-admin-theme-light {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+          }
+          .vd-admin-theme-light aside {
+            background-color: rgba(255, 255, 255, 0.98) !important;
+            border-color: #e2e8f0 !important;
+          }
+          .vd-admin-theme-light aside nav button {
+            color: #475569 !important;
+          }
+          .vd-admin-theme-light aside nav button:hover {
+            color: #0f172a !important;
+            background-color: #f1f5f9 !important;
+          }
+          .vd-admin-theme-light aside nav button.bg-\\[\\#6DD94B\\]\\/15 {
+            background-color: rgba(13, 132, 74, 0.1) !important;
+            color: #0D844A !important;
+          }
+          .vd-admin-theme-light aside nav button.bg-\\[\\#6DD94B\\]\\/15 svg,
+          .vd-admin-theme-light aside nav button.bg-\\[\\#6DD94B\\]\\/15 span {
+            color: #0D844A !important;
+          }
+          .vd-admin-theme-light header {
+            background-color: rgba(255, 255, 255, 0.96) !important;
+            border-color: #e2e8f0 !important;
+          }
+          .vd-admin-theme-light header h1,
+          .vd-admin-theme-light h2,
+          .vd-admin-theme-light h3,
+          .vd-admin-theme-light h4 {
+            color: #0f172a !important;
+          }
+          .vd-admin-theme-light .bg-\\[\\#161616\\],
+          .vd-admin-theme-light .bg-\\[\\#181818\\],
+          .vd-admin-theme-light .bg-gray-900,
+          .vd-admin-theme-light .bg-gray-900\\/90,
+          .vd-admin-theme-light .bg-gray-900\\/80 {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            color: #0f172a !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+          }
+          .vd-admin-theme-light .bg-gray-950,
+          .vd-admin-theme-light .bg-gray-950\\/80,
+          .vd-admin-theme-light .bg-gray-950\\/60,
+          .vd-admin-theme-light .bg-gray-950\\/50,
+          .vd-admin-theme-light .bg-gray-950\\/30,
+          .vd-admin-theme-light .bg-gray-800\\/40,
+          .vd-admin-theme-light .bg-gray-800\\/30,
+          .vd-admin-theme-light .bg-black\\/40,
+          .vd-admin-theme-light .bg-black\\/30,
+          .vd-admin-theme-light .bg-black\\/20 {
+            background-color: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+            color: #1e293b !important;
+          }
+          .vd-admin-theme-light .border-gray-800,
+          .vd-admin-theme-light .border-gray-700,
+          .vd-admin-theme-light .border-white\\/10,
+          .vd-admin-theme-light .border-white\\/5 {
+            border-color: #e2e8f0 !important;
+          }
+          .vd-admin-theme-light .text-white {
+            color: #0f172a !important;
+          }
+          .vd-admin-theme-light .text-gray-300,
+          .vd-admin-theme-light .text-gray-200,
+          .vd-admin-theme-light .text-zinc-200,
+          .vd-admin-theme-light .text-zinc-300 {
+            color: #334155 !important;
+          }
+          .vd-admin-theme-light .text-gray-400,
+          .vd-admin-theme-light .text-zinc-400 {
+            color: #64748b !important;
+          }
+          .vd-admin-theme-light .text-gray-500,
+          .vd-admin-theme-light .text-zinc-500 {
+            color: #94a3b8 !important;
+          }
+          .vd-admin-theme-light .text-\\[\\#6DD94B\\] {
+            color: #0D844A !important;
+          }
+          .vd-admin-theme-light .text-emerald-400,
+          .vd-admin-theme-light .text-emerald-300 {
+            color: #0D844A !important;
+          }
+          .vd-admin-theme-light select,
+          .vd-admin-theme-light input {
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+          }
+          .vd-admin-theme-light .bg-gray-800 {
+            background-color: #f1f5f9 !important;
+            color: #334155 !important;
+          }
+          .vd-admin-theme-light .bg-white\\/5,
+          .vd-admin-theme-light .bg-white\\/10 {
+            background-color: #f1f5f9 !important;
+            color: #334155 !important;
+          }
+          .vd-admin-theme-light button.bg-\\[\\#6DD94B\\] {
+            background-color: #0D844A !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px 0 rgba(13, 132, 74, 0.25) !important;
+          }
+          .vd-admin-theme-light button.bg-\\[\\#6DD94B\\]:hover {
+            background-color: #09663a !important;
+          }
+        `}</style>
+      )}
+
+      {/* Fondo estético con glow verde */}
       <div 
-        className="pointer-events-none fixed inset-0 opacity-25 z-0" 
+        className={`pointer-events-none fixed inset-0 ${isLight ? 'opacity-35' : 'opacity-25'} z-0`} 
         style={{ 
-          backgroundImage: 'radial-gradient(60% 50% at 85% 15%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 15% 85%, rgba(13,132,74,0.25), transparent 70%)' 
+          backgroundImage: isLight 
+            ? 'radial-gradient(60% 50% at 85% 15%, rgba(13,132,74,0.12), transparent 70%), radial-gradient(40% 40% at 15% 85%, rgba(109,217,75,0.08), transparent 70%)'
+            : 'radial-gradient(60% 50% at 85% 15%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 15% 85%, rgba(13,132,74,0.25), transparent 70%)' 
         }} 
       />
       <div 
-        className="pointer-events-none fixed inset-0 z-0 opacity-30" 
+        className={`pointer-events-none fixed inset-0 z-0 ${isLight ? 'opacity-20' : 'opacity-30'}`} 
         style={{ 
           backgroundSize: '64px 64px', 
-          backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)' 
+          backgroundImage: isLight
+            ? 'linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)'
+            : 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)' 
         }} 
       />
 
@@ -650,13 +771,22 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
 
             {/* Acciones de la barra superior (Theme, Check-in, Notificaciones, Perfil) */}
             <div className="flex items-center gap-1.5 sm:gap-2 relative">
-              {/* Theme Toggle */}
+              {/* Theme Toggle: Sol (activa modo blanco y verde) / Luna (activa modo negro y verde) */}
               <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                onClick={() => setTheme(isLight ? 'dark' : 'light')}
                 aria-label="Cambiar tema"
-                className="grid h-10 w-10 place-items-center rounded-xl text-zinc-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
+                title={isLight ? "Cambiar a modo Negro y Verde (Oscuro)" : "Cambiar a modo Blanco y Verde (Claro)"}
+                className={`grid h-10 w-10 place-items-center rounded-xl transition cursor-pointer ${
+                  isLight 
+                    ? 'bg-zinc-100 hover:bg-zinc-200 text-[#0D844A]' 
+                    : 'bg-white/5 hover:bg-white/10 text-amber-400'
+                }`}
               >
-                {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                {isLight ? (
+                  <Moon className="h-4 w-4 text-[#0D844A]" />
+                ) : (
+                  <Sun className="h-4 w-4 text-amber-400 hover:scale-110 transition-transform" />
+                )}
               </button>
 
               {/* CheckinButton Interactivo */}
@@ -696,7 +826,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                               onClick={() => handleStartCheckin(p.id, p.name)}
                               className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-800 text-left transition cursor-pointer"
                             >
-                              <FolderOpen className="h-4 w-4 text-indigo-400 shrink-0" />
+                              <FolderOpen className="h-4 w-4 text-[#6DD94B] shrink-0" />
                               <div className="min-w-0 flex-1">
                                 <p className="text-xs font-semibold text-white truncate">{p.name}</p>
                                 <p className="text-[10px] text-gray-400 truncate">{p.businessName}</p>
@@ -744,7 +874,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                       <p className="text-xs font-bold text-white">Notificaciones</p>
                       <button
                         onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
-                        className="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-semibold"
+                        className="text-[11px] text-[#6DD94B] hover:text-white flex items-center gap-1 font-semibold"
                       >
                         <CheckCheck className="h-3 w-3" />
                         Marcar leídas
@@ -791,7 +921,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                           key={p.id}
                           onClick={() => { setPartner(p); setIsProfileOpen(false); }}
                           className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-left transition ${
-                            partner.id === p.id ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-800'
+                            partner.id === p.id ? 'bg-[#0D844A] text-white' : 'text-gray-300 hover:bg-gray-800'
                           }`}
                         >
                           <span className={`h-5 w-5 rounded grid place-items-center ${p.color} text-[10px] font-bold text-white`}>
@@ -846,12 +976,12 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
               <div className="md:col-span-2 xl:col-span-8 rounded-2xl border border-gray-800 bg-gray-900/90 p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <SquareKanban className="h-5 w-5 text-indigo-400" />
+                    <SquareKanban className="h-5 w-5 text-[#6DD94B]" />
                     <h3 className="font-semibold text-white text-sm">Kanban de Trabajos</h3>
                   </div>
                   <button
                     onClick={() => setActiveTab('kanban')}
-                    className="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-indigo-300 cursor-pointer"
+                    className="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-[#6DD94B] cursor-pointer"
                   >
                     <span>Ver tablero</span>
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -862,7 +992,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { id: 'planeado', title: 'Por hacer', color: 'border-gray-800' },
-                    { id: 'en_progreso', title: 'En progreso', color: 'border-indigo-500/40' },
+                    { id: 'en_progreso', title: 'En progreso', color: 'border-[#6DD94B]/40' },
                     { id: 'hecho', title: 'Hecho', color: 'border-emerald-500/40' }
                   ].map(col => {
                     const tasksInCol = kanbanTasks.filter(t => t.status === col.id);
@@ -879,7 +1009,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                             <div key={task.id} className="p-2.5 rounded-lg bg-gray-900 border border-gray-800 text-left space-y-1.5 shadow-sm">
                               <p className="text-xs font-medium text-white leading-snug">{task.title}</p>
                               <div className="flex items-center justify-between text-[10px] text-gray-400">
-                                <span className="font-mono text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded">
+                                <span className="font-mono text-[#6DD94B] bg-[#6DD94B]/10 px-1.5 py-0.5 rounded">
                                   {task.subtitle}
                                 </span>
                                 <span className="uppercase font-bold text-gray-500">{task.assignee}</span>
@@ -925,12 +1055,12 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
               <div className="md:col-span-2 xl:col-span-4 rounded-2xl border border-gray-800 bg-gray-900/90 p-5 space-y-3">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <FolderKanban className="h-5 w-5 text-indigo-400" />
+                    <FolderKanban className="h-5 w-5 text-[#6DD94B]" />
                     <h3 className="font-semibold text-white text-sm">Mis Proyectos</h3>
                   </div>
                   <button
                     onClick={() => setActiveTab('projects')}
-                    className="text-xs text-gray-400 hover:text-indigo-300 flex items-center gap-0.5"
+                    className="text-xs text-gray-400 hover:text-[#6DD94B] flex items-center gap-0.5"
                   >
                     <span>Ver todos</span>
                     <ChevronRight className="h-3 w-3" />
@@ -941,7 +1071,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                     const typeMeta = BUSINESS_TYPE_META[p.businessType];
                     const Icon = typeMeta.icon;
                     return (
-                      <li key={p.id} className="p-3 rounded-xl border border-gray-800 bg-gray-800/40 space-y-2 hover:border-indigo-500/50 transition">
+                      <li key={p.id} className="p-3 rounded-xl border border-gray-800 bg-gray-800/40 space-y-2 hover:border-[#6DD94B]/50 transition">
                         <div className="flex items-center gap-3">
                           <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${typeMeta.tint}`}>
                             <Icon className="h-4 w-4" />
@@ -950,10 +1080,10 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                             <p className="text-xs font-semibold text-white truncate">{p.name}</p>
                             <p className="text-[10px] text-gray-400 truncate">{p.businessName}</p>
                           </div>
-                          <span className="text-xs font-mono font-bold text-indigo-300">{p.progress}%</span>
+                          <span className="text-xs font-mono font-bold text-[#6DD94B]">{p.progress}%</span>
                         </div>
                         <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                          <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${p.progress}%` }} />
+                          <div className="bg-[#6DD94B] h-full rounded-full" style={{ width: `${p.progress}%` }} />
                         </div>
                       </li>
                     );
@@ -1039,7 +1169,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
               <div className="md:col-span-2 xl:col-span-12 rounded-2xl border border-gray-800 bg-gray-900/90 p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-indigo-400" />
+                    <TrendingUp className="h-5 w-5 text-[#6DD94B]" />
                     <h3 className="font-semibold text-white text-sm">Actividad del Equipo</h3>
                   </div>
                   <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-400">
@@ -1053,9 +1183,9 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
-                    { title: 'Push a main', desc: 'Mario sincronizó las 12 plantillas multi-tenant con aislamiento DOM', time: 'Hace 10 min', icon: GitCommitHorizontal, tint: 'text-purple-400 bg-purple-500/10' },
+                    { title: 'Push a main', desc: 'Mario sincronizó las 12 plantillas multi-tenant con aislamiento DOM', time: 'Hace 10 min', icon: GitCommitHorizontal, tint: 'text-[#6DD94B] bg-[#6DD94B]/10' },
                     { title: 'Check-in iniciado', desc: 'Dani activó sesión en Smash & Destroy (Hamburguesería)', time: 'Hace 45 min', icon: LogIn, tint: 'text-emerald-400 bg-emerald-500/10' },
-                    { title: 'Despliegue Vercel', desc: 'Producción actualizada con Cloudflare SSL', time: 'Hace 2 h', icon: Rocket, tint: 'text-sky-400 bg-sky-500/10' }
+                    { title: 'Despliegue Cloudflare', desc: 'Producción actualizada con Cloudflare SSL', time: 'Hace 2 h', icon: Rocket, tint: 'text-emerald-400 bg-emerald-500/10' }
                   ].map((act, i) => {
                     const Icon = act.icon;
                     return (
@@ -1353,7 +1483,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 </div>
                 <button
                   onClick={() => setIsNewProjectOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-indigo-900/30 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#6DD94B]/20 transition cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Nuevo Proyecto / Tenant</span>
@@ -1372,16 +1502,16 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                     <div key={project.id} className="group flex flex-col focus:outline-none">
                       {/* Pestaña superior de carpeta */}
                       <div className="flex">
-                        <span className="flex h-7 items-center gap-1.5 rounded-t-xl border border-b-0 border-gray-800 bg-gray-900 px-3 text-xs font-medium text-gray-400 group-hover:border-indigo-500/50 transition">
+                        <span className="flex h-7 items-center gap-1.5 rounded-t-xl border border-b-0 border-gray-800 bg-gray-900 px-3 text-xs font-medium text-gray-400 group-hover:border-[#6DD94B]/50 transition">
                           <TypeIcon className="h-3.5 w-3.5" />
                           <span>{isSaas ? 'SaaS Multi-Tenant' : typeMeta.label}</span>
                         </span>
                       </div>
 
                       {/* Cuerpo de la carpeta */}
-                      <article className="-mt-px flex flex-1 flex-col rounded-2xl rounded-tl-none border border-gray-800 bg-gray-900 p-5 group-hover:border-indigo-500/50 group-hover:shadow-xl transition space-y-4">
+                      <article className="-mt-px flex flex-1 flex-col rounded-2xl rounded-tl-none border border-gray-800 bg-gray-900 p-5 group-hover:border-[#6DD94B]/50 group-hover:shadow-xl transition space-y-4">
                         <div className="flex items-start gap-3">
-                          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${isSaas ? 'bg-indigo-500/15 text-indigo-300' : typeMeta.tint}`}>
+                          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${isSaas ? 'bg-[#0D844A]/20 text-[#6DD94B]' : typeMeta.tint}`}>
                             <TypeIcon className="h-5 w-5" />
                           </span>
                           <div className="min-w-0 flex-1">
@@ -1411,7 +1541,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                             <span className="font-mono text-white">{project.progress}%</span>
                           </div>
                           <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                            <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${project.progress}%` }} />
+                            <div className="bg-[#6DD94B] h-full rounded-full" style={{ width: `${project.progress}%` }} />
                           </div>
                         </div>
 
@@ -1456,7 +1586,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                       ]);
                     }
                   }}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#6DD94B]/20 transition cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Añadir Tarea</span>
@@ -1467,7 +1597,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { id: 'planeado', title: 'Por hacer / Planeado', color: 'border-gray-800' },
-                  { id: 'en_progreso', title: 'En progreso activo', color: 'border-indigo-500/50' },
+                  { id: 'en_progreso', title: 'En progreso activo', color: 'border-[#6DD94B]/50' },
                   { id: 'hecho', title: 'Terminado y verificado', color: 'border-emerald-500/50' }
                 ].map(col => {
                   const tasks = kanbanTasks.filter(t => t.status === col.id);
@@ -1484,7 +1614,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                           <div key={t.id} className="p-3.5 rounded-xl bg-gray-950 border border-gray-800 space-y-2 hover:border-gray-700 transition">
                             <p className="text-xs font-semibold text-white leading-snug">{t.title}</p>
                             <div className="flex items-center justify-between pt-1">
-                              <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] font-mono text-[#6DD94B] bg-[#6DD94B]/10 px-1.5 py-0.5 rounded">
                                 {t.subtitle}
                               </span>
                               <div className="flex items-center gap-1.5">
@@ -1505,7 +1635,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                                   {col.id !== 'en_progreso' && (
                                     <button
                                       onClick={() => setKanbanTasks(prev => prev.map(x => x.id === t.id ? { ...x, status: 'en_progreso' } : x))}
-                                      className="text-[10px] bg-indigo-600/30 hover:bg-indigo-600 text-white px-1 rounded"
+                                      className="text-[10px] bg-[#6DD94B]/30 hover:bg-[#6DD94B] text-black font-bold px-1 rounded"
                                       title="Mover a En Progreso"
                                     >
                                       ●
@@ -1561,7 +1691,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 <h3 className="font-bold text-white text-sm">Simulador de Reparto por Proyecto</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="p-4 rounded-xl bg-gray-950 border border-gray-800">
-                    <span className="text-[11px] text-indigo-400 font-mono font-bold block">65% EJECUCIÓN TÉCNICA</span>
+                    <span className="text-[11px] text-[#6DD94B] font-mono font-bold block">65% EJECUCIÓN TÉCNICA</span>
                     <p className="text-xs text-gray-400 mt-1">Para el desarrollador/diseñador que pica el código y monta la web.</p>
                     <p className="text-lg font-bold text-white mt-2">552,50 € <span className="text-xs text-gray-500 font-normal">de 850 €</span></p>
                   </div>
@@ -1607,7 +1737,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                       ]);
                     }
                   }}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#6DD94B]/20 transition cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Añadir Lead</span>
@@ -1696,7 +1826,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 <button
                   onClick={() => setChatTab('clientes')}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                    chatTab === 'clientes' ? 'bg-indigo-600 text-white' : 'bg-gray-900 text-gray-400 border border-gray-800'
+                    chatTab === 'clientes' ? 'bg-[#0D844A] text-white shadow-sm' : 'bg-gray-900 text-gray-400 border border-gray-800'
                   }`}
                 >
                   <MessageCircle className="h-4 w-4" />
@@ -1705,7 +1835,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 <button
                   onClick={() => setChatTab('equipo')}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-                    chatTab === 'equipo' ? 'bg-indigo-600 text-white' : 'bg-gray-900 text-gray-400 border border-gray-800'
+                    chatTab === 'equipo' ? 'bg-[#0D844A] text-white shadow-sm' : 'bg-gray-900 text-gray-400 border border-gray-800'
                   }`}
                 >
                   <MessagesSquare className="h-4 w-4" />
@@ -1727,10 +1857,10 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                           key={c.id}
                           onClick={() => setSelectedChatId(c.id)}
                           className={`w-full p-2.5 rounded-xl text-left transition cursor-pointer flex items-center gap-2.5 ${
-                            selectedChatId === c.id ? 'bg-indigo-600/20 border border-indigo-500/40 text-white' : 'hover:bg-gray-850 text-gray-300'
+                            selectedChatId === c.id ? 'bg-[#6DD94B]/15 border border-[#6DD94B]/30 text-white' : 'hover:bg-gray-850 text-gray-300'
                           }`}
                         >
-                          <span className="h-8 w-8 rounded-lg bg-indigo-600/30 text-indigo-300 grid place-items-center font-bold text-xs shrink-0">
+                          <span className="h-8 w-8 rounded-lg bg-[#6DD94B]/20 text-[#6DD94B] grid place-items-center font-bold text-xs shrink-0">
                             {c.clientName[0]}
                           </span>
                           <div className="min-w-0 flex-1">
@@ -1769,7 +1899,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                     ).map(msg => (
                       <div key={msg.id} className={`flex flex-col ${msg.isMe ? 'items-end' : 'items-start'}`}>
                         <div className={`max-w-[75%] p-3 rounded-2xl text-xs leading-relaxed ${
-                          msg.isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-gray-800 text-gray-200 rounded-bl-none'
+                          msg.isMe ? 'bg-[#0D844A] text-white rounded-br-none shadow-sm' : 'bg-gray-800 text-gray-200 rounded-bl-none'
                         }`}>
                           <p className="font-bold text-[10px] opacity-75 mb-0.5">{msg.sender}</p>
                           <p>{msg.text}</p>
@@ -1786,11 +1916,11 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                       value={chatInputText}
                       onChange={e => setChatInputText(e.target.value)}
                       placeholder="Escribe un mensaje..."
-                      className="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-[#6DD94B]"
                     />
                     <button
                       type="submit"
-                      className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer transition shrink-0"
+                      className="p-2 rounded-xl bg-[#0D844A] hover:bg-[#09663a] text-white cursor-pointer transition shrink-0"
                     >
                       <Send className="h-4 w-4" />
                     </button>
@@ -1805,7 +1935,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
             <div className="mx-auto max-w-4xl grid gap-4 sm:gap-6 md:grid-cols-2 animate-fadeIn">
               <div className="p-5 rounded-2xl border border-gray-800 bg-gray-900 space-y-3">
                 <div className="flex items-center gap-2 border-b border-gray-800 pb-2">
-                  <Building2 className="h-4 w-4 text-indigo-400" />
+                  <Building2 className="h-4 w-4 text-[#6DD94B]" />
                   <h3 className="font-semibold text-white text-sm">Agencia TecnOdiel</h3>
                 </div>
                 <dl className="space-y-2 text-xs">
@@ -1823,7 +1953,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-400">Dominio Preview:</dt>
-                    <dd className="font-mono text-indigo-300">{APP_CONFIG.agencyPreviewDomain}</dd>
+                    <dd className="font-mono text-[#6DD94B]">{APP_CONFIG.agencyPreviewDomain}</dd>
                   </div>
                 </dl>
               </div>
@@ -1851,7 +1981,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
 
               <div className="md:col-span-2 p-5 rounded-2xl border border-gray-800 bg-gray-900 space-y-3">
                 <div className="flex items-center gap-2 border-b border-gray-800 pb-2">
-                  <UserRound className="h-4 w-4 text-indigo-400" />
+                  <UserRound className="h-4 w-4 text-[#6DD94B]" />
                   <h3 className="font-semibold text-white text-sm">Tu Perfil de Socio Activo</h3>
                 </div>
                 <div className="flex items-center gap-4">
@@ -1874,7 +2004,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
       <div className="fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setIsChatWidgetOpen(!isChatWidgetOpen)}
-          className="h-12 w-12 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-950/60 grid place-items-center hover:scale-105 transition cursor-pointer relative"
+          className="h-12 w-12 rounded-full bg-[#0D844A] hover:bg-[#6DD94B] text-white hover:text-black shadow-xl shadow-[#0D844A]/30 grid place-items-center hover:scale-105 transition cursor-pointer relative"
           aria-label="Abrir chat del equipo"
         >
           {isChatWidgetOpen ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
@@ -1889,7 +2019,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
           <div className="absolute bottom-16 right-0 w-80 sm:w-96 rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl overflow-hidden flex flex-col h-96 animate-fadeIn">
             <div className="p-3 border-b border-gray-800 bg-gray-950 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MessagesSquare className="h-4 w-4 text-indigo-400" />
+                <MessagesSquare className="h-4 w-4 text-[#6DD94B]" />
                 <span className="text-xs font-bold text-white">Chat Rápido de Equipo</span>
               </div>
               <button onClick={() => setIsChatWidgetOpen(false)} className="text-gray-400 hover:text-white">
@@ -1899,7 +2029,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
             <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
               {teamMessages.map(msg => (
                 <div key={msg.id} className={`flex flex-col ${msg.isMe ? 'items-end' : 'items-start'}`}>
-                  <div className={`p-2.5 rounded-xl text-xs max-w-[80%] ${msg.isMe ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-200'}`}>
+                  <div className={`p-2.5 rounded-xl text-xs max-w-[80%] ${msg.isMe ? 'bg-[#0D844A] text-white shadow-sm' : 'bg-gray-800 text-gray-200'}`}>
                     <p className="text-[10px] opacity-75 font-bold mb-0.5">{msg.sender}</p>
                     <p>{msg.text}</p>
                   </div>
@@ -1912,9 +2042,9 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                 value={chatInputText}
                 onChange={e => setChatInputText(e.target.value)}
                 placeholder="Escribe al equipo..."
-                className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#6DD94B]"
               />
-              <button type="submit" className="p-1.5 rounded-lg bg-indigo-600 text-white cursor-pointer">
+              <button type="submit" className="p-1.5 rounded-lg bg-[#0D844A] hover:bg-[#6DD94B] text-white hover:text-black cursor-pointer transition">
                 <Send className="h-3.5 w-3.5" />
               </button>
             </form>
@@ -1964,7 +2094,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                         <p className="text-xs font-semibold text-white">{r.title}</p>
                         <p className="text-[10px] text-gray-400">{r.subtitle}</p>
                       </div>
-                      <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono text-[#6DD94B] bg-[#6DD94B]/10 px-2 py-0.5 rounded">
                         {r.group}
                       </span>
                     </button>
@@ -2026,7 +2156,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                   alert('¡Proyecto creado con éxito y vinculado a las plantillas multi-tenant!');
                   setIsNewProjectOpen(false);
                 }}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs shadow-lg shadow-[#6DD94B]/20 transition cursor-pointer"
               >
                 Crear Proyecto
               </button>
