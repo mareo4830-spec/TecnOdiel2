@@ -447,17 +447,75 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
               </div>
             </div>
 
-            {/* Step 1: Tu Centro Médico */}
+            {/* Step 1: Tu Centro Médico & Especialidad */}
             {activeSection === 1 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-5 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Stethoscope className="w-5 h-5 text-cyan-400" />
-                    <span>Paso 1: Tu Centro Médico & Especialidad</span>
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Indica el nombre de tu clínica y su especialidad para configurar los servicios y la dirección web automáticamente.
-                  </p>
+              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-6 shadow-xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-3 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Stethoscope className="w-5 h-5 text-cyan-400" />
+                      <span>Paso 1: Selección de Plantilla & Datos de la Clínica</span>
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Elige primero la plantilla clínica para tu centro y completa sus datos básicos para previsualizarlo en tiempo real.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded shrink-0">
+                    CATÁLOGO OFICIAL 6 PLANTILLAS
+                  </span>
+                </div>
+
+                {/* ── SELECTOR PRINCIPAL DE LAS 6 PLANTILLAS DE CLÍNICAS ── */}
+                <div className="space-y-3 p-4 rounded-xl bg-black/60 border border-cyan-500/30">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <span>🏥 CATÁLOGO CLÍNICAS & SALUD (6 PLANTILLAS EXCLUSIVAS)</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded">
+                      AISLAMIENTO DOM & CSS ✓
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1">
+                    {TEMPLATES.slice(0, 6).map((tpl, idx) => {
+                      const isSel = formData.template_id === tpl.id;
+                      return (
+                        <button
+                          key={tpl.id}
+                          type="button"
+                          onClick={() => handleTemplateSelect(tpl)}
+                          className={`p-3.5 rounded-xl border-2 text-left transition flex items-start gap-3 cursor-pointer interactive-selectable relative overflow-hidden ${
+                            isSel
+                              ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] ring-1 ring-cyan-400'
+                              : 'bg-zinc-900/90 border-white/10 hover:border-cyan-500/40 hover:bg-zinc-800 text-zinc-300'
+                          }`}
+                        >
+                          <div
+                            className="w-9 h-9 rounded-lg shrink-0 mt-0.5 border-2 flex items-center justify-center font-black text-xs"
+                            style={{
+                              backgroundColor: tpl.previewColors?.bg || '#111',
+                              borderColor: tpl.previewColors?.primary || '#fff',
+                              color: tpl.previewColors?.primary || '#fff'
+                            }}
+                          >
+                            0{idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="font-bold text-xs text-white truncate">{tpl.name}</span>
+                              {isSel && (
+                                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-400 text-black shrink-0">
+                                  ACTIVA
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] font-mono text-cyan-300 block">{tpl.badge}</span>
+                            <p className="text-[10px] text-zinc-400 line-clamp-2 leading-tight">{tpl.description}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -569,43 +627,73 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
-                      Estilos Visuales de Plantilla Clínica
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {TEMPLATES.map(tpl => (
-                        <button
-                          key={tpl.id}
-                          type="button"
-                          onClick={() => {
-                            setFormData(prev => ({
-                              ...prev,
-                              template_id: tpl.id,
-                              primary_color: tpl.previewColors.primary,
-                              accent_color: tpl.previewColors.accent,
-                              background_color: tpl.previewColors.bg,
-                              surface_color: tpl.previewColors.card,
-                              font_family: tpl.defaultFont,
-                              hero_layout: tpl.defaultLayout,
-                              menu_categories: getPresetServicesForStyle(tpl.id)
-                            }));
-                          }}
-                          className={`p-3.5 rounded-xl border text-left transition space-y-1.5 cursor-pointer interactive-selectable ${
-                            formData.template_id === tpl.id
-                              ? 'bg-cyan-500/20 border-cyan-500 text-white font-bold'
-                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white">{tpl.name}</span>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/40 text-cyan-300 border border-cyan-500/30">
-                              {tpl.badge}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-zinc-400 font-sans leading-relaxed">{tpl.description}</p>
-                        </button>
-                      ))}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span>🏥 CATÁLOGO CLÍNICAS & SALUD (6 PLANTILLAS EXCLUSIVAS)</span>
+                      </label>
+                      <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded">
+                        AISLAMIENTO DOM & CSS ✓
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 max-h-[460px] overflow-y-auto pr-1">
+                      {TEMPLATES.slice(0, 6).map((tpl, idx) => {
+                        const isSel = formData.template_id === tpl.id;
+                        return (
+                          <button
+                            key={tpl.id}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                template_id: tpl.id,
+                                primary_color: tpl.previewColors.primary,
+                                accent_color: tpl.previewColors.accent,
+                                background_color: tpl.previewColors.bg,
+                                surface_color: tpl.previewColors.card,
+                                font_family: tpl.defaultFont,
+                                hero_layout: tpl.defaultLayout,
+                                menu_categories: getPresetServicesForStyle(tpl.id)
+                              }));
+                            }}
+                            className={`w-full p-4 rounded-xl border-2 text-left transition flex items-start gap-4 cursor-pointer interactive-selectable relative overflow-hidden ${
+                              isSel
+                                ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-[0_0_25px_rgba(6,182,212,0.35)]'
+                                : 'bg-zinc-900/90 border-white/10 hover:border-cyan-500/50 hover:bg-zinc-800/80 text-zinc-300'
+                            }`}
+                          >
+                            <div
+                              className="w-10 h-10 rounded-lg shrink-0 mt-0.5 border-2 flex items-center justify-center font-black text-sm"
+                              style={{
+                                backgroundColor: tpl.previewColors?.bg || '#030712',
+                                borderColor: tpl.previewColors?.primary || '#06b6d4',
+                                color: tpl.previewColors?.primary || '#06b6d4'
+                              }}
+                            >
+                              0{idx + 1}
+                            </div>
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-bold text-sm text-white">{tpl.name}</span>
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white/10 text-cyan-300 shrink-0">
+                                  {tpl.badge}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-zinc-400 leading-snug">{tpl.description}</p>
+                              {tpl.tags && (
+                                <div className="flex flex-wrap gap-1 pt-1">
+                                  {tpl.tags.map((tg) => (
+                                    <span key={tg} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-zinc-400 border border-white/10">
+                                      {tg}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
