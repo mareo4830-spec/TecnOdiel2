@@ -12,29 +12,38 @@ const Eyebrow = ({ children, dark }) => (
 );
 
 /* ───────── DEMOS EN VIVO (lo mejor de la versión de Mario: enseñar el producto) ───────── */
-const DEMOS = {
+export const DEMOS = {
   restauracion: {
     label: 'Bares y restaurantes',
     items: [
-      { slug: 'noir-atelier', name: 'Cinematográfico', mood: 'Alta cocina, vídeo y fotos a pantalla completa', grad: 'from-zinc-900 to-black' },
-      { slug: 'smash-destroy', name: 'Urbano', mood: 'Hamburgueserías y street food con mucha personalidad', grad: 'from-yellow-400 to-orange-500' },
-      { slug: 'aura-velvet', name: 'Cristal', mood: 'Coctelería y locales de copas, moderno y elegante', grad: 'from-fuchsia-500 to-indigo-600' },
-      { slug: 'le-maison', name: 'Editorial', mood: 'Estilo revista para bistrós y cocina de autor', grad: 'from-stone-200 to-stone-400' },
-      { slug: 'cyber-fusion', name: 'Futurista', mood: 'Fusión y locales jóvenes que quieren destacar', grad: 'from-emerald-500 to-cyan-600' },
-      { slug: 'casa-encina', name: 'Rústico', mood: 'Asadores y cocina tradicional, cálido y cercano', grad: 'from-amber-700 to-orange-900' }
+      { slug: 'noir-atelier', name: 'Cinematográfico', mood: 'Alta cocina, vídeo y fotos a pantalla completa' },
+      { slug: 'smash-destroy', name: 'Urbano', mood: 'Hamburgueserías y street food con mucha personalidad' },
+      { slug: 'aura-velvet', name: 'Cristal', mood: 'Coctelería y locales de copas, moderno y elegante' },
+      { slug: 'le-maison', name: 'Editorial', mood: 'Estilo revista para bistrós y cocina de autor' },
+      { slug: 'cyber-fusion', name: 'Futurista', mood: 'Fusión y locales jóvenes que quieren destacar' },
+      { slug: 'casa-encina', name: 'Rústico', mood: 'Asadores y cocina tradicional, cálido y cercano' }
     ]
   },
   salud: {
     label: 'Clínicas y bienestar',
     items: [
-      { slug: 'swiss-dental', name: 'Minimal', mood: 'Limpio y profesional para clínicas dentales', grad: 'from-white to-zinc-300' },
-      { slug: 'genome-biotech', name: 'Alta tecnología', mood: 'Medicina deportiva y centros de última generación', grad: 'from-slate-800 to-emerald-700' },
-      { slug: 'pequenos-gigantes', name: 'Amable', mood: 'Pediatría y familias, colorido y cercano', grad: 'from-sky-400 to-pink-400' },
-      { slug: 'espacio-vacio', name: 'Zen', mood: 'Psicología, spa y bienestar, sereno', grad: 'from-teal-200 to-teal-500' },
-      { slug: 'aura-gold', name: 'Lujo', mood: 'Estética avanzada y tratamientos premium', grad: 'from-yellow-600 to-amber-900' },
-      { slug: 'ortho-tech', name: 'Precisión', mood: 'Ortodoncia y traumatología con aire técnico', grad: 'from-blue-600 to-cyan-400' }
+      { slug: 'swiss-dental', name: 'Minimal', mood: 'Limpio y profesional para clínicas dentales' },
+      { slug: 'genome-biotech', name: 'Alta tecnología', mood: 'Medicina deportiva y centros de última generación' },
+      { slug: 'pequenos-gigantes', name: 'Amable', mood: 'Pediatría y familias, colorido y cercano' },
+      { slug: 'espacio-vacio', name: 'Zen', mood: 'Psicología, spa y bienestar, sereno' },
+      { slug: 'aura-gold', name: 'Lujo', mood: 'Estética avanzada y tratamientos premium' },
+      { slug: 'ortho-tech', name: 'Precisión', mood: 'Ortodoncia y traumatología con aire técnico' }
     ]
   }
+};
+
+/** Busca un estilo por slug (para prellenar el formulario desde el popup del preview). */
+export const findDemo = (slug) => {
+  for (const [group, v] of Object.entries(DEMOS)) {
+    const item = v.items.find((i) => i.slug === slug);
+    if (item) return { ...item, group };
+  }
+  return null;
 };
 
 export function Demos() {
@@ -60,9 +69,10 @@ export function Demos() {
           {d.items.map((it) => (
             <a key={it.slug} href={`/?tenant=${it.slug}`} target="_blank" rel="noopener noreferrer"
               className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition hover:-translate-y-1 hover:border-[#6DD94B]/60">
-              <div className={`relative flex h-40 items-end bg-gradient-to-br ${it.grad} p-5`}>
-                <div className="absolute inset-x-5 top-4 flex gap-1.5"><span className="h-2 w-2 rounded-full bg-white/60" /><span className="h-2 w-2 rounded-full bg-white/40" /><span className="h-2 w-2 rounded-full bg-white/30" /></div>
-                <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur">Demo en vivo</span>
+              <div className="relative h-44 overflow-hidden bg-zinc-900">
+                <img src={`/demos/${it.slug}.jpg`} alt={`Vista previa del estilo ${it.name}`} loading="lazy" className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">Demo en vivo</span>
               </div>
               <div className="p-6">
                 <h3 className="flex items-center justify-between text-lg font-bold text-white">Estilo {it.name}<ArrowUpRight className="h-5 w-5 text-[#6DD94B] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></h3>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTenant } from './TenantProvider.jsx';
+import PreviewLeadPopup from './PreviewLeadPopup.jsx';
 
 // Importación de las 6 plantillas de Hostelería (Aislamiento Total del DOM y CSS)
 import AwwwardsCinematicTemplate from '../platforms/hosteleria/templates/the-awwwards-cinematic/AwwwardsCinematicTemplate.jsx';
@@ -66,6 +67,9 @@ export const TenantRouter = () => {
     <div className="relative w-full min-h-screen bg-black">
       {/* Plantilla Aislada */}
       {renderTemplate()}
+
+      {/* A los 7 s invita a pedir esta web (lleva al formulario con el estilo ya elegido) */}
+      <PreviewLeadPopup slug={tenant?.slug} name={tenant?.name} />
 
       {/* Switcher & Inspector Multi-Tenant Flotante */}
       <div className="fixed bottom-4 right-4 z-50 font-mono">

@@ -5,8 +5,9 @@ import {
   Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart
 } from 'lucide-react';
 import LeadForm from './LeadForm.jsx';
-import { Demos, HowItWorks, Savings, MobileBar } from './Extras.jsx';
-import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, CASE, FAQ, FOOTER, waLink } from './content.js';
+import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
+import LogoMark from './LogoMark.jsx';
+import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
 const ICONS = { CalendarCheck, QrCode, LayoutDashboard, Bot, Globe, ShoppingBag, BarChart3, BellRing, Image: ImageIcon, Rocket, RefreshCw, LifeBuoy, Users };
@@ -26,7 +27,7 @@ const Eyebrow = ({ children, dark }) => (
 
 const Logo = () => (
   <a href="#inicio" onClick={goTo('#inicio')} className="flex items-center gap-3">
-    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#6DD94B] text-sm font-black text-black">TO</span>
+    <LogoMark className="h-11 w-11" />
     <span className="leading-none">
       <span className="block text-lg font-extrabold tracking-wide text-white">TECNODIEL</span>
       <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6DD94B]">Huelva</span>
@@ -199,15 +200,19 @@ function Projects({ onAction }) {
             const Wrapper = p.href ? 'a' : 'button';
             const props = p.href ? { href: p.href, target: '_blank', rel: 'noopener noreferrer' } : { type: 'button', onClick: () => onAction(p.action) };
             return (
-              <Wrapper key={p.title} {...props} className={`group flex flex-col rounded-2xl border p-7 text-left transition hover:-translate-y-1 hover:shadow-xl cursor-pointer ${p.featured ? 'border-[#0D844A] bg-[#121212] text-white' : 'border-zinc-200 bg-white'}`}>
-                <span className={`text-xs font-bold uppercase tracking-wider ${p.featured ? 'text-[#6DD94B]' : 'text-[#0D844A]'}`}>{p.tag}</span>
-                <h3 className="mt-4 text-xl font-bold leading-snug">{p.title}</h3>
-                <p className={`mt-3 flex-1 text-sm leading-relaxed ${p.featured ? 'text-zinc-400' : 'text-zinc-600'}`}>{p.text}</p>
-                <p className={`mt-5 text-xs font-medium ${p.featured ? 'text-zinc-500' : 'text-zinc-500'}`}>{p.sector}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+              <Wrapper key={p.title} {...props} className={`group relative flex flex-col overflow-hidden rounded-2xl border p-7 text-left transition hover:-translate-y-1 hover:shadow-xl cursor-pointer ${p.featured ? "border-[#0D844A] bg-[#121212] text-white [text-shadow:0_1px_10px_rgba(0,0,0,0.9)]" : 'border-zinc-200 bg-white'}`}>
+                {p.featured && (<>
+                  <img src="/demos/adrianmillan-local.jpg" alt="Captura real de adrianmillan.es" loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center brightness-110 transition duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+                </>)}
+                <span className={`relative text-xs font-bold uppercase tracking-wider ${p.featured ? 'text-[#6DD94B]' : 'text-[#0D844A]'}`}>{p.tag}</span>
+                <h3 className="relative mt-4 text-xl font-bold leading-snug">{p.title}</h3>
+                <p className={`relative mt-3 flex-1 text-sm leading-relaxed ${p.featured ? 'text-zinc-200' : 'text-zinc-600'}`}>{p.text}</p>
+                <p className={`relative mt-5 text-xs font-medium ${p.featured ? 'text-zinc-300' : 'text-zinc-500'}`}>{p.sector}</p>
+                <div className="relative mt-3 flex flex-wrap gap-2">
                   {p.chips.map((c) => <span key={c} className={`rounded-full px-3 py-1 text-xs font-medium ${p.featured ? 'bg-white/10 text-zinc-200' : 'bg-zinc-100 text-zinc-700'}`}>{c}</span>)}
                 </div>
-                <span className={`mt-6 inline-flex items-center gap-2 text-sm font-bold ${p.featured ? 'text-[#6DD94B]' : 'text-[#0D844A]'}`}>
+                <span className={`relative mt-6 inline-flex items-center gap-2 text-sm font-bold ${p.featured ? 'text-[#6DD94B]' : 'text-[#0D844A]'}`}>
                   {p.href ? 'Visitar la web' : 'Ver demostración'} <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </span>
               </Wrapper>
@@ -264,36 +269,6 @@ function Sectors() {
   );
 }
 
-/* ───────────── CASO REAL (equivalente a "Valorados con 5 estrellas") ───────────── */
-function CaseStudy() {
-  return (
-    <section className="bg-[#0D844A] py-20 text-white sm:py-28">
-      <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d6f7c9]">{CASE.eyebrow}</span>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-5xl">{CASE.title}</h2>
-          <p className="mt-6 text-lg leading-relaxed text-white/85">{CASE.text}</p>
-          <a href={CASE.href} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#0D844A] transition hover:bg-[#121212] hover:text-white">
-            Ver adrianmillan.es <ArrowUpRight className="h-4 w-4" />
-          </a>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {CASE.items.map((c) => {
-            const Icon = ICONS[c.icon] || Check;
-            return (
-              <div key={c.label} className="rounded-2xl bg-white/10 p-6 backdrop-blur">
-                <Icon className="h-7 w-7 text-[#d6f7c9]" />
-                <h3 className="mt-4 text-lg font-bold">{c.label}</h3>
-                <p className="mt-1 text-sm text-white/80">{c.text}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ───────────── FAQ ───────────── */
 function Faq() {
   const [open, setOpen] = useState(0);
@@ -321,7 +296,7 @@ function Faq() {
 }
 
 /* ───────────── CTA + FORMULARIO ───────────── */
-function Contact() {
+function Contact({ style }) {
   return (
     <section id="contacto" className="relative overflow-hidden bg-[#121212] py-20 sm:py-28">
       <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(50% 50% at 15% 20%, rgba(109,217,75,0.14), transparent 70%)' }} />
@@ -338,7 +313,7 @@ function Contact() {
             <MessageCircle className="h-4 w-4" /> Hablemos por WhatsApp
           </a>
         </div>
-        <LeadForm />
+        <LeadForm style={style} />
       </div>
     </section>
   );
@@ -367,6 +342,15 @@ function Footer({ onPortal }) {
 }
 
 export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNavigateToPortal }) {
+  // Llegada desde el popup de un preview: ?estilo=<slug> prellena el formulario y baja a él.
+  const [style] = useState(() => {
+    try { const slug = new URLSearchParams(window.location.search).get('estilo'); return slug ? findDemo(slug) : null; } catch { return null; }
+  });
+  useEffect(() => {
+    if (!style) return;
+    const t = setTimeout(() => document.querySelector('#contacto')?.scrollIntoView({ behavior: 'smooth' }), 400);
+    return () => clearTimeout(t);
+  }, [style]);
   const onAction = (a) => (a === 'clinicas' ? onNavigateToCyS : onNavigateToMultiwebs)?.();
   const onPortal = () => (onNavigateToPortal ? onNavigateToPortal() : (window.location.hash = '#/portal'));
   return (
@@ -380,10 +364,9 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
         <HowItWorks />
         <Savings />
         <Projects onAction={onAction} />
-        <CaseStudy />
         <Services />
         <Faq />
-        <Contact />
+        <Contact style={style} />
       </main>
       <Footer onPortal={onPortal} />
       <MobileBar />

@@ -9,8 +9,15 @@ const inputCls =
   'w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition focus:border-[#0D844A] focus:ring-2 focus:ring-[#6DD94B]/40';
 const labelCls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-600';
 
-export default function LeadForm() {
-  const [form, setForm] = useState(EMPTY);
+const GROUP_SECTOR = { restauracion: 'Restaurante / Bar / Cafetería', salud: 'Clínica / Salud' };
+
+export default function LeadForm({ style: initialStyle = null }) {
+  const [chosen, setChosen] = useState(initialStyle);
+  const [form, setForm] = useState(() => ({
+    ...EMPTY,
+    sector: initialStyle ? GROUP_SECTOR[initialStyle.group] || '' : '',
+    services: initialStyle ? ['Página web'] : []
+  }));
   const [status, setStatus] = useState('idle'); // idle | sending | done
   const [error, setError] = useState('');
 
@@ -25,7 +32,8 @@ export default function LeadForm() {
     if (!form.phone.trim() && !form.email.trim()) return setError('Déjanos un teléfono o un email para responderte.');
     if (!form.privacy) return setError('Debes aceptar la política de privacidad para enviar la solicitud.');
     setStatus('sending');
-    const res = await submitLead(form);
+    const styleNote = chosen ? `[Estilo elegido: ${chosen.name} (demo ${chosen.slug})] ` : '';
+    const res = await submitLead({ ...form, message: styleNote + form.message });
     if (res.ok) setStatus('done');
     else { setStatus('idle'); setError('No hemos podido enviar la solicitud. Escríbenos por WhatsApp.'); }
   };
@@ -71,6 +79,16 @@ export default function LeadForm() {
           <input id="lf-email" type="email" className={inputCls} value={form.email} onChange={set('email')} placeholder="tu@negocio.com" autoComplete="email" maxLength={160} />
         </div>
       </div>
+
+      {chosen && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#0D844A]/40 bg-[#6DD94B]/10 p-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <img src={`/demos/${chosen.slug}.jpg`} alt="" className="h-12 w-20 shrink-0 rounded-md object-cover object-top" />
+            <p className="text-sm text-zinc-800"><span className="block text-[11px] font-bold uppercase tracking-wider text-[#0D844A]">Estilo que te ha gustado</span><strong>Estilo {chosen.name}</strong></p>
+          </div>
+          <button type="button" onClick={() => setChosen(null)} className="shrink-0 text-xs font-semibold text-zinc-500 underline cursor-pointer">Quitar</button>
+        </div>
+      )}
 
       <div>
         <label className={labelCls} htmlFor="lf-sector">¿Qué tipo de negocio tienes?</label>

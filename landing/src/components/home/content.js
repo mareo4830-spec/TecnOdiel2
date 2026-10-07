@@ -103,19 +103,6 @@ export const SECTORS = {
   ]
 };
 
-export const CASE = {
-  eyebrow: 'RESULTADOS REALES',
-  title: 'Un negocio de Huelva que ya trabaja en digital',
-  text: 'Adrián Millán, barbero en Huelva, pasó de gestionar todo a mano a tener su propio ecosistema digital: web con SEO, citas online, panel de gestión y tienda. Todo suyo, sin comisiones y hecho a su medida.',
-  items: [
-    { icon: 'CalendarCheck', label: 'Citas online', text: 'Sistema de reservas propio, sin intermediarios' },
-    { icon: 'Users', label: 'Equipo y agendas', text: 'Personal, servicios y horarios gestionados desde su panel' },
-    { icon: 'BarChart3', label: 'Datos reales', text: 'Analíticas de usuarios y control de gastos del negocio' },
-    { icon: 'ShoppingBag', label: 'Tienda y galería', text: 'Venta de productos y galería de cortes' }
-  ],
-  href: 'https://adrianmillan.es'
-};
-
 export const FAQ = {
   eyebrow: 'PREGUNTAS FRECUENTES',
   title: 'Preguntas frecuentes sobre digitalizar tu negocio',
