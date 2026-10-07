@@ -4,14 +4,14 @@ import { Utensils, Store, MapPin, Zap, Shield, Sparkles, Smartphone, Award } fro
 
 export default function MarqueeTicker() {
   const items = [
-    { text: 'RESTAURANTES & BARES', icon: Utensils },
-    { text: 'CARTAS DIGITALES QR EN 0.18s', icon: Zap },
-    { text: 'RESERVAS DIRECTAS SIN COMISIONES', icon: Shield },
-    { text: 'COMERCIOS & NEGOCIOS LOCALES', icon: Store },
-    { text: 'POSICIONAMIENTO Nº1 GOOGLE MAPS HUELVA', icon: MapPin },
-    { text: 'SISTEMA ANTI-PLANTONES CON FIANZA', icon: Award },
-    { text: 'DISEÑO ADAPTADO 100% A MÓVIL', icon: Smartphone },
-    { text: 'INGENIERÍA WEB DESDE HUELVA', icon: Sparkles },
+    { text: 'SOMOS DE HUELVA • DIGITALIZAMOS TU EMPRESA', icon: Sparkles },
+    { text: 'CARTAS DIGITALES QR SIN DESCARGAR PDF', icon: Utensils },
+    { text: 'RESERVAS DIRECTAS A TU WHATSAPP', icon: Shield },
+    { text: '0% COMISIONES POR PEDIDO O MESA', icon: Award },
+    { text: 'CITAS MÉDICAS ONLINE LAS 24 HORAS', icon: Zap },
+    { text: 'APARECE EL PRIMERO EN GOOGLE MAPS', icon: MapPin },
+    { text: 'TU WEB ABRE EN 1 SEGUNDO EN EL MÓVIL', icon: Smartphone },
+    { text: 'ATENCIÓN DIRECTA CON MARIO Y DANI', icon: Store },
   ]
 
   // Double array for seamless loop

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowUpRight, 
   Utensils, 
@@ -15,39 +15,40 @@ import {
   Layers, 
   Database, 
   Sparkles, 
-  Building2,
-  Clock,
-  ExternalLink,
-  ArrowRight,
-  Sliders,
-  Eye,
-  CheckCircle2,
-  MousePointer2
+  Building2, 
+  Clock, 
+  ExternalLink, 
+  ArrowRight, 
+  CheckCircle2, 
+  Phone,
+  MessageCircle,
+  MapPin,
+  HeartHandshake
 } from 'lucide-react';
 import MarqueeTicker from './MarqueeTicker';
 
 export default function BanchLanding({ 
   onNavigateToMultiwebs, 
   onNavigateToCyS, 
-  onOpenAudit,
-  onNavigateToPortal
+  onOpenAudit, 
+  onNavigateToPortal 
 }) {
-  // Cursor interactivo Banch (#cursor)
+  // Cursor interactivo Banch
   const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
   const [cursorHovered, setCursorHovered] = useState(false);
   const [cursorText, setCursorText] = useState('');
 
-  // Active panel en showcase interactivo Banch (0: Hostelería, 1: Clínicas, 2: Rendimiento, 3: Portal)
+  // Selector de paneles (0: Hostelería, 1: Clínicas, 2: Clientes locales, 3: Panel privado)
   const [activePanel, setActivePanel] = useState(0);
 
-  // Active template selector dentro del panel interactivo
+  // Plantilla seleccionada en el preview
   const [activeHostTemplate, setActiveHostTemplate] = useState(0);
   const [activeClinicTemplate, setActiveClinicTemplate] = useState(0);
 
-  // Scroll detection para cambio dinámico de fondos (#121212 -> #0D844A -> #FFFFFF -> #121212)
+  // Transición dinámica de fondos al hacer scroll
   const [scrollSection, setScrollSection] = useState('black');
 
-  // Form State Banch
+  // Estado del formulario de contacto
   const [formSent, setFormSent] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -58,7 +59,7 @@ export default function BanchLanding({
     privacy: false
   });
 
-  // Track cursor position
+  // Seguimiento del cursor
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
@@ -67,12 +68,12 @@ export default function BanchLanding({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Track scroll para cambiar el fondo dinámico estilo Banch
+  // Control del fondo según el scroll
   useEffect(() => {
     const handleScroll = () => {
       const vh = window.innerHeight;
-      const specElement = document.getElementById('especificaciones');
-      const greenElement = document.getElementById('made-to-work');
+      const specElement = document.getElementById('incluido');
+      const greenElement = document.getElementById('compromiso');
 
       if (specElement) {
         const specRect = specElement.getBoundingClientRect();
@@ -110,137 +111,113 @@ export default function BanchLanding({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.privacy) {
-      alert('Por favor, acepta la política de privacidad para continuar.');
+      alert('Por favor, acepta la casilla de contacto para que podamos responderte.');
       return;
     }
     setFormSent(true);
   };
 
-  // 6 Plantillas de Hostelería con características de diseño reales
+  // 6 Opciones claras para Hostelería (Restaurantes, Bares, Cafeterías)
   const hosteleriaTemplates = [
     {
       id: 1,
       num: '01',
-      name: 'The Awwwards Cinematic',
-      tag: 'Referencia Instagram / Ultra Oscuro',
-      bg: '#000000',
-      accent: '#6DD94B',
-      desc: 'Fondo negro profundo con mix-blend-mode sobre vídeo. Text Masking con clip-path vertical, overflow-hidden y parallax dinámico con enlaces magnéticos.',
-      feature: 'Parallax + Clip-path Text Reveal'
+      name: 'Visual & Vídeo',
+      tag: 'Fotos grandes y platos que entran por los ojos',
+      desc: 'Pensada para que a tus clientes se les haga la boca agua nada más abrir la web. Vídeos y fotografías de tus platos estrella a pantalla completa, sin textos complicados.',
+      benefit: 'Ideal para destacar tu comida y abrir el apetito.'
     },
     {
       id: 2,
       num: '02',
-      name: 'The Neo-Bento Brutalist',
-      tag: 'Hamburgueserías & Street Food',
-      bg: '#FFFFFF',
-      accent: '#EAB308',
-      desc: 'Grid asimétrico Bento box. Bordes negros de 4px, sombras sólidas de 8px sin desenfoque y físicas spring ultra-reactivas (stiffness 400).',
-      feature: 'Sombras sólidas 8px + Físicas Spring'
+      name: 'Moderna & Urbana',
+      tag: 'Hamburgueserías, pizzerías y comida rápida',
+      desc: 'Diseño dinámico, con colores vivos y muy directo. Tus clientes eligen sus hamburguesas, pizzas o combos favoritos y te piden en pocos toques.',
+      benefit: 'Perfecta para pedir comida para llevar o a domicilio.'
     },
     {
       id: 3,
       num: '03',
-      name: 'The Glass Fluid',
-      tag: 'Coctelerías Premium & Nightlife',
-      bg: '#090d16',
-      accent: '#38BDF8',
-      desc: 'Gradientes de malla (Mesh gradients) continuos. Paneles acrílicos con backdrop-blur-3xl, cápsulas redondeadas y brillo interior luminoso.',
-      feature: 'Mesh Gradients + Acrílico 3D'
+      name: 'Coctelería & Noche',
+      tag: 'Copas, terrazas, gastrobares y eventos',
+      desc: 'Estilo elegante, oscuro y con ambiente nocturno. Ideal para mostrar tu carta de cócteles, copas, vinos especiales y reservas de mesa para cenar o tomar algo.',
+      benefit: 'Atrae clientes para el tardeo, cenas y copas.'
     },
     {
       id: 4,
       num: '04',
-      name: 'The Editorial Print',
-      tag: 'Restaurantes de Autor & Fine Dining',
-      bg: '#F9F6F0',
-      accent: '#18181b',
-      desc: 'Revista de alta gama impresa. Fondo sepia/hueso, layout multi-columna, tipografía serif editorial y barridos de imagen horizontales.',
-      feature: 'Tipografía Serif + Multi-columna'
+      name: 'Carta Gastronómica',
+      tag: 'Restaurantes de autor y cocina cuidada',
+      desc: 'Diseño sobrio, limpio y de revista. Perfecto para restaurantes con menú degustación o producto de alta calidad que quieren transmitir prestigio y buen gusto.',
+      benefit: 'Elegancia total y lectura limpia de cada plato.'
     },
     {
       id: 5,
       num: '05',
-      name: 'The Cyber-Terminal',
-      tag: 'Comida Fusión & Geek Kitchen',
-      bg: '#0d1117',
-      accent: '#22c55e',
-      desc: 'Fondo grafito con rejilla técnica SVG. Tipografía monoespaciada de consola, efecto typewriter automático y glitches de imagen interactivos.',
-      feature: 'Monospace + Auto Typewriter'
+      name: 'Rápida para Móvil',
+      tag: 'Comida para llevar y pedir sin esperas',
+      desc: 'Enfocada 100% en el móvil. Los clientes ven la carta rápido, añaden platos con un toque y te envían el pedido directo a tu WhatsApp sin tener que descargarse nada.',
+      benefit: 'Máxima rapidez: tus clientes piden en 30 segundos.'
     },
     {
       id: 6,
       num: '06',
-      name: 'The Rustic Organic',
-      tag: 'Asadores Tradicionales & Brasas',
-      bg: '#1c1611',
-      accent: '#f97316',
-      desc: 'Tonos tierra cálidos. Máscaras SVG con bordes de papel rasgado, fotografías Polaroid superpuestas y botones de curvatura asimétrica.',
-      feature: 'Bordes rasgados + Polaroid'
+      name: 'Tradicional & Asador',
+      tag: 'Carnes a la brasa, tabernas y comida casera',
+      desc: 'Tonos cálidos y ambiente acogedor de toda la vida. Resalta tus carnes, guisos tradicionales, tapas y raciones para que el cliente se sienta como en casa.',
+      benefit: 'Transmite el sabor casero y la autenticidad de tu cocina.'
     }
   ];
 
-  // 6 Plantillas de Clínicas con características de diseño reales
+  // 6 Opciones claras para Clínicas y Salud
   const clinicTemplates = [
     {
       id: 1,
       num: '01',
-      name: 'The Ultra-Minimal Swiss',
-      tag: 'Dentales de Lujo & Cirugía',
-      bg: '#ffffff',
-      accent: '#18181b',
-      desc: 'Blanco absoluto. Grid matemático suizo con tipografías proporcionales frente a grandes vacíos. Botones con flecha delgada revelada al pasar el ratón.',
-      feature: 'Grid Suizo + Blanco Puro'
+      name: 'Limpia & Profesional',
+      tag: 'Dentales y medicina general',
+      desc: 'Fondo blanco impecable y diseño ordenado que transmite máxima higiene, confianza y tranquilidad médica desde el primer segundo.',
+      benefit: 'Transmite seguridad y máxima higiene sanitaria.'
     },
     {
       id: 2,
       num: '02',
-      name: 'The Dark Biotech',
-      tag: 'Medicina Deportiva & Biotecnología',
-      bg: '#040d1a',
-      accent: '#6DD94B',
-      desc: 'Azul marino profundo. Fondo con gráficos moleculares vectoriales, layout tipo dashboard y decodificador de caracteres tipográficos.',
-      feature: 'Decoder Tipográfico + Dashboard'
+      name: 'Dinámica & Fisioterapia',
+      tag: 'Fisioterapia, osteopatía y deporte',
+      desc: 'Aspecto moderno y activo, pensada para mostrar cómo ayudas a recuperar lesiones, aliviar dolores y mejorar la calidad de vida de tus pacientes.',
+      benefit: 'Muestra tus tratamientos y casos de recuperación.'
     },
     {
       id: 3,
       num: '03',
-      name: 'The Pediatric Playful',
-      tag: 'Pediatría & Odontopediatría',
-      bg: '#fdf4ff',
-      accent: '#ec4899',
-      desc: 'Colores pastel amables. Blobs orgánicos continuos, tipografía redondeada y botones elásticos de goma que rebotan al hacer clic.',
-      feature: 'Blobs Orgánicos + Físicas Goma'
+      name: 'Cercana & Familiar',
+      tag: 'Pediatría, familias y niños',
+      desc: 'Colores amables y un tono acogedor que quita el miedo al médico y hace que las familias se sientan cómodas y en buenas manos.',
+      benefit: 'Tranquiliza a los padres y conecta con los pacientes.'
     },
     {
       id: 4,
       num: '04',
-      name: 'The Horizontal Zen',
-      tag: 'Psicología & Fisioterapia',
-      bg: '#13191c',
-      accent: '#14b8a6',
-      desc: 'Navegación completa en scroll horizontal. Tonos arena y niebla, tracking tipográfico expansivo y orbes circulares de interacción.',
-      feature: 'Scroll Horizontal + Tonos Niebla'
+      name: 'Relajante & Bienestar',
+      tag: 'Psicología, nutrición y spa',
+      desc: 'Diseño tranquilo con tonos suaves para consultas de psicología, nutrición, salud mental y relajación. Fácil de navegar sin agobios.',
+      benefit: 'Crea un ambiente de calma antes de la consulta.'
     },
     {
       id: 5,
       num: '05',
-      name: 'The Luxury Curtain',
-      tag: 'Clínicas Estéticas & Antiaging',
-      bg: '#0a0a0a',
-      accent: '#eab308',
-      desc: 'Oro mate y negro obsidiana. Transiciones de telón deslizante vertical, serifs de alta costura y bordes envolventes dorados.',
-      feature: 'Transición Telón + Oro Mate'
+      name: 'Exclusiva & Estética',
+      tag: 'Medicina estética y cuidado facial',
+      desc: 'Toques elegantes y sofisticados para clínicas de medicina estética, dermatología y estética dental que quieren reflejar cuidado y belleza.',
+      benefit: 'Destaca tus tratamientos de rejuvenecimiento y belleza.'
     },
     {
       id: 6,
       num: '06',
-      name: 'The Tech-Ortho',
-      tag: 'Ortodoncia Avanzada & 3D',
-      bg: '#0e1726',
-      accent: '#3b82f6',
-      desc: 'Estética Wireframe arquitectónica. Líneas estructurales visibles, ilustraciones isométricas y línea de escáner láser luminoso sobre imágenes.',
-      feature: 'Escáner Láser + Wireframe CAD'
+      name: 'Especialistas & Tratamientos',
+      tag: 'Aparatología avanzada y ortodoncia',
+      desc: 'Muestra tus instalaciones, tecnología moderna, antes y después de tratamientos y a todo tu equipo médico con total claridad.',
+      benefit: 'Demuestra tu tecnología y la experiencia de tu equipo.'
     }
   ];
 
@@ -248,11 +225,11 @@ export default function BanchLanding({
     {
       id: 0,
       code: '01',
-      title: 'RESTO & BARS',
-      platform: 'HOSTELERÍA',
-      desc: '6 Plantillas independientes con aislamiento total de CSS y DOM. Carta digital QR táctil en 0.2 segundos y reservas directas a tu WhatsApp sin pagar el 15-30% a plataformas intermediarias.',
+      title: 'RESTAURANTES Y BARES',
+      platform: 'PARA HOSTELERÍA',
+      desc: 'Ponemos tu carta en el móvil de tus clientes con fotos reales que entran por los ojos. Sin obligarles a descargarse un PDF lento ni registrarse. Las reservas y pedidos llegan directos a tu WhatsApp o teléfono, y el 100% de lo que cobras es para ti, sin pagarle comisiones del 15% o 30% a aplicaciones de reparto.',
       action: onNavigateToMultiwebs,
-      actionText: 'ABRIR CONFIGURADOR HOSTELERÍA',
+      actionText: 'VER Y CONFIGURAR TU CARTA',
       templates: hosteleriaTemplates,
       activeTemplate: activeHostTemplate,
       setActiveTemplate: setActiveHostTemplate
@@ -260,11 +237,11 @@ export default function BanchLanding({
     {
       id: 1,
       code: '02',
-      title: 'CLINIC & HEALTH',
-      platform: 'CLÍNICAS & SALUD',
-      desc: '6 Plantillas médicas especializadas. Cita previa online 24/7, catálogo de tratamientos, sincronización con calendario y RGPD sanitaria con alojamiento SSL de alta seguridad.',
+      title: 'CLÍNICAS Y SALUD',
+      platform: 'PARA CENTROS MÉDICOS Y DENTALES',
+      desc: 'Tu clínica abierta para dar citas a cualquier hora del día. Tus pacientes pueden elegir especialidad, ver tus tratamientos con total claridad y reservar su hueco sin tener que llamar por teléfono. Todo adaptado a la ley sanitaria y con recordatorios para que nadie falte a su consulta.',
       action: onNavigateToCyS,
-      actionText: 'ABRIR CONFIGURADOR CLÍNICAS',
+      actionText: 'VER Y CONFIGURAR TU CLÍNICA',
       templates: clinicTemplates,
       activeTemplate: activeClinicTemplate,
       setActiveTemplate: setActiveClinicTemplate
@@ -272,38 +249,38 @@ export default function BanchLanding({
     {
       id: 2,
       code: '03',
-      title: 'LOCAL IMPACT',
-      platform: 'MÁS CLIENTES EN HUELVA & SEVILLA',
-      desc: 'Optimización #1 en Google Maps y SEO local. Tus clientes encuentran tu negocio al instante desde su smartphone y piden o reservan con 1 toque sin barreras.',
+      title: 'MÁS CLIENTES EN TU ZONA',
+      platform: 'HUELVA, SEVILLA Y ALREDEDORES',
+      desc: 'Arreglamos y mejoramos la presencia de tu empresa en internet para que la gente de Huelva y tu zona te encuentre la primera cuando busque en Google y Google Maps.',
       action: onOpenAudit,
-      actionText: 'SOLICITAR CONSULTORÍA GRATUITA',
+      actionText: 'PEDIR ESTUDIO GRATUITO PARA MI NEGOCIO',
       highlights: [
-        'Aparece antes que tu competencia en búsquedas locales',
-        '0€ comisiones en pedidos y reservas',
-        'Carga instantánea de 0.2s en conexiones móviles 4G/5G',
-        'Cobros directos con Bizum o Tarjeta bancaria a tu cuenta'
+        'Aparece antes que tu competencia cuando busquen tu servicio en tu ciudad.',
+        '0% de comisiones: todo lo que ganes de tus clientes va directo a ti.',
+        'Tu web abre al instante en cualquier móvil, incluso con poca cobertura.',
+        'Cobros sencillos con Bizum o tarjeta directamente a tu cuenta bancaria.'
       ]
     },
     {
       id: 3,
       code: '04',
-      title: 'VIRTUALDESK',
-      platform: 'PORTAL PRIVADO & OFICINA ADMIN',
-      desc: 'Portal de Clientes limpio y directo para ver estadísticas y chatear con nuestro equipo. Además, Oficina Virtual Admin idéntica a VirtualDesk con Kanban, Reparto 65/20/10/5 y CRM.',
+      title: 'TU PANEL PRIVADO',
+      platform: 'GESTIÓN FÁCIL Y CONTACTO DIRECTO',
+      desc: 'Accede a tu zona privada para ver cuánta gente visita tu web, cambiar precios de tu carta o servicios cuando quieras, y pulsar un botón para hablar en directo por WhatsApp o llamada con Mario y Dani.',
       action: onNavigateToPortal,
-      actionText: 'ENTRAR AL PORTAL Y OFICINA VIRTUAL',
+      actionText: 'ENTRAR AL PANEL DE CLIENTE',
       highlights: [
-        'Chat directo con Mario y Dani para cambios inmediatos',
-        'Panel de visitas y reservas en tiempo real',
-        'Oficina Virtual exacta a VirtualDesk con tablero Kanban',
-        'Acceso seguro con Google OAuth y Supabase Auth'
+        'Hablas con personas reales de Huelva, no con un contestador automático.',
+        'Mira en tiempo real cuántas personas entran y piden en tu web.',
+        'Cambia platos, precios y horarios tú mismo en segundos.',
+        'Todo seguro y protegido con tu cuenta de Google.'
       ]
     }
   ];
 
   return (
-    <div className="relative w-full bg-[#121212] text-white font-mono selection:bg-[#6DD94B] selection:text-black overflow-x-hidden min-h-screen">
-      {/* ── CURSOR INTERACTIVO BANCH BAUSOLA (#cursor .cursor--inner) ── */}
+    <div className="relative w-full bg-[#121212] text-white font-sans selection:bg-[#6DD94B] selection:text-black overflow-x-hidden min-h-screen">
+      {/* ── CURSOR INTERACTIVO SUAVE BANCH ── */}
       <div 
         className="fixed pointer-events-none z-[999999] transition-transform duration-75 ease-out hidden md:block"
         style={{
@@ -320,14 +297,14 @@ export default function BanchLanding({
           }`}
         >
           {cursorText && (
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6DD94B] text-center px-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6DD94B] text-center px-1">
               {cursorText}
             </span>
           )}
         </div>
       </div>
 
-      {/* ── FONDOS DINÁMICOS TRANSICIONADOS (BG-BLACK, BG-GREEN, BG-WHITE) ── */}
+      {/* ── FONDOS DINÁMICOS ── */}
       <div 
         className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-700 bg-[#121212] ${
           scrollSection === 'black' ? 'opacity-100' : 'opacity-0'
@@ -344,86 +321,86 @@ export default function BanchLanding({
         }`}
       />
 
-      {/* ── HEADER FIJO BANCH CON ANIMACIÓN DE ENTRADA ── */}
+      {/* ── CABECERA PRINCIPAL CERCANA ── */}
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 w-full h-[90px] sm:h-[100px] z-[9999] border-b border-white/10 bg-[#121212]/90 backdrop-blur-md"
+        className="fixed top-0 left-0 w-full h-[85px] sm:h-[95px] z-[9999] border-b border-white/10 bg-[#121212]/95 backdrop-blur-md"
       >
         <div className="max-w-[1440px] h-full mx-auto px-4 sm:px-8 flex items-center justify-between relative">
-          {/* Logo & Símbolo */}
+          {/* Logo & Identidad de Huelva */}
           <div 
             className="flex items-center gap-3 cursor-pointer"
             onMouseEnter={() => handleMouseEnterInteract('TECNODIEL')}
             onMouseLeave={handleMouseLeaveInteract}
           >
-            <span className="h-9 w-9 bg-[#6DD94B] text-black font-black flex items-center justify-center text-sm font-mono tracking-tighter shadow-[0_0_15px_rgba(109,217,75,0.4)]">
+            <span className="h-10 w-10 bg-[#6DD94B] text-black font-black flex items-center justify-center text-base tracking-tight shadow-[0_0_15px_rgba(109,217,75,0.4)]">
               TO
             </span>
             <div className="flex flex-col">
-              <span className="font-bold tracking-widest text-sm sm:text-base uppercase text-white font-mono">
+              <span className="font-extrabold tracking-wider text-base uppercase text-white">
                 TECNODIEL
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-[#6DD94B] uppercase -mt-0.5">
-                WEB ARCHITECTURE // HUELVA
+              <span className="text-[11px] text-[#6DD94B] font-semibold">
+                Startup de Huelva • Digitalizamos empresas
               </span>
             </div>
           </div>
 
-          {/* Payoff Centrado en Desktop (Banch: "IMAGINE TOMORROW") */}
-          <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 text-center text-xs uppercase tracking-[0.2em] font-mono text-white/50 font-medium">
-            IMAGINE TOMORROW // HUELVA & SEVILLA
+          {/* Mensaje central */}
+          <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 text-center text-xs uppercase tracking-wider text-white/60 font-medium">
+            Huelva y Sevilla • Soluciones web de confianza
           </div>
 
-          {/* Navegación y Botón Banch */}
+          {/* Navegación y contacto */}
           <div className="flex items-center gap-3 sm:gap-6">
-            <div className="hidden sm:flex items-center gap-4 text-xs uppercase font-mono tracking-wider text-white/70">
+            <div className="hidden sm:flex items-center gap-5 text-sm font-medium text-white/80">
               <button 
                 onClick={onNavigateToMultiwebs}
-                onMouseEnter={() => handleMouseEnterInteract('6 RESTO')}
+                onMouseEnter={() => handleMouseEnterInteract('RESTAURANTES')}
                 onMouseLeave={handleMouseLeaveInteract}
                 className="hover:text-[#6DD94B] transition-colors cursor-pointer"
               >
-                Hostelería
+                Para Restaurantes
               </button>
               <span className="text-white/20">/</span>
               <button 
                 onClick={onNavigateToCyS}
-                onMouseEnter={() => handleMouseEnterInteract('6 CLÍNICA')}
+                onMouseEnter={() => handleMouseEnterInteract('CLÍNICAS')}
                 onMouseLeave={handleMouseLeaveInteract}
                 className="hover:text-[#6DD94B] transition-colors cursor-pointer"
               >
-                Clínicas
+                Para Clínicas
               </button>
               <span className="text-white/20">/</span>
               <button 
                 onClick={onNavigateToPortal}
-                onMouseEnter={() => handleMouseEnterInteract('PORTAL VD')}
+                onMouseEnter={() => handleMouseEnterInteract('TU PANEL')}
                 onMouseLeave={handleMouseLeaveInteract}
                 className="hover:text-[#6DD94B] transition-colors cursor-pointer"
               >
-                Portal
+                Tu Panel
               </button>
             </div>
 
-            {/* Botón Estilo Banch con borde fino blanco */}
+            {/* Botón principal */}
             <button
               onClick={onOpenAudit}
               onMouseEnter={() => handleMouseEnterInteract('DESDE 99€')}
               onMouseLeave={handleMouseLeaveInteract}
-              className="border border-white hover:border-[#6DD94B] px-4 sm:px-7 py-3 text-xs sm:text-sm font-mono uppercase tracking-widest text-white hover:bg-white hover:text-[#0D844A] transition-all duration-300 cursor-pointer"
+              className="border border-white hover:border-[#6DD94B] px-4 sm:px-6 py-2.5 text-xs sm:text-sm uppercase font-bold tracking-wider text-white hover:bg-white hover:text-[#0D844A] transition-all duration-300 cursor-pointer"
             >
               Desde 99€
             </button>
 
-            {/* Caja cuadrada verde de acción rápida Banch */}
+            {/* Botón verde de contacto rápido */}
             <button
               onClick={onOpenAudit}
-              onMouseEnter={() => handleMouseEnterInteract('ABRIR')}
+              onMouseEnter={() => handleMouseEnterInteract('CONSULTAR')}
               onMouseLeave={handleMouseLeaveInteract}
-              className="h-10 w-10 sm:h-12 sm:w-12 bg-[#6DD94B] hover:bg-white text-black flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-[0_0_20px_rgba(109,217,75,0.3)]"
-              title="Solicitar presupuesto o demo"
+              className="h-10 w-10 sm:h-11 sm:w-11 bg-[#6DD94B] hover:bg-white text-black flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-[0_0_20px_rgba(109,217,75,0.3)]"
+              title="Hablar con nosotros"
             >
               <ArrowUpRight className="w-5 h-5" />
             </button>
@@ -431,178 +408,176 @@ export default function BanchLanding({
         </div>
       </motion.header>
 
-      {/* ── SECCIÓN 1: HERO CON ANIMACIONES DE REVELACIÓN (TEXT MASKING) + HALO CENTRAL BANCH (#hover / .click-me) ── */}
+      {/* ── SECCIÓN 1: HERO CERCANO, LEGIBLE Y DIRECTO ── */}
       <section className="relative min-h-[100dvh] pt-[120px] sm:pt-[150px] pb-16 px-4 sm:px-8 max-w-[1440px] mx-auto flex flex-col justify-between z-10">
         <div className="my-auto space-y-6 sm:space-y-8 relative">
           
-          {/* Subtítulo introductorio con text-masking */}
+          {/* Subtítulo introductorio */}
           <div className="overflow-hidden">
             <motion.span 
-              initial={{ y: 40, opacity: 0 }}
+              initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-[#6DD94B] block"
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="text-xs sm:text-sm uppercase tracking-wider text-[#6DD94B] font-bold block"
             >
-              // SOFTWARE MULTI-TENANT PARA NEGOCIOS REALES
+              // SOMOS DE HUELVA • SOLUCIONES REALES Y CERCANAS
             </motion.span>
             <motion.p 
-              initial={{ y: 40, opacity: 0 }}
+              initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-white/50 font-mono text-xs uppercase tracking-wider mt-1"
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="text-white/60 text-sm sm:text-base font-medium mt-1"
             >
-              WHAT'S IN THE FUTURE OF WEB PLATFORMS?
+              Sin tecnicismos raros, sin palabras raras en inglés y sin complicaciones.
             </motion.p>
           </div>
 
-          {/* TÍTULO COLOSAL BANCH CON TEXT MASKING REVEAL */}
+          {/* TÍTULO PRINCIPAL GRANDE Y CLARO */}
           <div className="space-y-1 relative">
             <div className="overflow-hidden">
               <motion.h1 
-                initial={{ y: '120%' }}
+                initial={{ y: '110%' }}
                 animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-[115px] font-black uppercase tracking-tight leading-[0.88] text-white font-sans"
+                transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-[100px] font-black uppercase tracking-tight leading-[0.92] text-white"
               >
-                SMART
+                DIGITALIZAMOS
               </motion.h1>
             </div>
             <div className="overflow-hidden">
               <motion.h1 
-                initial={{ y: '120%' }}
+                initial={{ y: '110%' }}
                 animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-[115px] font-black uppercase tracking-tight leading-[0.88] text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-sans"
+                transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-[100px] font-black uppercase tracking-tight leading-[0.92] text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400"
               >
-                WORKING
+                Y ARREGLAMOS
               </motion.h1>
             </div>
             <div className="overflow-hidden">
               <motion.h1 
-                initial={{ y: '120%' }}
+                initial={{ y: '110%' }}
                 animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="text-5xl xs:text-6xl sm:text-7xl md:text-8xl lg:text-[115px] font-black uppercase tracking-tight leading-[0.88] text-[#6DD94B] drop-shadow-[0_0_50px_rgba(109,217,75,0.45)] font-sans"
+                transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-[100px] font-black uppercase tracking-tight leading-[0.92] text-[#6DD94B] drop-shadow-[0_0_50px_rgba(109,217,75,0.45)]"
               >
-                PLATFORMS
+                TU EMPRESA
               </motion.h1>
             </div>
 
-            {/* ── HALO CIRCULAR INTERACTIVO BANCH BAUSOLA (#hover & .click-me) ── */}
+            {/* ── BOTÓN INTERACTIVO CENTRAL CERCANO (#hover & .click-me) ── */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.7 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 flex-col items-center justify-center z-20"
+              transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 flex-col items-center justify-center z-20"
             >
-              {/* Órbita rotatoria con líneas técnicas */}
               <div className="relative w-64 h-64 flex items-center justify-center">
                 <motion.div 
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
-                  className="absolute inset-0 rounded-full border border-dashed border-[#6DD94B]/30"
+                  className="absolute inset-0 rounded-full border border-dashed border-[#6DD94B]/35"
                 />
                 <motion.div 
                   animate={{ rotate: -360 }}
-                  transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}
-                  className="absolute inset-3 rounded-full border border-white/10"
+                  transition={{ repeat: Infinity, duration: 35, ease: 'linear' }}
+                  className="absolute inset-4 rounded-full border border-white/10"
                 />
 
-                {/* Botón Central .click-me con spring al hacer hover */}
                 <motion.button
-                  whileHover={{ scale: 1.12 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    const el = document.getElementById('paneles-arquitectura');
+                    const el = document.getElementById('soluciones');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
                   onMouseEnter={() => handleMouseEnterInteract('EXPLORAR')}
                   onMouseLeave={handleMouseLeaveInteract}
-                  className="relative z-10 w-32 h-32 rounded-full bg-[#6DD94B] hover:bg-white text-black font-mono font-black text-xs uppercase flex flex-col items-center justify-center shadow-[0_0_40px_rgba(109,217,75,0.5)] transition-colors cursor-pointer group"
+                  className="relative z-10 w-36 h-36 rounded-full bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs uppercase flex flex-col items-center justify-center shadow-[0_0_40px_rgba(109,217,75,0.5)] transition-colors cursor-pointer group p-3 text-center"
                 >
-                  <span className="text-[10px] tracking-widest text-black/70 mb-0.5">CLICK ME</span>
-                  <span className="text-sm font-black leading-tight text-center">12 WEBS<br/>EN VIVO</span>
-                  <ArrowDownIcon className="w-3.5 h-3.5 mt-1 group-hover:translate-y-0.5 transition-transform" />
+                  <span className="text-[10px] tracking-wider text-black/70 mb-1">HAZ CLIC AQUÍ</span>
+                  <span className="text-sm font-black leading-tight">ELIGE TU<br/>NEGOCIO</span>
+                  <ChevronDown className="w-4 h-4 mt-1 group-hover:translate-y-1 transition-transform" />
                 </motion.button>
               </div>
-              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#6DD94B] mt-3">
-                [ TOCA PARA DESPLEGAR PANELES ]
+              <span className="text-xs uppercase tracking-wider text-[#6DD94B] mt-2 font-bold">
+                [ Toca para ver cómo te ayudamos ]
               </span>
             </motion.div>
           </div>
 
-          {/* Detalle y Píldoras Banch animadas */}
+          {/* Explicación en cristiano */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="max-w-xl space-y-4 pt-2"
+            className="max-w-2xl space-y-4 pt-2"
           >
-            <p className="text-sm sm:text-base text-white/80 font-mono leading-relaxed">
-              La <span className="text-[#6DD94B] font-bold">solución inteligente</span> para la presencia digital de tu negocio. Sin intermediarios, sin comisiones por pedido y con diseño exclusivo que convierte visitantes en clientes.
+            <p className="text-base sm:text-lg text-white/90 leading-relaxed font-normal">
+              Hacemos páginas web sencillas, rápidas y bonitas que <span className="text-[#6DD94B] font-bold">de verdad te traen clientes</span> y te quitan trabajo. Sin comisiones abusivas por cada pedido, sin líos informáticos y hablando directamente de tú a tú con nosotros. Desde 99€.
             </p>
 
-            {/* Píldoras Banch */}
-            <div className="flex flex-wrap gap-2.5 pt-2">
+            {/* Accesos rápidos */}
+            <div className="flex flex-wrap gap-3 pt-2">
               <button
                 onClick={onNavigateToMultiwebs}
-                className="px-4 py-2 border border-white/20 text-xs font-mono uppercase tracking-wider text-white hover:border-[#6DD94B] hover:text-[#6DD94B] transition cursor-pointer"
+                className="px-4 py-2.5 border border-white/20 text-xs sm:text-sm font-bold uppercase tracking-wider text-white hover:border-[#6DD94B] hover:text-[#6DD94B] transition cursor-pointer bg-white/5"
               >
-                🍔 6 Plantillas Hostelería
+                🍔 Para Restaurantes y Bares
               </button>
               <button
                 onClick={onNavigateToCyS}
-                className="px-4 py-2 border border-white/20 text-xs font-mono uppercase tracking-wider text-white hover:border-[#6DD94B] hover:text-[#6DD94B] transition cursor-pointer"
+                className="px-4 py-2.5 border border-white/20 text-xs sm:text-sm font-bold uppercase tracking-wider text-white hover:border-[#6DD94B] hover:text-[#6DD94B] transition cursor-pointer bg-white/5"
               >
-                🏥 6 Plantillas Clínicas
+                🏥 Para Clínicas y Salud
               </button>
-              <span className="px-4 py-2 border border-[#6DD94B]/50 bg-[#6DD94B]/10 text-xs font-mono uppercase tracking-wider text-[#6DD94B]">
-                ⚡ Carga en 0.2s
+              <span className="px-4 py-2.5 border border-[#6DD94B]/50 bg-[#6DD94B]/10 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#6DD94B] flex items-center gap-1.5">
+                ⚡ Tu web lista y rápida
               </span>
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll indicator Banch animado */}
-        <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-8">
-          <div className="flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-white/60">
-            <span className="h-2 w-2 bg-[#6DD94B] animate-ping" />
-            <span>DISPONIBLES PARA NUEVOS PROYECTOS • HUELVA & SEVILLA</span>
+        {/* Barra inferior */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/10 pt-6 mt-8 gap-3">
+          <div className="flex items-center gap-3 text-xs sm:text-sm uppercase tracking-wider text-white/70 font-semibold">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#6DD94B] animate-ping" />
+            <span>DISPONIBLES PARA EMPEZAR HOY MISMO • HUELVA Y SEVILLA</span>
           </div>
 
           <a 
-            href="#paneles-arquitectura"
-            className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#6DD94B] hover:underline"
+            href="#soluciones"
+            className="flex items-center gap-2 text-xs sm:text-sm uppercase tracking-wider text-[#6DD94B] font-bold hover:underline"
           >
-            <span>SCROLL PARA EXPLORAR</span>
+            <span>BAJAR PARA VER OPCIONES</span>
             <ChevronDown className="w-4 h-4 animate-bounce" />
           </a>
         </div>
       </section>
 
-      {/* ── MARQUEE TICKER BANCH ENTRE SECCIONES ── */}
+      {/* ── TICKER DE VENTAJAS REALES ── */}
       <MarqueeTicker />
 
-      {/* ── SECCIÓN 2: PANELES DESLIZANTES HORIZONTALES ICÓNICOS BANCH (.panel.left-1, .panel.right-2) ── */}
-      <section id="paneles-arquitectura" className="py-24 sm:py-36 px-4 sm:px-8 border-t border-white/10 bg-[#121212] relative z-10">
+      {/* ── SECCIÓN 2: OPCIONES CLARAS PARA TU NEGOCIO ── */}
+      <section id="soluciones" className="py-20 sm:py-32 px-4 sm:px-8 border-t border-white/10 bg-[#121212] relative z-10">
         <div className="max-w-[1440px] mx-auto space-y-10">
           
           {/* Header de la sección */}
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
             <div>
-              <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#6DD94B] block mb-2 font-bold">
-                // ARQUITECTURA MULTI-TENANT AISLADA
+              <span className="text-xs sm:text-sm uppercase tracking-wider text-[#6DD94B] block mb-2 font-bold">
+                // SOLUCIONES LISTAS PARA TRABAJAR
               </span>
-              <h2 className="text-3xl sm:text-5xl font-black uppercase text-white tracking-tight font-sans">
-                PANELES CINEMÁTICOS BANCH
+              <h2 className="text-3xl sm:text-5xl font-black uppercase text-white tracking-tight">
+                CÓMO AYUDAMOS A TU EMPRESA
               </h2>
             </div>
-            <p className="text-xs font-mono text-white/50 uppercase tracking-widest max-w-xs text-right hidden sm:block">
-              DESLIZAMIENTO LATERAL • CERO INTERFERENCIAS DE CSS
+            <p className="text-xs sm:text-sm text-white/60 max-w-sm text-right hidden sm:block">
+              Tú nos dices qué necesitas y nosotros te lo dejamos todo funcionando desde el primer día.
             </p>
           </div>
 
-          {/* Selector de pestañas interactivas para disparar las animaciones de paneles */}
+          {/* Pestañas de selección */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 border border-white/15 p-2 bg-[#181818]">
             {panelsData.map((panel, idx) => (
               <button
@@ -610,56 +585,56 @@ export default function BanchLanding({
                 onClick={() => setActivePanel(idx)}
                 onMouseEnter={() => handleMouseEnterInteract(panel.code)}
                 onMouseLeave={handleMouseLeaveInteract}
-                className={`py-3 px-4 text-xs font-mono uppercase tracking-wider text-left transition-all duration-300 cursor-pointer flex items-center justify-between ${
+                className={`py-3.5 px-4 text-xs sm:text-sm uppercase font-bold text-left transition-all duration-300 cursor-pointer flex items-center justify-between ${
                   activePanel === idx 
                     ? 'bg-[#6DD94B] text-black font-black' 
                     : 'text-white/70 hover:text-white hover:bg-white/5'
                 }`}
               >
                 <span>{panel.code} // {panel.title}</span>
-                <span className={`text-[10px] ${activePanel === idx ? 'text-black' : 'text-[#6DD94B]'}`}>
-                  {activePanel === idx ? '● ACTIVO' : '○'}
+                <span className={`text-[11px] ${activePanel === idx ? 'text-black' : 'text-[#6DD94B]'}`}>
+                  {activePanel === idx ? '✓ VIENDO' : ''}
                 </span>
               </button>
             ))}
           </div>
 
-          {/* CONTENEDOR DE PANELES DESLIZANTES (LEFT & RIGHT SLIDE PHYSICS) */}
-          <div className="relative overflow-hidden min-h-[580px] border border-white/15 bg-[#181818]">
+          {/* Contenedor del panel activo */}
+          <div className="relative overflow-hidden min-h-[560px] border border-white/15 bg-[#181818]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activePanel}
-                initial={{ opacity: 0, x: activePanel % 2 === 0 ? -100 : 100 }}
+                initial={{ opacity: 0, x: activePanel % 2 === 0 ? -60 : 60 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: activePanel % 2 === 0 ? 100 : -100 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0, x: activePanel % 2 === 0 ? 60 : -60 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="grid grid-cols-1 lg:grid-cols-12 gap-0 h-full"
               >
-                {/* LADO IZQUIERDO: INFORMACIÓN Y ACCIÓN */}
+                {/* Lado izquierdo: Explicación cercana y botón de acción */}
                 <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/10 bg-[#151515]">
                   <div className="space-y-6">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-mono font-bold text-[#6DD94B] px-2 py-0.5 border border-[#6DD94B]/30 bg-[#6DD94B]/10">
-                        PANEL {panelsData[activePanel].code}
+                      <span className="text-xs font-bold text-[#6DD94B] px-2.5 py-1 border border-[#6DD94B]/30 bg-[#6DD94B]/10">
+                        OPCIÓN {panelsData[activePanel].code}
                       </span>
-                      <span className="text-xs font-mono uppercase text-white/50 tracking-widest">
+                      <span className="text-xs uppercase text-white/60 font-semibold">
                         {panelsData[activePanel].platform}
                       </span>
                     </div>
 
-                    <h3 className="text-4xl sm:text-6xl font-black uppercase text-white leading-none font-sans">
+                    <h3 className="text-3xl sm:text-5xl font-black uppercase text-white leading-tight">
                       {panelsData[activePanel].title}
                     </h3>
 
-                    <p className="text-xs sm:text-sm text-white/70 leading-relaxed font-mono">
+                    <p className="text-sm sm:text-base text-white/80 leading-relaxed font-normal">
                       {panelsData[activePanel].desc}
                     </p>
 
                     {panelsData[activePanel].highlights && (
-                      <div className="space-y-2 pt-2">
+                      <div className="space-y-2.5 pt-2">
                         {panelsData[activePanel].highlights.map((hl, i) => (
-                          <div key={i} className="flex items-center gap-2 text-xs font-mono text-white/80">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#6DD94B] shrink-0" />
+                          <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-white/90">
+                            <CheckCircle2 className="w-4 h-4 text-[#6DD94B] shrink-0 mt-0.5" />
                             <span>{hl}</span>
                           </div>
                         ))}
@@ -668,10 +643,10 @@ export default function BanchLanding({
                   </div>
 
                   <div className="pt-8 mt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <span className="text-xs font-mono text-white/50">PRECIO: DESDE 99€ // LLAVE EN MANO</span>
+                    <span className="text-xs uppercase text-white/60 font-bold">PRECIO: DESDE 99€ // TODO INCLUIDO</span>
                     <button
                       onClick={panelsData[activePanel].action}
-                      className="px-6 py-3 bg-[#6DD94B] text-black hover:bg-white text-xs font-mono font-bold uppercase transition flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(109,217,75,0.3)]"
+                      className="px-6 py-3 bg-[#6DD94B] text-black hover:bg-white text-xs sm:text-sm font-extrabold uppercase transition flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(109,217,75,0.3)]"
                     >
                       <span>{panelsData[activePanel].actionText}</span>
                       <ArrowUpRight className="w-4 h-4" />
@@ -679,20 +654,20 @@ export default function BanchLanding({
                   </div>
                 </div>
 
-                {/* LADO DERECHO: DEMO INTERACTIVA DE LAS PLANTILLAS AISLADAS */}
+                {/* Lado derecho: Opciones de plantillas explicadas en cristiano */}
                 <div className="lg:col-span-7 p-6 sm:p-10 bg-[#121212] flex flex-col justify-between">
                   {panelsData[activePanel].templates ? (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <span className="text-xs font-mono text-[#6DD94B] uppercase font-bold">
-                          // CATÁLOGO DE 6 PLANTILLAS AISLADAS
+                        <span className="text-xs uppercase text-[#6DD94B] font-bold">
+                          // 6 ESTILOS DE DISEÑO A ELEGIR
                         </span>
-                        <span className="text-[10px] font-mono text-white/50 uppercase">
-                          SELECCIONA PARA INSPECCIONAR
+                        <span className="text-xs text-white/50">
+                          Haz clic para ver qué incluye cada una
                         </span>
                       </div>
 
-                      {/* Botonera de las 6 plantillas */}
+                      {/* Botones de los 6 estilos */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {panelsData[activePanel].templates.map((tpl, tIndex) => (
                           <button
@@ -701,20 +676,20 @@ export default function BanchLanding({
                             className={`p-3 border text-left transition-all cursor-pointer ${
                               panelsData[activePanel].activeTemplate === tIndex
                                 ? 'border-[#6DD94B] bg-[#6DD94B]/15 text-white'
-                                : 'border-white/10 bg-[#181818] text-white/50 hover:text-white hover:border-white/30'
+                                : 'border-white/10 bg-[#181818] text-white/60 hover:text-white hover:border-white/30'
                             }`}
                           >
-                            <span className="text-[10px] font-mono text-[#6DD94B] block font-bold">
+                            <span className="text-[11px] text-[#6DD94B] block font-bold">
                               {tpl.num}
                             </span>
-                            <span className="text-xs font-mono font-bold uppercase block truncate">
+                            <span className="text-xs sm:text-sm font-bold uppercase block truncate">
                               {tpl.name}
                             </span>
                           </button>
                         ))}
                       </div>
 
-                      {/* Tarjeta de previsualización de la plantilla activa */}
+                      {/* Tarjeta explicativa del estilo seleccionado */}
                       {(() => {
                         const cur = panelsData[activePanel].templates[panelsData[activePanel].activeTemplate];
                         return (
@@ -725,31 +700,31 @@ export default function BanchLanding({
                             transition={{ duration: 0.3 }}
                             className="p-6 border border-white/15 bg-[#181818] space-y-4"
                           >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-mono px-2 py-0.5 border border-[#6DD94B]/30 bg-[#6DD94B]/10 text-[#6DD94B] uppercase">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <span className="text-xs px-2.5 py-1 border border-[#6DD94B]/30 bg-[#6DD94B]/10 text-[#6DD94B] font-bold uppercase inline-block">
                                 {cur.tag}
                               </span>
-                              <span className="text-xs font-mono text-white/50">
-                                Feature: <strong className="text-white">{cur.feature}</strong>
+                              <span className="text-xs text-[#6DD94B] font-semibold">
+                                ✓ {cur.benefit}
                               </span>
                             </div>
 
-                            <h4 className="text-xl sm:text-2xl font-bold uppercase text-white font-mono">
+                            <h4 className="text-2xl font-black uppercase text-white">
                               {cur.name}
                             </h4>
 
-                            <p className="text-xs text-white/70 font-mono leading-relaxed">
+                            <p className="text-sm text-white/80 leading-relaxed font-normal">
                               {cur.desc}
                             </p>
 
-                            <div className="pt-2 flex items-center justify-between text-xs font-mono text-[#6DD94B]">
-                              <span>DOM & CSS 100% AISLADO</span>
+                            <div className="pt-2 flex items-center justify-between text-xs sm:text-sm font-bold text-[#6DD94B]">
+                              <span>Adaptada a móvil, tablet y ordenador</span>
                               <button
                                 onClick={panelsData[activePanel].action}
-                                className="underline hover:text-white transition flex items-center gap-1 cursor-pointer"
+                                className="underline hover:text-white transition flex items-center gap-1.5 cursor-pointer"
                               >
-                                <span>Ver en Formulario</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
+                                <span>Elegir este estilo</span>
+                                <ArrowRight className="w-4 h-4" />
                               </button>
                             </div>
                           </motion.div>
@@ -757,22 +732,22 @@ export default function BanchLanding({
                       })()}
                     </div>
                   ) : (
-                    /* Para paneles de rendimiento o portal */
+                    /* Lado derecho para Clientes Locales o Panel de Cliente */
                     <div className="h-full flex flex-col justify-center items-center text-center p-8 space-y-6">
                       <div className="w-20 h-20 rounded-full border border-[#6DD94B] flex items-center justify-center bg-[#6DD94B]/10">
                         <Sparkles className="w-8 h-8 text-[#6DD94B]" />
                       </div>
-                      <div className="space-y-2 max-w-md">
-                        <h4 className="text-2xl font-black uppercase text-white font-sans">
+                      <div className="space-y-3 max-w-md">
+                        <h4 className="text-2xl sm:text-3xl font-black uppercase text-white">
                           {panelsData[activePanel].title}
                         </h4>
-                        <p className="text-xs text-white/60 font-mono">
-                          Toda la infraestructura está desplegada en el Edge global de Cloudflare y bases de datos Supabase PostgreSQL en Frankfurt con cifrado SSL.
+                        <p className="text-sm text-white/80 leading-relaxed">
+                          Nos encargamos de toda la parte técnica para que tú solo tengas que preocuparte de atender a tus clientes y hacer crecer tu negocio.
                         </p>
                       </div>
                       <button
                         onClick={panelsData[activePanel].action}
-                        className="px-6 py-3 border border-white hover:border-[#6DD94B] text-xs font-mono uppercase text-white hover:bg-[#6DD94B] hover:text-black transition cursor-pointer font-bold"
+                        className="px-8 py-3.5 border border-[#6DD94B] bg-[#6DD94B] text-black hover:bg-white text-xs sm:text-sm font-extrabold uppercase transition cursor-pointer"
                       >
                         {panelsData[activePanel].actionText}
                       </button>
@@ -785,93 +760,75 @@ export default function BanchLanding({
         </div>
       </section>
 
-      {/* ── SECCIÓN 3: CAJA DE CRISTAL TRANSLÚCIDA BANCH (GLASS) ── */}
-      <section className="py-24 sm:py-36 px-4 sm:px-8 bg-black relative flex items-center justify-center overflow-hidden z-10">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-5xl p-10 sm:p-20 bg-black/60 backdrop-blur-md border border-white/20 text-center shadow-[0_4px_40px_rgba(0,0,0,0.5)]"
-        >
-          <p className="text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight leading-tight text-[#09844B] font-sans">
-            TECNODIEL, EL SOFTWARE WEB MULTI-TENANT QUE <span className="text-[#6DD94B]">LIMITA AL MÍNIMO TUS ESFUERZOS</span> Y MULTIPLICA TUS VENTAS.
-          </p>
-          <div className="mt-8 flex justify-center">
-            <button
-              onClick={onOpenAudit}
-              className="border border-white hover:border-[#6DD94B] px-8 py-3.5 text-xs font-mono uppercase tracking-widest text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-bold"
-            >
-              Consultar Mi Caso • Desde 99€
-            </button>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── SECCIÓN 4: BLOQUE VERDE MASIVO BANCH (ID: "made-to-work") ── */}
-      <section id="made-to-work" className="h-[380px] sm:h-[480px] bg-[#0D844A] flex items-center justify-center px-4 text-center overflow-hidden relative z-10">
+      {/* ── SECCIÓN 3: COMPROMISO CENTRAL VERDE (ID: "compromiso") ── */}
+      <section id="compromiso" className="h-[340px] sm:h-[440px] bg-[#0D844A] flex items-center justify-center px-4 text-center overflow-hidden relative z-10">
         <div className="absolute inset-0 bg-[radial-gradient(#6DD94B_1px,transparent_1px)] [background-size:24px_24px] opacity-15" />
-        <motion.h2 
-          initial={{ opacity: 0, y: 40 }}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase tracking-tight text-white relative z-10 font-sans"
+          className="max-w-4xl space-y-4 relative z-10"
         >
-          MADE TO WORK BETTER
-        </motion.h2>
+          <span className="text-xs uppercase tracking-widest text-black/80 font-black bg-[#6DD94B] px-3 py-1">
+            NUESTRO COMPROMISO EN HUELVA
+          </span>
+          <h2 className="text-3xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white leading-tight">
+            HECHO PARA QUE TU NEGOCIO TRABAJE MEJOR Y VENDA MÁS
+          </h2>
+        </motion.div>
       </section>
 
-      {/* ── SECCIÓN 5: ¿POR QUÉ TECNODIEL? (WHY-BANCH) ── */}
-      <section className="py-24 sm:py-36 px-4 sm:px-8 max-w-[1440px] mx-auto z-10 relative">
+      {/* ── SECCIÓN 4: ¿POR QUÉ CONFIAR EN NOSOTROS? ── */}
+      <section className="py-20 sm:py-32 px-4 sm:px-8 max-w-[1440px] mx-auto z-10 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#6DD94B] block font-bold">
-              // PROPUESTA DE VALOR REAL
+            <span className="text-xs uppercase tracking-wider text-[#6DD94B] block font-bold">
+              // SOMOS TU EQUIPO DE CONFIANZA
             </span>
-            <h2 className="text-4xl sm:text-6xl font-black uppercase text-[#09844B] leading-none font-sans">
+            <h2 className="text-3xl sm:text-5xl font-black uppercase text-[#09844B] leading-none">
               ¿POR QUÉ <br />
               <span className="text-white">TECNODIEL?</span>
             </h2>
-            <h3 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-[#6DD94B] font-mono">
-              Está hecho a medida para agevolar y hacer crecer tu negocio.
+            <h3 className="text-lg sm:text-xl font-bold uppercase text-[#6DD94B]">
+              Porque somos de Huelva, te cogemos el teléfono y no te dejamos tirado.
             </h3>
-            <p className="text-sm text-white/70 leading-relaxed font-mono">
-              Tus clientes deciden con el móvil en la mano. Si no te encuentran o tu web va lenta, eligen a la competencia. Nuestras plataformas cargan en menos de 0.2 segundos, no exigen descargar PDF de menús y dirigen los pedidos directamente a tu teléfono.
+            <p className="text-sm sm:text-base text-white/80 leading-relaxed font-normal">
+              Sabemos lo duro que es llevar un negocio día a día. Entre atender a los clientes, los proveedores y el trabajo, no tienes tiempo para pelearte con páginas web complicadas ni agencias que te cobran un ojo de la cara y luego desaparecen.
             </p>
-            <p className="text-sm text-white/70 leading-relaxed font-mono">
-              Nosotros nos ocupamos de todo: hosting Cloudflare en el Edge, base de datos Supabase SSL, diseño galardonado, alta en Google Maps y soporte técnico directo desde Huelva.
+            <p className="text-sm sm:text-base text-white/80 leading-relaxed font-normal">
+              En TecnOdiel nos encargamos de todo de principio a fin: te creamos la web, te subimos las fotos y la carta, te configuramos las citas y te damos soporte continuo. Si necesitas cambiar algo, nos mandas un WhatsApp y te lo dejamos listo.
             </p>
             <div className="pt-4">
               <button
                 onClick={onOpenAudit}
-                className="border border-white hover:border-[#6DD94B] px-8 py-3.5 text-xs font-mono uppercase tracking-widest text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-bold"
+                className="border border-white hover:border-[#6DD94B] px-8 py-3.5 text-xs sm:text-sm uppercase tracking-wider text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-bold"
               >
-                Hablar con Nosotros
+                Hablar con Nosotros Directamente
               </button>
             </div>
           </div>
 
           <div className="lg:col-span-7 bg-[#181818] border border-white/10 p-8 sm:p-12 space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <span className="text-xs font-mono uppercase text-[#6DD94B] font-bold">GARANTÍAS COMPROBADAS</span>
-              <span className="text-xs font-mono text-white/50">HUELVA // ESPAÑA</span>
+              <span className="text-xs uppercase text-[#6DD94B] font-bold">LO QUE TE GARANTIZAMOS</span>
+              <span className="text-xs text-white/50">HUELVA Y SEVILLA</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { title: 'Velocidad de Carga 0.2s', desc: 'Lighthouse 99+. El cliente nunca se va por lentitud.' },
-                { title: '0€ Comisiones por Reserva', desc: 'No pagas el 15-30% a plataformas intermediarias.' },
-                { title: 'Carta Digital Táctil', desc: 'Fotos reales que abren el apetito y se actualizan al instante.' },
-                { title: 'Dominio y SSL Incluidos', desc: 'Seguridad máxima con certificado SSL Cloudflare.' },
-                { title: 'Cobro por Bizum o Tarjeta', desc: 'El dinero llega directo a tu cuenta bancaria.' },
-                { title: 'Soporte con Nombre y Apellidos', desc: 'Hablas directamente con Mario y Dani, no con un bot.' }
+                { title: 'Abre en 1 segundo', desc: 'Tu web vuela en el móvil. Los clientes nunca se van por lentitud.' },
+                { title: 'Sin comisiones por pedido', desc: 'No pagas el 15% o 30% a plataformas intermediarias.' },
+                { title: 'Carta digital táctil', desc: 'Fotos reales que abren el apetito y se actualizan al instante.' },
+                { title: 'Dominio y seguridad incluidos', desc: 'Todo listo, legal y protegido con candado de seguridad SSL.' },
+                { title: 'Cobro por Bizum o tarjeta', desc: 'El dinero llega directo a tu cuenta bancaria sin comisiones raras.' },
+                { title: 'Atención con personas reales', desc: 'Hablas directamente con nosotros (Mario y Dani), no con un contestador.' }
               ].map((g, i) => (
-                <div key={i} className="p-4 bg-[#121212] border border-white/10 space-y-1">
+                <div key={i} className="p-4 bg-[#121212] border border-white/10 space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#6DD94B]" />
-                    <span className="text-xs font-bold uppercase text-white font-mono">{g.title}</span>
+                    <Check className="w-4 h-4 text-[#6DD94B] shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold uppercase text-white">{g.title}</span>
                   </div>
-                  <p className="text-[11px] text-white/60 pl-6 leading-relaxed font-mono">{g.desc}</p>
+                  <p className="text-xs text-white/70 pl-6 leading-relaxed font-normal">{g.desc}</p>
                 </div>
               ))}
             </div>
@@ -879,89 +836,83 @@ export default function BanchLanding({
         </div>
       </section>
 
-      {/* ── SECCIÓN 6: TABLA DE ESPECIFICACIONES TÉCNICAS BANCH (ID: "especificaciones") ── */}
-      <section id="especificaciones" className="bg-white text-black py-20 sm:py-32 px-4 sm:px-8 z-10 relative">
+      {/* ── SECCIÓN 5: TABLA COMPARATIVA CLARA (ID: "incluido") ── */}
+      <section id="incluido" className="bg-white text-black py-20 sm:py-32 px-4 sm:px-8 z-10 relative">
         <div className="max-w-[1440px] mx-auto space-y-12">
           <div className="border-b-2 border-[#09844B] pb-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div>
-              <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#09844B] font-bold block mb-1">
-                // MATRIZ DE RENDIMIENTO
+              <span className="text-xs uppercase tracking-wider text-[#09844B] font-bold block mb-1">
+                // TRANSPARENCIA TOTAL
               </span>
-              <h2 className="text-3xl sm:text-5xl font-black uppercase text-[#09844B] tracking-tight font-sans">
-                ESPECIFICACIONES TÉCNICAS
+              <h2 className="text-3xl sm:text-5xl font-black uppercase text-[#09844B] tracking-tight">
+                TODO LO QUE INCLUYE TU WEB
               </h2>
             </div>
-            <p className="text-xs font-mono text-neutral-500 uppercase">
-              ESTÁNDARES DE INGENIERÍA TECNODIEL
+            <p className="text-xs sm:text-sm text-neutral-600 uppercase font-semibold">
+              SIN LETRA PEQUEÑA NI COSTES OCULTOS
             </p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-xs sm:text-sm">
+            <table className="w-full text-left text-xs sm:text-sm">
               <thead>
                 <tr className="border-b-2 border-[#09844B]">
-                  <th className="py-4 w-16 text-neutral-400">ID</th>
+                  <th className="py-4 w-16 text-neutral-400 font-bold">#</th>
                   <th className="py-4 text-[#09844B] font-bold uppercase">CARACTERÍSTICA</th>
-                  <th className="py-4 uppercase text-black font-extrabold">HOSTELERÍA (RESTO)</th>
-                  <th className="py-4 uppercase text-black font-extrabold">CLÍNICAS & SALUD</th>
+                  <th className="py-4 uppercase text-black font-extrabold">HOSTELERÍA (BARES Y RESTAURANTES)</th>
+                  <th className="py-4 uppercase text-black font-extrabold">CLÍNICAS Y CENTROS DE SALUD</th>
                 </tr>
               </thead>
               <tbody>
                 {[
                   {
                     id: '01',
-                    title: 'Arquitectura DOM & CSS',
-                    host: 'Aislamiento total por plantilla (6 plantillas)',
-                    clin: 'Aislamiento total por plantilla (6 plantillas)'
+                    title: 'Diseño a medida',
+                    host: '6 estilos a elegir adaptados a tu tipo de comida',
+                    clin: '6 estilos a elegir según tu especialidad médica'
                   },
                   {
                     id: '02',
-                    title: 'Tiempo de Carga en Móvil',
-                    host: '< 0.25 s (Cloudflare Global Edge)',
-                    clin: '< 0.28 s (Cloudflare Global Edge)'
+                    title: 'Velocidad en el móvil',
+                    host: 'Carga instantánea en menos de 1 segundo',
+                    clin: 'Carga instantánea en menos de 1 segundo'
                   },
                   {
                     id: '03',
-                    title: 'Herramientas de Venta',
-                    host: 'Carta digital QR interactiva + WhatsApp',
-                    clin: 'Agenda de citas online + WhatsApp VIP'
+                    title: 'Herramientas de venta',
+                    host: 'Carta digital QR interactiva + Pedidos por WhatsApp',
+                    clin: 'Cita previa online en calendario + WhatsApp VIP'
                   },
                   {
                     id: '04',
-                    title: 'Pasarelas de Pago',
-                    host: 'Bizum directo + Stripe Checkout',
-                    clin: 'Cobro de reservas con Bizum / Tarjeta'
+                    title: 'Cobros',
+                    host: 'Bizum directo y cobro con tarjeta sin comisiones',
+                    clin: 'Cobro de consultas o reservas con Bizum y tarjeta'
                   },
                   {
                     id: '05',
-                    title: 'Base de Datos & Auth',
-                    host: 'Supabase PostgreSQL con SSL',
-                    clin: 'Supabase PostgreSQL con SSL médico'
+                    title: 'Panel para cambiar datos',
+                    host: 'Cambia platos, precios y fotos tú mismo en segundos',
+                    clin: 'Gestiona citas, servicios y horarios fácilmente'
                   },
                   {
                     id: '06',
-                    title: 'Portal de Clientes',
-                    host: 'Métricas + Chat directo con Mario',
-                    clin: 'Métricas de pacientes + Chat directo'
+                    title: 'Soporte cercano',
+                    host: 'Mario y Dani disponibles por WhatsApp y llamada',
+                    clin: 'Mario y Dani disponibles por WhatsApp y llamada'
                   },
                   {
                     id: '07',
-                    title: 'Oficina Virtual Admin',
-                    host: 'VirtualDesk exacto (Kanban, Reparto 65%)',
-                    clin: 'VirtualDesk exacto (Kanban, Reparto 65%)'
-                  },
-                  {
-                    id: '08',
-                    title: 'Precio y Comisiones',
-                    host: 'Desde 99€ • 0€ comisiones por pedido',
-                    clin: 'Desde 99€ • 0€ comisiones por cita'
+                    title: 'Precio y comisiones',
+                    host: 'Desde 99€ • 0€ de comisiones por pedido',
+                    clin: 'Desde 99€ • 0€ de comisiones por cita'
                   }
                 ].map((row) => (
                   <tr key={row.id} className="border-b border-[#09844B]/30 hover:bg-[#09844B]/5 transition-colors">
-                    <td className="py-5 font-bold text-[#09844B]">{row.id}</td>
-                    <td className="py-5 font-bold uppercase text-black">{row.title}</td>
-                    <td className="py-5 text-neutral-800">{row.host}</td>
-                    <td className="py-5 text-neutral-800">{row.clin}</td>
+                    <td className="py-4 font-bold text-[#09844B]">{row.id}</td>
+                    <td className="py-4 font-bold uppercase text-black">{row.title}</td>
+                    <td className="py-4 text-neutral-800 font-normal">{row.host}</td>
+                    <td className="py-4 text-neutral-800 font-normal">{row.clin}</td>
                   </tr>
                 ))}
               </tbody>
@@ -970,125 +921,134 @@ export default function BanchLanding({
         </div>
       </section>
 
-      {/* ── SECCIÓN 7: CTA MASIVO BANCH ── */}
-      <section className="py-24 sm:py-36 px-4 sm:px-8 text-center bg-[#181818] border-t border-white/10 z-10 relative">
+      {/* ── SECCIÓN 6: LLAMADA A LA ACCIÓN ── */}
+      <section className="py-20 sm:py-32 px-4 sm:px-8 text-center bg-[#181818] border-t border-white/10 z-10 relative">
         <div className="max-w-4xl mx-auto space-y-6">
-          <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#6DD94B] block font-bold">
-            // EL MOMENTO ES AHORA
+          <span className="text-xs uppercase tracking-wider text-[#6DD94B] block font-bold">
+            // EL MOMENTO DE MEJORAR TU EMPRESA ES AHORA
           </span>
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase text-white tracking-tight leading-none font-sans">
-            ESTE ES EL FUTURO DE LAS WEBS PROFESIONALES
-          </h2>
-          <p className="text-lg font-bold uppercase text-[#6DD94B] tracking-wider font-mono">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase text-white tracking-tight leading-tight">
             ¿QUIERES VER TU NEGOCIO EN LO MÁS ALTO?
+          </h2>
+          <p className="text-base sm:text-lg font-bold text-[#6DD94B] uppercase tracking-wide">
+            Hablamos contigo, vemos qué necesitas y te damos una solución clara hoy mismo.
           </p>
           <div className="pt-4">
             <button
               onClick={onOpenAudit}
-              className="border border-white hover:border-[#6DD94B] px-10 py-4 text-xs sm:text-sm font-mono uppercase tracking-widest text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-bold"
+              className="border border-white hover:border-[#6DD94B] px-10 py-4 text-xs sm:text-sm uppercase tracking-wider text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-bold"
             >
-              Quiero Mi Web • Desde 99€
+              Pedir Presupuesto Sin Compromiso • Desde 99€
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── SECCIÓN 8: CONTACTO CON FORMULARIO BANCH (INPUTS LÍNEA INFERIOR BLANCA) ── */}
-      <section id="contact" className="py-24 sm:py-36 px-4 sm:px-8 bg-black border-t border-white/10 z-10 relative">
+      {/* ── SECCIÓN 7: CONTACTO DIRECTO ── */}
+      <section id="contact" className="py-20 sm:py-32 px-4 sm:px-8 bg-black border-t border-white/10 z-10 relative">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Columna Izquierda Texto */}
+          {/* Texto de contacto */}
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#6DD94B] block font-bold">
-              // CONTACTO DIRECTO
+            <span className="text-xs uppercase tracking-wider text-[#6DD94B] block font-bold">
+              // HABLA CON NOSOTROS
             </span>
-            <h2 className="text-4xl sm:text-6xl font-black uppercase text-white leading-none font-sans">
+            <h2 className="text-3xl sm:text-5xl font-black uppercase text-white leading-tight">
               SABEMOS CÓMO <br />
               <span className="text-[#6DD94B]">IMPULSAR</span> <br />
               TU NEGOCIO
             </h2>
-            <p className="text-sm text-white/70 leading-relaxed font-mono">
-              El futuro de las plataformas web ha llegado a Huelva y Sevilla. Escríbenos para recibir tu propuesta técnica personalizada y ver tu plantilla en directo.
+            <p className="text-sm sm:text-base text-white/80 leading-relaxed font-normal">
+              Escríbenos o déjanos tus datos. Te responderemos hoy mismo para ver tu caso, enseñarte una demo adaptada a tu sector y decirte el precio exacto sin sorpresas.
             </p>
-            <div className="pt-4 space-y-2 text-xs font-mono text-white/50">
-              <p>📍 HUELVA & SEVILLA, ANDALUCÍA</p>
-              <p>✉️ CONTACTO@TECNODIEL.ES</p>
-              <p>⚡ RESPUESTA EN MENOS DE 2 HORAS</p>
+            <div className="pt-4 space-y-2.5 text-xs sm:text-sm text-white/70">
+              <p className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#6DD94B]" />
+                <span>Huelva y Sevilla, Andalucía</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#6DD94B]" />
+                <span>Atención directa por WhatsApp o llamada</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[#6DD94B]" />
+                <span>Te respondemos en menos de 2 horas</span>
+              </p>
             </div>
           </div>
 
-          {/* Columna Derecha Formulario Banch */}
+          {/* Formulario cercano */}
           <div className="lg:col-span-7">
             {formSent ? (
               <div className="p-10 border border-[#6DD94B] bg-[#0D844A]/10 text-center space-y-4">
-                <span className="h-12 w-12 bg-[#6DD94B] text-black font-bold mx-auto flex items-center justify-center font-mono">
+                <span className="h-12 w-12 bg-[#6DD94B] text-black font-bold mx-auto flex items-center justify-center text-lg">
                   ✓
                 </span>
-                <h3 className="text-2xl font-black uppercase text-white font-sans">¡Mensaje Enviado con Éxito!</h3>
-                <p className="text-xs font-mono text-white/70">
-                  Mario o Dani revisarán tu negocio y te contactarán hoy mismo con la propuesta.
+                <h3 className="text-2xl font-black uppercase text-white">¡Mensaje Recibido!</h3>
+                <p className="text-sm text-white/80">
+                  Mario o Dani revisarán tu negocio y te escribirán o llamarán hoy mismo para ayudarte.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-8 font-mono">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-mono uppercase text-white/50 block">nombre</label>
+                  <label className="text-xs uppercase text-white/60 font-bold block">Tu Nombre o Nombre del Negocio</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Tu nombre completo"
-                    className="w-full bg-transparent border-b-2 border-white pb-2 text-sm text-white focus:border-[#6DD94B] focus:outline-none font-mono"
+                    placeholder="Ej. Mario - Bar La Esquina"
+                    className="w-full bg-transparent border-b-2 border-white pb-2.5 text-sm sm:text-base text-white focus:border-[#6DD94B] focus:outline-none"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-mono uppercase text-white/50 block">email</label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="tucorreo@negocio.es"
-                      className="w-full bg-transparent border-b-2 border-white pb-2 text-sm text-white focus:border-[#6DD94B] focus:outline-none font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-mono uppercase text-white/50 block">teléfono / whatsapp</label>
+                    <label className="text-xs uppercase text-white/60 font-bold block">Tu Teléfono o WhatsApp</label>
                     <input
                       type="tel"
                       required
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="600 000 000"
-                      className="w-full bg-transparent border-b-2 border-white pb-2 text-sm text-white focus:border-[#6DD94B] focus:outline-none font-mono"
+                      className="w-full bg-transparent border-b-2 border-white pb-2.5 text-sm sm:text-base text-white focus:border-[#6DD94B] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs uppercase text-white/60 font-bold block">Tu Correo Electrónico</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="tunegocio@gmail.com"
+                      className="w-full bg-transparent border-b-2 border-white pb-2.5 text-sm sm:text-base text-white focus:border-[#6DD94B] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-mono uppercase text-white/50 block">tipo de negocio</label>
+                  <label className="text-xs uppercase text-white/60 font-bold block">¿Qué Tipo de Negocio Tienes?</label>
                   <select
                     value={formData.platform}
                     onChange={e => setFormData({ ...formData, platform: e.target.value })}
-                    className="w-full bg-[#161616] border-b-2 border-white pb-2 text-sm text-white focus:border-[#6DD94B] focus:outline-none font-mono"
+                    className="w-full bg-[#181818] border-b-2 border-white pb-2.5 text-sm sm:text-base text-white focus:border-[#6DD94B] focus:outline-none"
                   >
-                    <option value="hosteleria">Hostelería (Restaurante, Bar, Coctelería, Asador)</option>
-                    <option value="clinica">Clínica & Salud (Dental, Fisioterapia, Estética, Salud)</option>
-                    <option value="otro">Otro negocio local</option>
+                    <option value="hosteleria">Restaurante, Bar, Coctelería o Cafetería</option>
+                    <option value="clinica">Clínica Dental, Fisioterapia, Estética o Salud</option>
+                    <option value="otro">Comercio u otro tipo de empresa local</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-mono uppercase text-white/50 block">mensaje o necesidades</label>
+                  <label className="text-xs uppercase text-white/60 font-bold block">¿Qué te gustaría mejorar o qué necesitas?</label>
                   <textarea
                     rows={3}
                     value={formData.message}
                     onChange={e => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Cuéntanos brevemente sobre tu negocio y qué te gustaría mejorar..."
-                    className="w-full bg-transparent border-b-2 border-white pb-2 text-sm text-white focus:border-[#6DD94B] focus:outline-none font-mono"
+                    placeholder="Cuéntanos brevemente: si necesitas carta digital, citas online, una web desde cero o arreglar la que ya tienes..."
+                    className="w-full bg-transparent border-b-2 border-white pb-2.5 text-sm sm:text-base text-white focus:border-[#6DD94B] focus:outline-none"
                   />
                 </div>
 
@@ -1100,16 +1060,16 @@ export default function BanchLanding({
                       onChange={e => setFormData({ ...formData, privacy: e.target.checked })}
                       className="mt-1 accent-[#6DD94B]"
                     />
-                    <span className="text-xs text-white/60 font-mono leading-relaxed">
-                      Declaro haber leído la política de privacidad y autorizo el tratamiento de mis datos personales para recibir información de mi proyecto en TecnOdiel.
+                    <span className="text-xs text-white/70 leading-relaxed font-normal">
+                      Acepto que TecnOdiel me contacte por teléfono o WhatsApp para darme información sobre mi consulta.
                     </span>
                   </label>
 
                   <button
                     type="submit"
-                    className="border border-white hover:border-[#6DD94B] px-10 py-4 text-xs font-mono uppercase tracking-widest text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-bold"
+                    className="border border-white hover:border-[#6DD94B] px-10 py-4 text-xs sm:text-sm uppercase tracking-wider text-white hover:bg-white hover:text-[#0D844A] transition-all cursor-pointer font-extrabold"
                   >
-                    Enviar Mensaje
+                    Enviar Mensaje y Hablar con el Equipo
                   </button>
                 </div>
               </form>
@@ -1118,55 +1078,40 @@ export default function BanchLanding({
         </div>
       </section>
 
-      {/* ── SECCIÓN 9: FOOTER COLOSAL IDÉNTICO A BANCH ── */}
-      <footer className="py-20 px-4 sm:px-8 border-t border-white/10 bg-[#0c0c0c] text-center z-10 relative font-mono">
+      {/* ── PIE DE PÁGINA CERCANO ── */}
+      <footer className="py-16 px-4 sm:px-8 border-t border-white/10 bg-[#0c0c0c] text-center z-10 relative">
         <div className="max-w-[1440px] mx-auto space-y-6">
-          <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#6DD94B] block font-bold">
+          <span className="text-xs uppercase tracking-wider text-[#6DD94B] block font-bold">
             // TECNODIEL HUELVA
           </span>
-          <h2 className="text-3xl sm:text-6xl md:text-7xl font-black uppercase text-white tracking-tight leading-none font-sans">
-            DESCUBRE NUESTRAS PLATAFORMAS & SERVICIOS
+          <h2 className="text-2xl sm:text-5xl font-black uppercase text-white tracking-tight">
+            DIGITALIZAMOS TU NEGOCIO CON CERCANÍA Y PROFESIONALIDAD
           </h2>
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={onNavigateToMultiwebs}
-              className="border border-white/30 hover:border-white px-6 py-3 text-xs font-mono uppercase text-white transition-all cursor-pointer"
+              className="border border-white/30 hover:border-white px-6 py-3 text-xs sm:text-sm uppercase text-white transition-all cursor-pointer font-bold"
             >
-              Catálogo Hostelería
+              Configurador Restaurantes
             </button>
             <button
               onClick={onNavigateToCyS}
-              className="border border-white/30 hover:border-white px-6 py-3 text-xs font-mono uppercase text-white transition-all cursor-pointer"
+              className="border border-white/30 hover:border-white px-6 py-3 text-xs sm:text-sm uppercase text-white transition-all cursor-pointer font-bold"
             >
-              Catálogo Clínicas
+              Configurador Clínicas
             </button>
             <button
               onClick={onNavigateToPortal}
-              className="border border-[#6DD94B] bg-[#6DD94B]/10 px-6 py-3 text-xs font-mono uppercase text-[#6DD94B] hover:bg-[#6DD94B] hover:text-black transition-all cursor-pointer font-bold"
+              className="border border-[#6DD94B] bg-[#6DD94B]/10 px-6 py-3 text-xs sm:text-sm uppercase text-[#6DD94B] hover:bg-[#6DD94B] hover:text-black transition-all cursor-pointer font-bold"
             >
-              Portal Privado & Oficina Virtual
+              Acceso a Tu Panel de Cliente
             </button>
           </div>
-          <p className="text-[11px] font-mono text-white/40 pt-8 border-t border-white/5">
-            © {new Date().getFullYear()} TecnOdiel • Alojamiento en Cloudflare Pages Edge • Base de datos Supabase SSL
+          <p className="text-xs text-white/50 pt-8 border-t border-white/5">
+            © {new Date().getFullYear()} TecnOdiel • Startup de Huelva • Páginas web y digitalización para empresas locales
           </p>
         </div>
       </footer>
     </div>
-  );
-}
-
-// Icono auxiliar para el halo circular
-function ArrowDownIcon(props) {
-  return (
-    <svg 
-      fill="none" 
-      viewBox="0 0 24 24" 
-      strokeWidth={2.5} 
-      stroke="currentColor" 
-      {...props}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-    </svg>
   );
 }
