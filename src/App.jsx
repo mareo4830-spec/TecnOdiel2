@@ -180,6 +180,7 @@ export default function App() {
           onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')} 
           onNavigateToCyS={() => navigateTo('cys')}
+          onNavigateToPortal={() => navigateTo('portal')}
         />
       )}
 
