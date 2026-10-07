@@ -8,6 +8,7 @@ import LeadForm from './LeadForm.jsx';
 import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
 import Threads from '../ui/Threads.jsx';
+import HeroShowcase from './HeroShowcase.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -148,32 +149,8 @@ function Hero() {
           </ul>
         </div>
 
-        {/* Mockup "panel" (equivalente al monitor de Q2B) */}
-        <div className="relative hidden lg:block" aria-hidden="true">
-          <div className="rounded-2xl border border-white/10 bg-[#1b1b1b] p-5 shadow-[0_30px_80px_-20px_rgba(109,217,75,0.35)]">
-            <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-              <span className="h-3 w-3 rounded-full bg-red-400/80" /><span className="h-3 w-3 rounded-full bg-yellow-400/80" /><span className="h-3 w-3 rounded-full bg-[#6DD94B]" />
-              <span className="ml-3 text-xs text-zinc-500">tu-negocio.es / panel</span>
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              {[['Citas hoy', '12'], ['Nuevos clientes', '+8'], ['Ahorro comisiones', '312 €']].map(([k, v]) => (
-                <div key={k} className="rounded-lg bg-black/40 p-3"><p className="text-[10px] uppercase tracking-wider text-zinc-500">{k}</p><p className="mt-1 text-xl font-bold text-white">{v}</p></div>
-              ))}
-            </div>
-            <div className="mt-4 space-y-2">
-              {[['10:00', 'Corte + barba', 'Confirmada'], ['11:30', 'Corte clásico', 'Confirmada'], ['13:00', 'Tinte', 'Pendiente']].map(([h, s, st]) => (
-                <div key={h} className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3 text-sm">
-                  <span className="font-mono text-zinc-400">{h}</span><span className="text-zinc-200">{s}</span>
-                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${st === 'Confirmada' ? 'bg-[#6DD94B]/15 text-[#6DD94B]' : 'bg-yellow-400/15 text-yellow-300'}`}>{st}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-xl bg-white px-5 py-4 text-zinc-900 shadow-xl">
-            <CalendarCheck className="h-8 w-8 text-[#0D844A]" />
-            <div><p className="text-sm font-bold">Nueva reserva</p><p className="text-xs text-zinc-500">Hace 2 minutos · 0 € comisión</p></div>
-          </div>
-        </div>
+        {/* Escaparate rotatorio de proyectos reales y plantillas disponibles */}
+        <HeroShowcase />
       </div>
       <a href="#por-que" onClick={goTo('#por-que')} aria-label="Bajar" className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 text-[#6DD94B] sm:block"><ChevronDown className="h-6 w-6 animate-bounce" /></a>
     </section>
