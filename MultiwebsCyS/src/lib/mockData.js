@@ -69,58 +69,112 @@ export const CLINIC_CATEGORIES = [
 
 export const TEMPLATES = [
   {
-    id: 'dental_pure',
-    name: 'Estilo Dental Pure & Sonrisa 3D',
+    id: 'the-ultra-minimal-swiss',
+    name: '1. THE ULTRA-MINIMAL SWISS',
     category: 'dental',
-    archetype: 'Odontología Avanzada',
-    badge: 'Blanco Estéril, Cyan & Titanio',
-    description: 'Líneas limpias, tecnología digital y elegancia médica. Pensada para clínicas dentales modernas, ortodoncia invisible, implantes guiados y estética dental.',
+    archetype: 'Dentales de Lujo & Proporción Áurea',
+    badge: '★ BLANCO ABSOLUTO • GRID SUIZO',
+    description: 'Dentales de Lujo. Blanco absoluto (#FFFFFF), grid matemático riguroso, tipografía suiza minúscula frente a espacios vacíos gigantescos y botones invisibles que solo revelan una flecha fina "→" al pasar el ratón.',
     previewColors: {
-      primary: '#06b6d4',
-      accent: '#22d3ee',
-      bg: '#041724',
-      card: '#08253a'
+      primary: '#000000',
+      accent: '#737373',
+      bg: '#ffffff',
+      card: '#f5f5f5'
     },
     defaultFont: 'Inter',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Implantes Guiados', 'Ortodoncia Invisible', 'Escáner Intraoral 3D', 'Cita Sin Esperas']
+    tags: ['Blanco Absoluto', 'Proporción Áurea', 'Botón Flecha Invisible', 'Micro-Interacciones']
   },
   {
-    id: 'medica_policlinica',
-    name: 'Estilo Policlínica & Cuadro Médico',
-    category: 'policlinica',
-    archetype: 'Centro Médico Multidisciplinar',
-    badge: 'Azul Quirúrgico & Zafiro',
-    description: 'Máxima autoridad y confianza clínica. Estructurada para policlínicas con múltiples especialidades médicas, analíticas, ecografías y cuadro médico de doctores.',
-    previewColors: {
-      primary: '#0284c7',
-      accent: '#38bdf8',
-      bg: '#031326',
-      card: '#072445'
-    },
-    defaultFont: 'Outfit',
-    defaultLayout: 'centered',
-    heroBg: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Cuadro Médico Colegiado', 'Mutuas & Privados', 'Ecografía de Alta Resolución', 'Urgencias Médicas']
-  },
-  {
-    id: 'fisio_sport',
-    name: 'Estilo Fisioterapia & Biomecánica Pro',
+    id: 'the-dark-biotech',
+    name: '2. THE DARK BIOTECH',
     category: 'fisioterapia',
-    archetype: 'Rehabilitación & Deporte',
-    badge: 'Esmeralda Deportivo & Grafito',
-    description: 'Energía y precisión fisioterapéutica. Enfoque en recuperación de lesiones, punción seca, ecografía musculoesquelética y readaptación física.',
+    archetype: 'Medicina Deportiva & Alto Rendimiento',
+    badge: '★ AZUL MARINO • MOLÉCULAS SVG',
+    description: 'Medicina Deportiva. Azul marino casi negro (#030712), gráficos de fondo tipo moléculas 3D y bio-redes SVG, layout tipo Dashboard con métricas de rendimiento, botones magnéticos con brillos interiores azules y textos decodificándose.',
     previewColors: {
-      primary: '#10b981',
-      accent: '#34d399',
-      bg: '#061a12',
-      card: '#0c2e20'
+      primary: '#06b6d4',
+      accent: '#3b82f6',
+      bg: '#030712',
+      card: '#060c21'
+    },
+    defaultFont: 'JetBrains Mono',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Moléculas 3D', 'Dashboard Biomecánico', 'Decoder Text', 'Botones Magnéticos']
+  },
+  {
+    id: 'the-pediatric-playful',
+    name: '3. THE PEDIATRIC PLAYFUL',
+    category: 'policlinica',
+    archetype: 'Pediatría Infantil & Sin Miedos',
+    badge: '★ PASTEL • BLOBS ORGÁNICOS',
+    description: 'Pediatría. Colores pastel muy suaves (#FAF7F2, menta, lavanda), elementos con formas de "Blob" orgánicos SVG, tipografías redondeadas gruesas y botones redondos y elásticos como de goma que se estiran y encogen al pulsar.',
+    previewColors: {
+      primary: '#70D6BC',
+      accent: '#FF9B85',
+      bg: '#FAF7F2',
+      card: '#ffffff'
     },
     defaultFont: 'Outfit',
     defaultLayout: 'split',
-    heroBg: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Punción Seca', 'Readaptación Funcional', 'Ecografía Muscular', 'Sesión 60 min']
+    heroBg: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Blobs SVG', 'Colores Pastel', 'Botones Elásticos de Goma', 'Cero Lágrimas']
+  },
+  {
+    id: 'the-horizontal-zen',
+    name: '4. THE HORIZONTAL ZEN',
+    category: 'psicologia',
+    archetype: 'Psicología Clínica & Spa Somático',
+    badge: '★ SCROLL HORIZONTAL • CALMA',
+    description: 'Psicología y Spa. Navegación 100% de scroll horizontal continuo, tonos arena (#E7E1D8) y niebla (#F3EFEA), textos con un tracking enorme que se va juntando lentamente con el scroll y botones que son círculos perfectos translúcidos con micro-ondas.',
+    previewColors: {
+      primary: '#8C8476',
+      accent: '#D5CEC2',
+      bg: '#F3EFEA',
+      card: '#EBE5DC'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Scroll Horizontal', 'Tonos Niebla & Arena', 'Tracking Expansivo', 'Botones Circulares']
+  },
+  {
+    id: 'the-luxury-curtain',
+    name: '5. THE LUXURY CURTAIN',
+    category: 'estetica',
+    archetype: 'Medicina Estética de Alta Costura',
+    badge: '★ ORO MATE • ANIMACIÓN TELÓN',
+    description: 'Clínicas Estéticas. Oro mate (#D4AF37) y negro profundo (#0A0A0A), tipografías Serif extrafinas, animaciones de telón donde la sección entera se desliza verticalmente hacia arriba para revelar el siguiente acto, y botones con líneas finas doradas envolventes.',
+    previewColors: {
+      primary: '#D4AF37',
+      accent: '#C5A059',
+      bg: '#0A0A0A',
+      card: '#141414'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Oro Mate & Negro', 'Telón Vertical', 'Serif Extrafina', 'Líneas Envolventes']
+  },
+  {
+    id: 'the-tech-ortho',
+    name: '6. THE TECH-ORTHO',
+    category: 'dental',
+    archetype: 'Ortodoncia Avanzada & Wireframe 3D',
+    badge: '★ WIREFRAME • ESCÁNER LÁSER',
+    description: 'Ortodoncia Avanzada. Estética "Wireframe" técnica arquitectónica, fondos blancos con líneas de diseño técnico visibles, tipografías técnicas, animaciones de escáner láser luminoso que recorre imágenes de arriba abajo y botones sólidos azules (#0055FF) sin efectos locos.',
+    previewColors: {
+      primary: '#0055FF',
+      accent: '#0037A8',
+      bg: '#ffffff',
+      card: '#f8fafc'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Blueprint Wireframe', 'Escáner Láser 60FPS', 'Botón Azul Sólido', 'Precisión CAD/CAM']
   },
   {
     id: 'estetica_glow',

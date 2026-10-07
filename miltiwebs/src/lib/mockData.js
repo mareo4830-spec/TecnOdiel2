@@ -13,55 +13,106 @@ export const RESTAURANT_CATEGORIES = [
 
 export const TEMPLATES = [
   {
-    id: 'cinematic_experience',
-    name: 'Estilo Cinemático & Storytelling (Chuletón a la Brasa)',
-    category: 'asador',
-    badge: '★ NUEVO • STORYTELLING AL SCROLL',
-    description: 'Experiencia inmersiva estilo Apple / Awwwards: el chuletón humeando en las brasas que se posa y trincha en el plato al deslizar la página, con textos narrativos a la izquierda y carta QR directa.',
+    id: 'the-awwwards-cinematic',
+    name: '1. THE AWWWARDS CINEMATIC',
+    category: 'gastronomic',
+    badge: '★ INMERSIVO • PURO IMPACTO VISUAL',
+    description: 'Fondo negro profundo con mix-blend-mode sobre vídeo 4K y film grain 35mm. Text masking con clip-path, transform translateY(100%) y parallax agresivo. Enlaces magnéticos expansivos.',
     previewColors: {
-      primary: '#f97316',
-      accent: '#ef4444',
-      bg: '#080302',
-      card: '#160a07'
+      primary: '#ffffff',
+      accent: '#a1a1aa',
+      bg: '#000000',
+      card: '#0a0a0a'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Awwwards Standard', 'Text Masking Clip-Path', 'Parallax Agresivo', 'Enlaces Magnéticos']
+  },
+  {
+    id: 'the-neo-bento-brutalist',
+    name: '2. THE NEO-BENTO BRUTALIST',
+    category: 'burger',
+    badge: '★ BENTO BOX • SPRING PHYSICS',
+    description: 'Hamburgueserías urbanas. Grid asimétrico Bento, fondo blanco puro, bordes negros 4px (border-4 border-black), sombras sólidas de 8px negros sin desenfoque y botones mecánicos gigantes que bajan 8px.',
+    previewColors: {
+      primary: '#FFE600',
+      accent: '#00F0FF',
+      bg: '#ffffff',
+      card: '#FFE600'
+    },
+    defaultFont: 'Inter',
+    defaultLayout: 'centered',
+    heroBg: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Bento Grid', 'Border-4 Black', 'Offset Shadow 8px', 'Física de Rebote']
+  },
+  {
+    id: 'the-glass-fluid',
+    name: '3. THE GLASS FLUID',
+    category: 'night_bar',
+    badge: '★ MESH GRADIENTS • COCTELERÍAS VIP',
+    description: 'Coctelerías Premium. Mesh gradients en movimiento continuo, paneles acrílicos (backdrop-blur-3xl, bg-white/5, rounded-[3rem]), movimiento senoidal flotante y botones píldoras con brillo interior intenso.',
+    previewColors: {
+      primary: '#a855f7',
+      accent: '#06b6d4',
+      bg: '#070510',
+      card: '#161028'
+    },
+    defaultFont: 'Outfit',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Mesh Gradients', 'Paneles Acrílicos', 'Rounded-[3rem]', 'Brillo Interior']
+  },
+  {
+    id: 'the-editorial-print',
+    name: '4. THE EDITORIAL PRINT',
+    category: 'gastronomic',
+    badge: '★ ALTA REVISTA • AUTOR',
+    description: 'Restaurantes de autor. Fondo color hueso/sepia (#F9F6F0), layout multi-columna, tipografía exclusivamente Serif, separadores finos, fade-ins lentos 1.5s y barrido horizontal wipe de imágenes.',
+    previewColors: {
+      primary: '#1c1917',
+      accent: '#78716c',
+      bg: '#F9F6F0',
+      card: '#f4ede4'
+    },
+    defaultFont: 'Playfair Display',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Fondo Sepia', 'Columnas Revista', 'Tipografía Serif', 'Wipe Effect']
+  },
+  {
+    id: 'the-cyber-terminal',
+    name: '5. THE CYBER-TERMINAL',
+    category: 'burger',
+    badge: '★ MATRIX • COMIDA FUSIÓN GEEK',
+    description: 'Comida Fusión / Geek. Fondo gris grafito con cuadrícula SVG, tipografía monospace consola, acentos verde neón (#00FF66), Typewriter effect en textos, fallo glitch en imágenes y botones con relleno ASCII.',
+    previewColors: {
+      primary: '#00FF66',
+      accent: '#10b981',
+      bg: '#121316',
+      card: '#0a0b0d'
+    },
+    defaultFont: 'JetBrains Mono',
+    defaultLayout: 'split',
+    heroBg: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1920&q=80',
+    tags: ['Terminal Matrix', 'Monospace', 'Verde Neón', 'Glitch Effect']
+  },
+  {
+    id: 'the-rustic-organic',
+    name: '6. THE RUSTIC ORGANIC',
+    category: 'asador',
+    badge: '★ BRASA • PAPEL RASGADO',
+    description: 'Asadores tradicionales. Tonos tierra cálidos, máscaras SVG de papel rasgado en contenedores, fotografías solapadas estilo polaroid que caen rotando sobre madera y botones con border-radius complejo.',
+    previewColors: {
+      primary: '#8B5A2B',
+      accent: '#C49A6C',
+      bg: '#2A1E17',
+      card: '#3A2B21'
     },
     defaultFont: 'Playfair Display',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Brasa al Carbón', 'Trinchado al Scroll', 'Storytelling Cinemático', 'Efecto Fuego & Humo']
-  },
-  {
-    id: 'tapas_andaluzas',
-    name: 'Estilo Taberna & Solera Andaluza',
-    category: 'tapas',
-    badge: 'Albero, Pizarra & Solera',
-    description: 'Madera de roble, amarillo albero y pizarra tradicional. Pensada para taperías de solera, freidurías, bodeguitas y raciones de bellota.',
-    previewColors: {
-      primary: '#eab308',
-      accent: '#ca8a04',
-      bg: '#1c1006',
-      card: '#2a180b'
-    },
-    defaultFont: 'Playfair Display',
-    defaultLayout: 'centered',
-    heroBg: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Jamón de Jabugo', 'Pizarra Chalk', 'Gambas al Ajillo', 'Solera de Jerez']
-  },
-  {
-    id: 'nocturne',
-    name: 'Estilo Nocturno & Mixología VIP',
-    category: 'night_bar',
-    badge: 'Obsidian Black & Oro',
-    description: 'Atmósfera íntima y refinada con luces suaves, ideal para bares de copas, cócteles de autor, reservados exclusivos y noches con encanto.',
-    previewColors: {
-      primary: '#f59e0b',
-      accent: '#fbbf24',
-      bg: '#060608',
-      card: '#0f0f14'
-    },
-    defaultFont: 'Outfit',
-    defaultLayout: 'centered',
-    heroBg: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Mixología de Autor', 'Foco Dorado', 'Reservados VIP', 'Bocados de Noche']
+    tags: ['Papel Rasgado', 'Fotos Polaroid', 'Border-Radius Complejo', 'Brasa Viva']
   },
   {
     id: 'urban_street_smash',
