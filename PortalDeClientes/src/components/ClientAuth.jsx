@@ -18,7 +18,7 @@ import {
   Stethoscope,
   Mail
 } from 'lucide-react';
-import { supabase, verifyClientAccessKey, verifyClientByEmail, getClientRestaurantDetails } from '../lib/supabase';
+import { supabase, verifyClientAccessKey, verifyClientByEmail, getClientRestaurantDetails, FALLBACK_RESTAURANT } from '../lib/supabase';
 
 const MAX_ADMIN_ATTEMPTS = 3;
 const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutos de baneo
@@ -83,26 +83,59 @@ export default function ClientAuth({
       .catch(() => {});
   }, [targetSlug]);
 
-  // Manejar respuesta de retorno de Supabase Google OAuth
+  // Manejar respuesta de retorno y estado de Supabase Google OAuth
   useEffect(() => {
+    // 1. Escuchar cambios de autenticación en vivo de Supabase
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session && session.user && session.user.email) {
+        const userEmail = session.user.email.toLowerCase();
+        let match = await verifyClientByEmail(userEmail, targetSlug);
+        if (!match) {
+          // Si el cliente entra por primera vez con Google, le asociamos una web personalizada inmediatamente
+          const userMeta = session.user.user_metadata || {};
+          const fallbackName = userMeta.full_name || userMeta.name || userEmail.split('@')[0];
+          match = {
+            ...FALLBACK_RESTAURANT,
+            id: `google-${session.user.id}`,
+            name: `${fallbackName}`,
+            email: userEmail,
+            client_access_key: `TO-GGL-${userEmail.slice(0, 4).toUpperCase()}`
+          };
+        }
+        onSelectRestaurant(match, match.client_access_key || 'GOOGLE-OAUTH');
+      }
+    });
+
+    // 2. Comprobar sesión existente al montar
     const checkGoogleUser = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session && session.user && session.user.email) {
           const userEmail = session.user.email.toLowerCase();
-          const match = await verifyClientByEmail(userEmail, targetSlug);
-          if (match) {
-            onSelectRestaurant(match, match.client_access_key || 'GOOGLE-OAUTH');
-          } else {
-            setErrorMsg(`Sesión iniciada con Google (${userEmail}), pero este correo no coincide con ninguna web solicitada. Introduce tu clave o contacta con soporte.`);
+          let match = await verifyClientByEmail(userEmail, targetSlug);
+          if (!match) {
+            const userMeta = session.user.user_metadata || {};
+            const fallbackName = userMeta.full_name || userMeta.name || userEmail.split('@')[0];
+            match = {
+              ...FALLBACK_RESTAURANT,
+              id: `google-${session.user.id}`,
+              name: `${fallbackName}`,
+              email: userEmail,
+              client_access_key: `TO-GGL-${userEmail.slice(0, 4).toUpperCase()}`
+            };
           }
+          onSelectRestaurant(match, match.client_access_key || 'GOOGLE-OAUTH');
         }
       } catch (e) {
-        console.warn('Error checking google auth session:', e);
+        console.warn('Error comprobando sesión de Google:', e);
       }
     };
     checkGoogleUser();
-  }, [targetSlug]);
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, [targetSlug, onSelectRestaurant]);
 
   // Monitorización y cuenta atrás en tiempo real del baneo de 30 minutos
   useEffect(() => {

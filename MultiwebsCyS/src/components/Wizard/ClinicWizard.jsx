@@ -62,12 +62,9 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
-  // Click-to-Edit Inspector State
-  const [selectedElement, setSelectedElement] = useState({
-    type: 'hero_image',
-    label: 'Foto de Portada'
-  });
-  const [isInspectorOpen, setIsInspectorOpen] = useState(true);
+  // Click-to-Edit Inspector State (solo se abre si el usuario clica en algo que quiere editar)
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   // File & Camera input refs
   const heroGalleryInputRef = useRef(null);
@@ -1098,7 +1095,12 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
 
                 {/* CUADRO 1: TRATAMIENTOS & ESPECIALIDADES MÉDICAS */}
                 <div
-                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  onClick={() => {
+                    setSelectedElement({ type: 'treatments', label: 'Especialidades & Cuadro Médico' });
+                    setIsInspectorOpen(true);
+                    showTweakNotice('Editando: Especialidades & Tratamientos');
+                  }}
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-cyan-400 group"
                   style={{
                     backgroundColor: formData.surface_color || '#0a1017',
                     borderColor: `${formData.primary_color}40`,
@@ -1166,7 +1168,12 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
 
                 {/* CUADRO 2: LANDING PAGE MÉDICA & HERO */}
                 <div
-                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  onClick={() => {
+                    setSelectedElement({ type: 'hero', label: 'Portada Médica & Prestigio' });
+                    setIsInspectorOpen(true);
+                    showTweakNotice('Editando: Portada Médica & Prestigio');
+                  }}
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-cyan-400 group"
                   style={{
                     backgroundColor: formData.background_color || '#041724',
                     borderColor: `${formData.primary_color}40`,
@@ -1242,7 +1249,12 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
 
                 {/* CUADRO 3: SISTEMA DE CITA PREVIA & MUTUAS */}
                 <div
-                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  onClick={() => {
+                    setSelectedElement({ type: 'reservations', label: 'Cita Previa Automatizada' });
+                    setIsInspectorOpen(true);
+                    showTweakNotice('Editando: Cita Previa Automatizada');
+                  }}
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-cyan-400 group"
                   style={{
                     backgroundColor: formData.surface_color || '#0a1017',
                     borderColor: `${formData.primary_color}40`,
@@ -1308,7 +1320,12 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
 
                 {/* CUADRO 4: FICHA PACIENTE & PORTAL CLÍNICO */}
                 <div
-                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                  onClick={() => {
+                    setSelectedElement({ type: 'portal', label: 'Portal de Gestión & Pacientes' });
+                    setIsInspectorOpen(true);
+                    showTweakNotice('Portal de Paciente: Gestión con Google OAuth');
+                  }}
+                  className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-cyan-400 group"
                   style={{
                     backgroundColor: formData.background_color || '#041724',
                     borderColor: `${formData.primary_color}40`,

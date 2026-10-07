@@ -80,12 +80,9 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
-  // Click-to-Edit Inspector State
-  const [selectedElement, setSelectedElement] = useState({
-    type: 'hero_image',
-    label: 'Foto de Portada'
-  });
-  const [isInspectorOpen, setIsInspectorOpen] = useState(true);
+  // Click-to-Edit Inspector State (solo se abre si el usuario clica en algo que quiere editar)
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   // File & Camera input refs
   const heroGalleryInputRef = useRef(null);
@@ -1387,7 +1384,12 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               
               {/* CUADRO 1: CARTA DIGITAL & MENÚ */}
               <div 
-                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                onClick={() => {
+                  setSelectedElement({ type: 'dishes', label: 'Carta Digital & Precios' });
+                  setIsInspectorOpen(true);
+                  showTweakNotice('Editando: Carta & Precios');
+                }}
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-emerald-400 group"
                 style={{ 
                   backgroundColor: formData.surface_color || '#18181b',
                   borderColor: `${formData.primary_color}40`,
@@ -1455,7 +1457,12 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
               {/* CUADRO 2: LANDING PAGE & HERO */}
               <div 
-                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                onClick={() => {
+                  setSelectedElement({ type: 'hero_image', label: 'Portada & Tipografía' });
+                  setIsInspectorOpen(true);
+                  showTweakNotice('Editando: Portada & Tipografía');
+                }}
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-emerald-400 group"
                 style={{ 
                   backgroundColor: formData.background_color || '#09090b',
                   borderColor: `${formData.primary_color}40`,
@@ -1531,7 +1538,12 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
               {/* CUADRO 3: SISTEMA DE RESERVAS */}
               <div 
-                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                onClick={() => {
+                  setSelectedElement({ type: 'primary_color', label: 'Color de Reservas & Botones' });
+                  setIsInspectorOpen(true);
+                  showTweakNotice('Editando: Botones & Enlaces');
+                }}
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-emerald-400 group"
                 style={{ 
                   backgroundColor: formData.surface_color || '#18181b',
                   borderColor: `${formData.primary_color}40`,
@@ -1597,7 +1609,12 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
               {/* CUADRO 4: PANEL DE GESTIÓN & CLIENTE */}
               <div 
-                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between"
+                onClick={() => {
+                  setSelectedElement({ type: 'background', label: 'Estilo Oscuro de Interfaz' });
+                  setIsInspectorOpen(true);
+                  showTweakNotice('Editando: Fondos & Superficie');
+                }}
+                className="p-5 rounded-2xl border transition-all duration-300 shadow-xl relative overflow-hidden flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-emerald-400 group"
                 style={{ 
                   backgroundColor: formData.background_color || '#09090b',
                   borderColor: `${formData.primary_color}40`,
