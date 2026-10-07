@@ -24,6 +24,7 @@ import {
   FolderOpen,
   ArrowDownLeft,
   ArrowUpRight,
+  ArrowRight,
   GitCommitHorizontal,
   FolderPlus,
   RefreshCw,
@@ -1377,7 +1378,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                   <div>
                     <p className="text-[11px] font-mono uppercase text-amber-400">Pendientes de Montar</p>
                     <p className="text-2xl font-black text-white mt-0.5">
-                      {webLeads.filter(l => !l.site_deployed).length}
+                      {(Array.isArray(webLeads) ? webLeads : []).filter(l => !l?.site_deployed).length}
                     </p>
                   </div>
                   <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/30 grid place-items-center text-amber-400">
@@ -1389,7 +1390,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                   <div>
                     <p className="text-[11px] font-mono uppercase text-[#6DD94B]">Webs Listas / Operativas</p>
                     <p className="text-2xl font-black text-white mt-0.5">
-                      {webLeads.filter(l => l.site_deployed).length}
+                      {(Array.isArray(webLeads) ? webLeads : []).filter(l => l?.site_deployed).length}
                     </p>
                   </div>
                   <div className="h-10 w-10 rounded-xl bg-[#6DD94B]/10 border border-[#6DD94B]/30 grid place-items-center text-[#6DD94B]">
@@ -1402,9 +1403,9 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
               <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-xs text-zinc-400 font-mono mr-1">Filtrar:</span>
                 {[
-                  { id: 'all', label: `Todas (${webLeads.length})` },
-                  { id: 'pending', label: `🟡 Pendientes (${webLeads.filter(l => !l.site_deployed).length})` },
-                  { id: 'deployed', label: `🟢 Montadas (${webLeads.filter(l => l.site_deployed).length})` }
+                  { id: 'all', label: `Todas (${(Array.isArray(webLeads) ? webLeads : []).length})` },
+                  { id: 'pending', label: `🟡 Pendientes (${(Array.isArray(webLeads) ? webLeads : []).filter(l => !l?.site_deployed).length})` },
+                  { id: 'deployed', label: `🟢 Montadas (${(Array.isArray(webLeads) ? webLeads : []).filter(l => l?.site_deployed).length})` }
                 ].map(f => (
                   <button
                     key={f.id}
@@ -1886,7 +1887,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                         </span>
                       </div>
                       <div className="space-y-2 min-h-[260px]">
-                        {webLeads.filter(w => (w.stage || 'nuevo') === stage.id).map(w => (
+                        {(Array.isArray(webLeads) ? webLeads : []).filter(w => (w?.stage || 'nuevo') === stage.id).map(w => (
                           <div key={w.id} className="p-3 rounded-xl bg-gray-950 border border-emerald-500/30 space-y-1.5 shadow-sm">
                             <div className="flex items-center justify-between gap-2">
                               <p className="text-xs font-bold text-white truncate">{w.business_name || w.name}</p>

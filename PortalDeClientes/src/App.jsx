@@ -5,6 +5,38 @@ import VirtualDeskAdminApp from './components/virtualdesk/VirtualDeskAdminApp';
 import VirtualDeskClientPortal from './components/virtualdesk/VirtualDeskClientPortal';
 import { getClientRestaurantDetails, verifyClientAccessKey } from './lib/supabase';
 
+class PortalAdminErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Portal Admin error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#121212] text-white flex flex-col items-center justify-center p-6 text-center">
+          <div className="p-6 max-w-md bg-zinc-900 border border-[#6DD94B]/30 rounded-2xl shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-2">Panel de Administrador</h2>
+            <p className="text-xs text-zinc-400 mb-4">Error al inicializar el panel. Pulsa para reintentar.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-[#6DD94B] text-black font-bold text-xs rounded-xl"
+            >
+              Recargar
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App({ 
   initialSlug, 
   initialAdmin = false,
@@ -207,10 +239,12 @@ export default function App({
       >
         {/* CASE 1: Master Admin Portal (VirtualDesk-main exact replica) */}
         {isAdmin ? (
-          <VirtualDeskAdminApp 
-            onSwitchToClientView={() => setIsAdmin(false)}
-            onNavigateToLanding={onNavigateToLanding}
-          />
+          <PortalAdminErrorBoundary>
+            <VirtualDeskAdminApp 
+              onSwitchToClientView={() => setIsAdmin(false)}
+              onNavigateToLanding={onNavigateToLanding}
+            />
+          </PortalAdminErrorBoundary>
         ) : isVerifyingSession ? (
           /* CASE 2: Verificando sesión guardada */
           <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
