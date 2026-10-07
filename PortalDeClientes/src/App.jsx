@@ -15,10 +15,10 @@ export default function App({
   onNavigateToMultiwebs, 
   onNavigateToCyS,
   onNavigateToLanding, 
-  initialIntroFinished = false, 
+  initialIntroFinished = true, 
   onIntroComplete 
 }) {
-  const [introFinished, setIntroFinished] = useState(initialIntroFinished);
+  const [introFinished, setIntroFinished] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

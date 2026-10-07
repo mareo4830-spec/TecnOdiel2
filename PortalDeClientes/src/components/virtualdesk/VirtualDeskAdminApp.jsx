@@ -52,8 +52,8 @@ import { fetchLeads, updateLead } from '../../../../src/lib/leads.js';
 
 // ── CONFIGURACIÓN & METADATOS EXACTOS DE VIRTUALDESK-MAIN ──
 export const APP_CONFIG = {
-  name: 'Oficina Virtual',
-  shortName: 'OV',
+  name: 'TECNODIEL',
+  shortName: 'TO',
   location: 'Huelva, España',
   agencyPreviewDomain: 'preview.tecnodiel.es'
 };
@@ -402,20 +402,20 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
   const activeNavItem = NAV_ITEMS.find(i => i.id === activeTab) || NAV_ITEMS[0];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col lg:flex-row font-sans selection:bg-indigo-600 selection:text-white">
-      {/* ── BARRA LATERAL (SIDEBAR VIRTUALDESK-MAIN IDÉNTICA) ── */}
-      <aside className="w-full lg:w-64 border-r border-gray-800 bg-gray-950 flex flex-col shrink-0 select-none">
+    <div className="min-h-screen bg-[#121212] text-zinc-100 flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black">
+      {/* ── BARRA LATERAL (SIDEBAR TECNODIEL) ── */}
+      <aside className="w-full lg:w-64 border-r border-white/10 bg-[#161616] flex flex-col shrink-0 select-none">
         {/* Brand Header */}
-        <div className="h-16 px-5 border-b border-gray-800 flex items-center justify-between">
+        <div className="h-16 px-5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="h-9 w-9 rounded-xl grid place-items-center bg-gradient-to-br from-indigo-500 to-purple-600 font-bold text-white shadow-md shadow-indigo-600/30 text-sm">
+            <span className="h-9 w-9 rounded-xl grid place-items-center bg-[#6DD94B] font-black text-black shadow-md shadow-[#6DD94B]/20 text-xs">
               {APP_CONFIG.shortName}
             </span>
             <div>
-              <span className="text-base font-semibold tracking-tight text-white block leading-tight">
+              <span className="text-sm font-extrabold tracking-wide text-white block leading-tight">
                 {APP_CONFIG.name}
               </span>
-              <span className="text-[10px] text-gray-400 font-mono">
+              <span className="text-[10px] text-[#6DD94B] font-bold uppercase tracking-wider">
                 {APP_CONFIG.location}
               </span>
             </div>
@@ -424,7 +424,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
           {onSwitchToClientView && (
             <button
               onClick={onSwitchToClientView}
-              className="text-[11px] bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-800 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+              className="text-[11px] bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
               title="Ir al Portal de Cliente"
             >
               Ver Cliente ➔
@@ -441,21 +441,21 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all relative group cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all relative group cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600/15 text-white font-semibold shadow-sm'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900/60'
+                    ? 'bg-[#6DD94B]/15 text-[#6DD94B] shadow-sm'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {/* Barrita elástica vertical indicadora con glow */}
+                {/* Barrita elástica vertical indicadora */}
                 {isActive && (
-                  <span className="absolute left-1 top-2.5 bottom-2.5 w-1 rounded-full bg-indigo-500 shadow-[0_0_10px_#6366f1]" />
+                  <span className="absolute left-1 top-2.5 bottom-2.5 w-1 rounded-full bg-[#6DD94B] shadow-[0_0_10px_#6DD94B]" />
                 )}
-                <Icon className={`h-4 w-4 shrink-0 transition-colors ${isActive ? 'text-indigo-400' : 'text-gray-500 group-hover:text-gray-300'}`} />
+                <Icon className={`h-4 w-4 shrink-0 transition-colors ${isActive ? 'text-[#6DD94B]' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
                 <span className="flex-1 text-left">{item.label}</span>
 
                 {item.id === 'chats' && (
-                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-emerald-500 px-1.5 text-[11px] font-bold text-gray-950">
+                  <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#6DD94B] px-1.5 text-[11px] font-black text-black">
                     2
                   </span>
                 )}
@@ -481,11 +481,11 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
 
       {/* ── CUERPO PRINCIPAL (HEADER + SECCIONES) ── */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Header Superior (Idéntico a VirtualDesk-main) */}
-        <header className="sticky top-0 z-20 border-b border-gray-800/80 bg-gray-950/85 backdrop-blur-md">
+        {/* Header Superior (Estética TecnOdiel) */}
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-[#161616]/90 backdrop-blur-md">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:px-6">
-            {/* Título animado con caracteres */}
-            <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-white sm:text-xl xl:flex-none">
+            {/* Título */}
+            <h1 className="min-w-0 flex-1 truncate text-base font-extrabold text-white sm:text-xl xl:flex-none">
               {activeNavItem.title}
             </h1>
 
@@ -495,21 +495,21 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
-                className="flex h-10 w-full items-center gap-2 rounded-xl border border-gray-800 bg-gray-900 px-3 text-sm text-gray-400 hover:border-gray-700 hover:text-gray-200 xl:w-64 cursor-pointer"
+                className="flex h-10 w-full items-center gap-2 rounded-xl border border-white/10 bg-[#181818] px-3 text-sm text-zinc-400 hover:border-white/20 hover:text-white xl:w-64 cursor-pointer"
               >
-                <Search className="h-4 w-4 text-gray-500" />
+                <Search className="h-4 w-4 text-zinc-500" />
                 <span className="flex-1 text-left truncate">Buscar...</span>
-                <kbd className="rounded border border-gray-800 bg-gray-950 px-1.5 py-0.5 text-[10px] font-mono text-gray-500">
+                <kbd className="rounded border border-white/10 bg-black/40 px-1.5 py-0.5 text-[10px] font-mono text-zinc-400">
                   ⌘K
                 </kbd>
               </button>
 
-              {/* Botón + Añadir Proyecto con degradado índigo */}
+              {/* Botón + Añadir Proyecto con verde TecnOdiel */}
               <button
                 onClick={() => setIsNewProjectOpen(true)}
-                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-3 text-sm font-semibold text-white shadow-lg shadow-indigo-900/40 hover:from-indigo-500 hover:to-purple-500 sm:px-4 cursor-pointer transition"
+                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#6DD94B] px-4 text-sm font-black text-black shadow-lg shadow-[#6DD94B]/20 hover:bg-white cursor-pointer transition"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 stroke-[3]" />
                 <span className="hidden sm:inline">Añadir Proyecto</span>
               </button>
             </div>
@@ -520,7 +520,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 aria-label="Cambiar tema"
-                className="grid h-10 w-10 place-items-center rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white transition cursor-pointer"
+                className="grid h-10 w-10 place-items-center rounded-xl text-zinc-400 hover:bg-white/5 hover:text-white transition cursor-pointer"
               >
                 {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </button>
@@ -530,7 +530,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
                 {!activeCheckin.active ? (
                   <button
                     onClick={() => setIsCheckinMenuOpen(!isCheckinMenuOpen)}
-                    className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-500 px-3 text-xs font-bold uppercase tracking-wide text-gray-950 shadow-lg shadow-emerald-900/30 hover:bg-emerald-400 transition sm:px-4 cursor-pointer"
+                    className="inline-flex h-10 items-center gap-2 rounded-full bg-[#0D844A] hover:bg-[#09663a] px-4 text-xs font-black uppercase tracking-wide text-white shadow-lg transition cursor-pointer"
                   >
                     <LogIn className="h-4 w-4" />
                     <span>Check-in</span>

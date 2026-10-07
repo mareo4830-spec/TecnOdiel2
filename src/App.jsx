@@ -187,7 +187,7 @@ export default function App() {
       {view === 'multiwebs' && (
         <MultiwebsApp 
           key="multiwebs-page"
-          initialIntroFinished={hasIntroCompleted}
+          initialIntroFinished={true}
           onIntroComplete={markIntroComplete}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
           onNavigateToLanding={() => navigateTo('landing')}
@@ -198,6 +198,7 @@ export default function App() {
       {view === 'cys' && (
         <MultiwebsCySApp 
           key="cys-page"
+          initialIntroFinished={true}
           onNavigateToLanding={() => navigateTo('landing')}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
@@ -214,7 +215,7 @@ export default function App() {
         <PortalApp 
           key={`portal-page-${activeSlug || 'root'}`}
           initialSlug={activeSlug}
-          initialIntroFinished={hasIntroCompleted}
+          initialIntroFinished={true}
           onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToCyS={() => navigateTo('cys')}

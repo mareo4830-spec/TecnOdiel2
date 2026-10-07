@@ -39,15 +39,15 @@ function detectTenantSlug() {
   return null;
 }
 
-export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigateToCyS, initialIntroFinished = false, onIntroComplete }) {
+export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigateToCyS, initialIntroFinished = true, onIntroComplete }) {
   const [restaurants, setRestaurants] = useState([]);
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'manager', 'public_restaurant', 'standalone_tenant'
+  const [currentView, setCurrentView] = useState('wizard'); // 'wizard' directo sin pasar por dashboard antiguo
   const [activeRestaurant, setActiveRestaurant] = useState(null);
   const [publicSlug, setPublicSlug] = useState(null);
   const [singleRestaurant, setSingleRestaurant] = useState(null);
   const [isLoadingPublic, setIsLoadingPublic] = useState(false);
   const [tenantSlug, setTenantSlug] = useState(() => detectTenantSlug());
-  const [introFinished, setIntroFinished] = useState(initialIntroFinished);
+  const [introFinished, setIntroFinished] = useState(true);
   const lastPathRef = useRef(typeof window !== 'undefined' ? (window.location.hash || window.location.pathname) : '');
 
   const handleIntroComplete = () => {
@@ -158,8 +158,10 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
         const slug = raw.split('?')[0];
         setPublicSlug(slug);
         setCurrentView('standalone_carta');
-      } else {
+      } else if (hash === '#dashboard' || hash === '#/dashboard') {
         setCurrentView('dashboard');
+      } else {
+        setCurrentView('wizard');
       }
     };
 
@@ -289,7 +291,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
                 window.location.hash = `#/portal?r=${newRest?.slug || ''}`;
               }
             }}
-            onCancel={handleBackToDashboard}
+            onCancel={onNavigateToLanding || (() => { window.location.hash = '#/'; })}
           />
         </ErrorBoundary>
       )}

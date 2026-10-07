@@ -35,7 +35,7 @@ function detectTenantSlug() {
 
 export default function App({ onNavigateToLanding, onNavigateToMultiwebs, onNavigateToPortal }) {
   const [clinics, setClinics] = useState([]);
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'wizard', 'public_clinic', 'standalone_tenant'
+  const [currentView, setCurrentView] = useState('wizard'); // Directo a elegir plantilla sin pasar por dashboard antiguo
   const [activeClinic, setActiveClinic] = useState(null);
   const [publicSlug, setPublicSlug] = useState(null);
   const [singleClinic, setSingleClinic] = useState(null);
@@ -103,10 +103,10 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs, onNavi
         const cleanPath = rawPath.split('?')[0].replace(/\/$/, '');
         setPublicSlug(cleanPath);
         setCurrentView('public_clinic');
-      } else if (hash === '#wizard' || hash === '#/wizard') {
-        setCurrentView('wizard');
-      } else {
+      } else if (hash === '#dashboard' || hash === '#/dashboard') {
         setCurrentView('dashboard');
+      } else {
+        setCurrentView('wizard');
       }
     };
 
@@ -223,7 +223,7 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs, onNavi
               window.location.hash = `#/c/${newClinic.slug}`;
             }}
             onOpenPortal={handleOpenPortal}
-            onCancel={handleBackToDashboard}
+            onCancel={onNavigateToLanding || (() => { window.location.hash = '#/'; })}
           />
         </ErrorBoundary>
       )}
