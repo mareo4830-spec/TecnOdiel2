@@ -149,3 +149,30 @@
   text-shadow: 0 0 20px rgba(52, 211, 153, 0.5);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Ocultar lanzadores / burbujas por defecto de Chatbots (Botpress & Voiceflow)
+   Garantiza que solo se use el botón UI personalizado de TecnOdiel
+   ───────────────────────────────────────────────────────────── */
+/* Botpress default launcher */
+#bp-web-widget-container > button,
+#bp-web-widget-container button.bp-widget-button,
+#bp-web-widget-launcher,
+.bp-widget-side,
+.bp-widget-bubble,
+iframe[title="Botpress Webchat Launcher"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Voiceflow default launcher */
+#voiceflow-chat-launcher,
+.vfrc-launcher,
+button.vfrc-launcher,
+[data-testid="launcher"],
+.vf-chat-launcher {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+
