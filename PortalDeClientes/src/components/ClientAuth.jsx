@@ -71,8 +71,13 @@ export default function ClientAuth({
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [targetBusinessName, setTargetBusinessName] = useState('');
-  const [attemptsCount, setAttemptsCount] = useState(() => getLockoutData().attempts);
+  const [attemptsCount, setAttemptsCount] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  // Asegurar que no haya bloqueo residual de administrador
+  useEffect(() => {
+    clearLockoutData();
+  }, []);
 
   // Cargar nombre del negocio si se ha especificado un slug destino
   useEffect(() => {

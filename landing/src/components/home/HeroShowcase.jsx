@@ -84,24 +84,61 @@ export const SHOWCASE_ITEMS = [
       { label: 'Carta QR', value: 'Sin PDFs' },
       { label: 'Diseño', value: 'Moderno' }
     ]
+  },
+  {
+    id: 'le-maison',
+    type: 'template',
+    badge: 'Plantilla Alta Cocina',
+    title: 'le-maison.es',
+    subtitle: 'Cocina de autor y menú degustación',
+    image: '/demos/le-maison.jpg',
+    url: '#demos',
+    isExternal: false,
+    notification: {
+      icon: Utensils,
+      title: 'Reserva confirmada',
+      detail: 'Mesa para 2 a las 21:30'
+    },
+    metrics: [
+      { label: 'Menú interactivo', value: '100%' },
+      { label: 'Experiencia', value: 'Exclusiva' },
+      { label: 'Reserva online', value: 'Instantánea' }
+    ]
+  },
+  {
+    id: 'aura-velvet',
+    type: 'template',
+    badge: 'Plantilla Belleza & Spa',
+    title: 'aura-velvet.es',
+    subtitle: 'Estudio de belleza y bienestar',
+    image: '/demos/aura-velvet.jpg',
+    url: '#demos',
+    isExternal: false,
+    notification: {
+      icon: Scissors,
+      title: 'Tratamiento agendado',
+      detail: 'Cita reservada sin esperas'
+    },
+    metrics: [
+      { label: 'Servicios', value: 'Catálogo' },
+      { label: 'Citas', value: '24/7' },
+      { label: 'Estilo', value: 'Premium' }
+    ]
   }
 ];
 
 export default function HeroShowcase() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
 
-  // Rotación automática cada 4.5 segundos (se pausa al pasar el ratón)
+  // Rotación automática continua cada 3.5 segundos sin atascarse
   useEffect(() => {
-    if (isPaused) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % SHOWCASE_ITEMS.length);
-    }, 4500);
+    }, 3500);
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, [currentIndex]);
 
   const current = SHOWCASE_ITEMS[currentIndex];
-  const NotifIcon = current.notification.icon;
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + SHOWCASE_ITEMS.length) % SHOWCASE_ITEMS.length);
@@ -112,11 +149,7 @@ export default function HeroShowcase() {
   };
 
   return (
-    <div 
-      className="relative hidden lg:block select-none"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
+    <div className="relative w-full max-w-xl mx-auto lg:max-w-none select-none">
       {/* Marco de ventana del navegador moderno */}
       <div className="rounded-2xl border border-white/10 bg-[#181818] p-4 shadow-[0_30px_90px_-20px_rgba(109,217,75,0.30)] transition-all">
         {/* Cabecera del navegador */}
@@ -207,7 +240,7 @@ export default function HeroShowcase() {
           </button>
         </div>
 
-        {/* Selector rápido inferior (píldoras interactivas) */}
+        {/* Selector rápido inferior (píldoras interactivas con indicador de progreso activo) */}
         <div className="mt-3 flex items-center justify-between gap-1.5 pt-2 border-t border-white/5">
           <div className="flex items-center gap-1.5 overflow-x-auto py-1">
             {SHOWCASE_ITEMS.map((item, idx) => (
@@ -228,17 +261,6 @@ export default function HeroShowcase() {
           <div className="text-[10px] text-zinc-500 font-mono shrink-0">
             {currentIndex + 1} / {SHOWCASE_ITEMS.length}
           </div>
-        </div>
-      </div>
-
-      {/* Notificación flotante de cliente / reserva real */}
-      <div className="absolute -bottom-5 -left-5 flex items-center gap-3.5 rounded-2xl bg-white px-5 py-3.5 text-zinc-900 shadow-2xl transition-all border border-zinc-200">
-        <div className="h-9 w-9 rounded-xl bg-[#6DD94B]/20 flex items-center justify-center shrink-0">
-          <NotifIcon className="h-5 w-5 text-[#0D844A]" />
-        </div>
-        <div>
-          <p className="text-xs font-bold leading-tight text-zinc-900">{current.notification.title}</p>
-          <p className="text-[11px] text-zinc-600 mt-0.5">{current.notification.detail}</p>
         </div>
       </div>
     </div>

@@ -140,8 +140,13 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowAdminSplash(false);
-    }, 2200);
-    return () => clearTimeout(timer);
+    }, 1200);
+    const handleKey = () => setShowAdminSplash(false);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKey);
+    };
   }, []);
 
   // Cronómetro del Check-in
