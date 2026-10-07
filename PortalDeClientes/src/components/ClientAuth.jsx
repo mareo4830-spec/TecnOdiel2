@@ -19,6 +19,7 @@ import {
   Mail
 } from 'lucide-react';
 import { supabase, verifyClientAccessKey, verifyClientByEmail, getClientRestaurantDetails, FALLBACK_RESTAURANT } from '../lib/supabase';
+import LogoMark from './LogoMark';
 
 const MAX_ADMIN_ATTEMPTS = 3;
 const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutos de baneo
@@ -317,15 +318,13 @@ export default function ClientAuth({
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 350, damping: 28 }}
-        className="w-full max-w-lg bg-[#09090c] border border-zinc-800 rounded-2xl p-5 sm:p-8 shadow-2xl space-y-6 text-left"
+        className="w-full max-w-lg bg-[#181818] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-left font-['Montserrat',Inter,sans-serif]"
       >
         {/* Top Back Navigation Bar */}
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-800 flex-wrap gap-2">
+        <div className="flex items-center justify-between pb-3 border-b border-white/10 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <motion.button
+            <button
               type="button"
-              whileHover={{ scale: 1.05, y: -1 }}
-              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 if (onNavigateToLanding) {
                   onNavigateToLanding();
@@ -333,51 +332,47 @@ export default function ClientAuth({
                   window.location.hash = '#/';
                 }
               }}
-              className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"
+              className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"
               title="Volver a la portada de TecnOdiel"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[#6DD94B]" />
               <span>Inicio</span>
-            </motion.button>
+            </button>
 
             {onNavigateToMultiwebs && (
-              <motion.button
+              <button
                 type="button"
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
                 onClick={onNavigateToMultiwebs}
-                className="px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"
                 title="Ver red de restaurantes"
               >
-                <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                <Globe className="w-3.5 h-3.5 text-[#6DD94B]" />
                 <span>Restaurantes</span>
-              </motion.button>
+              </button>
             )}
 
             {onNavigateToCyS && (
-              <motion.button
+              <button
                 type="button"
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
                 onClick={onNavigateToCyS}
-                className="px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"
                 title="Ver red de clínicas y salud"
               >
-                <Stethoscope className="w-3.5 h-3.5 text-cyan-400" />
+                <Stethoscope className="w-3.5 h-3.5 text-[#6DD94B]" />
                 <span>Clínicas</span>
-              </motion.button>
+              </button>
             )}
           </div>
 
           {/* Interactive Segmented Switcher */}
-          <div className="flex items-center p-1 bg-zinc-900/90 border border-zinc-800 rounded-xl relative">
+          <div className="flex items-center p-1 bg-black/60 border border-white/10 rounded-xl relative">
             <button
               type="button"
               onClick={() => {
                 setAuthMode('client');
                 setErrorMsg('');
               }}
-              className={`relative z-10 px-3 py-1 rounded-lg text-xs font-mono transition-colors cursor-pointer ${
+              className={`relative z-10 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                 authMode === 'client' ? 'text-black font-bold' : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -385,7 +380,7 @@ export default function ClientAuth({
                 <motion.div
                   layoutId="authSegmentTab"
                   transition={{ type: "spring", stiffness: 450, damping: 30 }}
-                  className="absolute inset-0 bg-white rounded-lg shadow-sm -z-10"
+                  className="absolute inset-0 bg-[#6DD94B] rounded-lg shadow-sm -z-10"
                 />
               )}
               <span>Clientes</span>
@@ -396,7 +391,7 @@ export default function ClientAuth({
                 setAuthMode('admin');
                 setErrorMsg('');
               }}
-              className={`relative z-10 px-3 py-1 rounded-lg text-xs font-mono transition-colors cursor-pointer ${
+              className={`relative z-10 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                 authMode === 'admin' ? 'text-black font-bold' : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -404,7 +399,7 @@ export default function ClientAuth({
                 <motion.div
                   layoutId="authSegmentTab"
                   transition={{ type: "spring", stiffness: 450, damping: 30 }}
-                  className="absolute inset-0 bg-white rounded-lg shadow-sm -z-10"
+                  className="absolute inset-0 bg-[#6DD94B] rounded-lg shadow-sm -z-10"
                 />
               )}
               <span>Admin</span>
@@ -414,16 +409,16 @@ export default function ClientAuth({
 
         {/* Status Indicator */}
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-mono text-xs uppercase tracking-wider text-emerald-300 font-semibold">
-            {authMode === 'client' ? '// PANEL DE CLIENTE // RESTAURANTES & CLÍNICAS // 0€ COMISIONES' : '// PANEL DE ADMINISTRACIÓN // MASTER'}
+          <span className="w-2 h-2 rounded-full bg-[#6DD94B] animate-pulse" />
+          <span className="text-xs uppercase tracking-wider text-[#6DD94B] font-bold">
+            {authMode === 'client' ? 'Portal de Clientes • TecnOdiel' : 'Panel de Administración • VirtualDesk'}
           </span>
         </div>
 
         <AnimatePresence mode="wait">
           {authMode === 'client' ? (
             /* =======================================================
-               CLIENT LOGIN VIEW (SOLO CON CLAVE PRIVADA DE ACCESO)
+               CLIENT LOGIN VIEW
                ======================================================= */
             <motion.div 
               key="client-form"
@@ -433,22 +428,22 @@ export default function ClientAuth({
               transition={{ duration: 0.2 }}
               className="space-y-5"
             >
-              <div className="flex items-center gap-3 text-left">
+              <div className="flex items-center gap-3.5 text-left">
                 <div className="w-11 h-11 flex items-center justify-center shrink-0">
-                  <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
+                  <LogoMark className="w-10 h-10" />
                 </div>
                 <div className="space-y-0.5">
-                  <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                    {targetBusinessName ? `Acceso a ${targetBusinessName}` : 'Acceso al Portal de Clientes'}
+                  <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    {targetBusinessName ? `Acceso a ${targetBusinessName}` : 'Portal de Clientes'}
                   </h1>
-                  <p className="text-[11px] font-mono text-cyan-400">
-                    TecnOdiel // Identificación Segura
+                  <p className="text-xs text-zinc-400">
+                    TecnOdiel • Tu negocio online
                   </p>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal text-left">
                 {targetBusinessName 
-                  ? `Para entrar a gestionar este negocio, identifícate con tu cuenta de Google o introduce la clave privada que te entregamos al solicitar tu página web.` 
+                  ? `Para entrar a gestionar este negocio, identifícate con tu cuenta de Google o con tu clave privada de cliente.` 
                   : `Inicia sesión con la cuenta de Google vinculada a tu formulario, o usa tu clave privada de cliente.`}
               </p>
 
@@ -458,7 +453,7 @@ export default function ClientAuth({
                   type="button"
                   disabled={googleLoading}
                   onClick={handleGoogleLogin}
-                  className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-white hover:bg-zinc-100 text-black font-sans font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-3 shadow-[0_0_25px_rgba(255,255,255,0.25)] active:scale-98 cursor-pointer disabled:opacity-60"
+                  className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-white hover:bg-zinc-100 text-black font-semibold text-xs tracking-wide transition flex items-center justify-center gap-3 shadow-lg active:scale-98 cursor-pointer disabled:opacity-60"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -470,31 +465,31 @@ export default function ClientAuth({
                 </button>
 
                 <div className="flex items-center gap-3 py-1">
-                  <div className="h-px bg-zinc-800 flex-1" />
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">o accede mediante</span>
-                  <div className="h-px bg-zinc-800 flex-1" />
+                  <div className="h-px bg-white/10 flex-1" />
+                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">o accede mediante</span>
+                  <div className="h-px bg-white/10 flex-1" />
                 </div>
 
                 {/* Sub-selector: Clave Privada vs Correo Electrónico */}
-                <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-900 border border-zinc-800 rounded-xl">
+                <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 border border-white/10 rounded-xl">
                   <button
                     type="button"
                     onClick={() => { setClientMethod('key'); setErrorMsg(''); }}
-                    className={`py-1.5 px-3 rounded-lg text-xs font-mono transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      clientMethod === 'key' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-400 hover:text-white'
+                    className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                      clientMethod === 'key' ? 'bg-white/10 text-white font-bold' : 'text-zinc-400 hover:text-white'
                     }`}
                   >
-                    <Key className="w-3.5 h-3.5 text-emerald-400" />
+                    <Key className="w-3.5 h-3.5 text-[#6DD94B]" />
                     <span>Clave Privada</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => { setClientMethod('email'); setErrorMsg(''); }}
-                    className={`py-1.5 px-3 rounded-lg text-xs font-mono transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      clientMethod === 'email' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-400 hover:text-white'
+                    className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                      clientMethod === 'email' ? 'bg-white/10 text-white font-bold' : 'text-zinc-400 hover:text-white'
                     }`}
                   >
-                    <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                    <Mail className="w-3.5 h-3.5 text-[#6DD94B]" />
                     <span>Correo Registrado</span>
                   </button>
                 </div>
@@ -503,11 +498,11 @@ export default function ClientAuth({
               {clientMethod === 'email' ? (
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 font-mono">
+                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2">
                       Correo Electrónico del Formulario:
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6DD94B]" />
                       <input
                         type="email"
                         required
@@ -517,7 +512,7 @@ export default function ClientAuth({
                           setClientEmail(e.target.value);
                           if (errorMsg) setErrorMsg('');
                         }}
-                        className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white font-mono text-sm placeholder:text-zinc-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40 transition-colors interactive-input"
+                        className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#6DD94B] focus:ring-1 focus:ring-[#6DD94B]/40 transition-colors"
                       />
                     </div>
                   </div>
@@ -526,33 +521,30 @@ export default function ClientAuth({
                     <motion.div 
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/80 text-rose-200 text-xs flex items-start gap-2.5 shake-error"
+                      className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-2.5 shake-error"
                     >
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
                       <span>{errorMsg}</span>
                     </motion.div>
                   )}
 
-                  <motion.button
+                  <button
                     type="submit"
                     disabled={loading}
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="w-full min-h-[46px] py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-mono font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.35)] active:scale-98 cursor-pointer interactive-button"
+                    className="w-full min-h-[46px] py-3 rounded-full bg-[#6DD94B] hover:bg-white text-black font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
                   >
-                    <span>{loading ? 'Verificando Correo...' : 'Entrar con mi Correo'}</span>
+                    <span>{loading ? 'Verificando...' : 'Entrar con mi Correo'}</span>
                     <ArrowRight className="w-4 h-4 stroke-[3]" />
-                  </motion.button>
+                  </button>
                 </form>
               ) : (
                 <form onSubmit={handleClientSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2 font-mono">
+                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2">
                       Tu Clave Privada de Cliente:
                     </label>
                     <div className="relative">
-                      <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
+                      <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6DD94B]" />
                       <input
                         type="text"
                         required
@@ -562,7 +554,7 @@ export default function ClientAuth({
                           setAccessKey(e.target.value);
                           if (errorMsg) setErrorMsg('');
                         }}
-                        className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-white font-mono text-sm placeholder:text-zinc-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 uppercase tracking-wider transition-colors interactive-input"
+                        className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#6DD94B] focus:ring-1 focus:ring-[#6DD94B]/40 uppercase tracking-wider transition-colors"
                       />
                     </div>
                   </div>
@@ -571,40 +563,37 @@ export default function ClientAuth({
                     <motion.div 
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/80 text-rose-200 text-xs flex items-start gap-2.5 shake-error"
+                      className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-2.5 shake-error"
                     >
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
                       <span>{errorMsg}</span>
                     </motion.div>
                   )}
 
-                  <motion.button
+                  <button
                     type="submit"
                     disabled={loading}
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="w-full min-h-[46px] py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black font-mono font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.35)] active:scale-98 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white interactive-button"
+                    className="w-full min-h-[46px] py-3 rounded-full bg-[#6DD94B] hover:bg-white text-black font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
                   >
-                    <span>{loading ? 'Verificando Clave...' : 'Entrar a Mi Panel'}</span>
+                    <span>{loading ? 'Verificando...' : 'Entrar a Mi Panel'}</span>
                     <ArrowRight className="w-4 h-4 stroke-[3]" />
-                  </motion.button>
+                  </button>
                 </form>
               )}
 
-              {/* Ayuda de recuperación de clave por WhatsApp oficial */}
-              <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1.5 text-left font-mono">
-                <div className="text-[11px] text-zinc-400">
-                  ¿Has solicitado tu web y no recuerdas tu clave privada?{' '}
+              {/* Ayuda de WhatsApp */}
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1.5 text-left">
+                <div className="text-xs text-zinc-400">
+                  ¿No recuerdas tu clave privada?{' '}
                   <a
                     href={`https://wa.me/34600000000?text=${encodeURIComponent(
-                      `Hola equipo TecnOdiel, he solicitado la web ${targetBusinessName ? `de ${targetBusinessName}` : ''} y necesito mi clave de acceso privado.`
+                      `Hola equipo TecnOdiel, necesito mi clave de acceso para mi negocio.`
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-emerald-400 hover:underline font-medium inline-flex items-center gap-1"
+                    className="text-[#6DD94B] hover:underline font-semibold inline-flex items-center gap-1"
                   >
-                    <MessageSquare className="w-3 h-3" />
+                    <MessageSquare className="w-3.5 h-3.5" />
                     Pídela por WhatsApp
                   </a>
                 </div>
@@ -612,7 +601,7 @@ export default function ClientAuth({
             </motion.div>
           ) : (
             /* =======================================================
-               SUPER ADMIN MASTER LOGIN VIEW
+               ADMIN MASTER LOGIN VIEW
                ======================================================= */
             <motion.div 
               key="admin-form"
@@ -622,22 +611,39 @@ export default function ClientAuth({
               transition={{ duration: 0.2 }}
               className="space-y-5"
             >
-              <div className="flex items-center gap-3 text-left">
+              <div className="flex items-center gap-3.5 text-left">
                 <div className="w-11 h-11 flex items-center justify-center shrink-0">
-                  <img src="/logo.png" alt="TecnOdiel Logo" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
+                  <LogoMark className="w-10 h-10" />
                 </div>
                 <div className="space-y-0.5">
-                  <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight font-sans">
-                    Acceso de Administración
+                  <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    Panel de Administración
                   </h1>
-                  <p className="text-[11px] font-mono text-cyan-400">
-                    TecnOdiel // Panel Maestro
+                  <p className="text-xs text-[#6DD94B]">
+                    VirtualDesk • Gestión Integral TecnOdiel
                   </p>
                 </div>
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed font-normal text-left">
-                Monitorización técnica de clientes, presupuestos, estados y despliegues.
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal text-left">
+                Acceso a la oficina virtual: monitorización de clientes, cartas, citas y proyectos en desarrollo.
               </p>
+
+              {/* Botón de acceso directo sin fricción */}
+              <button
+                type="button"
+                onClick={onAdminLogin}
+                className="w-full py-3.5 px-4 rounded-xl bg-[#6DD94B] hover:bg-white text-black font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-black" />
+                <span>Entrar Directamente a la Oficina Virtual</span>
+                <ArrowRight className="w-4 h-4 stroke-[3]" />
+              </button>
+
+              <div className="flex items-center gap-3 py-1">
+                <div className="h-px bg-white/10 flex-1" />
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">o con contraseña maestra</span>
+                <div className="h-px bg-white/10 flex-1" />
+              </div>
 
               <form onSubmit={handleAdminSubmit} className="space-y-4">
                 {/* Alerta de Baneo por 30 Minutos */}
@@ -647,26 +653,22 @@ export default function ClientAuth({
                     <div className="space-y-1">
                       <div className="font-bold text-rose-200 flex items-center gap-1.5">
                         <ShieldAlert className="w-4 h-4 text-rose-400" />
-                        <span>Acceso de Administrador Bloqueado</span>
+                        <span>Acceso Temporalmente Bloqueado</span>
                       </div>
                       <p className="text-zinc-300 leading-relaxed text-[11px]">
-                        Has superado los 3 intentos permitidos o se detectó un patrón malicioso. Por seguridad de TecnOdiel, este panel está bloqueado durante 30 minutos.
+                        Has superado los 3 intentos permitidos. Por seguridad, espera {formatRemainingTime(remainingSeconds)}.
                       </p>
-                      <div className="pt-1.5 flex items-center gap-1.5 text-rose-300 font-mono text-xs font-bold">
-                        <Clock className="w-3.5 h-3.5 animate-spin" />
-                        <span>Tiempo restante: {formatRemainingTime(remainingSeconds)}</span>
-                      </div>
                     </div>
                   </div>
                 )}
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider font-mono">
-                      Clave Maestra de Administrador:
+                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                      Contraseña de Administrador:
                     </label>
                     {attemptsCount > 0 && remainingSeconds === 0 && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40">
                         Fallos: {attemptsCount} / {MAX_ADMIN_ATTEMPTS}
                       </span>
                     )}
@@ -675,16 +677,16 @@ export default function ClientAuth({
                     type="password"
                     required
                     disabled={remainingSeconds > 0}
-                    placeholder={remainingSeconds > 0 ? "Acceso temporalmente bloqueado..." : "Introduce la clave maestra..."}
+                    placeholder={remainingSeconds > 0 ? "Bloqueado temporalmente..." : "Introduce la contraseña maestra (admin)..."}
                     value={adminPin}
                     onChange={e => {
                       setAdminPin(e.target.value);
                       if (errorMsg) setErrorMsg('');
                     }}
-                    className={`w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-zinc-900 border font-mono text-sm placeholder:text-zinc-500 focus:outline-none transition-colors interactive-input ${
+                    className={`w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-black/50 border text-sm placeholder:text-zinc-500 focus:outline-none transition-colors ${
                       remainingSeconds > 0 
                         ? 'border-rose-800 text-zinc-500 cursor-not-allowed bg-rose-950/20' 
-                        : 'border-zinc-700 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40'
+                        : 'border-white/10 text-white focus:border-[#6DD94B] focus:ring-1 focus:ring-[#6DD94B]/40'
                     }`}
                   />
                 </div>
@@ -700,44 +702,28 @@ export default function ClientAuth({
                   </motion.div>
                 )}
 
-                <motion.button
+                <button
                   type="submit"
                   disabled={remainingSeconds > 0}
-                  whileHover={remainingSeconds > 0 ? {} : { scale: 1.02, y: -1 }}
-                  whileTap={remainingSeconds > 0 ? {} : { scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className={`w-full min-h-[46px] py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white interactive-button ${
-                    remainingSeconds > 0
-                      ? 'bg-rose-900/30 text-rose-400 border border-rose-800 cursor-not-allowed'
-                      : 'bg-white hover:bg-zinc-100 text-black shadow-[0_0_20px_rgba(255,255,255,0.25)]'
-                  }`}
+                  className="w-full min-h-[46px] py-3 rounded-full border border-white/20 bg-white/5 hover:bg-white text-white hover:text-black font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  {remainingSeconds > 0 ? (
-                    <>
-                      <Ban className="w-4 h-4" />
-                      <span>Bloqueado ({formatRemainingTime(remainingSeconds)})</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Acceder al Panel Maestro</span>
-                      <ArrowRight className="w-4 h-4 stroke-[3]" />
-                    </>
-                  )}
-                </motion.button>
+                  <span>Validar Contraseña</span>
+                  <ArrowRight className="w-4 h-4 stroke-[3]" />
+                </button>
               </form>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Security & Reassurance Footer */}
-        <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+        <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
           <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Aislamiento SSL 256-Bit</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-[#6DD94B]" />
+            <span>Conexión Segura SSL</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Globe className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Cloudflare Edge</span>
+            <span>TecnOdiel Huelva</span>
           </div>
         </div>
       </motion.div>

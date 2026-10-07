@@ -97,7 +97,7 @@ const PIPELINE_STAGES = [
 
 const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 
-export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
+export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateToLanding }) {
   // Estado de navegación
   const [activeTab, setActiveTab] = useState('dashboard');
   const [partner, setPartner] = useState(PARTNERS[0]); // Mario por defecto
@@ -421,15 +421,26 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView }) {
             </div>
           </div>
 
-          {onSwitchToClientView && (
-            <button
-              onClick={onSwitchToClientView}
-              className="text-[11px] bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
-              title="Ir al Portal de Cliente"
-            >
-              Ver Cliente ➔
-            </button>
-          )}
+          <div className="flex items-center gap-1.5">
+            {onNavigateToLanding && (
+              <button
+                onClick={onNavigateToLanding}
+                className="text-[11px] bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                title="Volver a la portada de TecnOdiel"
+              >
+                Inicio
+              </button>
+            )}
+            {onSwitchToClientView && (
+              <button
+                onClick={onSwitchToClientView}
+                className="text-[11px] bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer"
+                title="Ir al Portal de Cliente"
+              >
+                Ver Cliente ➔
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Navigation Items con píldora deslizante */}

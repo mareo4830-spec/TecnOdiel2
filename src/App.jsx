@@ -16,6 +16,7 @@ export default function App() {
 
     if (params.get('view') === 'cinematic' || params.get('view') === 'awwwards' || params.get('tenant')) return 'cinematic';
     if (hash.includes('#/cinematic') || hash.includes('#cinematic') || hash.includes('#/awwwards') || hash.includes('#awwwards')) return 'cinematic';
+    if (params.get('view') === 'admin' || path.includes('/admin') || hash.includes('#/admin') || hash.includes('#admin')) return 'admin';
     if (params.get('view') === 'multiwebs' || params.get('view') === 'restaurantes') return 'multiwebs';
     if (params.get('view') === 'portal') return 'portal';
     if (params.get('view') === 'cys' || params.get('view') === 'clinicas' || params.get('view') === 'salud') return 'cys';
@@ -132,6 +133,8 @@ export default function App() {
         hash.startsWith('#r/')
       ) {
         setView('multiwebs');
+      } else if (path.includes('/admin') || hash.includes('#/admin') || hash.includes('#admin') || params.get('view') === 'admin') {
+        setView('admin');
       } else if (path.includes('/portal') || hash.includes('#/portal') || hash.includes('#portal')) {
         setView('portal');
       } else if (hash === '#/' || hash === '' || path === '/') {
@@ -156,6 +159,9 @@ export default function App() {
     if (newView === 'landing') {
       window.history.pushState(null, '', '/');
       window.location.hash = '';
+    } else if (newView === 'admin') {
+      window.history.pushState(null, '', '/admin');
+      window.location.hash = '#/admin';
     } else if (newView === 'multiwebs') {
       window.history.pushState(null, '', '/restaurantes');
       window.location.hash = '#/multiwebs';
@@ -176,11 +182,12 @@ export default function App() {
       {view === 'landing' && (
         <LandingApp 
           key="landing-page"
-          initialIntroFinished={hasIntroCompleted}
+          initialIntroFinished={true}
           onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')} 
           onNavigateToCyS={() => navigateTo('cys')}
           onNavigateToPortal={() => navigateTo('portal')}
+          onNavigateToAdmin={() => navigateTo('admin')}
         />
       )}
 
@@ -211,15 +218,17 @@ export default function App() {
         </TenantProvider>
       )}
 
-      {view === 'portal' && (
+      {(view === 'portal' || view === 'admin') && (
         <PortalApp 
-          key={`portal-page-${activeSlug || 'root'}`}
+          key={`portal-page-${view === 'admin' ? 'admin' : (activeSlug || 'root')}`}
           initialSlug={activeSlug}
+          initialAdmin={view === 'admin'}
           initialIntroFinished={true}
           onIntroComplete={markIntroComplete}
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToCyS={() => navigateTo('cys')}
           onNavigateToLanding={() => navigateTo('landing')}
+          onNavigateToAdmin={() => navigateTo('admin')}
         />
       )}
     </div>

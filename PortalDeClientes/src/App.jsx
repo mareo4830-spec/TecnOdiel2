@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import CinematicIntro from './components/CinematicIntro';
-import CinematicBackground from './components/CinematicBackground';
-import Navbar from './components/Navbar';
+import { motion } from 'framer-motion';
 import ClientAuth from './components/ClientAuth';
-import Dashboard from './components/Dashboard';
-import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
 import VirtualDeskAdminApp from './components/virtualdesk/VirtualDeskAdminApp';
 import VirtualDeskClientPortal from './components/virtualdesk/VirtualDeskClientPortal';
 import { getClientRestaurantDetails, verifyClientAccessKey } from './lib/supabase';
 
 export default function App({ 
   initialSlug, 
+  initialAdmin = false,
   onNavigateToMultiwebs, 
   onNavigateToCyS,
   onNavigateToLanding, 
-  initialIntroFinished = true, 
-  onIntroComplete 
+  onNavigateToAdmin
 }) {
-  const [introFinished, setIntroFinished] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (initialAdmin) return true;
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      return params.get('view') === 'admin' || hash.includes('admin') || path.includes('/admin');
+    }
+    return false;
+  });
+
   const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(() => {
@@ -31,18 +35,25 @@ export default function App({
     return null;
   });
   const [restaurantData, setRestaurantData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [isVerifyingSession, setIsVerifyingSession] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const raw = sessionStorage.getItem('tecnodiel_auth_session');
+      return !!raw;
+    } catch (_) { return false; }
+  });
 
-  const handleIntroComplete = () => {
-    setIntroFinished(true);
-    if (onIntroComplete) onIntroComplete();
-  };
+  // Sync if initialAdmin changes
+  useEffect(() => {
+    if (initialAdmin) {
+      setIsAdmin(true);
+    }
+  }, [initialAdmin]);
 
   // Sync if initialSlug changes
   useEffect(() => {
     if (initialSlug && initialSlug !== selectedSlug) {
       setSelectedSlug(initialSlug);
-      // Al cambiar de negocio destino, requerir autenticación con la clave correspondiente
       if (!isAdmin && !isAdminImpersonating) {
         setIsAuthenticated(false);
         setRestaurantData(null);
@@ -50,22 +61,25 @@ export default function App({
     }
   }, [initialSlug, isAdmin, isAdminImpersonating]);
 
-  // Verificar si existe una sesión activa y autorizada con clave en sessionStorage
+  // Verificar si existe una sesión activa y autorizada con clave en sessionStorage sin parpadeos
   useEffect(() => {
     const checkActiveSession = async () => {
-      if (typeof window === 'undefined') return;
+      if (typeof window === 'undefined') {
+        setIsVerifyingSession(false);
+        return;
+      }
 
       try {
         const rawSession = sessionStorage.getItem('tecnodiel_auth_session');
         if (rawSession) {
           const session = JSON.parse(rawSession);
           if (session && session.key && session.slug) {
-            // Verificar estrictamente la clave guardada
             const verified = await verifyClientAccessKey(session.key, session.slug);
             if (verified) {
               setRestaurantData(verified);
               setSelectedSlug(verified.slug);
               setIsAuthenticated(true);
+              setIsVerifyingSession(false);
               return;
             } else {
               sessionStorage.removeItem('tecnodiel_auth_session');
@@ -74,9 +88,10 @@ export default function App({
         }
       } catch (err) {
         console.warn('Error verificando sesión activa:', err);
+      } finally {
+        setIsVerifyingSession(false);
       }
 
-      // Si no hay sesión válida o no coincide, no autorizar acceso directo
       if (!isAdmin && !isAdminImpersonating) {
         setIsAuthenticated(false);
         setRestaurantData(null);
@@ -85,22 +100,10 @@ export default function App({
 
     if (!isAdmin && !isAdminImpersonating) {
       checkActiveSession();
+    } else {
+      setIsVerifyingSession(false);
     }
   }, [isAdmin, isAdminImpersonating]);
-
-  // Recargar datos cuando el cliente ya está autenticado (para refrescar cambios de carta/reservas)
-  const loadRestaurant = async (slug) => {
-    if (!slug) return;
-    setLoading(true);
-    try {
-      const data = await getClientRestaurantDetails(slug);
-      setRestaurantData(data);
-    } catch (err) {
-      console.error('Error refreshing restaurant data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSelectRestaurant = (matchedRestaurant, verifiedKey) => {
     if (matchedRestaurant && matchedRestaurant.slug) {
@@ -160,77 +163,94 @@ export default function App({
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full bg-black text-zinc-100 selection:bg-white selection:text-black cinematic-grain overflow-x-hidden">
-      {/* Dynamic Background Atmosphere identical to Landing */}
-      <CinematicBackground />
-
-      {/* Cinematic Intro: Giant TecnOdiel with kinetic animation before portal */}
-      <AnimatePresence mode="wait">
-        {!introFinished && (
-          <CinematicIntro
-            key="cinematic-intro"
-            onComplete={handleIntroComplete}
-          />
-        )}
-      </AnimatePresence>
+    <div className="relative min-h-[100dvh] w-full bg-[#121212] text-zinc-100 selection:bg-[#6DD94B] selection:text-black overflow-x-hidden font-['Montserrat',Inter,sans-serif]">
+      {/* Fondo estético idéntico a la nueva Landing */}
+      <div 
+        className="pointer-events-none fixed inset-0 opacity-40 z-0" 
+        style={{ 
+          backgroundImage: 'radial-gradient(60% 50% at 70% 30%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(13,132,74,0.30), transparent 70%)' 
+        }} 
+      />
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 opacity-50" 
+        style={{ 
+          backgroundSize: '64px 64px', 
+          backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)' 
+        }} 
+      />
 
       {/* Main Portal Stage */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
         className="relative z-10 min-h-screen flex flex-col justify-between"
       >
-          {/* CASE 1: Master Admin Portal (VirtualDesk-main exact replica) */}
-          {isAdmin ? (
-            <VirtualDeskAdminApp 
-              onSwitchToClientView={() => setIsAdmin(false)}
+        {/* CASE 1: Verificando sesión guardada (loader limpio sin parpadeo del formulario antiguo) */}
+        {isVerifyingSession ? (
+          <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-10 h-10 border-2 border-[#6DD94B] border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-sm font-bold text-white tracking-wide">Cargando portal seguro...</p>
+            <p className="text-xs text-zinc-400 mt-1">TecnOdiel</p>
+          </main>
+        ) : isAdmin ? (
+          /* CASE 2: Master Admin Portal (VirtualDesk-main exact replica) */
+          <VirtualDeskAdminApp 
+            onSwitchToClientView={() => setIsAdmin(false)}
+            onNavigateToLanding={onNavigateToLanding}
+          />
+        ) : (isAuthenticated && restaurantData) ? (
+          /* CASE 3: Client Portal (VirtualDesk Style) */
+          <main className="flex-1 w-full min-h-screen">
+            <VirtualDeskClientPortal 
+              tenantData={restaurantData}
+              onSwitchToAdminView={() => setIsAdmin(true)}
+              onNavigateToLanding={onNavigateToLanding}
             />
-          ) : (isAuthenticated && restaurantData) ? (
-            /* CASE 2: Client Portal (VirtualDesk Style, solo datos necesarios + Hablar con Nosotros) */
-            <main className="flex-1 w-full min-h-screen">
-              <VirtualDeskClientPortal 
-                tenantData={restaurantData}
-                onSwitchToAdminView={() => setIsAdmin(true)}
-              />
-            </main>
-          ) : (
-            /* CASE 3: Secure Login Gate con acceso rápido a VirtualDesk Admin */
-            <main className="flex-1 flex flex-col items-center justify-center p-4">
-              <ClientAuth 
-                targetSlug={selectedSlug}
-                onSelectRestaurant={handleSelectRestaurant} 
-                onAdminLogin={() => setIsAdmin(true)}
-                onNavigateToLanding={onNavigateToLanding}
-                onNavigateToMultiwebs={onNavigateToMultiwebs}
-                onNavigateToCyS={onNavigateToCyS}
-              />
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsAdmin(true)}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 font-mono tracking-wider underline"
-                >
-                  [⚡ ACCESO DIRECTO OFICINA VIRTUAL ADMIN]
-                </button>
-              </div>
-            </main>
-          )}
+          </main>
+        ) : (
+          /* CASE 4: Secure Login Gate adaptado a la estética de TecnOdiel */
+          <main className="flex-1 flex flex-col items-center justify-center p-4">
+            <ClientAuth 
+              targetSlug={selectedSlug}
+              onSelectRestaurant={handleSelectRestaurant} 
+              onAdminLogin={() => setIsAdmin(true)}
+              onNavigateToLanding={onNavigateToLanding}
+              onNavigateToMultiwebs={onNavigateToMultiwebs}
+              onNavigateToCyS={onNavigateToCyS}
+            />
+          </main>
+        )}
 
-          {/* Footer branding */}
-          <footer className="relative z-10 border-t border-white/5 py-6 px-4 text-center text-xs text-zinc-500 bg-black/60 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-zinc-300">TecnOdiel</span>
-                <span>•</span>
-                <span>Portal Privado de Clientes & Administración</span>
-              </div>
-              <div className="text-[11px] font-mono text-zinc-500">
-                Alojamiento Cloudflare Pages • Base de Datos Supabase SSL
-              </div>
+        {/* Footer branding TecnOdiel */}
+        <footer className="relative z-10 border-t border-white/10 py-5 px-4 text-center text-xs text-zinc-400 bg-[#121212]/90 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-white">TecnOdiel</span>
+              <span>•</span>
+              <span>Portal Privado de Clientes & Administración</span>
             </div>
-          </footer>
-        </motion.div>
+            <div className="flex items-center gap-4 text-xs">
+              <button 
+                type="button" 
+                onClick={() => setIsAdmin(!isAdmin)}
+                className="text-[#6DD94B] hover:underline font-semibold cursor-pointer"
+              >
+                {isAdmin ? 'Ver Portal de Clientes' : 'Acceder al Panel Admin'}
+              </button>
+              {onNavigateToLanding && (
+                <button 
+                  type="button" 
+                  onClick={onNavigateToLanding}
+                  className="text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  Volver a la web
+                </button>
+              )}
+            </div>
+          </div>
+        </footer>
+      </motion.div>
     </div>
   );
 }

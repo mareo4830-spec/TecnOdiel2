@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import CinematicIntro from './components/CinematicIntro';
 import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import ClinicWizard from './components/Wizard/ClinicWizard';
@@ -136,21 +134,6 @@ export default function App({ onNavigateToLanding, onNavigateToMultiwebs, onNavi
 
   return (
     <div className="relative min-h-screen bg-black text-zinc-100 flex flex-col">
-      {/* Intro Animation */}
-      <AnimatePresence mode="wait">
-        {!introFinished && (
-          <CinematicIntro
-            key="cinematic-intro"
-            subtitle={
-              currentView === 'wizard' ? "Crea Tu Web Clínica en 2 Minutos • Sin Líos" :
-              currentView === 'public_clinic' ? "Cita Previa Online • Cuadro Médico" :
-              "Webs para Clínicas y Salud • 0€ Comisiones"
-            }
-            onComplete={() => setIntroFinished(true)}
-          />
-        )}
-      </AnimatePresence>
-
       {/* Standalone Subdomain View */}
       {currentView === 'standalone_tenant' && activeClinic && (
         <div className="relative min-h-screen bg-black text-white">

@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import CinematicIntro from './components/CinematicIntro';
 import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
 import RestaurantWizard from './components/Wizard/RestaurantWizard';
@@ -199,21 +197,6 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
 
   return (
     <div className="relative min-h-screen bg-black text-zinc-100 flex flex-col">
-      {/* Cinematic Intro: Giant TecnOdiel with kinetic animation */}
-      <AnimatePresence mode="wait">
-        {!introFinished && (
-          <CinematicIntro
-            key="cinematic-intro"
-            subtitle={
-              currentView === 'wizard' ? "Crea Tu Web en 2 Minutos • Sin Líos" :
-              currentView === 'public_restaurant' ? "Carta Digital QR • Reservas Directas" :
-              "Webs para Restaurantes • 0€ Comisiones"
-            }
-            onComplete={handleIntroComplete}
-          />
-        )}
-      </AnimatePresence>
-
       {/* If in Standalone Tenant View (Distinct Vercel Subdomain / Custom Domain) */}
       {currentView === 'standalone_tenant' && activeRestaurant && (
         <div className="relative min-h-screen bg-black text-white">

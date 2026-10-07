@@ -39,6 +39,7 @@ import {
 export const VirtualDeskClientPortal = ({
   tenantData = {},
   onSwitchToAdminView,
+  onNavigateToLanding,
   onLogout
 }) => {
   const businessName = tenantData.name || tenantData.business_name || 'Mi Negocio';
@@ -148,15 +149,26 @@ export const VirtualDeskClientPortal = ({
             </div>
           </div>
 
-          {onSwitchToAdminView && (
-            <button
-              onClick={onSwitchToAdminView}
-              title="Acceso administrativo"
-              className="text-[10px] bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 px-2 py-1 rounded-lg transition cursor-pointer"
-            >
-              Admin ➔
-            </button>
-          )}
+          <div className="flex items-center gap-1.5">
+            {onNavigateToLanding && (
+              <button
+                onClick={onNavigateToLanding}
+                title="Volver a la portada de TecnOdiel"
+                className="text-[10px] bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 px-2 py-1 rounded-lg transition cursor-pointer"
+              >
+                Inicio
+              </button>
+            )}
+            {onSwitchToAdminView && (
+              <button
+                onClick={onSwitchToAdminView}
+                title="Acceso administrativo"
+                className="text-[10px] bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 px-2 py-1 rounded-lg font-bold transition cursor-pointer"
+              >
+                Admin ➔
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Navegación del Portal con acentos en verde TecnOdiel */}

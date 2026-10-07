@@ -7,6 +7,7 @@ export default function App({
   onNavigateToMultiwebs, 
   onNavigateToCyS, 
   onNavigateToPortal,
+  onNavigateToAdmin,
   initialIntroFinished = true, 
   onIntroComplete 
 }) {
@@ -26,6 +27,7 @@ export default function App({
         onNavigateToMultiwebs={onNavigateToMultiwebs}
         onNavigateToCyS={onNavigateToCyS}
         onNavigateToPortal={onNavigateToPortal}
+        onNavigateToAdmin={onNavigateToAdmin}
       />
 
       {/* Floating Interactive WhatsApp Quick Contact */}
