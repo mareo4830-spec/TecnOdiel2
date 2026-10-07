@@ -5,6 +5,7 @@ import {
   Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart
 } from 'lucide-react';
 import LeadForm from './LeadForm.jsx';
+import { Demos, HowItWorks, Savings, MobileBar } from './Extras.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, CASE, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -107,7 +108,7 @@ function Hero() {
             </a>
           </div>
           <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-zinc-300">
-            {['Sin comisiones', 'Presupuesto cerrado', 'Trato directo en Huelva'].map((t) => (
+            {['Desde 99 €', 'Sin comisiones', 'Presupuesto cerrado', 'Trato directo en Huelva'].map((t) => (
               <li key={t} className="flex items-center gap-2"><Check className="h-4 w-4 text-[#6DD94B]" />{t}</li>
             ))}
           </ul>
@@ -346,7 +347,7 @@ function Contact() {
 /* ───────────── FOOTER ───────────── */
 function Footer({ onPortal }) {
   return (
-    <footer className="bg-black pt-16 text-zinc-400">
+    <footer className="bg-black pt-16 pb-16 text-zinc-400 lg:pb-0">
       <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div><Logo /><p className="mt-5 max-w-xs text-sm leading-relaxed">Software a medida, cercano y económico para los negocios de Huelva. Digitalizamos tu día a día.</p>
           <a href={waLink()} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#6DD94B] hover:underline"><MessageCircle className="h-4 w-4" />¡Hablemos por WhatsApp!</a></div>
@@ -373,15 +374,19 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
       <Header onPortal={onPortal} />
       <main>
         <Hero />
-        <Why />
-        <Projects onAction={onAction} />
-        <Services />
         <Sectors />
+        <Demos />
+        <Why />
+        <HowItWorks />
+        <Savings />
+        <Projects onAction={onAction} />
         <CaseStudy />
+        <Services />
         <Faq />
         <Contact />
       </main>
       <Footer onPortal={onPortal} />
+      <MobileBar />
     </div>
   );
 }
