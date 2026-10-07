@@ -3,6 +3,8 @@ import LandingApp from '../landing/src/App.jsx';
 import MultiwebsApp from '../miltiwebs/src/App.jsx';
 import PortalApp from '../PortalDeClientes/src/App.jsx';
 import MultiwebsCySApp from '../MultiwebsCyS/src/App.jsx';
+import TenantProvider from './multi-tenant/TenantProvider.jsx';
+import TenantRouter from './multi-tenant/TenantRouter.jsx';
 
 export default function App() {
   const [view, setView] = useState(() => {
@@ -12,6 +14,8 @@ export default function App() {
     const hash = window.location.hash.toLowerCase();
     const params = new URLSearchParams(window.location.search);
 
+    if (params.get('view') === 'cinematic' || params.get('view') === 'awwwards' || params.get('tenant')) return 'cinematic';
+    if (hash.includes('#/cinematic') || hash.includes('#cinematic') || hash.includes('#/awwwards') || hash.includes('#awwwards')) return 'cinematic';
     if (params.get('view') === 'multiwebs' || params.get('view') === 'restaurantes') return 'multiwebs';
     if (params.get('view') === 'portal') return 'portal';
     if (params.get('view') === 'cys' || params.get('view') === 'clinicas' || params.get('view') === 'salud') return 'cys';
@@ -90,6 +94,17 @@ export default function App() {
       }
 
       if (
+        params.get('view') === 'cinematic' ||
+        params.get('view') === 'awwwards' ||
+        path.includes('/cinematic') ||
+        path.includes('/awwwards') ||
+        hash.includes('#/cinematic') ||
+        hash.includes('#cinematic') ||
+        hash.includes('#/awwwards') ||
+        hash.includes('#awwwards')
+      ) {
+        setView('cinematic');
+      } else if (
         path.includes('/clinicas') ||
         path.includes('/cys') ||
         path.includes('/salud') ||
@@ -186,6 +201,12 @@ export default function App() {
           onNavigateToMultiwebs={() => navigateTo('multiwebs')}
           onNavigateToPortal={(slug) => navigateTo('portal', slug)}
         />
+      )}
+
+      {view === 'cinematic' && (
+        <TenantProvider>
+          <TenantRouter />
+        </TenantProvider>
       )}
 
       {view === 'portal' && (

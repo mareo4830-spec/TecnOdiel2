@@ -6,6 +6,8 @@ import Navbar from './components/Navbar';
 import ClientAuth from './components/ClientAuth';
 import Dashboard from './components/Dashboard';
 import AdminMonitoringDashboard from './components/AdminMonitoringDashboard';
+import VirtualDeskAdminApp from './components/virtualdesk/VirtualDeskAdminApp';
+import VirtualDeskClientPortal from './components/virtualdesk/VirtualDeskClientPortal';
 import { getClientRestaurantDetails, verifyClientAccessKey } from './lib/supabase';
 
 export default function App({ 
@@ -179,38 +181,39 @@ export default function App({
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 min-h-screen flex flex-col justify-between"
       >
-          {/* CASE 1: Master Admin Monitoring Dashboard */}
+          {/* CASE 1: Master Admin Portal (VirtualDesk-main exact replica) */}
           {isAdmin ? (
-            <AdminMonitoringDashboard 
-              onImpersonateClient={handleImpersonateClient}
-              onLogout={handleSwitchRestaurant}
-              onNavigateToLanding={onNavigateToLanding}
+            <VirtualDeskAdminApp 
+              onSwitchToClientView={() => setIsAdmin(false)}
             />
           ) : (isAuthenticated && restaurantData) ? (
-            /* CASE 2: Single Client Dashboard (Isolated) */
+            /* CASE 2: Client Portal (VirtualDesk Style, solo datos necesarios + Hablar con Nosotros) */
             <main className="flex-1 w-full min-h-screen">
-              <Dashboard 
-                restaurant={restaurantData} 
-                onRefresh={() => loadRestaurant(selectedSlug)} 
-                onSwitchRestaurant={handleSwitchRestaurant}
-                onNavigateToMultiwebs={onNavigateToMultiwebs}
-                onNavigateToCyS={onNavigateToCyS}
-                onNavigateToLanding={onNavigateToLanding}
-                isAdminImpersonating={isAdminImpersonating}
-                onBackToAdmin={handleBackToAdmin}
+              <VirtualDeskClientPortal 
+                tenantData={restaurantData}
+                onSwitchToAdminView={() => setIsAdmin(true)}
               />
             </main>
           ) : (
-            /* CASE 3: Secure Login Gate (Client Key or Master Admin) */
-            <main className="flex-1 flex items-center justify-center">
+            /* CASE 3: Secure Login Gate con acceso rápido a VirtualDesk Admin */
+            <main className="flex-1 flex flex-col items-center justify-center p-4">
               <ClientAuth 
                 targetSlug={selectedSlug}
                 onSelectRestaurant={handleSelectRestaurant} 
-                onAdminLogin={handleAdminLogin}
+                onAdminLogin={() => setIsAdmin(true)}
                 onNavigateToLanding={onNavigateToLanding}
                 onNavigateToMultiwebs={onNavigateToMultiwebs}
                 onNavigateToCyS={onNavigateToCyS}
               />
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsAdmin(true)}
+                  className="text-xs text-indigo-400 hover:text-indigo-300 font-mono tracking-wider underline"
+                >
+                  [⚡ ACCESO DIRECTO OFICINA VIRTUAL ADMIN]
+                </button>
+              </div>
             </main>
           )}
 
