@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Menu, X, MessageCircle, MapPin, Mail,
   CalendarCheck, QrCode, LayoutDashboard, Bot, Globe, ShoppingBag, BarChart3, BellRing,
@@ -39,15 +39,35 @@ const Logo = () => (
 function Header({ onPortal }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 24);
-    on();
-    window.addEventListener('scroll', on, { passive: true });
-    return () => window.removeEventListener('scroll', on);
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 24);
+
+      if (currentScrollY < 15) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY.current && currentScrollY > 60) {
+        // Al deslizar para abajo se esconde
+        setVisible(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Al deslizar para arriba aparece
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
-    <header className={`fixed inset-x-0 top-0 z-50 transition-colors ${scrolled || open ? 'bg-[#121212]/95 backdrop-blur border-b border-white/10' : 'bg-transparent'}`}>
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${
+      !visible && !open ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+    } ${scrolled || open ? 'bg-[#121212]/95 backdrop-blur border-b border-white/10' : 'bg-transparent'}`}>
       <div className="mx-auto flex h-20 max-w-[1280px] items-center justify-between px-5 sm:px-8">
         <Logo />
         <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">
@@ -296,7 +316,7 @@ function Faq() {
 }
 
 /* ───────────── CTA + FORMULARIO ───────────── */
-function Contact({ style }) {
+function Contact({ style, onNavigateToMultiwebs, onNavigateToCyS }) {
   return (
     <section id="contacto" className="relative overflow-hidden bg-[#121212] py-20 sm:py-28">
       <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(50% 50% at 15% 20%, rgba(109,217,75,0.14), transparent 70%)' }} />
@@ -313,7 +333,11 @@ function Contact({ style }) {
             <MessageCircle className="h-4 w-4" /> Hablemos por WhatsApp
           </a>
         </div>
-        <LeadForm style={style} />
+        <LeadForm 
+          style={style} 
+          onNavigateToMultiwebs={onNavigateToMultiwebs}
+          onNavigateToCyS={onNavigateToCyS}
+        />
       </div>
     </section>
   );
@@ -366,7 +390,11 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
         <Projects onAction={onAction} />
         <Services />
         <Faq />
-        <Contact style={style} />
+        <Contact 
+          style={style} 
+          onNavigateToMultiwebs={onNavigateToMultiwebs}
+          onNavigateToCyS={onNavigateToCyS}
+        />
       </main>
       <Footer onPortal={onPortal} />
       <MobileBar />

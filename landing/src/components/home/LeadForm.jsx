@@ -1,136 +1,238 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Loader2, Send } from 'lucide-react';
+import { CheckCircle2, Loader2, ArrowRight, Sparkles } from 'lucide-react';
 import { submitLead } from '../../../../src/lib/leads.js';
-import { FORM_SECTORS, FORM_SERVICES, waLink } from './content.js';
+import { waLink } from './content.js';
 
-const EMPTY = { name: '', business_name: '', sector: '', email: '', phone: '', services: [], message: '', privacy: false };
+const EMPTY = { 
+  name: '', 
+  business_name: '', 
+  phone: '', 
+  email: '', 
+  sector: 'Restaurante / Bar / Cafetería', 
+  privacy: true 
+};
 
 const inputCls =
-  'w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition focus:border-[#0D844A] focus:ring-2 focus:ring-[#6DD94B]/40';
-const labelCls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-600';
+  'w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition focus:border-[#0D844A] focus:ring-2 focus:ring-[#6DD94B]/40';
+const labelCls = 'mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700';
 
-const GROUP_SECTOR = { restauracion: 'Restaurante / Bar / Cafetería', salud: 'Clínica / Salud' };
+const SECTORS = [
+  'Restaurante / Bar / Cafetería',
+  'Clínica / Salud / Dental',
+  'Comercio local / Otro servicio'
+];
 
-export default function LeadForm({ style: initialStyle = null }) {
-  const [chosen, setChosen] = useState(initialStyle);
+export default function LeadForm({ 
+  style: initialStyle = null,
+  onNavigateToMultiwebs,
+  onNavigateToCyS
+}) {
   const [form, setForm] = useState(() => ({
     ...EMPTY,
-    sector: initialStyle ? GROUP_SECTOR[initialStyle.group] || '' : '',
-    services: initialStyle ? ['Página web'] : []
+    sector: initialStyle?.group === 'salud' 
+      ? 'Clínica / Salud / Dental' 
+      : 'Restaurante / Bar / Cafetería'
   }));
   const [status, setStatus] = useState('idle'); // idle | sending | done
   const [error, setError] = useState('');
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const toggleService = (s) =>
-    setForm((f) => ({ ...f, services: f.services.includes(s) ? f.services.filter((x) => x !== s) : [...f.services, s] }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!form.name.trim()) return setError('Dinos tu nombre para poder contactarte.');
-    if (!form.phone.trim() && !form.email.trim()) return setError('Déjanos un teléfono o un email para responderte.');
-    if (!form.privacy) return setError('Debes aceptar la política de privacidad para enviar la solicitud.');
+
+    if (!form.name.trim()) {
+      return setError('Dinos tu nombre para poder preparar tu propuesta.');
+    }
+    if (!form.phone.trim()) {
+      return setError('Déjanos un teléfono o WhatsApp de contacto.');
+    }
+    if (!form.email.trim()) {
+      return setError('Indícanos tu email para enviarte la propuesta.');
+    }
+    if (!form.privacy) {
+      return setError('Debes aceptar la política de privacidad para continuar.');
+    }
+
     setStatus('sending');
-    const styleNote = chosen ? `[Estilo elegido: ${chosen.name} (demo ${chosen.slug})] ` : '';
-    const res = await submitLead({ ...form, message: styleNote + form.message });
-    if (res.ok) setStatus('done');
-    else { setStatus('idle'); setError('No hemos podido enviar la solicitud. Escríbenos por WhatsApp.'); }
+
+    // 1. Guardar en almacenamiento de sesión para que el formulario siguiente (wizard) lo tenga pre-rellenado
+    try {
+      const payload = {
+        name: form.name.trim(),
+        business_name: form.business_name.trim() || form.name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        sector: form.sector
+      };
+      sessionStorage.setItem('tecnodiel_lead_data', JSON.stringify(payload));
+      localStorage.setItem('tecnodiel_lead_data', JSON.stringify(payload));
+    } catch (_) {}
+
+    // 2. Registrar el lead en segundo plano
+    try {
+      await submitLead({
+        name: form.name,
+        business_name: form.business_name || form.name,
+        phone: form.phone,
+        email: form.email,
+        sector: form.sector,
+        message: `Solicitud inicial desde landing para: ${form.sector}`
+      });
+    } catch (err) {
+      console.warn('Registro de lead en backend:', err);
+    }
+
+    // 3. Redirección inmediata al formulario del tipo de empresa elegido (sin preview)
+    const isClinic = form.sector.toLowerCase().includes('clínica') || form.sector.toLowerCase().includes('salud') || form.sector.toLowerCase().includes('dental');
+
+    if (isClinic) {
+      if (onNavigateToCyS) {
+        onNavigateToCyS();
+      } else {
+        window.location.hash = '#/cys';
+      }
+    } else {
+      if (onNavigateToMultiwebs) {
+        onNavigateToMultiwebs();
+      } else {
+        window.location.hash = '#/multiwebs';
+      }
+    }
   };
 
-  if (status === 'done') {
-    return (
-      <div className="rounded-2xl bg-white p-8 sm:p-10 text-center text-zinc-900 shadow-2xl">
-        <CheckCircle2 className="mx-auto h-14 w-14 text-[#0D844A]" />
-        <h3 className="mt-4 text-2xl font-bold">¡Solicitud recibida!</h3>
-        <p className="mt-2 text-zinc-600">
-          Gracias, {form.name.split(' ')[0]}. Te contestaremos en menos de 24 horas con una propuesta pensada para tu negocio.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <a href={waLink(`Hola, soy ${form.name} (${form.business_name || 'mi negocio'}). Acabo de enviar el formulario.`)} target="_blank" rel="noopener noreferrer"
-            className="rounded-full bg-[#0D844A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#09663a]">
-            Adelantar por WhatsApp
-          </a>
-          <button onClick={() => { setForm(EMPTY); setStatus('idle'); }} className="rounded-full border border-zinc-300 px-6 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 cursor-pointer">
-            Enviar otra solicitud
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={onSubmit} noValidate className="rounded-2xl bg-white p-6 sm:p-9 text-zinc-900 shadow-2xl space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form onSubmit={onSubmit} noValidate className="rounded-2xl bg-white p-6 sm:p-9 text-zinc-900 shadow-2xl space-y-4">
+      <div className="border-b border-zinc-100 pb-3">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[#0D844A] block mb-1">
+          PASO 1 DE 2 • SOLICITUD RÁPIDA
+        </span>
+        <h3 className="text-xl font-extrabold text-zinc-900">
+          Cuéntanos sobre tu negocio
+        </h3>
+        <p className="text-xs text-zinc-500 mt-0.5">
+          Rellena tus datos y pasa directo a elegir tu plantilla y servicios sin líos.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Tu nombre */}
         <div>
           <label className={labelCls} htmlFor="lf-name">Tu nombre *</label>
-          <input id="lf-name" className={inputCls} value={form.name} onChange={set('name')} placeholder="Ej. Adrián" autoComplete="name" maxLength={120} />
+          <input 
+            id="lf-name" 
+            className={inputCls} 
+            value={form.name} 
+            onChange={set('name')} 
+            placeholder="Ej. Mario" 
+            autoComplete="name" 
+            maxLength={120} 
+            required 
+          />
         </div>
+
+        {/* Nombre del negocio */}
         <div>
           <label className={labelCls} htmlFor="lf-biz">Nombre del negocio</label>
-          <input id="lf-biz" className={inputCls} value={form.business_name} onChange={set('business_name')} placeholder="Ej. Barbería Millán" maxLength={160} />
+          <input 
+            id="lf-biz" 
+            className={inputCls} 
+            value={form.business_name} 
+            onChange={set('business_name')} 
+            placeholder="Ej. Asador El Rincón" 
+            maxLength={160} 
+          />
         </div>
+
+        {/* Teléfono / WhatsApp */}
         <div>
-          <label className={labelCls} htmlFor="lf-phone">Teléfono / WhatsApp</label>
-          <input id="lf-phone" type="tel" className={inputCls} value={form.phone} onChange={set('phone')} placeholder="600 000 000" autoComplete="tel" maxLength={40} />
+          <label className={labelCls} htmlFor="lf-phone">Teléfono / WhatsApp *</label>
+          <input 
+            id="lf-phone" 
+            type="tel" 
+            className={inputCls} 
+            value={form.phone} 
+            onChange={set('phone')} 
+            placeholder="600 000 000" 
+            autoComplete="tel" 
+            maxLength={40} 
+            required 
+          />
         </div>
+
+        {/* Email */}
         <div>
-          <label className={labelCls} htmlFor="lf-email">Email</label>
-          <input id="lf-email" type="email" className={inputCls} value={form.email} onChange={set('email')} placeholder="tu@negocio.com" autoComplete="email" maxLength={160} />
+          <label className={labelCls} htmlFor="lf-email">Tu email *</label>
+          <input 
+            id="lf-email" 
+            type="email" 
+            className={inputCls} 
+            value={form.email} 
+            onChange={set('email')} 
+            placeholder="mario@negocio.es" 
+            autoComplete="email" 
+            maxLength={160} 
+            required 
+          />
         </div>
       </div>
 
-      {chosen && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#0D844A]/40 bg-[#6DD94B]/10 p-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={`/demos/${chosen.slug}.jpg`} alt="" className="h-12 w-20 shrink-0 rounded-md object-cover object-top" />
-            <p className="text-sm text-zinc-800"><span className="block text-[11px] font-bold uppercase tracking-wider text-[#0D844A]">Estilo que te ha gustado</span><strong>Estilo {chosen.name}</strong></p>
-          </div>
-          <button type="button" onClick={() => setChosen(null)} className="shrink-0 text-xs font-semibold text-zinc-500 underline cursor-pointer">Quitar</button>
-        </div>
-      )}
-
+      {/* Tipo de empresa */}
       <div>
-        <label className={labelCls} htmlFor="lf-sector">¿Qué tipo de negocio tienes?</label>
-        <select id="lf-sector" className={inputCls} value={form.sector} onChange={set('sector')}>
-          <option value="">Selecciona una opción</option>
-          {FORM_SECTORS.map((s) => <option key={s} value={s}>{s}</option>)}
+        <label className={labelCls} htmlFor="lf-sector">¿Qué tipo de negocio tienes? *</label>
+        <select 
+          id="lf-sector" 
+          className={inputCls} 
+          value={form.sector} 
+          onChange={set('sector')}
+          required
+        >
+          {SECTORS.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
         </select>
       </div>
 
-      <fieldset>
-        <legend className={labelCls}>¿Qué te gustaría tener?</legend>
-        <div className="flex flex-wrap gap-2">
-          {FORM_SERVICES.map((s) => {
-            const on = form.services.includes(s);
-            return (
-              <button type="button" key={s} onClick={() => toggleService(s)} aria-pressed={on}
-                className={`rounded-full border px-4 py-2 text-xs font-medium transition cursor-pointer ${on ? 'border-[#0D844A] bg-[#0D844A] text-white' : 'border-zinc-300 text-zinc-700 hover:border-[#0D844A]'}`}>
-                {s}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <div>
-        <label className={labelCls} htmlFor="lf-msg">Cuéntanos tu idea (opcional)</label>
-        <textarea id="lf-msg" rows={4} className={inputCls} value={form.message} onChange={set('message')} placeholder="¿Qué problema quieres resolver? ¿Qué usas ahora?" maxLength={2000} />
-      </div>
-
-      <label className="flex items-start gap-3 text-xs text-zinc-600">
-        <input type="checkbox" checked={form.privacy} onChange={(e) => setForm((f) => ({ ...f, privacy: e.target.checked }))} className="mt-0.5 h-4 w-4 accent-[#0D844A]" />
-        <span>He leído y acepto la política de privacidad. Usaremos tus datos solo para contactarte sobre tu solicitud.</span>
+      {/* Política de privacidad */}
+      <label className="flex items-start gap-3 text-xs text-zinc-600 pt-1 cursor-pointer">
+        <input 
+          type="checkbox" 
+          checked={form.privacy} 
+          onChange={(e) => setForm((f) => ({ ...f, privacy: e.target.checked }))} 
+          className="mt-0.5 h-4 w-4 accent-[#0D844A] cursor-pointer" 
+        />
+        <span>He leído y acepto la política de privacidad. Usaremos tus datos solo para tu proyecto.</span>
       </label>
 
-      {error && <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && (
+        <p role="alert" className="rounded-lg bg-red-50 px-4 py-2.5 text-xs font-semibold text-red-700">
+          {error}
+        </p>
+      )}
 
-      <button type="submit" disabled={status === 'sending'}
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0D844A] px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[#09663a] disabled:opacity-60 cursor-pointer">
-        {status === 'sending' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        {status === 'sending' ? 'Enviando…' : 'Quiero mi propuesta gratis'}
+      {/* Botón de envío */}
+      <button 
+        type="submit" 
+        disabled={status === 'sending'}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0D844A] hover:bg-[#09663a] px-8 py-4 text-sm font-black uppercase tracking-wider text-white transition shadow-lg shadow-[#0D844A]/25 disabled:opacity-60 cursor-pointer"
+      >
+        {status === 'sending' ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Abriendo configurador...</span>
+          </>
+        ) : (
+          <>
+            <span>Quiero mi propuesta gratis</span>
+            <ArrowRight className="h-4 w-4" />
+          </>
+        )}
       </button>
-      <p className="text-center text-xs text-zinc-500">Sin compromiso · Presupuesto cerrado · Respuesta en menos de 24 h</p>
+
+      <p className="text-center text-[11px] text-zinc-500">
+        Sin compromiso • Elige tu plantilla y servicios en el siguiente paso
+      </p>
     </form>
   );
 }
