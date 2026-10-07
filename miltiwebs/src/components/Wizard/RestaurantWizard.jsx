@@ -431,23 +431,23 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
       {/* Top Header */}
       {activeSection <= 6 ? (
-        <header className="h-16 border-b border-white/10 bg-zinc-950/90 backdrop-blur-2xl px-4 sm:px-6 flex items-center justify-between z-30">
+        <header className="h-16 border-b border-white/15 bg-[#121212]/95 backdrop-blur-2xl px-4 sm:px-6 flex items-center justify-between z-30">
           <div className="flex items-center gap-3">
             <button
               onClick={onCancel}
-              className="p-2 rounded-xl border border-white/10 text-zinc-400 hover:text-white hover:bg-white/5 transition"
+              className="p-2 border border-white/15 text-zinc-400 hover:text-white hover:bg-white/5 transition cursor-pointer"
               title="Volver"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-white">Configurador de Web para Restaurantes & Bares</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                  Paso 0{activeSection} de 06
+                <span className="font-mono font-black text-xs sm:text-sm text-white uppercase tracking-wider">CONFIGURADOR RESTAURANTES // TECNODIEL</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 bg-[#0D844A]/20 border border-[#6DD94B]/40 text-[#6DD94B] font-bold">
+                  PASO 0{activeSection} / 06
                 </span>
               </div>
-              <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline">
+              <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline uppercase">
                 {SECTIONS.find(s => s.id === activeSection)?.sub}
               </span>
             </div>
@@ -456,20 +456,20 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveSection(7)}
-              className="px-3.5 py-1.5 rounded-xl border border-white/15 bg-zinc-900 hover:bg-zinc-800 text-xs text-white font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="px-4 py-2 border border-white/20 bg-[#181818] hover:border-[#6DD94B] text-xs text-white font-mono uppercase tracking-wider flex items-center gap-2 transition cursor-pointer"
             >
-              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <Eye className="w-3.5 h-3.5 text-[#6DD94B]" />
               <span>Ver Web Directa</span>
             </button>
           </div>
         </header>
       ) : (
         /* Top Bar for Step 7 (Live Preview) */
-        <header className="h-16 border-b border-white/10 bg-zinc-950/90 backdrop-blur-2xl px-4 sm:px-6 flex items-center justify-between z-30">
+        <header className="h-16 border-b border-white/15 bg-[#121212]/95 backdrop-blur-2xl px-4 sm:px-6 flex items-center justify-between z-30">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setActiveSection(6)}
-              className="px-3 py-1.5 rounded-xl border border-white/10 text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 text-xs font-semibold"
+              className="px-3 py-1.5 border border-white/15 text-zinc-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 text-xs font-mono uppercase"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Volver a las Preguntas</span>
@@ -477,25 +477,25 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-white">Vista Previa de Tu Web & Modificaciones</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                  Paso Final
+                <span className="font-mono font-black text-xs sm:text-sm text-white uppercase tracking-wider">VISTA PREVIA // WEB RESTAURANTE</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 bg-[#0D844A]/20 border border-[#6DD94B]/40 text-[#6DD94B] font-bold">
+                  PASO FINAL
                 </span>
               </div>
-              <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline">
-                Toca cualquier texto, foto o botón en pantalla para retocarlo al instante
+              <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline uppercase">
+                Toca cualquier texto o foto en pantalla para retocarlo al instante
               </span>
             </div>
           </div>
 
           {/* Device Toggles & Launch Button */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 rounded-xl">
+            <div className="flex items-center gap-1 p-1 bg-[#181818] border border-white/15 font-mono">
               <button
                 type="button"
                 onClick={() => setPreviewDevice('desktop')}
-                className={`p-1.5 sm:px-2.5 sm:py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
-                  previewDevice === 'desktop' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                className={`px-2.5 py-1 transition text-xs font-mono uppercase flex items-center gap-1 cursor-pointer ${
+                  previewDevice === 'desktop' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'
                 }`}
               >
                 <Monitor className="w-3.5 h-3.5" />
@@ -504,8 +504,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               <button
                 type="button"
                 onClick={() => setPreviewDevice('tablet')}
-                className={`p-1.5 sm:px-2.5 sm:py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
-                  previewDevice === 'tablet' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                className={`px-2.5 py-1 transition text-xs font-mono uppercase flex items-center gap-1 cursor-pointer ${
+                  previewDevice === 'tablet' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'
                 }`}
               >
                 <Tablet className="w-3.5 h-3.5" />
@@ -514,8 +514,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               <button
                 type="button"
                 onClick={() => setPreviewDevice('mobile')}
-                className={`p-1.5 sm:px-2.5 sm:py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1 cursor-pointer ${
-                  previewDevice === 'mobile' ? 'bg-white text-black font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+                className={`px-2.5 py-1 transition text-xs font-mono uppercase flex items-center gap-1 cursor-pointer ${
+                  previewDevice === 'mobile' ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:text-white'
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
@@ -527,7 +527,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               type="button"
               disabled={saving}
               onClick={handleSave}
-              className="px-4 sm:px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-extrabold transition flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] disabled:opacity-50 min-h-[40px] cursor-pointer shrink-0"
+              className="px-5 py-2 bg-[#6DD94B] hover:bg-[#38d600] text-black text-xs font-mono font-black uppercase tracking-wider transition flex items-center gap-2 shadow-[0_0_20px_rgba(109,217,75,0.4)] disabled:opacity-50 min-h-[40px] cursor-pointer shrink-0"
             >
               <span>{saving ? 'Guardando...' : 'Lanzar Web Restaurante'}</span>
               <CheckCircle2 className="w-4 h-4" />
@@ -541,15 +541,15 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
         /* Steps 1-6 Questionnaire */
         <div className="flex-1 overflow-y-auto bg-zinc-950/40 px-3 sm:px-6 py-4 sm:py-8">
           <div className="max-w-3xl mx-auto space-y-6">
-            {/* Progress Bar */}
-            <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2.5 shadow-lg">
+            {/* Progress Bar Banch Style */}
+            <div className="p-4 bg-[#181818] border border-white/15 space-y-2.5 shadow-xl">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-mono text-zinc-400 uppercase text-[11px] font-semibold">// PROGRESO DEL FORMULARIO</span>
-                <span className="font-mono text-emerald-400 font-bold">Paso {activeSection} de 6</span>
+                <span className="font-mono text-[#6DD94B] font-bold">Paso {activeSection} de 6</span>
               </div>
-              <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
+              <div className="w-full bg-[#121212] h-1.5 overflow-hidden border border-white/10">
                 <div 
-                  className="bg-emerald-400 h-full transition-all duration-300 rounded-full"
+                  className="bg-[#6DD94B] h-full transition-all duration-300 shadow-[0_0_10px_#6DD94B]"
                   style={{ width: `${(activeSection / 6) * 100}%` }}
                 />
               </div>
@@ -557,30 +557,30 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
             {/* Step 1: Tu Restaurante & Estilo */}
             {activeSection === 1 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-6 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3 flex items-center justify-between">
+              <div className="p-6 sm:p-8 bg-[#181818] border border-white/15 space-y-6 shadow-2xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Utensils className="w-5 h-5 text-emerald-400" />
-                      <span>Paso 1: Selección de Plantilla & Datos del Restaurante</span>
+                    <h3 className="text-lg sm:text-xl font-black uppercase text-white tracking-tight flex items-center gap-2">
+                      <Utensils className="w-5 h-5 text-[#6DD94B]" />
+                      <span>Paso 1: Selección de Plantilla & Datos</span>
                     </h3>
-                    <p className="text-xs text-zinc-400 mt-1">
-                      Elige primero la plantilla visual para tu negocio y completa sus datos básicos para previsualizarlo en tiempo real.
+                    <p className="text-xs font-mono text-zinc-400 mt-1">
+                      Elige primero la plantilla visual para tu negocio y completa sus datos para previsualizarlo en vivo.
                     </p>
                   </div>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded shrink-0">
-                    CATÁLOGO OFICIAL 6 PLANTILLAS
+                  <span className="text-[10px] font-mono text-[#6DD94B] bg-[#0D844A]/20 border border-[#6DD94B]/40 px-2.5 py-1 shrink-0 uppercase font-bold">
+                    6 PLANTILLAS AISLADAS
                   </span>
                 </div>
 
-                {/* ── SELECTOR PRINCIPAL DE LAS 6 PLANTILLAS DE HOSTELERÍA ── */}
-                <div className="space-y-3 p-4 rounded-xl bg-black/60 border border-emerald-500/30">
+                {/* ── SELECTOR PRINCIPAL DE LAS 6 PLANTILLAS DE HOSTELERÍA ESTILO BANCH ── */}
+                <div className="space-y-3 p-5 bg-[#121212] border border-white/10">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
                       <span>🍔 CATÁLOGO HOSTELERÍA (6 PLANTILLAS EXCLUSIVAS)</span>
                     </label>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
-                      AISLAMIENTO DOM & CSS ✓
+                    <span className="text-[10px] font-mono text-[#6DD94B] bg-[#0D844A]/20 border border-[#6DD94B]/40 px-2 py-0.5">
+                      DOM & CSS AISLADO ✓
                     </span>
                   </div>
 
@@ -592,33 +592,33 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={tpl.id}
                           type="button"
                           onClick={() => handleTemplateSelect(tpl)}
-                          className={`p-3.5 rounded-xl border-2 text-left transition flex items-start gap-3 cursor-pointer interactive-selectable relative overflow-hidden ${
+                          className={`p-3.5 border text-left transition-all duration-200 flex items-start gap-3 cursor-pointer relative overflow-hidden ${
                             isSel
-                              ? 'bg-emerald-500/15 border-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400'
-                              : 'bg-zinc-900/90 border-white/10 hover:border-emerald-500/40 hover:bg-zinc-800 text-zinc-300'
+                              ? 'bg-[#232323] border-[#6DD94B] text-white shadow-[0_0_20px_rgba(109,217,75,0.25)]'
+                              : 'bg-[#181818] border-white/10 hover:border-white/30 text-zinc-300'
                           }`}
                         >
                           <div
-                            className="w-9 h-9 rounded-lg shrink-0 mt-0.5 border-2 flex items-center justify-center font-black text-xs"
+                            className="w-9 h-9 shrink-0 mt-0.5 border flex items-center justify-center font-black font-mono text-xs"
                             style={{
-                              backgroundColor: tpl.previewColors?.bg || '#111',
-                              borderColor: tpl.previewColors?.primary || '#fff',
-                              color: tpl.previewColors?.primary || '#fff'
+                              backgroundColor: isSel ? '#0D844A' : '#121212',
+                              borderColor: isSel ? '#6DD94B' : 'rgba(255,255,255,0.2)',
+                              color: isSel ? '#ffffff' : '#6DD94B'
                             }}
                           >
                             0{idx + 1}
                           </div>
                           <div className="flex-1 min-w-0 space-y-1">
                             <div className="flex items-center justify-between gap-1">
-                              <span className="font-bold text-xs text-white truncate">{tpl.name}</span>
+                              <span className="font-bold font-mono text-xs text-white truncate">{tpl.name}</span>
                               {isSel && (
-                                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-400 text-black shrink-0">
+                                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 bg-[#6DD94B] text-black shrink-0">
                                   ACTIVA
                                 </span>
                               )}
                             </div>
-                            <span className="text-[10px] font-mono text-emerald-300 block">{tpl.badge}</span>
-                            <p className="text-[10px] text-zinc-400 line-clamp-2 leading-tight">{tpl.description}</p>
+                            <span className="text-[10px] font-mono text-[#6DD94B] block">{tpl.badge}</span>
+                            <p className="text-[10px] text-zinc-400 line-clamp-2 leading-tight font-light">{tpl.description}</p>
                           </div>
                         </button>
                       );
@@ -637,7 +637,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.owner_name}
                         onChange={e => setFormData({ ...formData, owner_name: e.target.value })}
                         placeholder="Ej. Manuel Soto Jiménez"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-medium focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -649,7 +649,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.email}
                         onChange={e => setFormData({ ...formData, email: e.target.value })}
                         placeholder="contacto@tabernaelalbero.es"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white font-medium focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -663,13 +663,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.name}
                       onChange={e => handleNameChange(e.target.value)}
                       placeholder="Ej. Taberna El Albero"
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white font-bold focus:border-emerald-400 focus:outline-none"
+                      className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-sm text-white font-mono font-bold focus:border-[#6DD94B] focus:outline-none transition-colors"
                     />
                   </div>
 
-                  <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs font-mono flex items-center justify-between">
-                    <span className="text-zinc-400">Dirección Web Automática:</span>
-                    <span className="text-emerald-400 font-bold">https://{formData.slug || 'restaurante'}.tecnodiel.app</span>
+                  <div className="p-3 bg-[#121212] border border-white/10 text-xs font-mono flex items-center justify-between">
+                    <span className="text-zinc-400">// DIRECCIÓN WEB:</span>
+                    <span className="text-[#6DD94B] font-bold">https://{formData.slug || 'restaurante'}.tecnodiel.app</span>
                   </div>
 
                   <div className="space-y-2">
@@ -684,14 +684,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             key={cat.id}
                             type="button"
                             onClick={() => handleCategorySelect(cat.id)}
-                            className={`p-3 rounded-xl border text-left transition flex items-center gap-2.5 cursor-pointer interactive-selectable ${
+                            className={`p-3 border text-left transition flex items-center gap-2.5 cursor-pointer interactive-selectable ${
                               formData.category === cat.id
-                                ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold shadow-sm'
-                                : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                                ? 'bg-[#232323] border-[#6DD94B] text-white font-bold shadow-[0_0_15px_rgba(109,217,75,0.25)]'
+                                : 'bg-[#121212] border-white/10 text-zinc-300 hover:border-white/30'
                             }`}
                           >
-                            <CategoryIcon className="w-5 h-5 text-emerald-400 shrink-0" />
-                            <span className="text-xs">{cat.name}</span>
+                            <CategoryIcon className="w-5 h-5 text-[#6DD94B] shrink-0" />
+                            <span className="text-xs font-mono uppercase">{cat.name}</span>
                           </button>
                         );
                       })}
@@ -707,7 +707,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.slogan}
                       onChange={e => setFormData({ ...formData, slogan: e.target.value })}
                       placeholder="Ej. Tapas de solera, jamón ibérico y vinos del sur"
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="w-full bg-[#121212] border border-white/15 px-4 py-2 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                     />
                   </div>
 
@@ -720,7 +720,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.dress_code}
                       onChange={e => setFormData({ ...formData, dress_code: e.target.value })}
                       placeholder="Ej. Informal / Agradable o Smart Casual"
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="w-full bg-[#121212] border border-white/15 px-4 py-2 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -729,30 +729,30 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
             {/* Step 2: Diseño & Portada */}
             {activeSection === 2 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-5 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Layout className="w-5 h-5 text-emerald-400" />
-                    <span>Paso 2: Diseño Visual & Foto de Portada</span>
+              <div className="p-6 sm:p-8 bg-[#181818] border border-white/15 space-y-6 shadow-2xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-4">
+                  <h3 className="text-base sm:text-lg font-mono font-black uppercase text-white tracking-wider flex items-center gap-2">
+                    <Layout className="w-5 h-5 text-[#6DD94B]" />
+                    <span>// PASO 02: DISEÑO VISUAL & FOTO DE PORTADA</span>
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Elige la plantilla que mejor exprese la personalidad de tu local y selecciona la foto principal.
+                  <p className="text-xs font-mono text-zinc-400 mt-1 uppercase">
+                    Selecciona la plantilla para tu local y define la imagen principal de cabecera.
                   </p>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
                         <span>🍔 CATÁLOGO HOSTELERÍA (6 PLANTILLAS EXCLUSIVAS)</span>
                       </label>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
-                        AISLAMIENTO DOM & CSS ✓
+                      <span className="text-[10px] font-mono text-[#6DD94B] bg-[#0D844A]/20 border border-[#6DD94B]/40 px-2 py-0.5">
+                        AISLAMIENTO TOTAL DOM & CSS ✓
                       </span>
                     </div>
 
                     {/* Las 6 Plantillas Principales de Hostelería */}
-                    <div className="grid grid-cols-1 gap-3.5 max-h-[460px] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 gap-3 max-h-[460px] overflow-y-auto pr-1">
                       {TEMPLATES.slice(0, 6).map((tpl, idx) => {
                         const isSel = formData.template_id === tpl.id;
                         return (
@@ -760,34 +760,29 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                             key={tpl.id}
                             type="button"
                             onClick={() => handleTemplateSelect(tpl)}
-                            className={`w-full p-4 rounded-xl border-2 text-left transition flex items-start gap-4 cursor-pointer interactive-selectable relative overflow-hidden ${
+                            className={`w-full p-4 border text-left transition-all flex items-start gap-4 cursor-pointer relative overflow-hidden ${
                               isSel
-                                ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-[0_0_25px_rgba(99,102,241,0.35)]'
-                                : 'bg-zinc-900/90 border-white/10 hover:border-indigo-500/50 hover:bg-zinc-800/80 text-zinc-300'
+                                ? 'bg-[#232323] border-[#6DD94B] text-white shadow-[0_0_25px_rgba(109,217,75,0.3)]'
+                                : 'bg-[#121212] border-white/10 hover:border-white/30 text-zinc-300'
                             }`}
                           >
                             <div
-                              className="w-10 h-10 rounded-lg shrink-0 mt-0.5 border-2 flex items-center justify-center font-black text-sm"
-                              style={{
-                                backgroundColor: tpl.previewColors?.bg || '#111',
-                                borderColor: tpl.previewColors?.primary || '#fff',
-                                color: tpl.previewColors?.primary || '#fff'
-                              }}
+                              className="w-10 h-10 shrink-0 mt-0.5 border flex items-center justify-center font-mono font-bold text-sm bg-black/60 border-[#6DD94B] text-[#6DD94B]"
                             >
                               0{idx + 1}
                             </div>
                             <div className="flex-1 min-w-0 space-y-1">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="font-bold text-sm text-white">{tpl.name}</span>
-                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white/10 text-indigo-300 shrink-0">
+                                <span className="font-mono font-bold text-sm text-white uppercase">{tpl.name}</span>
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 border border-[#6DD94B]/40 bg-[#0D844A]/20 text-[#6DD94B] shrink-0 uppercase">
                                   {tpl.badge}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-zinc-400 leading-snug">{tpl.description}</p>
+                              <p className="text-xs text-zinc-400 font-light leading-snug">{tpl.description}</p>
                               {tpl.tags && (
                                 <div className="flex flex-wrap gap-1 pt-1">
                                   {tpl.tags.map((tg) => (
-                                    <span key={tg} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-zinc-400 border border-white/10">
+                                    <span key={tg} className="text-[9px] font-mono px-1.5 py-0.5 bg-black/50 text-zinc-400 border border-white/10 uppercase">
                                       {tg}
                                     </span>
                                   ))}
@@ -811,13 +806,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={idx}
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_image: p.url })}
-                          className={`relative h-20 rounded-xl overflow-hidden border transition cursor-pointer group interactive-selectable ${
-                            formData.hero_image === p.url ? 'border-emerald-400 ring-2 ring-emerald-400/30' : 'border-white/10'
+                          className={`relative h-20 overflow-hidden border transition cursor-pointer group ${
+                            formData.hero_image === p.url ? 'border-[#6DD94B] ring-1 ring-[#6DD94B]' : 'border-white/10 hover:border-white/30'
                           }`}
                         >
                           <img src={p.url} alt={p.label} className="w-full h-full object-cover group-hover:scale-105 transition" />
-                          <div className="absolute inset-0 bg-black/50 flex items-end p-1.5">
-                            <span className="text-[10px] font-semibold text-white leading-tight">{p.label}</span>
+                          <div className="absolute inset-0 bg-black/60 flex items-end p-1.5">
+                            <span className="text-[10px] font-mono font-bold text-white uppercase leading-tight">{p.label}</span>
                           </div>
                         </button>
                       ))}
@@ -825,22 +820,21 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
                     {/* Subida o Cámara */}
                     <div className="pt-2 flex items-center gap-2">
-
                       <button
                         type="button"
                         onClick={() => heroGalleryInputRef.current?.click()}
-                        className="px-3 py-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-200 transition flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-2 border border-white/15 bg-[#121212] hover:border-white text-xs font-mono text-zinc-200 transition flex items-center gap-1.5 cursor-pointer uppercase"
                       >
-                        <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
+                        <ImageIcon className="w-3.5 h-3.5 text-[#6DD94B]" />
                         <span>Subir Foto Propia</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => heroCameraInputRef.current?.click()}
-                        className="px-3 py-2 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-200 transition flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-2 border border-white/15 bg-[#121212] hover:border-white text-xs font-mono text-zinc-200 transition flex items-center gap-1.5 cursor-pointer uppercase"
                       >
-                        <Camera className="w-3.5 h-3.5 text-emerald-400" />
+                        <Camera className="w-3.5 h-3.5 text-[#6DD94B]" />
                         <span>Hacer Foto con Cámara</span>
                       </button>
                     </div>
@@ -850,23 +844,23 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
                     <div className="space-y-1.5">
                       <label className="text-xs font-mono font-semibold text-zinc-400 uppercase">
-                        Disposición de la Cabecera
+                        Disposición de Cabecera
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_layout: 'split' })}
-                          className={`p-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer ${
-                            formData.hero_layout === 'split' ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold' : 'bg-zinc-900 border-white/10 text-zinc-300'
+                          className={`p-2 text-xs font-mono uppercase border transition text-center cursor-pointer ${
+                            formData.hero_layout === 'split' ? 'bg-[#232323] border-[#6DD94B] text-white font-bold' : 'bg-[#121212] border-white/10 text-zinc-300'
                           }`}
                         >
-                          Dividida (Split)
+                          Dividida
                         </button>
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_layout: 'centered' })}
-                          className={`p-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer ${
-                            formData.hero_layout === 'centered' ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold' : 'bg-zinc-900 border-white/10 text-zinc-300'
+                          className={`p-2 text-xs font-mono uppercase border transition text-center cursor-pointer ${
+                            formData.hero_layout === 'centered' ? 'bg-[#232323] border-[#6DD94B] text-white font-bold' : 'bg-[#121212] border-white/10 text-zinc-300'
                           }`}
                         >
                           Centrada
@@ -876,14 +870,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-mono font-semibold text-zinc-400 uppercase">
-                        Lado de la Imagen (Split)
+                        Posición Imagen (Split)
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_image_side: 'left' })}
-                          className={`p-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer ${
-                            formData.hero_image_side === 'left' ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold' : 'bg-zinc-900 border-white/10 text-zinc-300'
+                          className={`p-2 text-xs font-mono uppercase border transition text-center cursor-pointer ${
+                            formData.hero_image_side === 'left' ? 'bg-[#232323] border-[#6DD94B] text-white font-bold' : 'bg-[#121212] border-white/10 text-zinc-300'
                           }`}
                         >
                           Izquierda
@@ -891,8 +885,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, hero_image_side: 'right' })}
-                          className={`p-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer ${
-                            formData.hero_image_side === 'right' ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold' : 'bg-zinc-900 border-white/10 text-zinc-300'
+                          className={`p-2 text-xs font-mono uppercase border transition text-center cursor-pointer ${
+                            formData.hero_image_side === 'right' ? 'bg-[#232323] border-[#6DD94B] text-white font-bold' : 'bg-[#121212] border-white/10 text-zinc-300'
                           }`}
                         >
                           Derecha
@@ -906,18 +900,18 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
             {/* Step 3: Colores & Letra */}
             {activeSection === 3 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-5 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Palette className="w-5 h-5 text-emerald-400" />
-                    <span>Paso 3: Colores & Tipografía</span>
+              <div className="p-6 sm:p-8 bg-[#181818] border border-white/15 space-y-6 shadow-2xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-4">
+                  <h3 className="text-base sm:text-lg font-mono font-black uppercase text-white tracking-wider flex items-center gap-2">
+                    <Palette className="w-5 h-5 text-[#6DD94B]" />
+                    <span>// PASO 03: COLORES & TIPOGRAFÍA</span>
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
+                  <p className="text-xs font-mono text-zinc-400 mt-1 uppercase">
                     Define la paleta cromática de tu negocio y la fuente tipográfica que mejor encaje.
                   </p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="space-y-2">
                     <label className="text-xs font-mono font-semibold text-zinc-300 uppercase">
                       Paletas Cromáticas Recomendadas
@@ -928,12 +922,12 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={pal.id}
                           type="button"
                           onClick={() => handlePaletteSelect(pal)}
-                          className="p-3 rounded-xl border border-white/10 bg-zinc-900 hover:bg-zinc-800 text-left transition flex items-center justify-between cursor-pointer interactive-selectable"
+                          className="p-3 border border-white/15 bg-[#121212] hover:border-white/40 text-left transition flex items-center justify-between cursor-pointer"
                         >
-                          <span className="text-xs font-semibold text-white truncate">{pal.name}</span>
-                          <div className="flex items-center gap-1 shrink-0">
-                            <span className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: pal.primary }} />
-                            <span className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: pal.accent }} />
+                          <span className="text-xs font-mono text-white truncate uppercase">{pal.name}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="w-3.5 h-3.5 border border-white/20" style={{ backgroundColor: pal.primary }} />
+                            <span className="w-3.5 h-3.5 border border-white/20" style={{ backgroundColor: pal.accent }} />
                           </div>
                         </button>
                       ))}
@@ -950,10 +944,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                           key={f}
                           type="button"
                           onClick={() => setFormData({ ...formData, font_family: f })}
-                          className={`p-3 rounded-xl border text-center transition cursor-pointer text-xs interactive-selectable ${
+                          className={`p-3 border text-center transition cursor-pointer text-xs font-mono uppercase ${
                             formData.font_family === f
-                              ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold'
-                              : 'bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800'
+                              ? 'bg-[#232323] border-[#6DD94B] text-white font-bold shadow-[0_0_15px_rgba(109,217,75,0.25)]'
+                              : 'bg-[#121212] border-white/10 text-zinc-300 hover:border-white/30'
                           }`}
                           style={{ fontFamily: f }}
                         >
@@ -968,13 +962,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
             {/* Step 4: Reservas & Contacto */}
             {activeSection === 4 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-5 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-emerald-400" />
-                    <span>Paso 4: Reservas Directas & Contacto</span>
+              <div className="p-6 sm:p-8 bg-[#181818] border border-white/15 space-y-6 shadow-2xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-4">
+                  <h3 className="text-base sm:text-lg font-mono font-black uppercase text-white tracking-wider flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-[#6DD94B]" />
+                    <span>// PASO 04: RESERVAS DIRECTAS & CONTACTO</span>
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
+                  <p className="text-xs font-mono text-zinc-400 mt-1 uppercase">
                     Configura tu WhatsApp directo para recibir reservas en tiempo real sin pagar comisiones por comensal.
                   </p>
                 </div>
@@ -990,7 +984,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.whatsapp_number}
                         onChange={e => setFormData({ ...formData, whatsapp_number: e.target.value })}
                         placeholder="+34 611 22 33 44"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
 
@@ -1003,7 +997,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.phone}
                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+34 959 28 30 40"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -1017,7 +1011,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       value={formData.address}
                       onChange={e => setFormData({ ...formData, address: e.target.value })}
                       placeholder="Calle Concepción, 8"
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                     />
                   </div>
 
@@ -1031,7 +1025,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.city}
                         onChange={e => setFormData({ ...formData, city: e.target.value })}
                         placeholder="Huelva"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -1043,7 +1037,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.postal_code}
                         onChange={e => setFormData({ ...formData, postal_code: e.target.value })}
                         placeholder="21001"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -1058,7 +1052,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.instagram_url}
                         onChange={e => setFormData({ ...formData, instagram_url: e.target.value })}
                         placeholder="https://instagram.com/mi_restaurante"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -1070,7 +1064,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                         value={formData.facebook_url}
                         onChange={e => setFormData({ ...formData, facebook_url: e.target.value })}
                         placeholder="https://facebook.com/mi_restaurante"
-                        className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full bg-[#121212] border border-white/15 px-4 py-2.5 text-xs text-white font-mono focus:border-[#6DD94B] focus:outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -1078,38 +1072,38 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
                     <div className="space-y-1">
                       <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Horario Mediodía</label>
-                      <div className="flex items-center gap-2 text-xs">
+                      <div className="flex items-center gap-2 text-xs font-mono">
                         <input
                           type="time"
                           value={formData.lunch_shift.open}
                           onChange={e => setFormData({ ...formData, lunch_shift: { ...formData.lunch_shift, open: e.target.value } })}
-                          className="bg-zinc-900 border border-white/10 rounded-lg px-2 py-1 text-white"
+                          className="bg-[#121212] border border-white/15 px-2 py-1 text-white focus:border-[#6DD94B]"
                         />
                         <span>a</span>
                         <input
                           type="time"
                           value={formData.lunch_shift.close}
                           onChange={e => setFormData({ ...formData, lunch_shift: { ...formData.lunch_shift, close: e.target.value } })}
-                          className="bg-zinc-900 border border-white/10 rounded-lg px-2 py-1 text-white"
+                          className="bg-[#121212] border border-white/15 px-2 py-1 text-white focus:border-[#6DD94B]"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <label className="text-[11px] font-mono text-zinc-400 uppercase font-semibold">Horario Noche</label>
-                      <div className="flex items-center gap-2 text-xs">
+                      <div className="flex items-center gap-2 text-xs font-mono">
                         <input
                           type="time"
                           value={formData.dinner_shift.open}
                           onChange={e => setFormData({ ...formData, dinner_shift: { ...formData.dinner_shift, open: e.target.value } })}
-                          className="bg-zinc-900 border border-white/10 rounded-lg px-2 py-1 text-white"
+                          className="bg-[#121212] border border-white/15 px-2 py-1 text-white focus:border-[#6DD94B]"
                         />
                         <span>a</span>
                         <input
                           type="time"
                           value={formData.dinner_shift.close}
                           onChange={e => setFormData({ ...formData, dinner_shift: { ...formData.dinner_shift, close: e.target.value } })}
-                          className="bg-zinc-900 border border-white/10 rounded-lg px-2 py-1 text-white"
+                          className="bg-[#121212] border border-white/15 px-2 py-1 text-white focus:border-[#6DD94B]"
                         />
                       </div>
                     </div>
@@ -1120,28 +1114,28 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
             {/* Step 5: Carta Digital QR & Platos */}
             {activeSection === 5 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-5 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3 flex items-center justify-between">
+              <div className="p-6 sm:p-8 bg-[#181818] border border-white/15 space-y-6 shadow-2xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <QrCode className="w-5 h-5 text-emerald-400" />
-                      <span>Paso 5: Carta Digital QR & Platos</span>
+                    <h3 className="text-base sm:text-lg font-mono font-black uppercase text-white tracking-wider flex items-center gap-2">
+                      <QrCode className="w-5 h-5 text-[#6DD94B]" />
+                      <span>// PASO 05: CARTA DIGITAL QR & PLATOS</span>
                     </h3>
-                    <p className="text-xs text-zinc-400 mt-1">
-                      Tus platos se cargan en 0.2 segundos cuando el cliente escanea el QR en la mesa.
+                    <p className="text-xs font-mono text-zinc-400 mt-1 uppercase">
+                      Tus platos se cargan en 0.2s cuando el cliente escanea el QR en la mesa.
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   {(formData.menu_categories || []).map((cat, catIdx) => (
-                    <div key={cat.id || catIdx} className="p-4 rounded-xl bg-zinc-900/60 border border-white/10 space-y-3">
+                    <div key={cat.id || catIdx} className="p-4 bg-[#121212] border border-white/10 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-emerald-400 font-mono">{cat.name}</span>
+                        <span className="font-bold text-sm text-[#6DD94B] font-mono uppercase">{cat.name}</span>
                         <button
                           type="button"
                           onClick={() => handleAddDish(catIdx)}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                          className="px-3 py-1 bg-[#0D844A]/20 border border-[#6DD94B]/40 text-[#6DD94B] hover:bg-[#6DD94B] hover:text-black text-xs font-mono font-bold uppercase flex items-center gap-1 transition cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Añadir Plato</span>
@@ -1150,13 +1144,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
                       <div className="space-y-2">
                         {(cat.items || []).map((item, itemIdx) => (
-                          <div key={item.id || itemIdx} className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-2">
+                          <div key={item.id || itemIdx} className="p-3 bg-black/50 border border-white/10 space-y-2">
                             <div className="flex items-center gap-2">
                               <input
                                 type="text"
                                 value={item.name}
                                 onChange={e => handleUpdateDish(catIdx, itemIdx, 'name', e.target.value)}
-                                className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white font-semibold focus:outline-none focus:border-emerald-400"
+                                className="flex-1 bg-[#181818] border border-white/15 px-3 py-1.5 text-xs text-white font-mono font-semibold focus:outline-none focus:border-[#6DD94B]"
                                 placeholder="Nombre del plato"
                               />
                               <div className="flex items-center gap-1 w-24">
@@ -1165,14 +1159,14 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                                   step="0.5"
                                   value={item.price}
                                   onChange={e => handleUpdateDish(catIdx, itemIdx, 'price', parseFloat(e.target.value) || 0)}
-                                  className="w-full bg-zinc-900 border border-white/10 rounded-lg px-2 py-1 text-xs text-emerald-400 font-mono font-bold focus:outline-none focus:border-emerald-400"
+                                  className="w-full bg-[#181818] border border-white/15 px-2 py-1.5 text-xs text-[#6DD94B] font-mono font-bold focus:outline-none focus:border-[#6DD94B]"
                                 />
-                                <span className="text-xs text-zinc-400">€</span>
+                                <span className="text-xs font-mono text-zinc-400">€</span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteDish(catIdx, itemIdx)}
-                                className="p-1 rounded text-zinc-500 hover:text-red-400 transition"
+                                className="p-1 text-zinc-500 hover:text-red-400 transition cursor-pointer"
                                 title="Eliminar plato"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1183,7 +1177,7 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                               type="text"
                               value={item.description}
                               onChange={e => handleUpdateDish(catIdx, itemIdx, 'description', e.target.value)}
-                              className="w-full bg-zinc-900/60 border border-white/5 rounded-lg px-2.5 py-1 text-[11px] text-zinc-300 focus:outline-none"
+                              className="w-full bg-[#181818]/60 border border-white/10 px-3 py-1.5 text-[11px] text-zinc-300 font-mono focus:outline-none focus:border-[#6DD94B]"
                               placeholder="Descripción breve de los ingredientes"
                             />
                           </div>
@@ -1197,13 +1191,13 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
 
             {/* Step 6: Módulos & Extras */}
             {activeSection === 6 && (
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-5 shadow-xl animate-fadeIn">
-                <div className="border-b border-white/10 pb-3">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                    <span>Paso 6: Servicios Pro & Resumen de Inversión</span>
+              <div className="p-6 sm:p-8 bg-[#181818] border border-white/15 space-y-6 shadow-2xl animate-fadeIn">
+                <div className="border-b border-white/10 pb-4">
+                  <h3 className="text-base sm:text-lg font-mono font-black uppercase text-white tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-[#6DD94B]" />
+                    <span>// PASO 06: MÓDULOS PRO & RESUMEN DE INVERSIÓN</span>
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
+                  <p className="text-xs font-mono text-zinc-400 mt-1 uppercase">
                     Activa módulos opcionales para maximizar clientes sin pagar comisiones por cada mesa.
                   </p>
                 </div>
@@ -1215,24 +1209,24 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       <div
                         key={mod.id}
                         onClick={() => toggleModule(mod.id)}
-                        className={`p-4 rounded-xl border transition flex items-center justify-between gap-4 cursor-pointer ${
-                          isSelected ? 'bg-emerald-950/20 border-emerald-500/50' : 'bg-zinc-900/50 border-white/5 hover:border-white/10'
+                        className={`p-4 border transition flex items-center justify-between gap-4 cursor-pointer ${
+                          isSelected ? 'bg-[#232323] border-[#6DD94B]' : 'bg-[#121212] border-white/10 hover:border-white/20'
                         }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-xs text-white">{mod.name}</span>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold">
+                            <span className="font-mono font-bold text-xs text-white uppercase">{mod.name}</span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 bg-[#0D844A]/20 border border-[#6DD94B]/40 text-[#6DD94B] font-bold">
                               {mod.badge || 'PRO'}
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-400">{mod.description}</p>
+                          <p className="text-xs text-zinc-400 font-light">{mod.description}</p>
                         </div>
 
                         <div className="flex items-center gap-3 shrink-0">
                           <span className="font-mono text-xs font-bold text-white">+{mod.price}€/mes</span>
-                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition ${
-                            isSelected ? 'bg-emerald-400 border-emerald-400 text-black' : 'border-white/20'
+                          <div className={`w-5 h-5 border flex items-center justify-center transition ${
+                            isSelected ? 'bg-[#6DD94B] border-[#6DD94B] text-black' : 'border-white/20'
                           }`}>
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                           </div>
@@ -1243,15 +1237,15 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                 </div>
 
                 {/* Pricing Summary Box */}
-                <div className="p-4 rounded-2xl bg-zinc-900/80 border border-white/10 space-y-3">
+                <div className="p-5 bg-[#121212] border border-white/15 space-y-3">
                   <div className="flex items-center justify-between text-xs font-mono text-zinc-300">
-                    <span>Plan TecnOdiel Restaurantes:</span>
+                    <span className="uppercase">// PLAN TECNODIEL RESTAURANTES:</span>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setBillingPlan('monthly')}
-                        className={`px-2 py-0.5 rounded text-[11px] font-semibold cursor-pointer ${
-                          billingPlan === 'monthly' ? 'bg-white text-black' : 'text-zinc-400'
+                        className={`px-3 py-1 text-xs font-mono uppercase font-bold cursor-pointer transition ${
+                          billingPlan === 'monthly' ? 'bg-white text-black' : 'text-zinc-400 border border-white/15'
                         }`}
                       >
                         Mensual
@@ -1259,8 +1253,8 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                       <button
                         type="button"
                         onClick={() => setBillingPlan('annual')}
-                        className={`px-2 py-0.5 rounded text-[11px] font-semibold cursor-pointer ${
-                          billingPlan === 'annual' ? 'bg-emerald-400 text-black font-bold' : 'text-zinc-400'
+                        className={`px-3 py-1 text-xs font-mono uppercase font-bold cursor-pointer transition ${
+                          billingPlan === 'annual' ? 'bg-[#6DD94B] text-black' : 'text-zinc-400 border border-white/15'
                         }`}
                       >
                         Anual (-20%)
@@ -1268,9 +1262,9 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
                     </div>
                   </div>
 
-                  <div className="flex items-baseline justify-between border-t border-white/10 pt-2">
-                    <span className="text-xs text-zinc-400">Total Inversión:</span>
-                    <span className="text-2xl font-black text-emerald-400 font-mono">
+                  <div className="flex items-baseline justify-between border-t border-white/10 pt-3">
+                    <span className="text-xs font-mono text-zinc-400 uppercase">Total Inversión:</span>
+                    <span className="text-3xl font-black text-[#6DD94B] font-mono">
                       {calculatePlanPrice()}€<span className="text-xs text-zinc-400 font-normal">/mes</span>
                     </span>
                   </div>
@@ -1278,30 +1272,30 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               </div>
             )}
 
-            {/* Bottom Stepper Navigation Pills (Inspirado en DdMiQCJyBZt) */}
-            <div className="flex items-center justify-between pt-6 border-t border-white/10">
+            {/* Bottom Stepper Navigation Pills (Estilo Banch) */}
+            <div className="flex items-center justify-between pt-6 border-t border-white/15">
               <button
                 type="button"
                 disabled={activeSection === 1}
                 onClick={() => setActiveSection(prev => Math.max(1, prev - 1))}
-                className="group relative px-5 py-2.5 rounded-full border border-white/15 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:text-white disabled:opacity-25 transition-all flex items-center gap-2 cursor-pointer shadow-lg active:scale-95"
+                className="px-5 py-2.5 border border-white/15 bg-[#121212] hover:border-white text-xs font-mono uppercase tracking-wider text-zinc-300 hover:text-white disabled:opacity-25 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                <ArrowLeft className="w-4 h-4" />
                 <span>Paso Anterior</span>
               </button>
 
-              {/* Indicador de píldoras centrales */}
-              <div className="hidden sm:flex items-center gap-1.5 p-1.5 rounded-full bg-zinc-900/90 border border-white/10 shadow-inner">
+              {/* Indicador de píldoras centrales Banch */}
+              <div className="hidden sm:flex items-center gap-1.5 p-1 bg-[#121212] border border-white/15">
                 {[1, 2, 3, 4, 5, 6].map(num => (
                   <button
                     key={num}
                     type="button"
                     onClick={() => setActiveSection(num)}
-                    className={`w-7 h-7 rounded-full text-[11px] font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
+                    className={`w-8 h-8 text-xs font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
                       activeSection === num
-                        ? 'bg-emerald-400 text-black shadow-[0_0_12px_rgba(16,185,129,0.5)] scale-110'
+                        ? 'bg-[#6DD94B] text-black shadow-[0_0_12px_rgba(109,217,75,0.4)]'
                         : activeSection > num
-                        ? 'bg-zinc-800 text-emerald-400 border border-emerald-500/30'
+                        ? 'bg-[#181818] text-[#6DD94B] border border-[#6DD94B]/30'
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
@@ -1313,10 +1307,10 @@ export default function RestaurantWizard({ onCreated, onCancel }) {
               <button
                 type="button"
                 onClick={() => setActiveSection(prev => Math.min(7, prev + 1))}
-                className="group relative px-6 py-2.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-mono font-black transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-95"
+                className="px-6 py-2.5 bg-[#6DD94B] hover:bg-[#38d600] text-black text-xs font-mono font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(109,217,75,0.35)]"
               >
                 <span>{activeSection === 6 ? 'Ver Esqueleto Web' : 'Siguiente Paso'}</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 stroke-[2.5]" />
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
           </div>

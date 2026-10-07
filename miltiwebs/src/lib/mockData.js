@@ -14,10 +14,10 @@ export const RESTAURANT_CATEGORIES = [
 export const TEMPLATES = [
   {
     id: 'the-awwwards-cinematic',
-    name: '1. THE AWWWARDS CINEMATIC',
+    name: '1. Estilo Visual & Vídeo',
     category: 'gastronomic',
-    badge: '★ INMERSIVO • PURO IMPACTO VISUAL',
-    description: 'Fondo negro profundo con mix-blend-mode sobre vídeo 4K y film grain 35mm. Text masking con clip-path, transform translateY(100%) y parallax agresivo. Enlaces magnéticos expansivos.',
+    badge: '★ FOTOS GRANDES • IMPACTO VISUAL',
+    description: 'Pensada para que a tus clientes se les haga la boca agua. Fotos y vídeos grandes de tus platos estrella a pantalla completa, sin textos difíciles y con reserva directa a WhatsApp.',
     previewColors: {
       primary: '#ffffff',
       accent: '#a1a1aa',
@@ -27,14 +27,14 @@ export const TEMPLATES = [
     defaultFont: 'Inter',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Awwwards Standard', 'Text Masking Clip-Path', 'Parallax Agresivo', 'Enlaces Magnéticos']
+    tags: ['Fotos y Vídeos Grandes', 'Platos Estrella', 'Reserva por WhatsApp', 'Sin PDFs']
   },
   {
     id: 'the-neo-bento-brutalist',
-    name: '2. THE NEO-BENTO BRUTALIST',
+    name: '2. Estilo Moderno & Urbano',
     category: 'burger',
-    badge: '★ BENTO BOX • SPRING PHYSICS',
-    description: 'Hamburgueserías urbanas. Grid asimétrico Bento, fondo blanco puro, bordes negros 4px (border-4 border-black), sombras sólidas de 8px negros sin desenfoque y botones mecánicos gigantes que bajan 8px.',
+    badge: '★ DINÁMICO • HAMBURGUESERÍAS',
+    description: 'Diseño joven y con mucha energía, ideal para hamburgueserías, pizzerías y comida rápida. Botones llamativos y selección rápida de platos desde el móvil.',
     previewColors: {
       primary: '#FFE600',
       accent: '#00F0FF',
@@ -44,14 +44,14 @@ export const TEMPLATES = [
     defaultFont: 'Inter',
     defaultLayout: 'centered',
     heroBg: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Bento Grid', 'Border-4 Black', 'Offset Shadow 8px', 'Física de Rebote']
+    tags: ['Hamburguesas y Pizzas', 'Colores Vivos', 'Rápido en Móvil', 'Para Llevar']
   },
   {
     id: 'the-glass-fluid',
-    name: '3. THE GLASS FLUID',
+    name: '3. Estilo Coctelería & Noche',
     category: 'night_bar',
-    badge: '★ MESH GRADIENTS • COCTELERÍAS VIP',
-    description: 'Coctelerías Premium. Mesh gradients en movimiento continuo, paneles acrílicos (backdrop-blur-3xl, bg-white/5, rounded-[3rem]), movimiento senoidal flotante y botones píldoras con brillo interior intenso.',
+    badge: '★ ELEGANTE • COPAS Y EVENTOS',
+    description: 'Ambiente exclusivo con iluminación suave y diseño nocturno. Perfecto para cartas de cócteles, copas, vinos selectos y reservas de mesas para cenas o copas.',
     previewColors: {
       primary: '#a855f7',
       accent: '#06b6d4',
@@ -61,14 +61,14 @@ export const TEMPLATES = [
     defaultFont: 'Outfit',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Mesh Gradients', 'Paneles Acrílicos', 'Rounded-[3rem]', 'Brillo Interior']
+    tags: ['Cócteles y Vinos', 'Ambiente Nocturno', 'Terrazas y Copas', 'Elegante']
   },
   {
     id: 'the-editorial-print',
-    name: '4. THE EDITORIAL PRINT',
+    name: '4. Estilo Carta Gastronómica',
     category: 'gastronomic',
-    badge: '★ ALTA REVISTA • AUTOR',
-    description: 'Restaurantes de autor. Fondo color hueso/sepia (#F9F6F0), layout multi-columna, tipografía exclusivamente Serif, separadores finos, fade-ins lentos 1.5s y barrido horizontal wipe de imágenes.',
+    badge: '★ ALTA COCINA • AUTOR',
+    description: 'Diseño limpio y ordenado como una revista de alta cocina. Ideal para restaurantes con menú degustación, cocina cuidada y producto selecto.',
     previewColors: {
       primary: '#1c1917',
       accent: '#78716c',
@@ -78,14 +78,14 @@ export const TEMPLATES = [
     defaultFont: 'Playfair Display',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Fondo Sepia', 'Columnas Revista', 'Tipografía Serif', 'Wipe Effect']
+    tags: ['Menú Degustación', 'Cocina de Autor', 'Diseño Limpio', 'Elegante']
   },
   {
     id: 'the-cyber-terminal',
-    name: '5. THE CYBER-TERMINAL',
+    name: '5. Estilo Rápido para Móvil',
     category: 'burger',
-    badge: '★ MATRIX • COMIDA FUSIÓN GEEK',
-    description: 'Comida Fusión / Geek. Fondo gris grafito con cuadrícula SVG, tipografía monospace consola, acentos verde neón (#00FF66), Typewriter effect en textos, fallo glitch en imágenes y botones con relleno ASCII.',
+    badge: '★ PEDIDOS EN 1 TOQUE',
+    description: 'Enfocada al 100% en la rapidez desde el móvil. Tus clientes eligen la comida en pocos segundos y te envían el pedido directo a tu teléfono sin complicaciones.',
     previewColors: {
       primary: '#00FF66',
       accent: '#10b981',
@@ -95,14 +95,14 @@ export const TEMPLATES = [
     defaultFont: 'JetBrains Mono',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Terminal Matrix', 'Monospace', 'Verde Neón', 'Glitch Effect']
+    tags: ['Pedidos en Móvil', 'Ultra Rápido', 'Sin Descargas', 'WhatsApp Directo']
   },
   {
     id: 'the-rustic-organic',
-    name: '6. THE RUSTIC ORGANIC',
+    name: '6. Estilo Tradicional & Asador',
     category: 'asador',
-    badge: '★ BRASA • PAPEL RASGADO',
-    description: 'Asadores tradicionales. Tonos tierra cálidos, máscaras SVG de papel rasgado en contenedores, fotografías solapadas estilo polaroid que caen rotando sobre madera y botones con border-radius complejo.',
+    badge: '★ CARNES A LA BRASA • CASERO',
+    description: 'Tonos cálidos y acogedores de toda la vida. Destaca tus carnes a la brasa, pescados frescos, raciones y guisos tradicionales para que el cliente se sienta como en casa.',
     previewColors: {
       primary: '#8B5A2B',
       accent: '#C49A6C',
@@ -112,7 +112,7 @@ export const TEMPLATES = [
     defaultFont: 'Playfair Display',
     defaultLayout: 'split',
     heroBg: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1920&q=80',
-    tags: ['Papel Rasgado', 'Fotos Polaroid', 'Border-Radius Complejo', 'Brasa Viva']
+    tags: ['Carnes a la Brasa', 'Comida Casera', 'Ambiente Acogedor', 'Tradición']
   },
   {
     id: 'urban_street_smash',
