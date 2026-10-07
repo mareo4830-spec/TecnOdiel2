@@ -55,6 +55,7 @@ import {
   Server,
   Zap
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { MOCK_TENANTS } from '../../../../src/multi-tenant/mockTenants.js';
 import { fetchLeads, updateLead } from '../../../../src/lib/leads.js';
@@ -132,6 +133,16 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
+
+  // Pantalla de apertura en verde "Panel de Administrador" con la estética de la landing
+  const [showAdminSplash, setShowAdminSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAdminSplash(false);
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Cronómetro del Check-in
   useEffect(() => {
@@ -620,6 +631,108 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
           }
         `}</style>
       )}
+
+      {/* ── PANTALLA DE APERTURA: FULL SCREEN EN VERDE "PANEL DE ADMINISTRADOR" (ESTÉTICA LANDING) ── */}
+      <AnimatePresence>
+        {showAdminSplash && (
+          <motion.div
+            key="admin-splash-screen"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.04 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            onClick={() => setShowAdminSplash(false)}
+            className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-gradient-to-b from-[#062617] via-[#0D844A] to-[#041a0e] text-white overflow-hidden cursor-pointer select-none"
+          >
+            {/* Halo radial verde neón potente como la landing */}
+            <div 
+              className="pointer-events-none absolute inset-0 opacity-70"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(109,217,75,0.42), transparent 70%), radial-gradient(circle at 20% 80%, rgba(13,132,74,0.6), transparent 60%)'
+              }}
+            />
+
+            {/* Malla cuadriculada tecnológica de la landing */}
+            <div 
+              className="pointer-events-none absolute inset-0 opacity-20"
+              style={{
+                backgroundSize: '48px 48px',
+                backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px)'
+              }}
+            />
+
+            {/* Pulso orbital ambiental */}
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+              className="pointer-events-none absolute h-[500px] w-[500px] rounded-full bg-[#6DD94B]/25 blur-[120px]"
+            />
+
+            {/* Contenido central con animación fluida */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 1.05, y: -25 }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 flex flex-col items-center text-center px-6 max-w-xl"
+            >
+              {/* Badge superior TecnOdiel */}
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/40 border border-[#6DD94B]/40 backdrop-blur-md mb-6 shadow-2xl"
+              >
+                <span className="h-2 w-2 rounded-full bg-[#6DD94B] animate-ping" />
+                <span className="text-[11px] font-mono font-black uppercase tracking-[0.25em] text-[#6DD94B]">
+                  TECNODIEL · SISTEMA CENTRAL
+                </span>
+              </motion.div>
+
+              {/* Título principal solicitado: "Panel de Administrador" */}
+              <motion.h1 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18, duration: 0.5 }}
+                className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white drop-shadow-[0_10px_35px_rgba(0,0,0,0.7)] leading-tight"
+              >
+                Panel de Administrador
+              </motion.h1>
+
+              {/* Subtítulo con estética limpia */}
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.28, duration: 0.4 }}
+                className="text-xs sm:text-sm font-medium text-emerald-100/90 mt-4 tracking-wide max-w-md"
+              >
+                Acceso seguro a control multi-tenant, solicitudes y proyectos
+              </motion.p>
+
+              {/* Barra de progreso de carga animada (0% -> 100%) */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.32, duration: 0.3 }}
+                className="w-56 sm:w-72 h-1.5 bg-black/50 rounded-full mt-8 overflow-hidden p-0.5 border border-white/10 shadow-inner"
+              >
+                <motion.div 
+                  initial={{ width: '0%' }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 1.8, ease: 'easeInOut' }}
+                  className="h-full bg-gradient-to-r from-emerald-300 via-[#6DD94B] to-white rounded-full shadow-[0_0_14px_#6DD94B]"
+                />
+              </motion.div>
+
+              <span className="text-[10px] font-mono text-emerald-200/60 mt-4">
+                Toca en cualquier parte para continuar
+              </span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Fondo estético con glow verde */}
       <div 
