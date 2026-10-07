@@ -12,25 +12,25 @@ export default function FloatingContact({ onOpenAudit }) {
     }
     if (typeof window === 'undefined') return
 
-    // 1. Integración Botpress WebChat
+    // 1. Integración Botpress WebChat (sendEvent 'show')
     if (window.botpressWebChat && typeof window.botpressWebChat.sendEvent === 'function') {
       window.botpressWebChat.sendEvent({ type: 'show' })
       return
     }
+
+    // 2. Integración Botpress v2 API (open)
     if (window.botpress && typeof window.botpress.open === 'function') {
       window.botpress.open()
       return
     }
 
-    // 2. Integración Voiceflow Chat
+    // 3. Integración Voiceflow Chat (soporte alternativo)
     if (window.voiceflow?.chat && typeof window.voiceflow.chat.open === 'function') {
       window.voiceflow.chat.open()
       return
     }
 
-    // 3. Fallback de cortesía si aún no se ha inyectado el script del chatbot en el HTML
-    console.info('[TecnOdiel] Chatbot no detectado en window (botpressWebChat o voiceflow.chat). Redirigiendo a atención directa...')
-    window.open('https://wa.me/34600000000?text=Hola%20TecnOdiel,%20quiero%20informaci%C3%B3n%20para%20mi%20negocio', '_blank', 'noopener,noreferrer')
+    console.info('[TecnOdiel] Esperando inicialización de Botpress Webchat...')
   }
 
   return (
@@ -53,8 +53,8 @@ export default function FloatingContact({ onOpenAudit }) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6DD94B] opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#6DD94B]" />
             </span>
-            <span className="font-mono text-xs uppercase text-white">
-              ¿Dudas? Chatea con nuestra IA directo
+            <span className="font-mono text-xs uppercase text-white font-medium tracking-wide">
+              ¿DUDAS? CHATEA CON NUESTRA IA DIRECTO
             </span>
           </motion.div>
         )}
@@ -73,7 +73,7 @@ export default function FloatingContact({ onOpenAudit }) {
           wellColor="#121212"
           bandColor="#0D844A"
           onSend={handleOpenChatbot}
-          ariaLabel="Chatea con nuestra IA directo"
+          ariaLabel="¿DUDAS? CHATEA CON NUESTRA IA DIRECTO"
           className="shadow-[0_0_30px_rgba(109,217,75,0.4)]"
         >
           <MessageCircle className="h-6 w-6 text-black fill-black" />

@@ -279,9 +279,17 @@
 #bp-web-widget-launcher,
 .bp-widget-side,
 .bp-widget-bubble,
+.bp-fab-container,
+button.bp-fab,
+[aria-label="Open Webchat"],
+[aria-label="Abrir chat"],
+div[class*="bp-fab"],
+div[class*="bp-widget-launcher"],
+div[class*="bpWebchatLauncher"],
 iframe[title="Botpress Webchat Launcher"] {
   display: none !important;
   visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* Voiceflow default launcher */
