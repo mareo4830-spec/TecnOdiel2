@@ -7,6 +7,7 @@ import {
 import LeadForm from './LeadForm.jsx';
 import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
+import Threads from '../ui/Threads.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -108,9 +109,19 @@ function Header({ onPortal }) {
 function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden bg-[#121212] pt-20">
-      <div className="pointer-events-none absolute inset-0 opacity-60" style={{ backgroundImage: 'radial-gradient(60% 50% at 70% 30%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(13,132,74,0.30), transparent 70%)' }} />
+      {/* Fondo interactivo de líneas animadas WebGL (Threads) en verde neón */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-70">
+        <Threads
+          color={[0.43, 0.85, 0.29]}
+          amplitude={3.2}
+          distance={0.12}
+          enableMouseInteraction={true}
+        />
+      </div>
+
+      <div className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(60% 50% at 70% 30%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(13,132,74,0.30), transparent 70%)' }} />
       <div className="pointer-events-none absolute inset-0" style={{ backgroundSize: '64px 64px', backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)', maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)' }} />
-      <div className="relative mx-auto grid min-h-[calc(100dvh-5rem)] max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100dvh-5rem)] max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <Eyebrow dark>Software a medida para negocios de Huelva</Eyebrow>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
