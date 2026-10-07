@@ -177,7 +177,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => window.open(liveWebUrl, '_blank')}
-                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#6DD94B] hover:bg-white text-black font-extrabold text-xs shadow-[0_0_25px_rgba(109,217,75,0.4)] transition cursor-pointer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/25 transition-all duration-200 cursor-pointer active:scale-95"
                     >
                       <span>Abrir Web en Directo</span>
                       <ExternalLink className="w-4 h-4" />
@@ -195,7 +195,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                       <span className="truncate">{liveWebUrl}</span>
                       <button
                         onClick={() => handleCopy(liveWebUrl, 'url')}
-                        className="p-1.5 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer"
+                        className="p-1.5 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer active:scale-90"
                         title="Copiar URL"
                       >
                         {copiedUrl ? <Check className="w-4 h-4 text-[#6DD94B]" /> : <Copy className="w-4 h-4" />}
@@ -216,14 +216,14 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleCopy(accessKey, 'key')}
-                          className="p-1.5 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer"
+                          className="p-1.5 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer active:scale-90"
                           title="Copiar Clave"
                         >
                           {copiedKey ? <Check className="w-4 h-4 text-[#6DD94B]" /> : <Copy className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => window.open(portalUrl, '_blank')}
-                          className="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#6DD94B] hover:text-black text-white text-[11px] font-bold transition cursor-pointer active:scale-95"
                         >
                           Entrar
                         </button>
@@ -239,7 +239,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                 <div className="pt-2 flex justify-end">
                   <button
                     onClick={() => setActiveTab('domain')}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all duration-200 cursor-pointer active:scale-95"
                   >
                     <span>Siguiente paso: Comprar Dominio</span>
                     <ArrowRight className="w-4 h-4" />
@@ -285,7 +285,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                           href={sug.donDominioUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-xs transition"
+                          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-[#6DD94B] text-black font-black text-xs transition-all duration-200 active:scale-95 shadow-sm"
                         >
                           <span>DonDominio</span>
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -294,7 +294,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                           href={sug.namecheapUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-white/20 hover:border-white text-zinc-300 hover:text-white font-bold text-xs transition"
+                          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/20 hover:border-[#6DD94B] hover:text-[#6DD94B] text-zinc-300 font-bold text-xs transition-all duration-200 active:scale-95"
                         >
                           <span>Namecheap</span>
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -304,7 +304,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                   ))}
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#181818]/60 border border-white/5 flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-[#181818]/60 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="text-xs text-zinc-400">
                     ¿Prefieres comprarlo directamente en Cloudflare?
                   </div>
@@ -319,16 +319,16 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                   </a>
                 </div>
 
-                <div className="flex justify-between pt-2">
+                <div className="flex items-center justify-between pt-2">
                   <button
                     onClick={() => setActiveTab('overview')}
-                    className="text-xs text-zinc-400 hover:text-white"
+                    className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
                   >
                     ← Volver
                   </button>
                   <button
                     onClick={() => setActiveTab('dns')}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#6DD94B] text-black font-extrabold text-xs shadow-lg shadow-[#6DD94B]/20 transition"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/20 transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     <span>Siguiente: Conectar DNS</span>
                     <ArrowRight className="w-4 h-4" />
@@ -380,7 +380,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                   <div className="flex justify-end pt-2">
                     <button
                       onClick={() => handleCopy("Tipo: CNAME | Host: @ | Destino: cname.tecnodiel.com\nTipo: CNAME | Host: www | Destino: cname.tecnodiel.com", 'dns')}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition cursor-pointer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all duration-200 active:scale-95 cursor-pointer"
                     >
                       {copiedDns ? <Check className="w-4 h-4 text-[#6DD94B]" /> : <Copy className="w-4 h-4" />}
                       <span>{copiedDns ? '¡Registros copiados!' : 'Copiar Registros DNS'}</span>
@@ -395,16 +395,16 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                   </p>
                 </div>
 
-                <div className="flex justify-between pt-2">
+                <div className="flex items-center justify-between pt-2">
                   <button
                     onClick={() => setActiveTab('domain')}
-                    className="text-xs text-zinc-400 hover:text-white"
+                    className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
                   >
                     ← Volver
                   </button>
                   <button
                     onClick={() => setActiveTab('whatsapp')}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#6DD94B] text-black font-extrabold text-xs shadow-lg shadow-[#6DD94B]/20 transition"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/20 transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     <span>Siguiente: Avisar al Cliente</span>
                     <ArrowRight className="w-4 h-4" />
@@ -437,10 +437,10 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                     {whatsappMessage}
                   </pre>
 
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
                     <button
                       onClick={() => handleCopy(whatsappMessage, 'msg')}
-                      className="text-xs text-zinc-400 hover:text-white inline-flex items-center gap-1.5"
+                      className="text-xs text-zinc-400 hover:text-white inline-flex items-center gap-1.5 p-2 rounded-lg hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
                     >
                       <Copy className="w-3.5 h-3.5" />
                       <span>Copiar Texto</span>
@@ -450,7 +450,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                       href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-black font-extrabold text-xs shadow-[0_0_25px_rgba(37,211,102,0.4)] transition"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl sm:rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-black font-black text-xs shadow-lg shadow-[#25D366]/30 transition-all duration-200 active:scale-95"
                     >
                       <MessageCircle className="w-4 h-4 fill-black" />
                       <span>Abrir Chat de WhatsApp</span>
@@ -458,16 +458,16 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                   </div>
                 </div>
 
-                <div className="flex justify-between pt-2">
+                <div className="flex items-center justify-between pt-2">
                   <button
                     onClick={() => setActiveTab('dns')}
-                    className="text-xs text-zinc-400 hover:text-white"
+                    className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
                   >
                     ← Volver
                   </button>
                   <button
                     onClick={onClose}
-                    className="px-6 py-3 rounded-xl bg-white text-black font-extrabold text-xs hover:bg-zinc-200 transition"
+                    className="px-6 py-3 rounded-xl sm:rounded-2xl bg-white hover:bg-[#6DD94B] text-black font-black text-xs transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     Listo y Cerrar
                   </button>
