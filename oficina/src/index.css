@@ -1,0 +1,374 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Temas. Toda la UI usa las escalas gray/indigo/purple de Tailwind, que se compilan a
+ * variables CSS: redefinirlas aquí re-tinta la app entera sin tocar cada componente.
+ *  - gray    -> neutros con matiz verde. En claro la escala se invierte (950 = fondo, 100 = texto).
+ *  - indigo  -> verde acuoso (acento principal).
+ *  - purple/violet -> verde azulado, segundo extremo de los degradados.
+ * El modo oscuro es el principal; el claro se activa con data-theme="light" en <html>.
+ */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Paleta de la landing: negro con matiz verde y verde lima vivo (#6DD94B). */
+  --color-gray-50: #f4f7f4;
+  --color-gray-100: #e8ede8;
+  --color-gray-200: #d3dbd3;
+  --color-gray-300: #b3beb3;
+  --color-gray-400: #8d9b8d;
+  --color-gray-500: #667566;
+  --color-gray-600: #3a463a;
+  --color-gray-700: #263026;
+  --color-gray-800: #182018;
+  --color-gray-900: #0e140e;
+  --color-gray-950: #080b08;
+
+  --color-indigo-50: #effcec;
+  --color-indigo-100: #d8f8d1;
+  --color-indigo-200: #b2f0a5;
+  --color-indigo-300: #a9ee93;
+  --color-indigo-400: #8ae56d;
+  --color-indigo-500: #6dd94b;
+  --color-indigo-600: #57c238;
+  --color-indigo-700: #2f9622;
+  --color-indigo-800: #26761f;
+  --color-indigo-900: #1f5e1b;
+  --color-indigo-950: #0e3a0f;
+
+  --color-purple-50: #f0fdee;
+  --color-purple-100: #daf9d4;
+  --color-purple-200: #b7f2ab;
+  --color-purple-300: #8fe87f;
+  --color-purple-400: #86e26a;
+  --color-purple-500: #6dd94b;
+  --color-purple-600: #55bd37;
+  --color-purple-700: #328b27;
+  --color-purple-800: #286e21;
+  --color-purple-900: #20581d;
+  --color-purple-950: #0f3410;
+  --color-violet-300: var(--color-purple-300);
+  --color-violet-400: var(--color-purple-400);
+  --color-violet-500: var(--color-purple-500);
+  --color-violet-600: var(--color-purple-600);
+
+  --app-glow-a: rgb(109 217 75 / 0.14);
+  --app-glow-b: rgb(109 217 75 / 0.07);
+  --app-text-strong: #ffffff;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-gray-50: #0b1713;
+  --color-gray-100: #14221d;
+  --color-gray-200: #24352e;
+  --color-gray-300: #3a4f46;
+  --color-gray-400: #566d63;
+  --color-gray-500: #7a9188;
+  --color-gray-600: #a9bdb4;
+  --color-gray-700: #cbdad3;
+  --color-gray-800: #e1ebe6;
+  --color-gray-900: #ffffff;
+  --color-gray-950: #f2f8f5;
+
+  --color-indigo-300: #0b9a7f;
+  --color-indigo-400: #0b8a73;
+  --color-indigo-500: #0e9f84;
+  --color-indigo-600: #0b8a72;
+  --color-indigo-700: #0a7561;
+
+  --color-purple-300: #0b8f8a;
+  --color-purple-400: #0b7f7b;
+  --color-purple-500: #0d8f8c;
+  --color-purple-600: #0b7a78;
+
+  --app-glow-a: rgb(20 184 152 / 0.14);
+  --app-glow-b: rgb(15 181 166 / 0.08);
+  --app-text-strong: #0b1713;
+}
+
+body {
+  @apply bg-gray-950 text-gray-100 antialiased;
+  background-image:
+    radial-gradient(60rem 40rem at 8% -10%, var(--app-glow-a), transparent 70%),
+    radial-gradient(50rem 36rem at 105% 0%, var(--app-glow-b), transparent 70%);
+  background-attachment: fixed;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-700) transparent;
+}
+
+/* En oscuro, como en la landing, los botones de acento verde llevan texto casi negro. */
+:root:not([data-theme="light"])
+  :is([class*="bg-indigo-5"], [class*="bg-indigo-6"], [class*="bg-purple-5"], [class*="bg-purple-6"]).text-white:not([class*="/"]) {
+  color: var(--color-gray-950);
+}
+
+/* En claro, `text-white` se usa como "texto fuerte" en títulos: pasa a tinta oscura. Los botones
+   de color (fondo de acento, éxito, error) conservan el blanco. */
+:root[data-theme="light"] .text-white {
+  color: var(--app-text-strong);
+}
+:root[data-theme="light"]
+  :is(
+    [class*="bg-indigo-"],
+    [class*="from-indigo-"],
+    [class*="bg-purple-"],
+    [class*="bg-emerald-"],
+    [class*="bg-red-"],
+    [class*="bg-rose-"],
+    [class*="bg-amber-"],
+    [class*="bg-sky-"],
+    [class*="bg-gray-950"]
+  ).text-white:not([class*="/"]) {
+  color: #fff;
+}
+:root[data-theme="light"] .bg-black\/60 {
+  background-color: rgb(11 23 19 / 0.35);
+}
+
+/* Cambio de tema / acento: transición breve y global, solo mientras dura. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    color 0.45s ease,
+    fill 0.45s ease,
+    stroke 0.45s ease,
+    box-shadow 0.45s ease !important;
+}
+
+/* Filas deslizables en móvil (filtros, pestañas) sin barra visible. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Animaciones globales ---------- */
+
+/* Lenis (scroll suave). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Botones: pulsación y elevación suaves en toda la app. */
+button:not(:disabled),
+a[class*="rounded"] {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+button:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+/* Entrada de diálogos y paneles laterales (equivalente al modal del vídeo: escala + blur de fondo). */
+@keyframes modalBackdrop {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+}
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes drawerIn {
+  from {
+    opacity: 0.6;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-backdrop {
+  animation: modalBackdrop 0.35s ease both;
+}
+.anim-modal {
+  animation: modalPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.anim-drawer {
+  animation: drawerIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Barras de progreso: crecen desde 0 al aparecer. */
+@keyframes barGrow {
+  from {
+    width: 0;
+  }
+}
+.anim-bar {
+  animation: barGrow 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Skeleton de carga entre secciones. */
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(100deg, var(--color-gray-800) 30%, var(--color-gray-700) 50%, var(--color-gray-800) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Ondulación al pulsar un elemento del menú. */
+@keyframes ripple {
+  from {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+.nav-ripple {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--color-indigo-400), transparent 65%);
+  animation: ripple 0.7s ease-out forwards;
+}
+
+/* Tarjetas: elevación al pasar el ratón. */
+.lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.25s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.5);
+}
+
+/* Tarjeta de Kanban mientras se arrastra / al soltarla. */
+@keyframes settle {
+  0% {
+    transform: scale(1.04) rotate(-1.5deg);
+    box-shadow: 0 18px 30px -12px rgb(0 0 0 / 0.55);
+  }
+  100% {
+    transform: none;
+  }
+}
+.anim-settle {
+  animation: settle 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Toasts. */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-toast {
+  animation: toastIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Fondo animado del splash de entrada. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.12);
+  }
+}
+
+/* Entrada suave de las líneas del timeline de provisionado. */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[fadeIn_0\.3s_ease-out\],
+  .anim-backdrop,
+  .anim-modal,
+  .anim-drawer,
+  .anim-bar,
+  .anim-toast,
+  .anim-settle,
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* View Transitions: el círculo del cambio de tema anima solo la capa nueva. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* Píldora deslizante de chips/pestañas (ver SlidingPills). El botón activo pierde su fondo: lo pone la píldora. */
+[data-slide-host] {
+  position: relative;
+}
+[data-slide-host] > :is(button, a) {
+  position: relative;
+  z-index: 1;
+}
+[data-slide-host] > :is([aria-pressed="true"], [aria-selected="true"]) {
+  background: transparent !important;
+}
+.slide-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--color-indigo-600);
+  box-shadow: 0 6px 16px -6px var(--color-indigo-600);
+}

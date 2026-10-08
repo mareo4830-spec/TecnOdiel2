@@ -2,10 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Menu, X, MessageCircle, MapPin, Mail,
   CalendarCheck, QrCode, LayoutDashboard, Bot, Globe, ShoppingBag, BarChart3, BellRing,
-  Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart
+  Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart, User, LogOut
 } from 'lucide-react';
 import LeadForm from './LeadForm.jsx';
-import { useAdminAccess } from '../../lib/adminAuth.js';
+import { useAccount } from '../../lib/adminAuth.js';
+import { APP_URLS } from '../../config/apps.js';
 import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
 import Threads from '../ui/Threads.jsx';
@@ -39,7 +40,55 @@ const Logo = () => (
 );
 
 /* ───────────── HEADER ───────────── */
-function Header({ onPortal, onAdmin, isAdmin }) {
+/* ───────────── CUENTA (login con Google) ───────────── */
+function AccountArea({ account, mobile = false, onDone }) {
+  const [menu, setMenu] = useState(false);
+  const { role, profile, signIn, signOut, enabled } = account;
+  if (!enabled || role === 'loading') return null;
+  const done = () => onDone?.();
+
+  if (role === 'guest') {
+    return (
+      <button onClick={() => { signIn(); done(); }} className={mobile ? 'block w-full py-3 text-left text-sm font-semibold text-[#6DD94B] cursor-pointer' : 'flex items-center gap-2 rounded-full border border-white/20 px-3.5 py-1.5 text-xs font-semibold text-zinc-200 transition hover:border-[#6DD94B] hover:text-[#6DD94B] cursor-pointer'}>
+        <User className="h-4 w-4" />Iniciar sesión
+      </button>
+    );
+  }
+
+  const isAdmin = role === 'admin';
+  const href = isAdmin ? APP_URLS.oficina : APP_URLS.portal;
+  const label = isAdmin ? 'Entrar a la oficina' : 'Mi portal de cliente';
+  const Icon = isAdmin ? LayoutDashboard : Users;
+
+  if (mobile) {
+    return (
+      <div className="mt-2 border-t border-white/10 pt-3">
+        <p className="truncate pb-1 text-xs text-zinc-400">{profile?.email}</p>
+        <a href={href} className="flex items-center gap-2 py-2.5 text-sm font-semibold text-[#6DD94B]"><Icon className="h-4 w-4" />{label}</a>
+        <button onClick={() => { signOut(); done(); }} className="flex items-center gap-2 py-2.5 text-sm text-zinc-300 cursor-pointer"><LogOut className="h-4 w-4" />Cerrar sesión</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex items-center gap-3">
+      <a href={href} className="flex items-center gap-2 rounded-full bg-[#6DD94B]/10 px-3.5 py-1.5 text-xs font-semibold text-[#6DD94B] ring-1 ring-[#6DD94B]/40 transition hover:bg-[#6DD94B] hover:text-black">
+        <Icon className="h-4 w-4" />{label}
+      </a>
+      <button onClick={() => setMenu((m) => !m)} aria-label="Menú de usuario" aria-expanded={menu} className="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-white/20 bg-white/5 text-sm font-bold text-white transition hover:border-[#6DD94B] cursor-pointer">
+        {profile?.avatar ? <img src={profile.avatar} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" /> : (profile?.name || '?').charAt(0).toUpperCase()}
+      </button>
+      {menu && (
+        <div className="absolute right-0 top-full mt-2 w-60 rounded-2xl border border-white/10 bg-[#121212] p-2 shadow-2xl">
+          <p className="truncate px-3 py-2 text-xs text-zinc-400">{profile?.email}</p>
+          <button onClick={() => { setMenu(false); signOut(); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-200 hover:bg-white/5 cursor-pointer"><LogOut className="h-4 w-4" />Cerrar sesión</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Header({ onPortal, account }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -83,7 +132,7 @@ function Header({ onPortal, onAdmin, isAdmin }) {
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
           <button onClick={onPortal} className="text-sm font-semibold text-zinc-300 hover:text-white cursor-pointer">Área clientes</button>
-          {isAdmin && <button onClick={onAdmin} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20 text-zinc-300 hover:border-[#6DD94B] hover:text-[#6DD94B] transition cursor-pointer">Panel Admin</button>}
+          <AccountArea account={account} />
           <a href="#contacto" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-white">
             Pide tu propuesta
           </a>
@@ -101,7 +150,7 @@ function Header({ onPortal, onAdmin, isAdmin }) {
             </a>
           ))}
           <button onClick={onPortal} className="mt-4 block w-full py-3 text-left text-sm font-semibold text-zinc-300 cursor-pointer">Área clientes</button>
-          {isAdmin && <button onClick={() => { onAdmin?.(); setOpen(false); }} className="block w-full py-2.5 text-left text-xs font-semibold text-[#6DD94B] cursor-pointer">Panel Admin (Oficina)</button>}
+          <AccountArea account={account} mobile onDone={() => setOpen(false)} />
           <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-6 py-3 text-center text-sm font-bold text-black">Pide tu propuesta</a>
         </div>
       )}
@@ -337,7 +386,7 @@ function Contact({ style, onNavigateToMultiwebs, onNavigateToCyS }) {
 }
 
 /* ───────────── FOOTER ───────────── */
-function Footer({ onPortal, onAdmin, isAdmin }) {
+function Footer({ onPortal }) {
   return (
     <footer className="bg-black pt-16 pb-16 text-zinc-400 lg:pb-0">
       <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
@@ -347,7 +396,6 @@ function Footer({ onPortal, onAdmin, isAdmin }) {
           <ul className="mt-5 space-y-3 text-sm">
             {FOOTER.company.map((l) => <li key={l.label}><a href={l.href} onClick={goTo(l.href)} className="hover:text-white">{l.label}</a></li>)}
             <li><button onClick={onPortal} className="hover:text-white cursor-pointer">Área de clientes</button></li>
-            <li><button onClick={onAdmin} className="hover:text-[#6DD94B] text-zinc-400 cursor-pointer">{isAdmin ? 'Panel de administración' : 'Acceso equipo'}</button></li>
           </ul>
         </nav>
         <nav aria-label="Soluciones"><h4 className="text-xs font-bold uppercase tracking-[0.2em] text-white">Soluciones</h4>
@@ -375,12 +423,10 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
   }, [style]);
   const onAction = (a) => (a === 'clinicas' ? onNavigateToCyS : onNavigateToMultiwebs)?.();
   const onPortal = () => (onNavigateToPortal ? onNavigateToPortal() : (window.location.hash = '#/portal'));
-  // Admin verificado con Google → redirige a la Oficina Virtual; si no, el enlace del pie inicia sesión.
-  const { isAdmin, signIn, openPanel } = useAdminAccess();
-  const onAdmin = isAdmin ? openPanel : signIn;
+  const account = useAccount();
   return (
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
-      <Header onPortal={onPortal} onAdmin={onAdmin} isAdmin={isAdmin} />
+      <Header onPortal={onPortal} account={account} />
       <main>
         <Hero />
         <Sectors />
@@ -397,7 +443,7 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
           onNavigateToCyS={onNavigateToCyS}
         />
       </main>
-      <Footer onPortal={onPortal} onAdmin={onAdmin} isAdmin={isAdmin} />
+      <Footer onPortal={onPortal} />
       <MobileBar />
     </div>
   );
