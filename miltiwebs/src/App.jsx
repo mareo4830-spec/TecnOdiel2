@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import DashboardOverview from './components/Dashboard/DashboardOverview';
-import RestaurantWizard from './components/Wizard/RestaurantWizard';
+import FormularioPage from '../../landing/src/pages/FormularioPage';
 import TemplateRenderer from './components/Templates/TemplateRenderer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { fetchRestaurants, fetchRestaurantBySlug } from './lib/supabase';
@@ -256,26 +256,7 @@ export default function App({ onNavigateToPortal, onNavigateToLanding, onNavigat
       {/* If in Wizard View */}
       {currentView === 'wizard' && (
         <ErrorBoundary>
-          <RestaurantWizard
-            onCreated={(newRest) => {
-              loadData();
-              setActiveRestaurant(newRest);
-              if (newRest && newRest.client_access_key && newRest.slug) {
-                try {
-                  sessionStorage.setItem('tecnodiel_auth_session', JSON.stringify({
-                    slug: newRest.slug,
-                    key: newRest.client_access_key
-                  }));
-                } catch (e) {}
-              }
-              if (onNavigateToPortal) {
-                onNavigateToPortal(newRest?.slug);
-              } else {
-                window.location.hash = `#/portal?r=${newRest?.slug || ''}`;
-              }
-            }}
-            onCancel={onNavigateToLanding || (() => { window.location.hash = '#/'; })}
-          />
+          <FormularioPage onBack={onNavigateToLanding || (() => { window.location.hash = '#/'; })} />
         </ErrorBoundary>
       )}
 

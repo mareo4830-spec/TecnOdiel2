@@ -10,7 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 const url = import.meta.env.VITE_VD_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_VD_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const client = url && anonKey
+export const client = url && anonKey
   ? createClient(url, anonKey, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tecnodiel-admin-auth' } })
   : null;
 
@@ -54,7 +54,9 @@ export function useAccount() {
   const signIn = useCallback(() => {
     client?.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } },
+      options: { // href (no solo origin): si el login se pide desde el formulario, Google devuelve ahí
+      // mismo y no se pierde el progreso guardado en sessionStorage.
+      redirectTo: window.location.href, queryParams: { prompt: 'select_account' } },
     });
   }, []);
 
