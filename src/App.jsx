@@ -6,6 +6,11 @@ import MultiwebsCySApp from '../MultiwebsCyS/src/App.jsx';
 import TenantProvider from './multi-tenant/TenantProvider.jsx';
 import TenantRouter from './multi-tenant/TenantRouter.jsx';
 import VirtualDeskAdminApp from '../PortalDeClientes/src/components/virtualdesk/VirtualDeskAdminApp.jsx';
+import AvisoLegal from '../landing/src/components/legal/AvisoLegal.jsx';
+import PoliticaPrivacidad from '../landing/src/components/legal/PoliticaPrivacidad.jsx';
+import PoliticaCookies from '../landing/src/components/legal/PoliticaCookies.jsx';
+import CookieBanner from '../landing/src/components/legal/CookieBanner.jsx';
+import NotFound from '../landing/src/components/NotFound.jsx';
 
 class AdminErrorBoundary extends React.Component {
   constructor(props) {
@@ -49,57 +54,76 @@ class AdminErrorBoundary extends React.Component {
   }
 }
 
-export default function App() {
-  const [view, setView] = useState(() => {
-    if (typeof window === 'undefined') return 'landing';
+function resolveCurrentView() {
+  if (typeof window === 'undefined') return 'landing';
 
-    const path = window.location.pathname.toLowerCase();
-    const hash = window.location.hash.toLowerCase();
-    const params = new URLSearchParams(window.location.search);
+  const path = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+  const hash = window.location.hash.toLowerCase();
+  const params = new URLSearchParams(window.location.search);
 
-    if (params.get('view') === 'cinematic' || params.get('view') === 'awwwards' || params.get('tenant')) return 'cinematic';
-    if (hash.includes('#/cinematic') || hash.includes('#cinematic') || hash.includes('#/awwwards') || hash.includes('#awwwards')) return 'cinematic';
-    if (params.get('view') === 'admin' || path.includes('/admin') || hash.includes('#/admin') || hash.includes('#admin')) return 'admin';
-    if (params.get('view') === 'multiwebs' || params.get('view') === 'restaurantes') return 'multiwebs';
-    if (params.get('view') === 'portal') return 'portal';
-    if (params.get('view') === 'cys' || params.get('view') === 'clinicas' || params.get('view') === 'salud') return 'cys';
+  // Vistas especiales
+  if (params.get('view') === 'cinematic' || params.get('view') === 'awwwards' || params.get('tenant')) return 'cinematic';
+  if (hash.includes('#/cinematic') || hash.includes('#cinematic') || hash.includes('#/awwwards') || hash.includes('#awwwards')) return 'cinematic';
 
-    if (
-      path.includes('/clinicas') ||
-      path.includes('/cys') ||
-      path.includes('/salud') ||
-      path.includes('/c/') ||
-      hash.includes('#/clinicas') ||
-      hash.includes('#/cys') ||
-      hash.includes('#/c/') ||
-      hash.includes('#c/') ||
-      hash.startsWith('#/c/') ||
-      hash.startsWith('#c/') ||
-      hash.includes('#/clinic/') ||
-      hash.includes('#clinic/')
-    ) {
-      return 'cys';
-    }
+  // Páginas Legales RGPD & LSSI
+  if (path === '/aviso-legal' || hash.includes('aviso-legal')) return 'aviso-legal';
+  if (path === '/politica-privacidad' || hash.includes('politica-privacidad')) return 'politica-privacidad';
+  if (path === '/politica-cookies' || hash.includes('politica-cookies')) return 'politica-cookies';
 
-    if (
-      path.includes('/restaurantes') || 
-      path.includes('/multiwebs') || 
-      path.includes('/r/') ||
-      hash.includes('#/multiwebs') || 
-      hash.includes('#/wizard') || 
-      hash.includes('#/manage') || 
-      hash.includes('#/r/') ||
-      hash.includes('#r/') ||
-      hash.startsWith('#/r/') ||
-      hash.startsWith('#r/')
-    ) {
-      return 'multiwebs';
-    }
-    if (path.includes('/portal') || hash.includes('#/portal') || hash.includes('#portal')) {
-      return 'portal';
-    }
+  // 404 explícito
+  if (params.get('view') === '404' || hash.includes('404')) return '404';
+
+  // Panel de administración
+  if (params.get('view') === 'admin' || path.startsWith('/admin') || hash.includes('#/admin') || hash.includes('#admin')) return 'admin';
+
+  // Portales verticales
+  if (params.get('view') === 'multiwebs' || params.get('view') === 'restaurantes') return 'multiwebs';
+  if (params.get('view') === 'portal') return 'portal';
+  if (params.get('view') === 'cys' || params.get('view') === 'clinicas' || params.get('view') === 'salud') return 'cys';
+
+  if (
+    path.startsWith('/clinicas') ||
+    path.startsWith('/cys') ||
+    path.startsWith('/salud') ||
+    path.startsWith('/c/') ||
+    hash.includes('#/clinicas') ||
+    hash.includes('#/cys') ||
+    hash.includes('#/c/') ||
+    hash.includes('#c/') ||
+    hash.includes('#/clinic/') ||
+    hash.includes('#clinic/')
+  ) {
+    return 'cys';
+  }
+
+  if (
+    path.startsWith('/restaurantes') || 
+    path.startsWith('/multiwebs') || 
+    path.startsWith('/r/') ||
+    hash.includes('#/multiwebs') || 
+    hash.includes('#/wizard') || 
+    hash.includes('#/manage') || 
+    hash.includes('#/r/') ||
+    hash.includes('#r/')
+  ) {
+    return 'multiwebs';
+  }
+
+  if (path.startsWith('/portal') || hash.includes('#/portal') || hash.includes('#portal')) {
+    return 'portal';
+  }
+
+  // Raíz / Landing
+  if (path === '/' || path === '') {
     return 'landing';
-  });
+  }
+
+  // Cualquier ruta desconocida no contemplada -> 404
+  return '404';
+}
+
+export default function App() {
+  const [view, setView] = useState(() => resolveCurrentView());
 
   const [activeSlug, setActiveSlug] = useState(() => {
     if (typeof window === 'undefined') return null;
@@ -125,64 +149,18 @@ export default function App() {
   // Listen to hash / popstate changes
   useEffect(() => {
     const handleUrlChange = () => {
-      const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       const params = new URLSearchParams(window.location.search);
 
       const qSlug = params.get('r') || params.get('slug') || params.get('restaurant');
       if (qSlug) setActiveSlug(qSlug);
 
-      // Ignore intra-page anchor jumps (#carta, #degustacion, etc.) so they never reset the active view
-      if (/^#(carta|degustacion|menu|reservas|contacto|info|horarios)/i.test(hash)) {
+      // Ignore intra-page anchor jumps (#carta, #degustacion, #contacto, etc.) so they never reset the active view
+      if (/^#(carta|degustacion|menu|reservas|contacto|info|horarios|por-que|proyectos|servicios|faq|inicio)/i.test(hash)) {
         return;
       }
 
-      if (
-        params.get('view') === 'cinematic' ||
-        params.get('view') === 'awwwards' ||
-        path.includes('/cinematic') ||
-        path.includes('/awwwards') ||
-        hash.includes('#/cinematic') ||
-        hash.includes('#cinematic') ||
-        hash.includes('#/awwwards') ||
-        hash.includes('#awwwards')
-      ) {
-        setView('cinematic');
-      } else if (
-        path.includes('/clinicas') ||
-        path.includes('/cys') ||
-        path.includes('/salud') ||
-        path.includes('/c/') ||
-        hash.includes('#/clinicas') ||
-        hash.includes('#/cys') ||
-        hash.includes('#/c/') ||
-        hash.includes('#c/') ||
-        hash.startsWith('#/c/') ||
-        hash.startsWith('#c/') ||
-        hash.includes('#/clinic/') ||
-        hash.includes('#clinic/')
-      ) {
-        setView('cys');
-      } else if (
-        path.includes('/restaurantes') || 
-        path.includes('/multiwebs') || 
-        path.includes('/r/') ||
-        hash.includes('#/multiwebs') || 
-        hash.includes('#/wizard') || 
-        hash.includes('#/manage') || 
-        hash.includes('#/r/') ||
-        hash.includes('#r/') ||
-        hash.startsWith('#/r/') ||
-        hash.startsWith('#r/')
-      ) {
-        setView('multiwebs');
-      } else if (path.includes('/admin') || hash.includes('#/admin') || hash.includes('#admin') || params.get('view') === 'admin') {
-        setView('admin');
-      } else if (path.includes('/portal') || hash.includes('#/portal') || hash.includes('#portal')) {
-        setView('portal');
-      } else if (hash === '#/' || hash === '' || path === '/') {
-        setView('landing');
-      }
+      setView(resolveCurrentView());
     };
 
     window.addEventListener('hashchange', handleUrlChange);
@@ -215,6 +193,18 @@ export default function App() {
       const q = slug ? `?r=${encodeURIComponent(slug)}` : '';
       window.history.pushState(null, '', `/portal${q}`);
       window.location.hash = `#/portal${q}`;
+    } else if (newView === 'aviso-legal') {
+      window.history.pushState(null, '', '/aviso-legal');
+      window.location.hash = '#/aviso-legal';
+    } else if (newView === 'politica-privacidad') {
+      window.history.pushState(null, '', '/politica-privacidad');
+      window.location.hash = '#/politica-privacidad';
+    } else if (newView === 'politica-cookies') {
+      window.history.pushState(null, '', '/politica-cookies');
+      window.location.hash = '#/politica-cookies';
+    } else if (newView === '404') {
+      window.history.pushState(null, '', '/404');
+      window.location.hash = '#/404';
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -284,6 +274,34 @@ export default function App() {
           onNavigateToAdmin={() => navigateTo('admin')}
         />
       )}
+
+      {view === 'aviso-legal' && (
+        <AvisoLegal key="aviso-legal-page" onNavigateHome={() => navigateTo('landing')} />
+      )}
+
+      {view === 'politica-privacidad' && (
+        <PoliticaPrivacidad key="politica-privacidad-page" onNavigateHome={() => navigateTo('landing')} />
+      )}
+
+      {view === 'politica-cookies' && (
+        <PoliticaCookies key="politica-cookies-page" onNavigateHome={() => navigateTo('landing')} />
+      )}
+
+      {view === '404' && (
+        <NotFound 
+          key="not-found-page"
+          onNavigateHome={() => navigateTo('landing')}
+          onNavigateToContact={() => {
+            navigateTo('landing');
+            setTimeout(() => {
+              document.querySelector('#contacto')?.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+          }}
+        />
+      )}
+
+      {/* Banner flotante de consentimiento de cookies RGPD */}
+      <CookieBanner onNavigateToCookies={() => navigateTo('politica-cookies')} />
     </div>
   );
 }

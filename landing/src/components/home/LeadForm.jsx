@@ -8,7 +8,7 @@ const EMPTY = {
   phone: '', 
   email: '', 
   sector: 'Restaurante / Bar / Cafetería', 
-  privacy: true 
+  privacy: false 
 };
 
 const SECTORS = [
@@ -296,15 +296,27 @@ export default function LeadForm({
         </select>
       </div>
 
-      {/* Casilla de Privacidad */}
+      {/* Casilla de Privacidad RGPD */}
       <label className="flex items-start gap-3 text-xs text-zinc-600 pt-1 cursor-pointer select-none">
         <input 
           type="checkbox" 
+          required
           checked={form.privacy} 
           onChange={(e) => setForm((f) => ({ ...f, privacy: e.target.checked }))} 
           className="mt-0.5 h-4 w-4 accent-[#0D844A] cursor-pointer" 
         />
-        <span>He leído y acepto la política de privacidad. Usaremos tus datos solo para tu proyecto.</span>
+        <span>
+          He leído y acepto la{' '}
+          <a 
+            href="#/politica-privacidad" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="underline font-semibold text-zinc-800 hover:text-[#0D844A]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Política de Privacidad
+          </a>.
+        </span>
       </label>
 
       {/* Mensaje de Error */}

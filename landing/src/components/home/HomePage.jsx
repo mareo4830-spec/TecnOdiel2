@@ -358,7 +358,11 @@ function Footer() {
       </div>
       <div className="mx-auto mt-14 flex max-w-[1280px] flex-wrap items-center justify-between gap-4 border-t border-white/10 px-5 py-6 text-xs sm:px-8">
         <p>© {new Date().getFullYear()} TecnOdiel. Todos los derechos reservados.</p>
-        <p className="flex gap-5"><span>Información legal</span><span>Política de privacidad</span><span>Política de cookies</span></p>
+        <div className="flex flex-wrap items-center gap-5 text-zinc-400">
+          <a href="#/aviso-legal" className="hover:text-[#6DD94B] transition">Aviso Legal</a>
+          <a href="#/politica-privacidad" className="hover:text-[#6DD94B] transition">Política de Privacidad</a>
+          <a href="#/politica-cookies" className="hover:text-[#6DD94B] transition">Política de Cookies</a>
+        </div>
       </div>
     </footer>
   );
