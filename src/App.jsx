@@ -9,7 +9,6 @@ import VirtualDeskAdminApp from '../PortalDeClientes/src/components/virtualdesk/
 import AvisoLegal from '../landing/src/components/legal/AvisoLegal.jsx';
 import PoliticaPrivacidad from '../landing/src/components/legal/PoliticaPrivacidad.jsx';
 import PoliticaCookies from '../landing/src/components/legal/PoliticaCookies.jsx';
-import CookieBanner from '../landing/src/components/legal/CookieBanner.jsx';
 import NotFound from '../landing/src/components/NotFound.jsx';
 
 class AdminErrorBoundary extends React.Component {
@@ -299,9 +298,6 @@ export default function App() {
           }}
         />
       )}
-
-      {/* Banner flotante de consentimiento de cookies RGPD */}
-      <CookieBanner onNavigateToCookies={() => navigateTo('politica-cookies')} />
     </div>
   );
 }

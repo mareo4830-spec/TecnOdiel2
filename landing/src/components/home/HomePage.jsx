@@ -83,7 +83,7 @@ function Header({ account }) {
           ))}
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
-          <a href="#contacto" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-white">
+          <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-white">
             Pide tu propuesta
           </a>
           <RoleButton account={account} />

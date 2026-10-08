@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import HomePage from './components/home/HomePage';
 import AuditModal from './components/AuditModal';
+import OdielitoRunner from './components/OdielitoRunner';
+
 export default function App({ 
   onNavigateToMultiwebs, 
   onNavigateToCyS, 
@@ -27,6 +29,9 @@ export default function App({
         onNavigateToPortal={onNavigateToPortal}
         onNavigateToAdmin={onNavigateToAdmin}
       />
+
+      {/* 3D Mascot Odielito: persigue el cursor y lo arrastra a "Pide tu propuesta" */}
+      <OdielitoRunner />
 
       {/* Interactive & Secure Technical Audit Diagnostic Modal with Direct Restaurant Routing */}
       <AuditModal 
