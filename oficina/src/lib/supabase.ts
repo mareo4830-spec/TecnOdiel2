@@ -2,8 +2,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Proyecto Supabase de la Oficina Virtual (separado del de producción de los clientes).
 // Solo se usa la clave pública: los secretos viven en las Edge Functions.
-const url = import.meta.env.VITE_SUPABASE_URL;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const url = import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_VD_SUPABASE_URL;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_VD_SUPABASE_ANON_KEY;
 
 export const isSupabaseConfigured = Boolean(url && anonKey);
 

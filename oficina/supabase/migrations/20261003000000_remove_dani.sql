@@ -6,8 +6,9 @@ delete from public.partners where id = 'dani';
 alter table public.partners drop constraint if exists partners_id_check;
 alter table public.partners add constraint partners_id_check check (id in ('javier', 'mario'));
 
--- Cuenta de Google de Javier. Mario: cambia su email cuando lo sepas (update public.partners set email = '…' where id = 'mario').
+-- Cuentas de Google de Javier y Mario como socios administradores.
 update public.partners set email = 'franciscojavierfarinapadilla@gmail.com' where id = 'javier';
+update public.partners set email = 'mareo4830@gmail.com' where id = 'mario';
 
 -- Si el usuario ya existía en Auth, vincúlalo ahora.
 update public.partners p

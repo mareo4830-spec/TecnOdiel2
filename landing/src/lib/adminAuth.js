@@ -7,17 +7,29 @@ import { createClient } from '@supabase/supabase-js';
  * vinculada a su usuario (RLS); cualquier otra cuenta con sesión es cliente. Ocultar botones
  * es solo comodidad, no protege nada.
  */
-const url = import.meta.env.VITE_VD_SUPABASE_URL;
-const anonKey = import.meta.env.VITE_VD_SUPABASE_ANON_KEY;
+const url = import.meta.env.VITE_VD_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
+const anonKey = import.meta.env.VITE_VD_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const client = url && anonKey
   ? createClient(url, anonKey, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tecnodiel-admin-auth' } })
   : null;
 
+// Correos de socios con acceso administrativo a la oficina virtual
+const ADMIN_EMAILS = [
+  'franciscojavierfarinapadilla@gmail.com',
+  'mareo4830@gmail.com',
+];
+
 async function resolveRole(session) {
   if (!session) return 'guest';
-  const { data, error } = await client.from('partners').select('id').eq('user_id', session.user.id).maybeSingle();
-  return !error && data ? 'admin' : 'client';
+  const email = session.user.email?.toLowerCase();
+  if (email && ADMIN_EMAILS.includes(email)) return 'admin';
+  try {
+    const { data, error } = await client.from('partners').select('id').eq('user_id', session.user.id).maybeSingle();
+    return !error && data ? 'admin' : 'client';
+  } catch {
+    return 'client';
+  }
 }
 
 const profileOf = (session) => session && {
