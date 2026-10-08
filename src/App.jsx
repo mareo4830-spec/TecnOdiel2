@@ -10,7 +10,6 @@ import AvisoLegal from '../landing/src/components/legal/AvisoLegal.jsx';
 import PoliticaPrivacidad from '../landing/src/components/legal/PoliticaPrivacidad.jsx';
 import PoliticaCookies from '../landing/src/components/legal/PoliticaCookies.jsx';
 import NotFound from '../landing/src/components/NotFound.jsx';
-import OdielitoRunner from '../landing/src/components/OdielitoRunner.jsx';
 
 class AdminErrorBoundary extends React.Component {
   constructor(props) {
@@ -221,7 +220,6 @@ export default function App() {
           onNavigateToCyS={() => navigateTo('cys')}
           onNavigateToPortal={() => navigateTo('portal')}
           onNavigateToAdmin={() => navigateTo('admin')}
-          disableOdielito={true}
         />
       )}
 
@@ -300,9 +298,6 @@ export default function App() {
           }}
         />
       )}
-
-      {/* 3D Mascot Odielito: persigue el cursor y te lleva al formulario de propuesta estés donde estés */}
-      <OdielitoRunner onNavigateToLanding={() => navigateTo('landing')} />
     </div>
   );
 }
