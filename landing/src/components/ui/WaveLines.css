@@ -1,0 +1,50 @@
+.wave-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+/* Cada capa se centra verticalmente en la zona baja-media del hero y se anima solo con transform. */
+.wave-layer {
+  position: absolute;
+  left: 0;
+  top: 52%;
+  margin-top: -230px;
+  max-width: none;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: wave-drift var(--wave-dur, 60s) linear infinite;
+  animation-direction: var(--wave-dir, normal);
+}
+
+.wave-layer:nth-of-type(2) {
+  top: 60%;
+}
+
+.wave-layer:nth-of-type(3) {
+  top: 46%;
+}
+
+/* Desplaza exactamente un periodo: el bucle es continuo y sin saltos. */
+@keyframes wave-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(var(--wave-period) * -1), 0, 0);
+  }
+}
+
+.wave-lines-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #121212 0%, rgba(18, 18, 18, 0.85) 22%, rgba(18, 18, 18, 0) 55%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-layer {
+    animation: none;
+  }
+}

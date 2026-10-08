@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import CardSwap, { Card } from '../ui/CardSwap.jsx';
 import { 
-  ExternalLink, ChevronLeft, ChevronRight, Sparkles, 
-  CalendarCheck, Utensils, Scissors, Stethoscope, Lock, Globe 
+  ExternalLink, ChevronRight, Utensils, Scissors, Stethoscope, Lock 
 } from 'lucide-react';
 
 export const SHOWCASE_ITEMS = [
@@ -127,142 +127,68 @@ export const SHOWCASE_ITEMS = [
   }
 ];
 
-export default function HeroShowcase() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Rotación automática continua cada 3.5 segundos sin atascarse
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SHOWCASE_ITEMS.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, [currentIndex]);
-
-  const current = SHOWCASE_ITEMS[currentIndex];
-
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + SHOWCASE_ITEMS.length) % SHOWCASE_ITEMS.length);
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % SHOWCASE_ITEMS.length);
-  };
-
+// Función normal (no componente): CardSwap necesita que el hijo directo sea <Card> para engancharle el ref.
+const showcaseCard = (item) => {
   return (
-    <div className="relative w-full max-w-[440px] sm:max-w-[480px] lg:max-w-[500px] select-none mx-auto lg:mr-0">
-      {/* Marco de ventana del navegador moderno y estilizado */}
-      <div className="rounded-3xl border border-white/10 bg-[#161616]/95 p-4 sm:p-5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)]">
-        {/* Cabecera del navegador */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-red-400/80" />
-            <span className="h-2 w-2 rounded-full bg-yellow-400/80" />
-            <span className="h-2 w-2 rounded-full bg-[#6DD94B]" />
-          </div>
-
-          {/* Barra de dirección URL */}
-          <div className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-0.5 text-[11px] text-zinc-300 border border-white/5">
-            <Lock className="h-2.5 w-2.5 text-[#6DD94B]" />
-            <span className="font-mono text-[11px]">{current.title}</span>
-          </div>
-
-          {/* Badge de tipo de web */}
-          <div className="flex items-center gap-1">
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold ${
-              current.type === 'real'
-                ? 'bg-[#6DD94B]/20 text-[#6DD94B] border border-[#6DD94B]/30'
-                : 'bg-white/10 text-zinc-300 border border-white/10'
-            }`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${current.type === 'real' ? 'bg-[#6DD94B] animate-pulse' : 'bg-zinc-400'}`} />
-              {current.badge}
-            </span>
-          </div>
+    <Card key={item.id} customClass="hero-card">
+      {/* Cabecera estilo ventana de navegador */}
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3.5 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-red-400/80" />
+          <span className="h-2 w-2 rounded-full bg-yellow-400/80" />
+          <span className="h-2 w-2 rounded-full bg-[#6DD94B]" />
         </div>
+        <div className="flex min-w-0 items-center gap-1.5 rounded-full border border-white/5 bg-black/60 px-3 py-0.5 text-[11px] text-zinc-300">
+          <Lock className="h-2.5 w-2.5 shrink-0 text-[#6DD94B]" />
+          <span className="truncate font-mono">{item.title}</span>
+        </div>
+        <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold ${
+          item.type === 'real'
+            ? 'border border-[#6DD94B]/30 bg-[#6DD94B]/20 text-[#6DD94B]'
+            : 'border border-white/10 bg-white/10 text-zinc-300'
+        }`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${item.type === 'real' ? 'bg-[#6DD94B]' : 'bg-zinc-400'}`} />
+          {item.badge}
+        </span>
+      </div>
 
-        {/* Imagen de la web / plantilla con transición fluida */}
-        <div className="relative mt-2.5 aspect-[16/10] overflow-hidden rounded-xl bg-black/80 group">
-          <img 
-            key={current.id}
-            src={current.image} 
-            alt={current.title}
-            className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-
-          {/* Gradiente sutil para legibilidad de textos */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90" />
-
-          {/* Métricas destacadas en el pie de la imagen */}
-          <div className="absolute inset-x-0 bottom-0 p-3 flex items-end justify-between text-xs">
-            <div>
-              <p className="font-bold text-white text-xs sm:text-sm drop-shadow">{current.subtitle}</p>
-              <div className="mt-1 flex items-center gap-2 text-[10px] text-zinc-300 font-mono">
-                {current.metrics.map((m, i) => (
-                  <span key={i} className="flex items-center gap-0.5">
-                    <span className="text-[#6DD94B] font-bold">✓</span> {m.label}: <strong className="text-white">{m.value}</strong>
-                  </span>
-                ))}
-              </div>
+      {/* Preview de la web / plantilla */}
+      <div className="relative m-2.5 mt-2 aspect-[16/10] overflow-hidden rounded-xl bg-black/80">
+        <img src={item.image} alt={item.title} decoding="async" className="h-full w-full object-cover object-top" draggable={false} />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-black via-black/85 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-white sm:text-base">{item.subtitle}</p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono text-[11px] text-zinc-200">
+              {item.metrics.map((m) => (
+                <span key={m.label}>
+                  <span className="font-bold text-[#6DD94B]">✓</span> {m.label}: <strong className="text-white">{m.value}</strong>
+                </span>
+              ))}
             </div>
-
-            {current.isExternal ? (
-              <a
-                href={current.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-full bg-[#6DD94B] px-3 py-1 text-[11px] font-bold text-black shadow-md hover:bg-white transition shrink-0"
-              >
-                Ver <ExternalLink className="h-3 w-3" />
-              </a>
-            ) : (
-              <a
-                href="#demos"
-                className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-black hover:bg-white transition shrink-0"
-              >
-                Demo <ChevronRight className="h-3 w-3" />
-              </a>
-            )}
           </div>
-
-          {/* Botones laterales de navegación */}
-          <button
-            onClick={handlePrev}
-            aria-label="Anterior web"
-            className="absolute left-1.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[#6DD94B] hover:text-black transition cursor-pointer"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={handleNext}
-            aria-label="Siguiente web"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[#6DD94B] hover:text-black transition cursor-pointer"
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        {/* Selector rápido inferior (píldoras interactivas con indicador de progreso activo) */}
-        <div className="mt-2.5 flex items-center justify-between gap-1.5 pt-2 border-t border-white/5">
-          <div className="flex items-center gap-1 overflow-x-auto py-0.5">
-            {SHOWCASE_ITEMS.map((item, idx) => (
-              <button
-                key={item.id}
-                onClick={() => setCurrentIndex(idx)}
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition cursor-pointer whitespace-nowrap ${
-                  currentIndex === idx
-                    ? 'bg-[#6DD94B] text-black font-bold shadow-sm'
-                    : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {item.title}
-              </button>
-            ))}
-          </div>
-
-          <div className="text-[9px] text-zinc-500 font-mono shrink-0">
-            {currentIndex + 1} / {SHOWCASE_ITEMS.length}
-          </div>
+          {item.isExternal ? (
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black shadow-md transition hover:bg-white">
+              Ver <ExternalLink className="h-3 w-3" />
+            </a>
+          ) : (
+            <a href="#demos" className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/90 px-3.5 py-1.5 text-xs font-bold text-black transition hover:bg-white">
+              Demo <ChevronRight className="h-3 w-3" />
+            </a>
+          )}
         </div>
       </div>
+    </Card>
+  );
+};
+
+/* Escaparate rotatorio de webs reales y plantillas: pila de tarjetas 3D (React Bits CardSwap). */
+export default function HeroShowcase() {
+  return (
+    <div className="hero-cardswap select-none">
+      <CardSwap width={580} height={410} cardDistance={40} verticalDistance={46} delay={3500} pauseOnHover skewAmount={4}>
+        {SHOWCASE_ITEMS.map(showcaseCard)}
+      </CardSwap>
     </div>
   );
 }

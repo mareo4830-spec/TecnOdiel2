@@ -1,0 +1,90 @@
+.card-swap-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(5%, 20%);
+  transform-origin: bottom right;
+
+  perspective: 900px;
+  overflow: visible;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 12px;
+  border: 1px solid #fff;
+  background: #000;
+
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .card-swap-container {
+    transform: scale(0.75) translate(25%, 25%);
+  }
+}
+
+@media (max-width: 480px) {
+  .card-swap-container {
+    transform: scale(0.55) translate(25%, 25%);
+  }
+}
+
+/* Tarjetas del escaparate del hero (HeroShowcase) */
+.hero-card {
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #161616;
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.95);
+}
+
+/* Móvil / tablet: en el flujo, bajo el texto, a escala reducida */
+.hero-cardswap {
+  position: relative;
+  z-index: 10;
+  height: 360px;
+  margin-top: 1rem;
+  pointer-events: none;
+}
+.hero-cardswap .card {
+  pointer-events: auto;
+}
+.hero-cardswap .card-swap-container {
+  right: 8px;
+  bottom: 20px;
+  transform: scale(0.5);
+  transform-origin: bottom right;
+}
+@media (min-width: 480px) {
+  .hero-cardswap { height: 440px; }
+  .hero-cardswap .card-swap-container { transform: scale(0.65); }
+}
+
+/* Escritorio: pegado a la esquina inferior derecha del hero, centrado algo más arriba; solo el borde derecho de la tarjeta delantera sale de pantalla */
+@media (min-width: 1024px) {
+  .hero-cardswap {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 720px;
+    height: 640px;
+    margin: 0;
+  }
+  .hero-cardswap .card-swap-container {
+    right: -10px;
+    bottom: 60px;
+    transform: scale(0.8);
+  }
+}
+@media (min-width: 1440px) {
+  .hero-cardswap .card-swap-container {
+    right: -14px;
+    bottom: 90px;
+    transform: none;
+  }
+}

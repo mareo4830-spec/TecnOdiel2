@@ -9,7 +9,7 @@ import { useAccount } from '../../lib/adminAuth.js';
 import { ProfileButton, RoleButton, roleLink } from './AccountMenu.jsx';
 import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
-import Threads from '../ui/Threads.jsx';
+import WaveLines from '../ui/WaveLines.jsx';
 import HeroShowcase from './HeroShowcase.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
@@ -116,19 +116,14 @@ function Header({ account }) {
 function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden bg-[#121212] pt-20">
-      {/* Fondo interactivo de líneas animadas WebGL (Threads) en verde neón */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-70">
-        <Threads
-          color={[0.43, 0.85, 0.29]}
-          amplitude={3.2}
-          distance={0.12}
-          enableMouseInteraction={true}
-        />
+      {/* Fondo de líneas verdes onduladas: SVG + animación CSS (sin WebGL), muy ligero */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-80">
+        <WaveLines />
       </div>
 
       <div className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(60% 50% at 70% 30%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(13,132,74,0.30), transparent 70%)' }} />
       <div className="pointer-events-none absolute inset-0" style={{ backgroundSize: '64px 64px', backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)', maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)' }} />
-      <div className="relative z-10 mx-auto grid min-h-[calc(100dvh-5rem)] max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="relative z-10 mx-auto grid max-w-[1280px] lg:min-h-[calc(100dvh-5rem)] items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <Eyebrow dark>Software a medida para negocios de Huelva</Eyebrow>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
@@ -153,11 +148,12 @@ function Hero() {
           </ul>
         </div>
 
-        {/* Columna derecha: Escaparate rotatorio de webs y plantillas con el tamaño exacto del marco */}
-        <div className="flex flex-col items-center justify-center lg:items-end w-full">
-          <HeroShowcase />
-        </div>
+        {/* Hueco de la columna derecha: el escaparate va fuera del grid para poder pegarse a la esquina del hero */}
+        <div className="hidden lg:block" aria-hidden />
       </div>
+
+      {/* Escaparate rotatorio de webs y plantillas (CardSwap): en escritorio sangra por la esquina inferior derecha */}
+      <HeroShowcase />
       <a href="#por-que" onClick={goTo('#por-que')} aria-label="Bajar" className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 text-[#6DD94B] sm:block"><ChevronDown className="h-6 w-6 animate-bounce" /></a>
     </section>
   );
