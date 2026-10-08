@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import LogoMark from './home/LogoMark';
 
 /* ─────────────────────────────────────────────────────────────
  * 1. FONDO REACTIVO: Red interactiva de partículas (React Bits)
- * Canvas 2D ultra-fluido a 60+ FPS que responde dinámicamente al cursor.
+ * Canvas 2D ultra-fluido a 60+ FPS que responde sutilmente al cursor.
  * ───────────────────────────────────────────────────────────── */
 function InteractiveParticleBackground({ mousePos }) {
   const canvasRef = useRef(null);
@@ -113,77 +113,15 @@ function InteractiveParticleBackground({ mousePos }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
- * 2. BOTÓN MAGNÉTICO (Magnet Button de React Bits)
- * ───────────────────────────────────────────────────────────── */
-function MagneticButton({ children, onClick, href, className = '' }) {
-  const ref = useRef(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const springConfig = { damping: 15, stiffness: 150, mass: 0.2 };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
-
-  const handleMouseMove = (e) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const distanceX = e.clientX - centerX;
-    const distanceY = e.clientY - centerY;
-
-    x.set(distanceX * 0.35);
-    y.set(distanceY * 0.35);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  const Tag = href ? motion.a : motion.button;
-
-  return (
-    <Tag
-      ref={ref}
-      href={href}
-      onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ x: springX, y: springY }}
-      className={`relative inline-flex items-center justify-center select-none cursor-pointer ${className}`}
-    >
-      {children}
-    </Tag>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
- * 3. PÁGINA NOT FOUND (404 Monumental integrado en el fondo)
+ * 2. PÁGINA NOT FOUND (404 Monumental, Estático y de Gran Legibilidad)
  * ───────────────────────────────────────────────────────────── */
 export default function NotFound({ onNavigateHome, onNavigateToContact }) {
   const mousePosRef = useRef({ x: -1000, y: -1000 });
   const [coords, setCoords] = useState({ x: 0, y: 0 });
 
-  // Valores de movimiento para el Tilt 3D reactivo
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { damping: 25, stiffness: 110 };
-  const smoothX = useSpring(mouseX, springConfig);
-  const smoothY = useSpring(mouseY, springConfig);
-
-  // Inclinación suave tridimensional reactiva al ratón
-  const rotateX = useTransform(smoothY, [-0.5, 0.5], [8, -8]);
-  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-10, 10]);
-
   const handleGlobalMouseMove = (e) => {
     mousePosRef.current = { x: e.clientX, y: e.clientY };
     setCoords({ x: Math.round(e.clientX), y: Math.round(e.clientY) });
-
-    const { innerWidth, innerHeight } = window;
-    mouseX.set(e.clientX / innerWidth - 0.5);
-    mouseY.set(e.clientY / innerHeight - 0.5);
   };
 
   const goHome = (e) => {
@@ -207,51 +145,48 @@ export default function NotFound({ onNavigateHome, onNavigateToContact }) {
       <div
         className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(700px circle at ${coords.x}px ${coords.y}px, rgba(109, 217, 75, 0.09), transparent 75%)`,
+          background: `radial-gradient(750px circle at ${coords.x}px ${coords.y}px, rgba(109, 217, 75, 0.08), transparent 75%)`,
         }}
       />
 
       {/* Cuadrícula geométrica sutil en el fondo */}
       <div 
-        className="pointer-events-none absolute inset-0 opacity-[0.06] z-0"
+        className="pointer-events-none absolute inset-0 opacity-[0.05] z-0"
         style={{
           backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
           backgroundSize: '4rem 4rem',
         }}
       />
 
-      {/* ── 3. EL 404 MONUMENTAL ESCULPIDO E INTEGRADO CON EL FONDO ── */}
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center select-none overflow-hidden [perspective:1200px]">
-        <motion.div
-          style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-          className="relative flex items-center justify-center transform-gpu"
-        >
-          {/* Resplandor posterior verde neón reactivo */}
+      {/* ── 3. EL 404 MONUMENTAL ESTÁTICO (ALTA LEGIBILIDAD INTEGRADA) ── */}
+      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center select-none overflow-hidden">
+        <div className="relative flex items-center justify-center">
+          {/* Halo posterior verde neón para definición y contraste */}
           <span 
-            aria-hidden
-            className="absolute text-[240px] sm:text-[380px] md:text-[500px] lg:text-[620px] font-black tracking-tighter text-[#6DD94B]/[0.06] blur-3xl scale-105"
+            aria-hidden="true"
+            className="absolute text-[240px] sm:text-[380px] md:text-[500px] lg:text-[620px] font-black tracking-tighter text-[#6DD94B]/20 blur-3xl select-none"
           >
             404
           </span>
 
           {/* Sombra de relieve espacial */}
           <span
-            aria-hidden
-            className="absolute text-[240px] sm:text-[380px] md:text-[500px] lg:text-[620px] font-black tracking-tighter text-black/70 translate-y-6 blur-lg"
+            aria-hidden="true"
+            className="absolute text-[240px] sm:text-[380px] md:text-[500px] lg:text-[620px] font-black tracking-tighter text-black/90 translate-y-4 blur-md select-none"
           >
             404
           </span>
 
-          {/* 404 Monumental: Trazo de titanio con gradiente translúcido que deja ver el fondo */}
+          {/* 404 Monumental: Alta legibilidad con trazo blanco nítido y degradado plateado */}
           <span 
-            className="text-[240px] sm:text-[380px] md:text-[500px] lg:text-[620px] font-black tracking-tighter leading-none bg-gradient-to-b from-white/[0.14] via-white/[0.03] to-transparent bg-clip-text text-transparent [text-shadow:_0_0_90px_rgba(109,217,75,0.12)] [-webkit-text-stroke:_1.5px_rgba(255,255,255,0.07)]"
+            className="text-[240px] sm:text-[380px] md:text-[500px] lg:text-[620px] font-black tracking-tighter leading-none select-none bg-gradient-to-b from-white/70 via-white/35 to-white/10 bg-clip-text text-transparent [text-shadow:_0_0_100px_rgba(109,217,75,0.25)] [-webkit-text-stroke:_2px_rgba(255,255,255,0.35)]"
           >
             404
           </span>
-        </motion.div>
+        </div>
       </div>
 
-      {/* ── HEADER LIMPIO (Sin el badge de RADAR) ── */}
+      {/* ── HEADER LIMPIO ── */}
       <header className="relative z-20 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 sm:px-10">
         <a href="#/" onClick={goHome} className="flex items-center gap-3 group cursor-pointer">
           <LogoMark className="h-10 w-10 transition-transform duration-300 group-hover:scale-105" />
@@ -272,42 +207,42 @@ export default function NotFound({ onNavigateHome, onNavigateToContact }) {
       <main className="relative z-10 mx-auto flex max-w-2xl flex-col items-center justify-center px-4 sm:px-6 text-center py-10 sm:py-16">
         {/* Titular y Copy */}
         <motion.div
-          initial={{ opacity: 0, y: 25 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-4 px-4"
         >
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white drop-shadow-lg">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white drop-shadow-xl">
             Parece que te has perdido en el código.
           </h1>
-          <p className="text-sm sm:text-base leading-relaxed text-zinc-400 max-w-lg mx-auto">
+          <p className="text-sm sm:text-base leading-relaxed text-zinc-300 max-w-lg mx-auto drop-shadow-md">
             Esta coordenada no existe en nuestro servidor. Pero en TecnOdiel ayudamos a tu negocio local a encontrar el camino exacto para multiplicar sus clientes.
           </p>
         </motion.div>
 
-        {/* ── BOTONES MAGNÉTICOS REACTIVOS ── */}
+        {/* ── BOTONES DE ACCIÓN ESTÁTICOS (SIN MOVIMIENTO MAGNÉTICO) ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
           className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          {/* Botón Magnético Principal: Volver al inicio */}
-          <MagneticButton
+          {/* Botón Principal: Volver al inicio */}
+          <a
             href="#/"
             onClick={goHome}
-            className="group relative overflow-hidden rounded-full bg-[#6DD94B] px-8 py-4 text-sm font-black text-black shadow-xl shadow-[#6DD94B]/25 transition-colors duration-300 hover:bg-white hover:shadow-white/25 active:scale-95"
+            className="group relative inline-flex items-center justify-center select-none cursor-pointer overflow-hidden rounded-full bg-[#6DD94B] px-8 py-4 text-sm font-black text-black shadow-xl shadow-[#6DD94B]/25 transition-all duration-300 hover:bg-white hover:shadow-white/30 active:scale-95"
           >
             <div className="relative z-10 flex items-center gap-3">
               <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
               <span>Volver al inicio</span>
             </div>
-            {/* Destello interior Shimmer */}
-            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-          </MagneticButton>
+            {/* Destello interior Shimmer sutil en hover */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+          </a>
 
-          {/* Botón Magnético Secundario: Pide tu propuesta */}
-          <MagneticButton
+          {/* Botón Secundario: Pide tu propuesta */}
+          <a
             href="#contacto"
             onClick={(e) => {
               if (onNavigateToContact) {
@@ -315,20 +250,20 @@ export default function NotFound({ onNavigateHome, onNavigateToContact }) {
                 onNavigateToContact();
               }
             }}
-            className="rounded-full border border-white/20 bg-white/5 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition-all duration-300 hover:border-[#6DD94B] hover:text-[#6DD94B] hover:bg-[#6DD94B]/10 active:scale-95"
+            className="inline-flex items-center justify-center select-none cursor-pointer rounded-full border border-white/20 bg-white/5 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition-all duration-300 hover:border-[#6DD94B] hover:text-[#6DD94B] hover:bg-[#6DD94B]/10 active:scale-95"
           >
             <div className="flex items-center gap-2.5">
               <Sparkles className="h-4 w-4 text-[#6DD94B]" />
               <span>Pide tu propuesta</span>
             </div>
-          </MagneticButton>
+          </a>
         </motion.div>
 
         {/* Atajos Rápidos */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
           className="mt-10 sm:mt-14 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500"
         >
           <span className="font-semibold text-zinc-400">Atajos rápidos:</span>
