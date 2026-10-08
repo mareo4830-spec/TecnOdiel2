@@ -2,11 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Menu, X, MessageCircle, MapPin, Mail,
   CalendarCheck, QrCode, LayoutDashboard, Bot, Globe, ShoppingBag, BarChart3, BellRing,
-  Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart, User, LogOut
+  Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart
 } from 'lucide-react';
 import LeadForm from './LeadForm.jsx';
 import { useAccount } from '../../lib/adminAuth.js';
-import { APP_URLS } from '../../config/apps.js';
+import { ProfileButton, RoleButton, roleLink } from './AccountMenu.jsx';
 import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
 import Threads from '../ui/Threads.jsx';
@@ -40,55 +40,7 @@ const Logo = () => (
 );
 
 /* ───────────── HEADER ───────────── */
-/* ───────────── CUENTA (login con Google) ───────────── */
-function AccountArea({ account, mobile = false, onDone }) {
-  const [menu, setMenu] = useState(false);
-  const { role, profile, signIn, signOut, enabled } = account;
-  if (!enabled || role === 'loading') return null;
-  const done = () => onDone?.();
-
-  if (role === 'guest') {
-    return (
-      <button onClick={() => { signIn(); done(); }} className={mobile ? 'block w-full py-3 text-left text-sm font-semibold text-[#6DD94B] cursor-pointer' : 'flex items-center gap-2 rounded-full border border-white/20 px-3.5 py-1.5 text-xs font-semibold text-zinc-200 transition hover:border-[#6DD94B] hover:text-[#6DD94B] cursor-pointer'}>
-        <User className="h-4 w-4" />Iniciar sesión
-      </button>
-    );
-  }
-
-  const isAdmin = role === 'admin';
-  const href = isAdmin ? APP_URLS.oficina : APP_URLS.portal;
-  const label = isAdmin ? 'Entrar a la oficina' : 'Mi portal de cliente';
-  const Icon = isAdmin ? LayoutDashboard : Users;
-
-  if (mobile) {
-    return (
-      <div className="mt-2 border-t border-white/10 pt-3">
-        <p className="truncate pb-1 text-xs text-zinc-400">{profile?.email}</p>
-        <a href={href} className="flex items-center gap-2 py-2.5 text-sm font-semibold text-[#6DD94B]"><Icon className="h-4 w-4" />{label}</a>
-        <button onClick={() => { signOut(); done(); }} className="flex items-center gap-2 py-2.5 text-sm text-zinc-300 cursor-pointer"><LogOut className="h-4 w-4" />Cerrar sesión</button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative flex items-center gap-3">
-      <a href={href} className="flex items-center gap-2 rounded-full bg-[#6DD94B]/10 px-3.5 py-1.5 text-xs font-semibold text-[#6DD94B] ring-1 ring-[#6DD94B]/40 transition hover:bg-[#6DD94B] hover:text-black">
-        <Icon className="h-4 w-4" />{label}
-      </a>
-      <button onClick={() => setMenu((m) => !m)} aria-label="Menú de usuario" aria-expanded={menu} className="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-white/20 bg-white/5 text-sm font-bold text-white transition hover:border-[#6DD94B] cursor-pointer">
-        {profile?.avatar ? <img src={profile.avatar} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" /> : (profile?.name || '?').charAt(0).toUpperCase()}
-      </button>
-      {menu && (
-        <div className="absolute right-0 top-full mt-2 w-60 rounded-2xl border border-white/10 bg-[#121212] p-2 shadow-2xl">
-          <p className="truncate px-3 py-2 text-xs text-zinc-400">{profile?.email}</p>
-          <button onClick={() => { setMenu(false); signOut(); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-200 hover:bg-white/5 cursor-pointer"><LogOut className="h-4 w-4" />Cerrar sesión</button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Header({ onPortal, account }) {
+function Header({ account }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -131,15 +83,18 @@ function Header({ onPortal, account }) {
           ))}
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
-          <button onClick={onPortal} className="text-sm font-semibold text-zinc-300 hover:text-white cursor-pointer">Área clientes</button>
-          <AccountArea account={account} />
           <a href="#contacto" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-white">
             Pide tu propuesta
           </a>
+          <RoleButton account={account} />
+          <ProfileButton account={account} />
         </div>
-        <button className="p-2 text-white lg:hidden cursor-pointer" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          {open ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <ProfileButton account={account} />
+          <button className="p-2 text-white cursor-pointer" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+            {open ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="border-t border-white/10 bg-[#121212] px-5 pb-6 pt-2 lg:hidden">
@@ -149,8 +104,7 @@ function Header({ onPortal, account }) {
               <span className="block text-xs text-zinc-400">{n.sub}</span>
             </a>
           ))}
-          <button onClick={onPortal} className="mt-4 block w-full py-3 text-left text-sm font-semibold text-zinc-300 cursor-pointer">Área clientes</button>
-          <AccountArea account={account} mobile onDone={() => setOpen(false)} />
+          {roleLink(account) && <RoleButton account={account} className="mt-4 w-fit" />}
           <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-6 py-3 text-center text-sm font-bold text-black">Pide tu propuesta</a>
         </div>
       )}
@@ -386,7 +340,7 @@ function Contact({ style, onNavigateToMultiwebs, onNavigateToCyS }) {
 }
 
 /* ───────────── FOOTER ───────────── */
-function Footer({ onPortal }) {
+function Footer() {
   return (
     <footer className="bg-black pt-16 pb-16 text-zinc-400 lg:pb-0">
       <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
@@ -395,7 +349,6 @@ function Footer({ onPortal }) {
         <nav aria-label="Empresa"><h4 className="text-xs font-bold uppercase tracking-[0.2em] text-white">Empresa</h4>
           <ul className="mt-5 space-y-3 text-sm">
             {FOOTER.company.map((l) => <li key={l.label}><a href={l.href} onClick={goTo(l.href)} className="hover:text-white">{l.label}</a></li>)}
-            <li><button onClick={onPortal} className="hover:text-white cursor-pointer">Área de clientes</button></li>
           </ul>
         </nav>
         <nav aria-label="Soluciones"><h4 className="text-xs font-bold uppercase tracking-[0.2em] text-white">Soluciones</h4>
@@ -422,11 +375,10 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
     return () => clearTimeout(t);
   }, [style]);
   const onAction = (a) => (a === 'clinicas' ? onNavigateToCyS : onNavigateToMultiwebs)?.();
-  const onPortal = () => (onNavigateToPortal ? onNavigateToPortal() : (window.location.hash = '#/portal'));
   const account = useAccount();
   return (
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
-      <Header onPortal={onPortal} account={account} />
+      <Header account={account} />
       <main>
         <Hero />
         <Sectors />
@@ -443,7 +395,7 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
           onNavigateToCyS={onNavigateToCyS}
         />
       </main>
-      <Footer onPortal={onPortal} />
+      <Footer />
       <MobileBar />
     </div>
   );

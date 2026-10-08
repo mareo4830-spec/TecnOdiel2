@@ -30,7 +30,8 @@ export function ProfileMenu() {
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl shadow-black/50">
-          <div className="flex items-center gap-3 border-b border-gray-800 p-4">
+          <p className="px-4 pt-3 text-[11px] font-semibold uppercase tracking-wider text-gray-500">Mi cuenta</p>
+          <div className="flex items-center gap-3 border-b border-gray-800 p-4 pt-2">
             <Avatar partner={partner} size="md" status={presence[partner.id]} />
             <div className="min-w-0">
               <p className="truncate font-medium text-white">{partner.name}</p>
