@@ -71,7 +71,7 @@ function Header({ account }) {
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out ${
       !visible && !open ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-    } ${scrolled || open ? 'bg-[#121212]/95 backdrop-blur border-b border-white/10' : 'bg-transparent'}`}>
+    } ${scrolled || open ? 'bg-[#121212]/95 border-b border-white/10' : 'bg-transparent'}`}>
       <div className="mx-auto flex h-20 max-w-[1280px] items-center justify-between px-5 sm:px-8">
         <Logo />
         <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">

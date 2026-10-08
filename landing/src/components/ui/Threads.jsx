@@ -167,14 +167,16 @@ const Threads = ({ color = [0.43, 0.85, 0.29], amplitude = 3, distance = 0.15, e
 
     const mesh = new Mesh(gl, { geometry, program });
 
-    const MAX_RENDER_DIM = 1920;
+    // El shader evalúa 40 líneas x 2 ruidos Perlin por píxel: el coste crece con el área. Las
+    // líneas son suaves y desenfocadas, así que se renderiza a ~1000px por el lado largo (sin
+    // sobremuestreo por DPR) y el navegador escala el canvas al tamaño real sin perder calidad visible.
+    const MAX_RENDER_DIM = 1000;
     function resize() {
       if (!container || !renderer) return;
       const { clientWidth, clientHeight } = container;
       if (!clientWidth || !clientHeight) return;
-      const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
-      const longestSide = Math.max(clientWidth, clientHeight) * baseDpr;
-      const dpr = longestSide > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longestSide : baseDpr;
+      const longestSide = Math.max(clientWidth, clientHeight);
+      const dpr = Math.min(1, MAX_RENDER_DIM / longestSide);
       renderer.dpr = dpr;
       renderer.setSize(clientWidth, clientHeight);
       program.uniforms.iResolution.value.r = gl.canvas.width;
@@ -211,9 +213,15 @@ const Threads = ({ color = [0.43, 0.85, 0.29], amplitude = 3, distance = 0.15, e
     );
     intersectionObserver.observe(container);
 
+    // El movimiento es lento (ruido a time/10): 30 fps se ven igual y liberan la GPU/main thread
+    // para que el scroll (Lenis) mantenga los 60.
+    const FRAME_MS = 1000 / 30;
+    let lastFrame = 0;
     function update(t) {
       animationFrameId.current = requestAnimationFrame(update);
       if (!isVisible || document.hidden) return;
+      if (t - lastFrame < FRAME_MS - 2) return;
+      lastFrame = t;
 
       const { color, amplitude, distance, enableMouseInteraction } = propsRef.current;
 

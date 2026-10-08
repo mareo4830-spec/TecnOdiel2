@@ -151,7 +151,7 @@ export default function HeroShowcase() {
   return (
     <div className="relative w-full max-w-[440px] sm:max-w-[480px] lg:max-w-[500px] select-none mx-auto lg:mr-0">
       {/* Marco de ventana del navegador moderno y estilizado */}
-      <div className="rounded-3xl border border-white/10 bg-[#161616]/90 backdrop-blur-md p-4 sm:p-5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)] transition-all">
+      <div className="rounded-3xl border border-white/10 bg-[#161616]/95 p-4 sm:p-5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)]">
         {/* Cabecera del navegador */}
         <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
           <div className="flex items-center gap-1.5">
