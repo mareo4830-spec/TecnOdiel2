@@ -26,9 +26,13 @@ export function WorkBoard({ items, compact, maxPerColumn }: WorkBoardProps) {
   const { partner } = useAuth();
   const [draggingKey, setDraggingKey] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+  // La tarjeta que acaba de soltarse hace un pequeño "aterrizaje" (ver .anim-settle en index.css).
+  const [settledKey, setSettledKey] = useState<string | null>(null);
 
   const move = (key: string, stage: WorkStage, beforeKey: string | null) => {
     if (partner) moveWork(key, stage, beforeKey, partner.id);
+    setSettledKey(key);
+    window.setTimeout(() => setSettledKey((k) => (k === key ? null : k)), 520);
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>, stage: WorkStage) => {
@@ -111,6 +115,7 @@ export function WorkBoard({ items, compact, maxPerColumn }: WorkBoardProps) {
                     item={item}
                     compact={compact}
                     dragging={draggingKey === item.key}
+                    settled={settledKey === item.key}
                     onDragStart={(e) => {
                       e.dataTransfer.setData('text/plain', item.key);
                       e.dataTransfer.effectAllowed = 'move';

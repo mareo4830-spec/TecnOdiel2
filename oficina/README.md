@@ -19,7 +19,7 @@ npm run dev
 ### Modo demo vs. Supabase
 
 - **Sin** `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`: modo demo. El login muestra un selector de socio. La app arranca vacía (sin datos de ejemplo) y lo que se añade se guarda en el `localStorage` del navegador, así que no se comparte entre ordenadores.
-- **Con** ellas: login real con email y contraseña. Solo entran las cuentas vinculadas a una fila de `partners`.
+- **Con** ellas: login real con Google. Solo entran las cuentas de Google vinculadas por email a una fila de `partners`.
 
 ### Configurar Supabase (proyecto de la Oficina Virtual, separado del SaaS de clientes)
 

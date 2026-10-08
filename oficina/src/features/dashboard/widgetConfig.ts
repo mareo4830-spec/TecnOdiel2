@@ -1,4 +1,4 @@
-import { Activity, Clock, FolderKanban, PiggyBank, Plug, SquareKanban, type LucideIcon } from 'lucide-react';
+import { Activity, Clock, FolderKanban, Gauge, PiggyBank, Plug, SquareKanban, Timer, type LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { ActivityWidget, LiveBadge } from './widgets/ActivityWidget';
 import { FundWidget } from './widgets/FundWidget';
@@ -6,6 +6,9 @@ import { HoursTodayWidget } from './widgets/HoursTodayWidget';
 import { IntegrationsWidget } from './widgets/IntegrationsWidget';
 import { KanbanWidget } from './widgets/KanbanWidget';
 import { MyProjectsWidget } from './widgets/MyProjectsWidget';
+import { ProgressWidget } from './widgets/ProgressWidget';
+import { TimeTrackerWidget } from './widgets/TimeTrackerWidget';
+import { WeekHoursWidget } from './widgets/WeekHoursWidget';
 
 export interface DashboardWidget {
   id: string;
@@ -19,6 +22,8 @@ export interface DashboardWidget {
   component?: ComponentType;
   link?: { label: string; to: string };
   badge?: ComponentType;
+  /** Sin la tarjeta genérica (título + icono): el widget trae su propio estilo completo. */
+  raw?: boolean;
 }
 
 /** Widgets del Panel, en orden. El Kanban de trabajos va arriba, donde estaba la bienvenida. */
@@ -32,6 +37,16 @@ export const DASHBOARD_WIDGETS: DashboardWidget[] = [
     className: 'md:col-span-2 xl:col-span-8',
     component: KanbanWidget,
     link: { label: 'Ver tablero', to: '/kanban' },
+  },
+  {
+    id: 'timetracker',
+    title: 'Jornada',
+    icon: Timer,
+    phase: 1,
+    description: 'Ficha tu jornada para que las horas cuenten en el reparto.',
+    className: 'xl:col-span-4',
+    component: TimeTrackerWidget,
+    raw: true,
   },
   {
     id: 'integrations',
@@ -53,6 +68,15 @@ export const DASHBOARD_WIDGETS: DashboardWidget[] = [
     link: { label: 'Ver todos', to: '/proyectos' },
   },
   {
+    id: 'weekhours',
+    title: 'Horas de la semana',
+    icon: Clock,
+    phase: 5,
+    description: 'Horas verificadas de cada día, de lunes a domingo.',
+    className: 'xl:col-span-4',
+    component: WeekHoursWidget,
+  },
+  {
     id: 'hours',
     title: 'Horas de hoy',
     icon: Clock,
@@ -71,6 +95,15 @@ export const DASHBOARD_WIDGETS: DashboardWidget[] = [
     className: 'xl:col-span-4',
     component: FundWidget,
     link: { label: 'Ver fondo', to: '/horas?tab=fondo' },
+  },
+  {
+    id: 'progress',
+    title: 'Progreso',
+    icon: Gauge,
+    phase: 3,
+    description: 'Qué parte de los trabajos en curso ya está terminada.',
+    className: 'xl:col-span-4',
+    component: ProgressWidget,
   },
   {
     id: 'activity',

@@ -22,7 +22,9 @@ export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
     const chars = titleRef.current.querySelectorAll('.t-char');
     const tween = gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: 'expo.out', stagger: 0.025 });
     return () => {
-      tween.kill();
+      // Salta al final antes de matarlo: si el efecto se reinicia a medias (p. ej. el doble
+      // montaje de StrictMode) las letras quedan en su sitio en vez de a mitad de camino e invisibles.
+      tween.progress(1).kill();
     };
   }, [item.path]);
 
@@ -39,7 +41,6 @@ export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
 
         <h1
           ref={titleRef}
-          key={item.path}
           aria-label={item.title}
           className="min-w-0 flex-1 truncate text-base font-semibold text-white sm:text-xl xl:flex-none"
         >

@@ -48,7 +48,10 @@ export function AppLayout() {
       { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1, ease: 'expo.out', delay, clearProps: 'filter,transform,opacity' },
     );
     return () => {
-      tween.kill();
+      // Salta al final antes de matarlo: si el efecto se reinicia a medias (el doble montaje de
+      // StrictMode, o un desmontaje muy rápido) el marco queda visible en vez de congelado a
+      // medio desenfocar — si no, la app entera podía quedarse invisible.
+      tween.progress(1).kill();
     };
   }, []);
 

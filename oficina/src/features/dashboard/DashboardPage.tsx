@@ -10,6 +10,16 @@ export function DashboardPage() {
         {DASHBOARD_WIDGETS.map((w) => {
           const Content = w.component;
           const Badge = w.badge;
+
+          // Sin envoltorio genérico: la tarjeta trae su propio estilo (p. ej. la Jornada, en degradado de acento).
+          if (w.raw && Content) {
+            return (
+              <div key={w.id} className={w.className}>
+                <Content />
+              </div>
+            );
+          }
+
           const action = w.link ? (
             <Link
               to={w.link.to}
