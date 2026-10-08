@@ -60,14 +60,7 @@ function resolveCategory(sector) {
 }
 
 export default function StepEstilo({ form, set }) {
-  const initialCategory = resolveCategory(form.sector);
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-
-  // Sincronizar categoría si cambia el sector
-  useEffect(() => {
-    setSelectedCategory(resolveCategory(form.sector));
-  }, [form.sector]);
-
+  const selectedCategory = resolveCategory(form.sector);
   const currentGroup = REAL_TEMPLATES[selectedCategory] || REAL_TEMPLATES.restauracion;
   const currentItems = currentGroup.items;
 
@@ -87,29 +80,8 @@ export default function StepEstilo({ form, set }) {
       <div>
         <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-white">Elige el estilo que más te represente</h1>
         <p className="mt-2 text-sm text-zinc-400">
-          Plantillas reales y funcionando. Te hemos preseleccionado las de tu sector; cámbiala si quieres.
+          Plantillas reales y optimizadas para tu sector. Elige la que mejor encaje con tu marca.
         </p>
-      </div>
-
-      {/* Píldoras de sectores */}
-      <div className="flex flex-wrap gap-2">
-        {Object.entries(REAL_TEMPLATES).map(([catKey, catData]) => {
-          const isCurrent = selectedCategory === catKey;
-          return (
-            <button
-              key={catKey}
-              type="button"
-              onClick={() => setSelectedCategory(catKey)}
-              className={`rounded-full border px-4 py-2 text-xs font-semibold transition cursor-pointer ${
-                isCurrent 
-                  ? 'border-[#6DD94B] bg-[#6DD94B]/15 text-[#6DD94B]' 
-                  : 'border-white/10 text-zinc-400 hover:border-white/25 hover:text-white'
-              }`}
-            >
-              {catData.label}
-            </button>
-          );
-        })}
       </div>
 
       {/* Grid de plantillas con imágenes reales */}
