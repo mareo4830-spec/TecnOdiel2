@@ -29,6 +29,7 @@ export default function OdielitoRunner({ onNavigateToLanding }) {
   const runCycleRef = useRef(0);
   const cooldownRef = useRef(0);
   const dragStartTimeRef = useRef(0);
+  const hasDeliveredRef = useRef(typeof window !== 'undefined' && sessionStorage.getItem('odielito_has_delivered') === 'true');
 
   // 1. Detectar si es dispositivo de escritorio
   useEffect(() => {
@@ -218,42 +219,64 @@ export default function OdielitoRunner({ onNavigateToLanding }) {
           setTilt(Math.max(-20, Math.min(20, (dx / 15))));
         }
 
-        // Aceleración hacia el cursor
-        const speed = 4.4;
-        if (dist > 35) {
-          p.x += (dx / dist) * speed;
-          p.y += (dy / dist) * speed;
-        }
-
-        // Diálogos aleatorios durante la persecución
-        if (now - lastSpeechTick > 3500) {
-          lastSpeechTick = now;
-          triggerSpeech(phrasesChase[Math.floor(Math.random() * phrasesChase.length)], 1600);
-        }
-
-        // ¡ATRAPADO! Si está a menos de 38px
-        if (dist <= 38) {
-          stateRef.current = 'caught';
-          setState('caught');
-          triggerSpeech("¡¡TE PILLÉ!! 🎯🎯 ¡Vente conmigo al formulario!", 2400);
-
-          // Inicializar captura y lazo
-          setLassoTarget({ x: m.x, y: m.y });
-
-          // Si estamos en otra página/sección sin el formulario, navegar a landing
-          if (!getProposalFormElement() && onNavigateToLanding) {
-            onNavigateToLanding();
+        // Si ya nos llevó una vez abajo: Odielito corre acompañando al ratón, pero NO lo coge de nuevo
+        if (hasDeliveredRef.current) {
+          const companionDist = 65;
+          const speed = 4.2;
+          if (dist > companionDist) {
+            p.x += (dx / dist) * speed;
+            p.y += (dy / dist) * speed;
           }
 
-          // Tras medio segundo, empezar a correr arrastrándolo
-          setTimeout(() => {
-            if (stateRef.current === 'caught') {
-              stateRef.current = 'dragging';
-              setState('dragging');
-              dragStartTimeRef.current = Date.now();
-              triggerSpeech("¡Tirando con fuerza! 💨 ¡Rumbo a tu propuesta! 🚀", 3200);
+          if (now - lastSpeechTick > 4500) {
+            lastSpeechTick = now;
+            const companionPhrases = [
+              "¡Te sigo el ritmo! 🏃‍♂️",
+              "¡Aquí ando contigo! 🤖",
+              "¡Mira cómo corro! ⚡",
+              "¡Echa un ojo al formulario! 👇",
+              "¡Buen paseo por la web! ✨"
+            ];
+            triggerSpeech(companionPhrases[Math.floor(Math.random() * companionPhrases.length)], 2000);
+          }
+        } else {
+          // Primera vez: perseguir para atrapar y llevar al formulario
+          const speed = 4.4;
+          if (dist > 35) {
+            p.x += (dx / dist) * speed;
+            p.y += (dy / dist) * speed;
+          }
+
+          // Diálogos aleatorios durante la persecución
+          if (now - lastSpeechTick > 3500) {
+            lastSpeechTick = now;
+            triggerSpeech(phrasesChase[Math.floor(Math.random() * phrasesChase.length)], 1600);
+          }
+
+          // ¡ATRAPADO! Si está a menos de 38px
+          if (dist <= 38) {
+            stateRef.current = 'caught';
+            setState('caught');
+            triggerSpeech("¡¡TE PILLÉ!! 🎯🎯 ¡Vente conmigo al formulario!", 2400);
+
+            // Inicializar captura y lazo
+            setLassoTarget({ x: m.x, y: m.y });
+
+            // Si estamos en otra página/sección sin el formulario, navegar a landing
+            if (!getProposalFormElement() && onNavigateToLanding) {
+              onNavigateToLanding();
             }
-          }, 600);
+
+            // Tras medio segundo, empezar a correr arrastrándolo
+            setTimeout(() => {
+              if (stateRef.current === 'caught') {
+                stateRef.current = 'dragging';
+                setState('dragging');
+                dragStartTimeRef.current = Date.now();
+                triggerSpeech("¡Tirando con fuerza! 💨 ¡Rumbo a tu propuesta! 🚀", 3200);
+              }
+            }, 600);
+          }
         }
       }
 
@@ -334,6 +357,8 @@ export default function OdielitoRunner({ onNavigateToLanding }) {
             stateRef.current = 'delivered';
             setState('delivered');
             setLassoTarget(null);
+            hasDeliveredRef.current = true;
+            try { sessionStorage.setItem('odielito_has_delivered', 'true'); } catch (_) {}
             triggerSpeech("¡¡LLEGAMOS!! 🎉 ¡Cuéntanos sobre tu negocio aquí!", 4500);
             triggerCelebration(rect.left + rect.width / 2, rect.top + 60, formEl);
 
@@ -345,12 +370,12 @@ export default function OdielitoRunner({ onNavigateToLanding }) {
               }, 400);
             }
 
-            // Volver a estado idle tras celebrar
+            // Volver a estado idle tras celebrar y pasar a modo acompañante
             setTimeout(() => {
               stateRef.current = 'idle';
               setState('idle');
-              cooldownRef.current = Date.now() + 8000;
-              triggerSpeech("¡Descansando un ratito! ☕", 3000);
+              cooldownRef.current = Date.now() + 4000;
+              triggerSpeech("¡Ya te traje aquí! Ahora te acompaño de paseo ✨", 3500);
             }, 4500);
           }
         } else {
@@ -508,7 +533,11 @@ export default function OdielitoRunner({ onNavigateToLanding }) {
           perspective: 800
         }}
         onClick={() => {
-          triggerSpeech("¡Hola! Soy Odielito 🤖✨ ¡Rellena el formulario para tu propuesta!", 2500);
+          if (hasDeliveredRef.current) {
+            triggerSpeech("¡Soy tu copiloto Odielito! 🤖 Te acompaño por la web ✨", 2500);
+          } else {
+            triggerSpeech("¡Hola! Soy Odielito 🤖✨ ¡Rellena el formulario para tu propuesta!", 2500);
+          }
         }}
         title="Odielito Bot — TecnOdiel (Haz clic para saludar)"
       >
