@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { db, must, num, persist } from '../../lib/db';
 import { createStore, useStore } from '../../lib/store';
 import type { CheckinSession, FundMovement, FundMovementType, PartnerId, WorkSession } from '../../types';
 import { logActivity } from '../activity/activityService';
@@ -7,19 +8,63 @@ import { evaluateSessions, formatHours, sessionHours, type SessionEvaluation } f
 import { FUND_MIN_RESERVE } from './repartoConfig';
 
 /*
- * Capa de datos de horas y fondo común (local). Con Supabase:
- *  - `work_sessions` se rellena al hacer check-out (la tabla `checkins` cerrada).
- *  - La verificación por push se puede hacer igual en el cliente o en una vista SQL que cruce
- *    `work_sessions` con `commits`.
- *  - `fund_movements` guarda aportaciones y gastos.
+ * Horas y fondo común.
+ *  - Con Supabase: `work_sessions` (cada check-in; cerrada al hacer check-out) y `fund_movements`.
+ *    La verificación por push cruza las sesiones con `commits` en el cliente.
+ *  - Sin Supabase: en memoria.
  */
-const sessionsStore = createStore<WorkSession[]>([], 'sessions');
-const fundStore = createStore<FundMovement[]>([], 'fund');
+const sessionsStore = createStore<WorkSession[]>([]);
+const fundStore = createStore<FundMovement[]>([]);
 
-/** Al borrar un proyecto: fuera sus sesiones; los movimientos del fondo se quedan sin proyecto. */
-export function removeProjectHours(projectId: string): void {
-  sessionsStore.set((prev) => prev.filter((s) => s.projectId !== projectId));
-  fundStore.set((prev) => prev.map((m) => (m.projectId === projectId ? { ...m, projectId: null } : m)));
+interface SessionRow {
+  id: string;
+  partner_id: PartnerId;
+  project_id: string | null;
+  started_at: string;
+  ended_at: string | null;
+  approved_by: PartnerId | null;
+}
+
+interface FundRow {
+  id: string;
+  type: FundMovementType;
+  concept: string;
+  amount: number | string;
+  project_id: string | null;
+  created_by: PartnerId;
+  created_at: string;
+}
+
+/** Solo cuentan para el reparto las sesiones cerradas y con proyecto. */
+export async function loadSessions(): Promise<void> {
+  const rows = await must<SessionRow[]>(
+    db().from('work_sessions').select('*').not('ended_at', 'is', null).not('project_id', 'is', null).order('started_at', { ascending: false }),
+  );
+  sessionsStore.set(() =>
+    rows.map((r) => ({
+      id: r.id,
+      partnerId: r.partner_id,
+      projectId: r.project_id!,
+      startedAt: r.started_at,
+      endedAt: r.ended_at!,
+      approvedBy: r.approved_by,
+    })),
+  );
+}
+
+export async function loadFund(): Promise<void> {
+  const rows = await must<FundRow[]>(db().from('fund_movements').select('*').order('created_at', { ascending: false }));
+  fundStore.set(() =>
+    rows.map((r) => ({
+      id: r.id,
+      type: r.type,
+      concept: r.concept,
+      amount: num(r.amount),
+      projectId: r.project_id,
+      createdBy: r.created_by,
+      createdAt: r.created_at,
+    })),
+  );
 }
 
 /** Sesiones evaluadas (verificación + horas contadas con el tope diario), más recientes primero. */
@@ -29,7 +74,10 @@ export function useSessionEvaluations(): SessionEvaluation[] {
   return useMemo(() => evaluateSessions(sessions, commits), [sessions, commits]);
 }
 
-/** Guarda la sesión cerrada de un check-out. Las sesiones sin proyecto no cuentan para el reparto. */
+/**
+ * Añade la sesión cerrada de un check-out a la lista. Con Supabase ya está guardada (el check-out
+ * cierra su fila de work_sessions). Las sesiones sin proyecto no cuentan para el reparto.
+ */
 export function recordSession(closed: CheckinSession): void {
   if (!closed.projectId || !closed.endedAt) return;
   const session: WorkSession = {
@@ -40,7 +88,7 @@ export function recordSession(closed: CheckinSession): void {
     endedAt: closed.endedAt,
     approvedBy: null,
   };
-  sessionsStore.set((prev) => [session, ...prev]);
+  sessionsStore.set((prev) => [session, ...prev.filter((s) => s.id !== session.id)]);
 }
 
 /** Otro socio valida a mano una sesión sin push (reunión con cliente, diseño, auditoría…). */
@@ -48,12 +96,24 @@ export function approveSession(id: string, by: PartnerId): void {
   const session = sessionsStore.get().find((s) => s.id === id);
   if (!session || session.partnerId === by || session.approvedBy) return;
   sessionsStore.set((prev) => prev.map((s) => (s.id === id ? { ...s, approvedBy: by } : s)));
+  void persist('Validar horas', () => must(db().from('work_sessions').update({ approved_by: by }).eq('id', id)));
   logActivity({
     type: 'hours',
     partnerId: by,
     projectId: session.projectId,
     action: `validó ${formatHours(sessionHours(session))} de trabajo sin push en`,
   });
+}
+
+export async function deleteSession(id: string, by: PartnerId): Promise<boolean> {
+  const session = sessionsStore.get().find((s) => s.id === id);
+  if (!session) return false;
+  const ok = await persist('Eliminar sesión', () => must(db().from('work_sessions').delete().eq('id', id)));
+  if (ok) {
+    sessionsStore.set((prev) => prev.filter((s) => s.id !== id));
+    logActivity({ type: 'hours', partnerId: by, projectId: session.projectId, action: `eliminó una sesión de ${formatHours(sessionHours(session))} en` });
+  }
+  return ok;
 }
 
 export function useFundMovements(): FundMovement[] {
@@ -85,6 +145,8 @@ export function useFundSummary(): FundSummary {
   }, [movements]);
 }
 
+const eur = (n: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
+
 export function addFundMovement(
   input: { type: FundMovementType; concept: string; amount: number; projectId: string | null },
   by: PartnerId,
@@ -97,15 +159,44 @@ export function addFundMovement(
     createdAt: new Date().toISOString(),
   };
   fundStore.set((prev) => [movement, ...prev]);
-  const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(movement.amount);
+  void persist('Guardar movimiento del fondo', () =>
+    must(
+      db().from('fund_movements').insert({
+        id: movement.id,
+        type: movement.type,
+        concept: movement.concept,
+        amount: movement.amount,
+        project_id: movement.projectId,
+        created_by: by,
+        created_at: movement.createdAt,
+      }),
+    ),
+  );
   logActivity({
     type: 'fund',
     partnerId: by,
     projectId: movement.projectId,
-    action: movement.type === 'gasto' ? `registró un gasto de ${eur} del fondo` : `aportó ${eur} al fondo`,
+    action: movement.type === 'gasto' ? `registró un gasto de ${eur(movement.amount)} del fondo` : `aportó ${eur(movement.amount)} al fondo`,
     detail: movement.concept,
   });
   return movement;
+}
+
+export async function deleteFundMovement(id: string, by: PartnerId): Promise<boolean> {
+  const movement = fundStore.get().find((m) => m.id === id);
+  if (!movement) return false;
+  const ok = await persist('Eliminar movimiento del fondo', () => must(db().from('fund_movements').delete().eq('id', id)));
+  if (ok) {
+    fundStore.set((prev) => prev.filter((m) => m.id !== id));
+    logActivity({
+      type: 'fund',
+      partnerId: by,
+      projectId: movement.projectId,
+      action: `eliminó un movimiento de ${eur(movement.amount)} del fondo`,
+      detail: movement.concept,
+    });
+  }
+  return ok;
 }
 
 /** ¿Ya se ingresó en el fondo la parte de este proyecto? */
@@ -114,3 +205,4 @@ export function useProjectFundPaid(projectId: string | undefined): boolean {
     Boolean(projectId) && list.some((m) => m.type === 'aportacion' && m.projectId === projectId),
   );
 }
+

@@ -5,7 +5,7 @@ import { useConversations } from '../chats/clientChatService';
 import { useProjects } from '../projects/projectService';
 
 /**
- * Estado de las integraciones (mock). Los datos reales de GitHub y Vercel llegarán desde
+ * Estado de las integraciones. Los datos reales de GitHub y Vercel llegarán desde
  * Edge Functions: el frontend nunca ve sus tokens.
  */
 export function useIntegrations(): Integration[] {
@@ -30,7 +30,7 @@ export function useIntegrations(): Integration[] {
         status: 'demo',
         details: [
           { label: 'Webhook', value: 'Edge Function github-webhook' },
-          { label: 'Repositorios', value: String(projects.length) },
+          { label: 'Repositorio', value: 'agencia/saas-negocios' },
         ],
       },
       {

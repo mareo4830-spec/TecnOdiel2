@@ -1,4 +1,4 @@
-import { MOCK_PARTNERS, PARTNER_COLUMNS, PARTNER_META, mapPartnerRow, type PartnerRow } from '../../lib/partners';
+import { MOCK_PARTNERS, PARTNER_COLUMNS, mapPartnerRow, type PartnerRow } from '../../lib/partners';
 import { supabase } from '../../lib/supabase';
 import type { Partner, PartnerId, PresenceStatus } from '../../types';
 
@@ -10,13 +10,15 @@ export async function listPartners(): Promise<Partner[]> {
     .order('name')
     .returns<PartnerRow[]>();
   if (error || !data) return MOCK_PARTNERS;
-  return data.filter((row) => row.id in PARTNER_META).map(mapPartnerRow);
+  return data.map(mapPartnerRow);
 }
 
 /**
- * Presencia del resto del equipo: desconectados hasta tener un canal de Supabase Realtime Presence.
+ * Presencia del resto del equipo. Pendiente de Supabase Realtime Presence: mientras tanto solo
+ * se conoce la del socio que usa la app (ver usePresence), el resto aparece desconectado.
  */
 export const DEFAULT_PRESENCE: Record<PartnerId, PresenceStatus> = {
   javier: 'offline',
+  dani: 'offline',
   mario: 'offline',
 };

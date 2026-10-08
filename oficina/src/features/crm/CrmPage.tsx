@@ -10,7 +10,6 @@ import { BUSINESS_TYPE_META } from '../projects/projectMeta';
 import { LeadCard } from './components/LeadCard';
 import { LeadDrawer } from './components/LeadDrawer';
 import { NewLeadDialog } from './components/NewLeadDialog';
-import { toast } from '../../lib/toast';
 import { PIPELINE_STAGES, STAGE_META } from './leadMeta';
 import { convertLead, createLead, moveLead, useLead, useLeads, type NewLeadInput } from './leadService';
 
@@ -83,7 +82,6 @@ export function CrmPage() {
   const handleCreateLead = (input: NewLeadInput) => {
     if (!partner) return;
     const lead = createLead(input, partner.id);
-    toast('Lead añadido al pipeline');
     setParams({ lead: lead.id });
   };
 

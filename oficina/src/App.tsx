@@ -5,6 +5,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './features/auth/LoginPage';
 import { useAuth } from './features/auth/authContext';
 import { CheckinProvider } from './features/checkin/CheckinProvider';
+import { DataSync } from './features/sync/DataSync';
 import { APP_CONFIG } from './lib/config';
 
 // Cada sección se descarga al entrar en ella; AppLayout muestra un spinner mientras tanto.
@@ -39,6 +40,7 @@ export default function App() {
   if (status === 'unauthenticated') return <LoginPage />;
 
   return (
+    <DataSync>
     <CheckinProvider>
       <Routes>
         <Route element={<AppLayout />}>
@@ -56,5 +58,6 @@ export default function App() {
         </Route>
       </Routes>
     </CheckinProvider>
+    </DataSync>
   );
 }

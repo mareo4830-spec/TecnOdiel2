@@ -8,7 +8,7 @@ import { Avatar } from '../ui/Avatar';
 import { StatusLabel } from '../ui/StatusDot';
 
 export function ProfileMenu() {
-  const { partner, mode, signOut } = useAuth();
+  const { partner, signOut } = useAuth();
   const presence = usePresence();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
@@ -22,16 +22,19 @@ export function ProfileMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Menú de perfil"
         aria-expanded={open}
-        className="flex items-center gap-1 rounded-xl p-1 transition hover:bg-gray-800"
+        className="flex items-center gap-2.5 rounded-full py-1 pl-1 pr-2 transition hover:bg-gray-900"
       >
-        <Avatar partner={partner} size="sm" />
+        <Avatar partner={partner} size="md" />
+        <span className="hidden min-w-0 text-left md:block">
+          <span className="block truncate text-sm font-semibold leading-tight text-white">{partner.name}</span>
+          <span className="block max-w-44 truncate text-xs text-gray-400">{partner.email}</span>
+        </span>
         <ChevronDown className="hidden h-4 w-4 text-gray-500 sm:block" />
       </button>
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl shadow-black/50">
-          <p className="px-4 pt-3 text-[11px] font-semibold uppercase tracking-wider text-gray-500">Mi cuenta</p>
-          <div className="flex items-center gap-3 border-b border-gray-800 p-4 pt-2">
+          <div className="flex items-center gap-3 border-b border-gray-800 p-4">
             <Avatar partner={partner} size="md" status={presence[partner.id]} />
             <div className="min-w-0">
               <p className="truncate font-medium text-white">{partner.name}</p>
@@ -50,15 +53,13 @@ export function ProfileMenu() {
               <Settings className="h-4 w-4" />
               Ajustes
             </Link>
-            {mode === 'supabase' && (
-              <button
-                onClick={() => void signOut()}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-rose-300 hover:bg-rose-500/10"
-              >
-                <LogOut className="h-4 w-4" />
-                Cerrar sesión
-              </button>
-            )}
+            <button
+              onClick={() => void signOut()}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-rose-300 hover:bg-rose-500/10"
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </button>
           </div>
         </div>
       )}

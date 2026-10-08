@@ -15,12 +15,6 @@ export const APP_CONFIG: {
   location: 'Huelva',
 };
 
-/** URLs de las otras ventanas del ecosistema TecnOdiel (cada una es un proyecto de Vercel con su subdominio). */
-export const APP_URLS = {
-  landing: import.meta.env.VITE_LANDING_URL || '/',
-  portal: import.meta.env.VITE_PORTAL_URL || '/portal',
-};
-
 /** Datos para construir los enlaces de "Accesos rápidos". Solo URLs públicas, nunca tokens. */
 export const EXTERNAL_LINKS = {
   /** Slug del equipo en Vercel (vercel.com/<equipo>/<proyecto>). */

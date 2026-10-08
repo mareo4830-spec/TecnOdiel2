@@ -1,9 +1,7 @@
 import { Boxes, FolderOpen, Plus, Search, Store } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CountUp } from '../../components/motion/CountUp';
 import { formatEuros } from '../../lib/format';
-import { toast } from '../../lib/toast';
 import type { BusinessType, NewProjectInput, ProjectStatus } from '../../types';
 import { useAuth } from '../auth/authContext';
 import { useAllBilling, useAllTenants } from '../tenants/tenantService';
@@ -73,7 +71,6 @@ export function ProjectsPage() {
   const handleCreate = (input: NewProjectInput) => {
     if (!partner) return;
     const project = createProject(input, partner.id);
-    toast(`«${project.name}» añadido a proyectos`);
     navigate(project.kind === 'saas' ? `/proyectos/${project.id}?tab=configuracion` : `/proyectos/${project.id}`);
   };
 
@@ -87,11 +84,9 @@ export function ProjectsPage() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
         <dl className="grid flex-1 grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.label} className="lift rounded-2xl border border-gray-800 bg-gray-900 p-4">
+            <div key={s.label} className="rounded-2xl border border-gray-800 bg-gray-900 p-4">
               <dt className="text-xs text-gray-400">{s.label}</dt>
-              <dd className="mt-1 text-xl font-semibold text-white sm:text-2xl">
-                {/^\d+$/.test(s.value) ? <CountUp value={Number(s.value)} /> : s.value}
-              </dd>
+              <dd className="mt-1 text-xl font-semibold text-white sm:text-2xl">{s.value}</dd>
             </div>
           ))}
         </dl>

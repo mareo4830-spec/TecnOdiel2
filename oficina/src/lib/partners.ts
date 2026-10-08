@@ -11,6 +11,13 @@ export const PARTNER_META: Record<PartnerId, PartnerMeta> = {
     color: 'from-sky-500 to-indigo-600',
     availability: 'Estudia por la mañana',
   },
+  dani: {
+    id: 'dani',
+    name: 'Dani',
+    initials: 'D',
+    color: 'from-fuchsia-500 to-purple-600',
+    availability: 'Estudia por la tarde',
+  },
   mario: {
     id: 'mario',
     name: 'Mario',
@@ -20,7 +27,7 @@ export const PARTNER_META: Record<PartnerId, PartnerMeta> = {
   },
 };
 
-export const PARTNER_IDS: PartnerId[] = ['javier', 'mario'];
+export const PARTNER_IDS: PartnerId[] = ['javier', 'dani', 'mario'];
 
 export const MOCK_PARTNERS: Partner[] = PARTNER_IDS.map((id) => ({
   ...PARTNER_META[id],

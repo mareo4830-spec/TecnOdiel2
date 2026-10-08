@@ -10,7 +10,7 @@ export function ProgressBar({ value, showLabel = true }: { value: number; showLa
         className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-800"
       >
         <div
-          className="anim-bar h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-[width] duration-500"
+          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-[width] duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>

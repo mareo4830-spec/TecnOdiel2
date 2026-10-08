@@ -1,7 +1,7 @@
 import type { SaasPlan } from '../../types';
 
-/** Catálogo de planes del SaaS. Igual que el seed de la BD (plans + saas_plan_code). */
-export const PLANS: SaasPlan[] = [
+/** Planes del modo demo (sin Supabase). Con Supabase se leen de la tabla `plans`, que trae los mismos de serie. */
+export const DEMO_PLANS: SaasPlan[] = [
   {
     id: 'plan-basico',
     name: 'Básico',

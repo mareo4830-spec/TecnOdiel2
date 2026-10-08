@@ -88,7 +88,7 @@ export function DevelopmentTab({ project }: { project: Project }) {
             <Webhook className="h-4 w-4 shrink-0 text-gray-400" />
             <p>
               Los pushes llegan por webhook de GitHub a la Edge Function <code className="text-gray-400">github-webhook</code>,
-              que guarda autor, mensaje y líneas cambiadas. Ahora mismo son datos simulados.
+              que guarda autor, mensaje y líneas cambiadas. Aparecerán aquí cuando el webhook esté conectado.
             </p>
           </div>
         </div>

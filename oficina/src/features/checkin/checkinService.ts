@@ -1,8 +1,11 @@
+import { db, live, must } from '../../lib/db';
 import type { CheckinSession, PartnerId } from '../../types';
 
 /**
- * Capa de datos del check-in. Los componentes solo conocen esta interfaz:
- * en la Fase 3 se añade `supabaseCheckinService` (tabla `checkins`) y se cambia la exportación.
+ * Capa de datos del check-in. Los componentes solo conocen esta interfaz.
+ *  - Con Supabase: la sesión abierta es una fila de `work_sessions` con ended_at = null
+ *    (la BD impide tener dos abiertas a la vez); el check-out la cierra.
+ *  - Sin Supabase: localStorage del navegador.
  */
 export interface CheckinService {
   getActive(partnerId: PartnerId): Promise<CheckinSession | null>;
@@ -10,8 +13,50 @@ export interface CheckinService {
   checkOut(partnerId: PartnerId): Promise<CheckinSession | null>;
 }
 
+interface SessionRow {
+  id: string;
+  partner_id: PartnerId;
+  project_id: string | null;
+  started_at: string;
+  ended_at: string | null;
+}
+
+const fromRow = (r: SessionRow): CheckinSession => ({
+  id: r.id,
+  partnerId: r.partner_id,
+  projectId: r.project_id,
+  startedAt: r.started_at,
+  endedAt: r.ended_at,
+});
+
+const supabaseCheckinService: CheckinService = {
+  async getActive(partnerId) {
+    const row = await must<SessionRow | null>(
+      db().from('work_sessions').select('*').eq('partner_id', partnerId).is('ended_at', null).maybeSingle(),
+    );
+    return row ? fromRow(row) : null;
+  },
+
+  async checkIn(partnerId, projectId = null) {
+    const existing = await this.getActive(partnerId);
+    if (existing) return existing;
+    const row = await must<SessionRow>(
+      db().from('work_sessions').insert({ partner_id: partnerId, project_id: projectId }).select('*').single(),
+    );
+    return fromRow(row);
+  },
+
+  async checkOut(partnerId) {
+    const active = await this.getActive(partnerId);
+    if (!active) return null;
+    const row = await must<SessionRow>(
+      db().from('work_sessions').update({ ended_at: new Date().toISOString() }).eq('id', active.id).select('*').single(),
+    );
+    return fromRow(row);
+  },
+};
+
 const activeKey = (id: PartnerId) => `ov.checkin.active.${id}`;
-const HISTORY_KEY = 'ov.checkin.history';
 
 function read<T>(key: string): T | null {
   try {
@@ -31,7 +76,7 @@ function write(key: string, value: unknown): void {
   }
 }
 
-const mockCheckinService: CheckinService = {
+const localCheckinService: CheckinService = {
   async getActive(partnerId) {
     return read<CheckinSession>(activeKey(partnerId));
   },
@@ -53,12 +98,9 @@ const mockCheckinService: CheckinService = {
   async checkOut(partnerId) {
     const active = read<CheckinSession>(activeKey(partnerId));
     if (!active) return null;
-    const closed: CheckinSession = { ...active, endedAt: new Date().toISOString() };
-    const history = read<CheckinSession[]>(HISTORY_KEY) ?? [];
-    write(HISTORY_KEY, [closed, ...history].slice(0, 200));
     write(activeKey(partnerId), null);
-    return closed;
+    return { ...active, endedAt: new Date().toISOString() };
   },
 };
 
-export const checkinService: CheckinService = mockCheckinService;
+export const checkinService: CheckinService = live ? supabaseCheckinService : localCheckinService;

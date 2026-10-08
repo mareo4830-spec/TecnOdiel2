@@ -1,7 +1,9 @@
 import { Folder, TriangleAlert } from 'lucide-react';
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../../../components/ui/Avatar';
+import { ConfirmDialog, DeleteIconButton } from '../../../components/ui/ConfirmDialog';
+import { deleteChatMessage } from '../chatService';
 import { PARTNER_META } from '../../../lib/partners';
 import type { ChatMessage, PartnerId, Project } from '../../../types';
 
@@ -33,6 +35,7 @@ interface ChatMessageListProps {
 
 export function ChatMessageList({ messages, me, projects, readUntil, typing, onOpenProject }: ChatMessageListProps) {
   const endRef = useRef<HTMLDivElement>(null);
+  const [toDelete, setToDelete] = useState<ChatMessage | null>(null);
   const firstUnreadId = readUntil
     ? messages.find((m) => m.author !== me && m.createdAt > readUntil)?.id
     : undefined;
@@ -73,7 +76,14 @@ export function ChatMessageList({ messages, me, projects, readUntil, typing, onO
                 <span className="h-px flex-1 bg-green-500/30" />
               </p>
             )}
-            <div className={`flex items-end gap-2 ${mine ? 'justify-end' : ''} ${grouped ? 'mt-1' : 'mt-3'}`}>
+            <div className={`group flex items-end gap-2 ${mine ? 'justify-end' : ''} ${grouped ? 'mt-1' : 'mt-3'}`}>
+              {mine && (
+                <DeleteIconButton
+                  label="Eliminar mensaje"
+                  onClick={() => setToDelete(m)}
+                  className="self-center sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+                />
+              )}
               {!mine && (
                 <div className="w-8 shrink-0">
                   {!grouped && <Avatar partner={{ ...partner, avatarUrl: null }} size="sm" />}
@@ -130,6 +140,21 @@ export function ChatMessageList({ messages, me, projects, readUntil, typing, onO
         </div>
       )}
       <div ref={endRef} />
+      {toDelete && (
+        <ConfirmDialog
+          title="Eliminar mensaje"
+          confirmLabel="Eliminar mensaje"
+          onCancel={() => setToDelete(null)}
+          onConfirm={async () => {
+            const ok = await deleteChatMessage(toDelete.id);
+            if (!ok) return false;
+            setToDelete(null);
+          }}
+        >
+          <p className="whitespace-pre-wrap rounded-lg bg-gray-800/60 px-3 py-2">{toDelete.text}</p>
+          <p className="text-gray-400">Se borrará para todo el equipo. Esta acción no se puede deshacer.</p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

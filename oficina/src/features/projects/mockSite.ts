@@ -11,6 +11,11 @@ export const SITE_COPY: Record<BusinessType, { tagline: string; cta: string; ser
     cta: 'Pedir cita',
     services: [['Corte y peinado', '22 €'], ['Mechas', '55 €'], ['Tratamiento hidratante', '18 €']],
   },
+  salon: {
+    tagline: 'Belleza y bienestar con cita previa',
+    cta: 'Pedir cita',
+    services: [['Manicura', '18 €'], ['Maquillaje de evento', '35 €'], ['Tratamiento facial', '28 €']],
+  },
   restaurante: {
     tagline: 'Cocina de la ría y producto de la lonja',
     cta: 'Reservar mesa',

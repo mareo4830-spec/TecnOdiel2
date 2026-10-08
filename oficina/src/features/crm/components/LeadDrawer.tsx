@@ -1,14 +1,18 @@
-import { ArrowRight, FolderPlus, Mail, MessageCircle, Phone, Send, X } from 'lucide-react';
+import { ArrowRight, Boxes, Check, FolderPlus, Mail, MessageCircle, Phone, Send, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Avatar } from '../../../components/ui/Avatar';
+import { ConfirmDialog, DeleteIconButton } from '../../../components/ui/ConfirmDialog';
 import { MOCK_PARTNERS, PARTNER_META } from '../../../lib/partners';
 import { formatRelative, formatShortDate } from '../../../lib/format';
 import type { Lead, LeadStage, PartnerId } from '../../../types';
 import { useAuth } from '../../auth/authContext';
-import { BUSINESS_TYPE_META } from '../../projects/projectMeta';
+import { useProjects } from '../../projects/projectService';
+import { BUSINESS_TYPE_META, LAYOUT_META } from '../../projects/projectMeta';
+import { effectiveVariant } from '../../tenants/tenantMeta';
 import { ALL_STAGES, SOURCE_LABEL, STAGE_META, whatsappLink } from '../leadMeta';
-import { addLeadNote, moveLead, updateLead } from '../leadService';
+import { FEATURE_LABEL } from '../intakeMeta';
+import { addLeadNote, deleteLead, deleteLeadNote, moveLead, updateLead } from '../leadService';
 
 const inputClass =
   'h-10 w-full rounded-xl border border-gray-800 bg-gray-950 px-3 text-sm text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none';
@@ -30,10 +34,13 @@ interface LeadDrawerProps {
 
 export function LeadDrawer({ lead, onClose, onConvert }: LeadDrawerProps) {
   const { partner } = useAuth();
+  const navigate = useNavigate();
+  const saasProject = useProjects().find((p) => p.kind === 'saas');
   const [note, setNote] = useState('');
   const [value, setValue] = useState(String(lead.estimatedValue));
   const [nextAction, setNextAction] = useState(lead.nextAction);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Al cambiar de lead se reinician los campos editables.
   useEffect(() => {
@@ -44,10 +51,10 @@ export function LeadDrawer({ lead, onClose, onConvert }: LeadDrawerProps) {
 
   useEffect(() => {
     closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !confirmDelete && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, confirmDelete]);
 
   const saveValue = () => {
     const n = Number(value.replace(',', '.'));
@@ -72,12 +79,12 @@ export function LeadDrawer({ lead, onClose, onConvert }: LeadDrawerProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div aria-hidden onClick={onClose} className="anim-backdrop absolute inset-0 bg-black/60" />
+      <div aria-hidden onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <aside
         role="dialog"
         aria-modal="true"
         aria-label={`Ficha de ${lead.businessName}`}
-        className="anim-drawer relative flex h-full w-full flex-col overflow-hidden border-l border-gray-800 bg-gray-900 shadow-2xl sm:max-w-md"
+        className="relative flex h-full w-full flex-col overflow-hidden border-l border-gray-800 bg-gray-900 shadow-2xl sm:max-w-md"
       >
         <header className="flex items-start gap-3 border-b border-gray-800 px-5 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
           <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${type.tint}`}>
@@ -164,6 +171,75 @@ export function LeadDrawer({ lead, onClose, onConvert }: LeadDrawerProps) {
             </div>
           </section>
 
+          {lead.intake && (
+            <section className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4">
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-white">
+                <Boxes className="h-4 w-4 text-indigo-300" />
+                Solicitud del formulario
+              </h3>
+              <p className="mt-1 text-xs text-gray-400">
+                Rellenó el asistente de tecnodiel.com/formulario · ambiente {lead.intake.ambiente}.
+              </p>
+
+              <div className="mt-3 flex items-center gap-3">
+                {(() => {
+                  const v = effectiveVariant(lead.intake.layoutFamily, lead.intake.layoutVariant);
+                  const accent = lead.intake.accentOverride || v.accent;
+                  return (
+                    <div className="w-24 shrink-0 overflow-hidden rounded-lg border border-gray-800">
+                      <div className="flex h-14 flex-col justify-center gap-1 p-2" style={{ background: v.surface }}>
+                        <span className="h-1 w-3/4 rounded-full opacity-70" style={{ background: v.text }} />
+                        <span className="h-1 w-1/2 rounded-full opacity-45" style={{ background: v.text }} />
+                        <span className="mt-1 h-1.5 w-6 rounded-full" style={{ background: accent }} />
+                      </div>
+                      <p className="truncate bg-gray-800/60 px-1.5 py-1 text-[10px] font-medium text-gray-300">{v.name}</p>
+                    </div>
+                  );
+                })()}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-400">
+                    Estilo <span className="text-gray-200">{LAYOUT_META[lead.intake.layoutFamily].label}</span>
+                  </p>
+                  <p className="mt-1 text-xl font-bold text-indigo-300">{lead.intake.ourPrice.toLocaleString('es-ES')} €</p>
+                  <p className="text-[11px] text-gray-500">vio {lead.intake.referencePrice.toLocaleString('es-ES')} € de referencia</p>
+                </div>
+              </div>
+
+              <ul className="mt-3 space-y-1">
+                {lead.intake.features.map((f) => (
+                  <li key={f} className="flex items-center gap-1.5 text-xs text-gray-300">
+                    <Check className="h-3 w-3 shrink-0 text-indigo-400" />
+                    {FEATURE_LABEL[f] ?? f}
+                  </li>
+                ))}
+              </ul>
+
+              {saasProject && !lead.projectId && (
+                <button
+                  onClick={() =>
+                    navigate(`/proyectos/${saasProject.id}/tenants/nuevo`, {
+                      state: {
+                        prefill: {
+                          businessName: lead.businessName,
+                          businessType: lead.businessType,
+                          layout: lead.intake!.layoutFamily,
+                          layoutVariant: lead.intake!.layoutVariant,
+                          contactName: lead.contactName,
+                          phone: lead.phone,
+                          email: lead.email,
+                        },
+                      },
+                    })
+                  }
+                  className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-500"
+                >
+                  <Boxes className="h-4 w-4" />
+                  Crear tenant desde esta solicitud
+                </button>
+              )}
+            </section>
+          )}
+
           <section>
             {lead.projectId ? (
               <Link
@@ -199,6 +275,9 @@ export function LeadDrawer({ lead, onClose, onConvert }: LeadDrawerProps) {
                     </p>
                     <p className="mt-0.5 whitespace-pre-wrap text-sm text-gray-200">{n.text}</p>
                   </div>
+                  {n.author === partner?.id && (
+                    <DeleteIconButton label="Eliminar nota" onClick={() => void deleteLeadNote(lead.id, n.id)} className="self-start" />
+                  )}
                 </li>
               ))}
             </ul>
@@ -210,11 +289,37 @@ export function LeadDrawer({ lead, onClose, onConvert }: LeadDrawerProps) {
             </form>
           </section>
 
-          <p className="text-xs text-gray-500">
-            Creado el {formatShortDate(lead.createdAt)} · actualizado {formatRelative(lead.updatedAt)}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-800 pt-4">
+            <p className="text-xs text-gray-500">
+              Creado el {formatShortDate(lead.createdAt)} · actualizado {formatRelative(lead.updatedAt)}
+            </p>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-rose-300 hover:bg-rose-500/10"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Eliminar lead
+            </button>
+          </div>
         </div>
       </aside>
+      {confirmDelete && partner && (
+        <ConfirmDialog
+          title={`Eliminar «${lead.businessName}»`}
+          confirmLabel="Eliminar lead"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={async () => {
+            const ok = await deleteLead(lead.id, partner.id);
+            if (!ok) return false;
+            onClose();
+          }}
+        >
+          <p>Se borrará el lead y sus notas de la base de datos.</p>
+          <p className="text-gray-400">
+            {lead.projectId ? 'El proyecto que se creó al convertirlo se conserva. ' : ''}Esta acción no se puede deshacer.
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

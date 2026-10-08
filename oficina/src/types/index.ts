@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
-export type PartnerId = 'javier' | 'mario';
+export type PartnerId = 'javier' | 'dani' | 'mario';
 
 export interface Partner {
   id: PartnerId;
@@ -54,6 +54,7 @@ export type AuthMode = 'supabase' | 'demo';
 export type BusinessType =
   | 'barberia'
   | 'peluqueria'
+  | 'salon'
   | 'estetica'
   | 'restaurante'
   | 'cafeteria'
@@ -295,13 +296,24 @@ export interface FundMovement {
 // ---------------------------------------------------------------------------
 
 export type LeadStage = 'contactado' | 'interesado' | 'propuesta' | 'negociacion' | 'cerrado' | 'perdido';
-export type LeadSource = 'puerta_fria' | 'instagram' | 'recomendacion' | 'google' | 'whatsapp';
+export type LeadSource = 'puerta_fria' | 'instagram' | 'recomendacion' | 'google' | 'whatsapp' | 'formulario_web';
 
 export interface LeadNote {
   id: string;
   author: PartnerId;
   text: string;
   createdAt: string;
+}
+
+/** Lo que rellenó el visitante en tecnodiel.com/formulario. Solo presente si source='formulario_web'. */
+export interface LeadIntake {
+  ambiente: string;
+  features: string[];
+  layoutFamily: LayoutVariant;
+  layoutVariant: string;
+  accentOverride: string | null;
+  ourPrice: number;
+  referencePrice: number;
 }
 
 export interface Lead {
@@ -314,6 +326,8 @@ export interface Lead {
   city: string;
   source: LeadSource;
   stage: LeadStage;
+  /** Solo si llegó de tecnodiel.com/formulario: lo que eligió (funciones, estilo, precio mostrado). */
+  intake: LeadIntake | null;
   /** Presupuesto estimado en euros. */
   estimatedValue: number;
   owner: PartnerId;

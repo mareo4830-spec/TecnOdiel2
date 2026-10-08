@@ -18,8 +18,8 @@ npm run dev
 
 ### Modo demo vs. Supabase
 
-- **Sin** `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`: modo demo. El login muestra un selector de socio. La app arranca vacía (sin datos de ejemplo) y lo que se añade se guarda en el `localStorage` del navegador, así que no se comparte entre ordenadores.
-- **Con** ellas: login real con Google. Solo entran las cuentas de Google vinculadas por email a una fila de `partners`.
+- **Sin** `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`: modo demo. El login muestra un selector de socio y todo usa datos mock.
+- **Con** ellas: login real con email y contraseña. Solo entran las cuentas vinculadas a una fila de `partners`.
 
 ### Configurar Supabase (proyecto de la Oficina Virtual, separado del SaaS de clientes)
 
@@ -30,7 +30,7 @@ npm run dev
    2. `20260928000000_oficina.sql`: proyectos, commits, actividad, tareas, chat, horas, fondo, CRM y WhatsApp, con RLS y Realtime.
    3. `20260929…` a `20261001…`: proyectos SaaS multi-tenant (tenants, facturación, integraciones, provisionado).
    4. `20261002000000_workflow_saas_config.sql`: etapas Planeado / En progreso / Hecho, configuración de conexiones por SaaS (`saas_project_config`) y paso `preview` de los tenants.
-4. En **Authentication → Users**, invita o crea a Javier y Mario con esos emails. El trigger los vincula solos.
+4. En **Authentication → Users**, invita o crea a Javier, Dani y Mario con esos emails. El trigger los vincula solos.
 5. Copia la URL y la clave **anon/publishable** a `.env` y a las variables de entorno de Vercel.
 
 **Nunca** pongas la `service_role` ni tokens de GitHub, WhatsApp o Resend en variables `VITE_*`: todo lo que se prefija con `VITE_` acaba en el bundle público. Esos secretos van en Edge Functions.

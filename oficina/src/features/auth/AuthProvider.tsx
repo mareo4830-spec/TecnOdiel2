@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase';
 import { MOCK_PARTNERS, PARTNER_COLUMNS, mapPartnerRow, type PartnerRow } from '../../lib/partners';
-import type { AuthStatus, Partner } from '../../types';
+import type { AuthStatus, Partner, PartnerId } from '../../types';
 import { AuthContext, type AuthContextValue } from './authContext';
+
+const DEMO_KEY = 'ov.demo.partner';
 
 interface State {
   status: AuthStatus;
@@ -12,15 +14,23 @@ interface State {
 
 const SIGNED_OUT: State = { status: 'unauthenticated', partner: null, error: null };
 
+function readDemoPartner(): Partner | null {
+  try {
+    const id = localStorage.getItem(DEMO_KEY);
+    return MOCK_PARTNERS.find((p) => p.id === id) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Acceso solo con Google. Entra únicamente quien tenga una fila en `partners` vinculada a su
  * cuenta (el trigger `link_partner_user` la vincula por email en el primer login); RLS lo
- * garantiza también en la BD. Sin Supabase configurado, modo demo: entra directo como Javier.
+ * garantiza también en la BD. Misma sesión que la landing de TecnOdiel (mismo storageKey): si
+ * ya entraste allí con Google, aquí no hace falta volver a hacerlo.
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<State>(
-    isSupabaseConfigured ? { status: 'loading', partner: null, error: null } : { status: 'authenticated', partner: MOCK_PARTNERS[0], error: null },
-  );
+  const [state, setState] = useState<State>({ status: 'loading', partner: null, error: null });
 
   const resolvePartner = useCallback(async (userId: string) => {
     if (!supabase) return;
@@ -39,17 +49,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      const partner = readDemoPartner();
+      setState(partner ? { status: 'authenticated', partner, error: null } : SIGNED_OUT);
+      return;
+    }
 
-    void supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }) => {
       if (data.session) void resolvePartner(data.session.user.id);
       else setState(SIGNED_OUT);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') setState((prev) => ({ ...SIGNED_OUT, error: prev.error }));
-      // El primer login con Google llega por aquí cuando getSession aún no tenía sesión.
-      else if (event === 'SIGNED_IN' && session) setTimeout(() => void resolvePartner(session.user.id), 0);
+      if (event === 'SIGNED_OUT') {
+        setState((prev) => ({ ...SIGNED_OUT, error: prev.error }));
+      } else if (event === 'SIGNED_IN' && session) {
+        // El primer login con Google (o el que llega ya hecho desde la landing) pasa por aquí.
+        setTimeout(() => void resolvePartner(session.user.id), 0);
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, [resolvePartner]);
@@ -64,14 +81,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? 'No se ha podido iniciar sesión con Google. Inténtalo de nuevo.' : null;
   }, []);
 
+  const signInDemo = useCallback((id: PartnerId) => {
+    if (isSupabaseConfigured) return;
+    const partner = MOCK_PARTNERS.find((p) => p.id === id) ?? null;
+    try {
+      localStorage.setItem(DEMO_KEY, id);
+    } catch {
+      /* sin almacenamiento: la sesión demo dura hasta recargar */
+    }
+    setState({ status: 'authenticated', partner, error: null });
+  }, []);
+
   const signOut = useCallback(async () => {
-    await supabase?.auth.signOut();
-    if (supabase) setState(SIGNED_OUT);
+    if (supabase) {
+      await supabase.auth.signOut();
+    } else {
+      try {
+        localStorage.removeItem(DEMO_KEY);
+      } catch {
+        /* ignorado */
+      }
+    }
+    setState(SIGNED_OUT);
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ...state, mode: isSupabaseConfigured ? 'supabase' : 'demo', signInWithGoogle, signOut }),
-    [state, signInWithGoogle, signOut],
+    () => ({
+      ...state,
+      mode: isSupabaseConfigured ? 'supabase' : 'demo',
+      signInWithGoogle,
+      signInDemo,
+      signOut,
+    }),
+    [state, signInWithGoogle, signInDemo, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

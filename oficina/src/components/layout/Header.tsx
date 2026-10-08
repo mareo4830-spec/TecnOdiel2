@@ -1,93 +1,59 @@
-import { Globe, Menu, Plus } from 'lucide-react';
-import { useLayoutEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { APP_URLS } from '../../lib/config';
-import { gsap, prefersReducedMotion } from '../../lib/motion';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { getNavItem } from '../../lib/navigation';
-import { CheckinButton } from './CheckinButton';
+import { Globe, Mail, Menu } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../features/auth/authContext';
+import { useClientUnreadTotal } from '../../features/chats/clientChatService';
 import { GlobalSearch } from './GlobalSearch';
 import { NotificationsMenu } from './NotificationsMenu';
 import { ProfileMenu } from './ProfileMenu';
 
+/** Barra superior estilo Fernly: buscador ⌘K a la izquierda; mensajes, avisos y perfil a la derecha. */
 export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const item = getNavItem(pathname);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-
-  // El título de cada sección se revela letra a letra desde una máscara.
-  useLayoutEffect(() => {
-    if (!titleRef.current || prefersReducedMotion()) return;
-    const chars = titleRef.current.querySelectorAll('.t-char');
-    const tween = gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: 'expo.out', stagger: 0.025 });
-    return () => {
-      // Salta al final antes de matarlo: si el efecto se reinicia a medias (p. ej. el doble
-      // montaje de StrictMode) las letras quedan en su sitio en vez de a mitad de camino e invisibles.
-      tween.progress(1).kill();
-    };
-  }, [item.path]);
+  const { partner } = useAuth();
+  const unread = useClientUnreadTotal();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-gray-800/80 bg-gray-950/85 backdrop-blur">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-20 bg-gray-950/80 backdrop-blur-xl">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+        className="flex items-center gap-3 px-4 py-4 sm:px-6 lg:px-8"
+      >
         <button
           onClick={onOpenMenu}
           aria-label="Abrir menú"
-          className="grid h-10 w-10 place-items-center rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white lg:hidden"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gray-900 text-gray-400 shadow-sm hover:text-white lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <h1
-          ref={titleRef}
-          aria-label={item.title}
-          className="min-w-0 flex-1 truncate text-base font-semibold text-white sm:text-xl xl:flex-none"
-        >
-          <span aria-hidden className="sm:hidden">
-            {[...item.label].map((c, i) => (
-              <span key={i} className="inline-block overflow-hidden align-bottom">
-                <span className="t-char inline-block whitespace-pre">{c}</span>
-              </span>
-            ))}
-          </span>
-          <span aria-hidden className="hidden sm:inline">
-            {[...item.title].map((c, i) => (
-              <span key={i} className="inline-block overflow-hidden align-bottom">
-                <span className="t-char inline-block whitespace-pre">{c}</span>
-              </span>
-            ))}
-          </span>
-        </h1>
-
-        {/* Hasta xl, buscador + botón bajan a una segunda fila a ancho completo. */}
-        <div className="order-last flex w-full items-center gap-2 xl:order-none xl:ml-auto xl:w-auto">
+        <div className="min-w-0 flex-1 sm:max-w-md">
           <GlobalSearch />
-          <button
-            onClick={() => navigate('/proyectos?nuevo=1')}
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-3 text-sm font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:from-indigo-500 hover:to-purple-500 sm:px-4"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Añadir Proyecto</span>
-          </button>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <a
-            href={APP_URLS.landing}
-            aria-label="Ir a la landing"
-            title="Ir a la landing"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-gray-700 px-3 text-sm font-medium text-gray-300 transition hover:border-indigo-500 hover:text-white"
+            href="/"
+            aria-label="Ir a la página principal de TecnOdiel"
+            title="Ir a la página principal"
+            className="hidden h-10 shrink-0 items-center gap-2 rounded-full border border-gray-700 px-3 text-sm font-medium text-gray-300 transition hover:border-indigo-500 hover:text-white sm:inline-flex"
           >
             <Globe className="h-4 w-4" />
-            <span className="hidden md:inline">Landing</span>
+            Landing
           </a>
-          <ThemeToggle />
-          <CheckinButton />
+          <Link
+            to="/chats"
+            aria-label={`Chats${unread ? ` (${unread} sin leer)` : ''}`}
+            className="relative grid h-10 w-10 place-items-center rounded-full text-gray-400 transition hover:bg-gray-900 hover:text-white"
+          >
+            <Mail className="h-[18px] w-[18px]" />
+            {unread > 0 && <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-gray-950" />}
+          </Link>
           <NotificationsMenu />
-          <ProfileMenu />
+          {partner && <ProfileMenu />}
         </div>
-      </div>
+      </motion.div>
     </header>
   );
 }

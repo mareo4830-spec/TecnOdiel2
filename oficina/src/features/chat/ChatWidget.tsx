@@ -126,11 +126,11 @@ export function ChatWidget() {
             ref={buttonRef}
             onClick={openChat}
             aria-label={`Abrir chat del equipo${unread ? ` (${unread} sin leer)` : ''}`}
-            className="relative grid h-14 w-14 place-items-center rounded-full bg-green-600 text-white shadow-lg shadow-green-900/40 transition hover:scale-105 hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-400"
+            className="on-accent group relative grid h-14 w-14 place-items-center rounded-full bg-indigo-700 text-white shadow-xl shadow-indigo-900/25 transition hover:scale-105 hover:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-500"
           >
-            <MessageCircle className="h-6 w-6" />
+            <MessageCircle className="relative h-6 w-6 transition-transform group-hover:-rotate-12" />
             {unread > 0 && (
-              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full border-2 border-gray-950 bg-rose-500 px-1 text-[11px] font-bold leading-none">
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full border-2 border-black bg-rose-500 px-1 text-white text-[11px] font-bold leading-none">
                 {unread > 9 ? '9+' : unread}
               </span>
             )}
@@ -142,7 +142,7 @@ export function ChatWidget() {
         <section
           role="dialog"
           aria-label="Chat del equipo"
-          className="anim-modal fixed inset-0 z-50 flex flex-col overflow-hidden bg-gray-950 sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(640px,calc(100dvh-3rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-gray-800 sm:shadow-2xl sm:shadow-black/60"
+          className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-gray-950 sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(640px,calc(100dvh-3rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-gray-800 sm:shadow-2xl sm:shadow-black/60"
         >
           <header className="flex items-center gap-3 border-b border-gray-800 bg-gray-900 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
             <div className="flex -space-x-2">

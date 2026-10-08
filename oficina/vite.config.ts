@@ -3,10 +3,12 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  // En el monorepo la oficina cuelga de /oficina/ (VITE_BASE=/oficina/); en solitario, de la raíz.
+  // En el monorepo de TecnOdiel la oficina cuelga de /oficina/ (build-all.mjs pasa VITE_BASE);
+  // en solitario, de la raíz.
   base: process.env.VITE_BASE || '/',
   plugins: [react(), tailwindcss()],
-  // Tailwind v4 va por su plugin de Vite: no heredar el postcss.config.js (Tailwind v3) de la raíz del monorepo.
+  // Tailwind v4 va por su plugin de Vite: no heredar el postcss.config.js (Tailwind v3) de la
+  // raíz del monorepo de TecnOdiel cuando la oficina cuelga de /oficina/.
   css: { postcss: { plugins: [] } },
   build: {
     rollupOptions: {

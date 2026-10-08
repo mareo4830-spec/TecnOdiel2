@@ -9,7 +9,8 @@ export const isSupabaseConfigured = Boolean(url && anonKey);
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(url!, anonKey!, {
-      // Misma clave de sesión que la landing: al estar en el mismo origen, iniciar sesión una vez vale para las dos.
+      // Misma clave de sesión que la landing (adminAuth.js): al estar en el mismo origen,
+      // iniciar sesión con Google una vez en la landing vale también para la oficina.
       auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tecnodiel-admin-auth' },
     })
   : null;

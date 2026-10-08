@@ -6,7 +6,9 @@ import { formatShortDate } from '../../../lib/format';
 import type { FundMovementType } from '../../../types';
 import { useAuth } from '../../auth/authContext';
 import { useProjects } from '../../projects/projectService';
-import { addFundMovement, useFundMovements, useFundSummary } from '../hoursService';
+import { ConfirmDialog, DeleteIconButton } from '../../../components/ui/ConfirmDialog';
+import type { FundMovement } from '../../../types';
+import { addFundMovement, deleteFundMovement, useFundMovements, useFundSummary } from '../hoursService';
 
 const eur2 = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
 const inputClass =
@@ -36,6 +38,7 @@ export function FundPanel() {
   const { partner } = useAuth();
   const projects = useProjects();
   const movements = useFundMovements();
+  const [toDelete, setToDelete] = useState<FundMovement | null>(null);
   const [type, setType] = useState<FundMovementType>('gasto');
   const [concept, setConcept] = useState('');
   const [amount, setAmount] = useState('');
@@ -126,12 +129,31 @@ export function FundPanel() {
                     {income ? '+' : '−'}
                     {eur2.format(m.amount)}
                   </span>
+                  <DeleteIconButton label={`Eliminar «${m.concept}»`} onClick={() => setToDelete(m)} />
                 </li>
               );
             })}
+            {movements.length === 0 && <li className="py-6 text-center text-sm text-gray-500">Todavía no hay movimientos.</li>}
           </ul>
         </section>
       </div>
+      {toDelete && partner && (
+        <ConfirmDialog
+          title="Eliminar movimiento"
+          confirmLabel="Eliminar movimiento"
+          onCancel={() => setToDelete(null)}
+          onConfirm={async () => {
+            const ok = await deleteFundMovement(toDelete.id, partner.id);
+            if (!ok) return false;
+            setToDelete(null);
+          }}
+        >
+          <p>
+            Se borrará «<strong className="text-white">{toDelete.concept}</strong>» ({eur2.format(toDelete.amount)}) del fondo común. El
+            saldo se recalcula al momento. Esta acción no se puede deshacer.
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

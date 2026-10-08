@@ -3,13 +3,14 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Badge } from '../../../components/ui/Badge';
+import { ConfirmDialog, DeleteIconButton } from '../../../components/ui/ConfirmDialog';
 import { PARTNER_IDS, PARTNER_META } from '../../../lib/partners';
-import type { PartnerId, SessionVerification } from '../../../types';
+import type { PartnerId, SessionVerification, WorkSession } from '../../../types';
 import { useAuth } from '../../auth/authContext';
 import { useProjects } from '../../projects/projectService';
 import { formatHours, type SessionEvaluation } from '../hoursMath';
 import { VERIFICATION_META } from '../hoursMeta';
-import { approveSession } from '../hoursService';
+import { approveSession, deleteSession } from '../hoursService';
 import { DAILY_CAP_HOURS } from '../repartoConfig';
 
 const WEEK_MS = 7 * 24 * 3_600_000;
@@ -25,6 +26,7 @@ export function SessionsPanel({ evaluations }: { evaluations: SessionEvaluation[
   const [who, setWho] = useState<PartnerId | 'todos'>('todos');
   const [projectId, setProjectId] = useState('todos');
   const [state, setState] = useState<SessionVerification | 'todas'>('todas');
+  const [toDelete, setToDelete] = useState<WorkSession | null>(null);
 
   const week = useMemo(() => {
     const since = Date.now() - WEEK_MS;
@@ -166,6 +168,7 @@ export function SessionsPanel({ evaluations }: { evaluations: SessionEvaluation[
                         Validar
                       </button>
                     )}
+                    <DeleteIconButton label="Eliminar sesión" onClick={() => setToDelete(s)} />
                   </div>
                 </li>
               );
@@ -173,6 +176,25 @@ export function SessionsPanel({ evaluations }: { evaluations: SessionEvaluation[
           </ul>
         )}
       </section>
+      {toDelete && partner && (
+        <ConfirmDialog
+          title="Eliminar sesión"
+          confirmLabel="Eliminar sesión"
+          onCancel={() => setToDelete(null)}
+          onConfirm={async () => {
+            const ok = await deleteSession(toDelete.id, partner.id);
+            if (!ok) return false;
+            setToDelete(null);
+          }}
+        >
+          <p>
+            Se borrará la sesión de {PARTNER_META[toDelete.partnerId].name} del{' '}
+            {dateFmt.format(new Date(toDelete.startedAt))} ({timeFmt.format(new Date(toDelete.startedAt))}–
+            {timeFmt.format(new Date(toDelete.endedAt))}). Sus horas dejan de contar para el reparto.
+          </p>
+          <p className="text-gray-400">Esta acción no se puede deshacer.</p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

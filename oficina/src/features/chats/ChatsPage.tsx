@@ -76,7 +76,7 @@ export function ChatsPage() {
                     </span>
                     <p className="mt-3 font-medium text-gray-200">Elige una conversación</p>
                     <p className="mt-1 max-w-xs text-sm text-gray-500">
-                      Los mensajes de WhatsApp Business de los clientes llegan aquí. De momento están simulados.
+                      Los mensajes de WhatsApp Business de los clientes llegan aquí cuando la Edge Function whatsapp-webhook esté conectada.
                     </p>
                   </div>
                 </div>

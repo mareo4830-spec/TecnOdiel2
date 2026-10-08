@@ -1,3 +1,4 @@
+import { loadAfter, live } from '../../lib/db';
 import { createStore, useStore } from '../../lib/store';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase';
 import type { IntegrationProvider, OpeningHours, PartnerId, TenantIntegration } from '../../types';
@@ -10,6 +11,9 @@ import {
   getMissingRequirements,
   getPlan,
   getTenant,
+  loadIntegrations,
+  loadProvisioningLog,
+  loadTenants,
   patchIntegration,
   previewMissing,
   setRenewalIfMissing,
@@ -28,6 +32,44 @@ import {
 
 export class ProvisioningError extends Error {}
 
+/**
+ * Con Supabase el provisionado lo hacen las Edge Functions (con los secretos de Vercel, DNS,
+ * Google…). Aquí solo se lanzan; el avance llega por Realtime. Si la función no está desplegada
+ * o le falta un secreto, se muestra su mensaje de error tal cual.
+ */
+async function invokeFunction<T>(name: string, body: Record<string, unknown>): Promise<T> {
+  const { data, error } = await supabase!.functions.invoke<T & { error?: string }>(name, { body });
+  if (error) {
+    const res = (error as { context?: Response }).context;
+    const payload = await res?.json?.().catch(() => null);
+    if (res?.status === 404) throw new ProvisioningError(`La Edge Function ${name} no está desplegada en Supabase`);
+    throw new ProvisioningError(payload?.error ?? error.message);
+  }
+  if (data && (data as { error?: string }).error) throw new ProvisioningError((data as { error: string }).error);
+  return data as T;
+}
+
+const refreshTenantData = () => {
+  loadAfter(loadTenants);
+  loadAfter(loadIntegrations);
+  loadAfter(loadProvisioningLog);
+};
+
+async function runRemote(tenantId: string, body: Record<string, unknown>): Promise<ProvisionResult> {
+  if (runningStore.get().has(tenantId)) throw new ProvisioningError('Ya hay un provisionado en curso para este tenant');
+  setRunning(tenantId, true);
+  try {
+    const res = await invokeFunction<{ status?: ProvisionResult['status']; failedStep?: PipelineStep; accepted?: boolean }>('provision-tenant', {
+      tenantId,
+      ...body,
+    });
+    return { status: res?.status ?? 'pending', failedStep: res?.failedStep };
+  } finally {
+    setRunning(tenantId, false);
+    refreshTenantData();
+  }
+}
+
 /** Tenants con un provisionado en marcha (reactivo: la UI desactiva el botón mientras dura). */
 const runningStore = createStore<ReadonlySet<string>>(new Set());
 export const useIsProvisioning = (tenantId: string) => useStore(runningStore, (set) => set.has(tenantId));
@@ -41,7 +83,7 @@ const setRunning = (tenantId: string, on: boolean) =>
 
 /** En la demo el DNS "propaga" 20 s después de crear los registros. */
 const DNS_PROPAGATION_MS = 20_000;
-const dnsReadyAt = new Map<string, number>([['t-norte', Date.now() + DNS_PROPAGATION_MS]]);
+const dnsReadyAt = new Map<string, number>();
 const propagated = (tenantId: string) => (dnsReadyAt.get(tenantId) ?? Infinity) <= Date.now();
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -179,6 +221,7 @@ export interface ProvisionResult {
  * <slug>-<sufijo>.vercel.app en Vercel. No exige dominio, horario ni cobro; no cambia el estado.
  */
 export async function createPreview(tenantId: string, actor: PartnerId): Promise<ProvisionResult> {
+  if (live) return runRemote(tenantId, { mode: 'preview' });
   const tenant = getTenant(tenantId);
   if (!tenant) throw new ProvisioningError('Tenant no encontrado');
   const missing = previewMissing(tenant);
@@ -220,6 +263,7 @@ export async function createPreview(tenantId: string, actor: PartnerId): Promise
  * `force` repite pasos que ya estaban en ok (p. ej. "Reintentar" en una tarjeta).
  */
 export async function provisionTenant(tenantId: string, actor: PartnerId, force: IntegrationProvider[] = []): Promise<ProvisionResult> {
+  if (live) return runRemote(tenantId, { mode: 'full', force });
   const tenant = getTenant(tenantId);
   if (!tenant) throw new ProvisioningError('Tenant no encontrado');
   const missing = getMissingRequirements(tenantId);
@@ -268,6 +312,14 @@ export async function provisionTenant(tenantId: string, actor: PartnerId, force:
 
 /** Como la Edge Function sync-tenant: estado real y métricas, sin re-provisionar. */
 export async function syncTenant(tenantId: string, actor: PartnerId): Promise<void> {
+  if (live) {
+    try {
+      await invokeFunction('sync-tenant', { tenantId });
+    } finally {
+      refreshTenantData();
+    }
+    return;
+  }
   const t = getTenant(tenantId);
   if (!t) return;
   await sleep(900);

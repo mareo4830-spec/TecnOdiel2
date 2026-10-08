@@ -11,7 +11,6 @@ interface WorkCardProps {
   item: WorkItem;
   compact?: boolean;
   dragging?: boolean;
-  settled?: boolean;
   onDragStart: (e: DragEvent<HTMLElement>) => void;
   onDragEnd: () => void;
   onMoveTo: (stage: WorkStage) => void;
@@ -26,7 +25,7 @@ function meetingClass(date: string): string {
   return 'bg-gray-800 text-gray-300';
 }
 
-export function WorkCard({ item, compact, dragging, settled, onDragStart, onDragEnd, onMoveTo, onToggleWaiting, onMeeting }: WorkCardProps) {
+export function WorkCard({ item, compact, dragging, onDragStart, onDragEnd, onMoveTo, onToggleWaiting, onMeeting }: WorkCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState(false);
   const Icon = item.icon;
@@ -35,12 +34,13 @@ export function WorkCard({ item, compact, dragging, settled, onDragStart, onDrag
   return (
     <article
       data-work-key={item.key}
+      data-reveal
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`group cursor-grab rounded-xl border bg-gray-800/60 p-3 transition hover:border-indigo-500/50 active:cursor-grabbing ${
+      className={`group cursor-grab rounded-xl border bg-gray-800/60 p-3 transition duration-200 hover:border-indigo-500/50 active:cursor-grabbing ${
         item.waitingClient ? 'border-amber-500/40' : 'border-gray-800'
-      } ${dragging ? 'opacity-40 ring-2 ring-indigo-500/60' : ''} ${settled ? 'anim-settle' : ''}`}
+      } ${dragging ? 'rotate-2 scale-[0.98] opacity-40 ring-2 ring-indigo-500/60' : 'hover:-translate-y-0.5 hover:shadow-md'}`}
     >
       <div className="flex items-start gap-2.5">
         <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${item.tint}`}>

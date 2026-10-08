@@ -1,28 +1,49 @@
 import type { LucideIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { motion } from 'motion/react';
+import type { MouseEvent, ReactNode } from 'react';
 
 interface WidgetCardProps {
   title: string;
   icon: LucideIcon;
   action?: ReactNode;
   className?: string;
+  /** Posición en la rejilla: retrasa su entrada para que aparezcan escalonadas. */
+  index?: number;
   children: ReactNode;
 }
 
-export function WidgetCard({ title, icon: Icon, action, className = '', children }: WidgetCardProps) {
+/** Foco de luz que sigue al ratón dentro de la tarjeta (variables CSS, sin re-render). */
+function trackSpotlight(e: MouseEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+}
+
+export function WidgetCard({ title, icon: Icon, action, className = '', index = 0, children }: WidgetCardProps) {
   return (
-    <section className={`lift flex flex-col rounded-2xl border border-gray-800 bg-gray-900 p-4 sm:p-5 ${className}`}>
-      <header className="mb-4 flex items-center justify-between gap-3">
+    <motion.section
+      initial={{ opacity: 0, y: 14, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.45, delay: Math.min(index, 10) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      onMouseMove={trackSpotlight}
+      className={`card group/card relative flex flex-col overflow-hidden p-4 transition-shadow hover:shadow-md sm:p-5 ${className}`}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100"
+        style={{ background: 'radial-gradient(400px circle at var(--mx) var(--my), color-mix(in oklab, var(--accent-500) 7%, transparent), transparent 45%)' }}
+      />
+      <header className="relative mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-indigo-500/10 text-indigo-400">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-indigo-50 text-indigo-600">
             <Icon className="h-4 w-4" />
           </span>
-          <h2 className="truncate font-semibold text-white">{title}</h2>
+          <h2 className="truncate text-base font-semibold text-white">{title}</h2>
         </div>
         {action}
       </header>
-      <div className="flex-1">{children}</div>
-    </section>
+      <div className="relative flex-1">{children}</div>
+    </motion.section>
   );
 }
 

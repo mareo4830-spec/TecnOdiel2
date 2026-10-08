@@ -1,16 +1,40 @@
 import { useMemo } from 'react';
+import { db, must, persist } from '../../lib/db';
 import { createStore, useStore } from '../../lib/store';
 import type { ChatMessage, ChatMessageKind, PartnerId } from '../../types';
 import { logActivity } from '../activity/activityService';
 
 /*
- * Chat interno del equipo (local). Con Supabase: tabla `chat_messages` + canal Realtime,
- * `chat_reads` (partner_id, last_read_at) para los no leídos y Realtime Presence para
- * "está escribiendo…". Los hooks no cambian.
+ * Chat interno del equipo. Con Supabase: tabla `chat_messages` + Realtime y `chat_reads`
+ * (hasta dónde ha leído cada socio) para los no leídos. Sin Supabase: en memoria.
  */
-const messagesStore = createStore<ChatMessage[]>([], 'chat.messages');
-const lastReadStore = createStore<Record<PartnerId, string>>({ javier: '', mario: '' }, 'chat.lastRead');
+const EPOCH = '1970-01-01T00:00:00.000Z';
+const messagesStore = createStore<ChatMessage[]>([]);
+const lastReadStore = createStore<Record<PartnerId, string>>({ javier: EPOCH, dani: EPOCH, mario: EPOCH });
+// "Está escribiendo…": pendiente de Realtime Presence; mientras tanto nunca hay nadie escribiendo.
 const typingStore = createStore<PartnerId | null>(null);
+
+interface MessageRow {
+  id: string;
+  author: PartnerId;
+  text: string;
+  kind: ChatMessageKind;
+  project_id: string | null;
+  created_at: string;
+}
+
+export async function loadChat(): Promise<void> {
+  const [rows, reads] = await Promise.all([
+    must<MessageRow[]>(db().from('chat_messages').select('*').order('created_at', { ascending: false }).limit(200)),
+    must<{ partner_id: PartnerId; last_read_at: string }[]>(db().from('chat_reads').select('*')),
+  ]);
+  messagesStore.set(() =>
+    rows
+      .map((r) => ({ id: r.id, author: r.author, text: r.text, kind: r.kind, projectId: r.project_id, createdAt: r.created_at }))
+      .reverse(),
+  );
+  lastReadStore.set((prev) => ({ ...prev, ...Object.fromEntries(reads.map((r) => [r.partner_id, r.last_read_at])) }));
+}
 
 export function useChatMessages(): ChatMessage[] {
   return useStore(messagesStore);
@@ -40,11 +64,24 @@ export function markChatRead(me: PartnerId): void {
   const latest = messagesStore.get().at(-1)?.createdAt;
   if (!latest || lastReadStore.get()[me] >= latest) return;
   lastReadStore.set((prev) => ({ ...prev, [me]: latest }));
+  void persist('Marcar chat como leído', () => must(db().from('chat_reads').upsert({ partner_id: me, last_read_at: latest })));
 }
 
 function addMessage(input: Omit<ChatMessage, 'id' | 'createdAt'>): ChatMessage {
   const message: ChatMessage = { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
   messagesStore.set((prev) => [...prev, message].slice(-200));
+  void persist('Enviar mensaje', () =>
+    must(
+      db().from('chat_messages').insert({
+        id: message.id,
+        author: message.author,
+        text: message.text,
+        kind: message.kind,
+        project_id: message.projectId,
+        created_at: message.createdAt,
+      }),
+    ),
+  );
   return message;
 }
 
@@ -65,7 +102,7 @@ function logChatActivity(message: ChatMessage): void {
   });
 }
 
-/** Aviso automático (p. ej. un tenant sale a producción): sin entrada extra en la actividad. */
+/** Aviso automático (p. ej. un tenant sale a producción), sin entrada extra en la actividad. */
 export function postChatAviso(text: string, projectId: string | null, author: PartnerId): void {
   addMessage({ author, text, kind: 'aviso', projectId });
 }
@@ -78,4 +115,11 @@ export function sendChatMessage(
   logChatActivity(message);
   markChatRead(by);
   return message;
+}
+
+/** Cada socio puede borrar sus propios mensajes. */
+export async function deleteChatMessage(id: string): Promise<boolean> {
+  const ok = await persist('Eliminar mensaje', () => must(db().from('chat_messages').delete().eq('id', id)));
+  if (ok) messagesStore.set((prev) => prev.filter((m) => m.id !== id));
+  return ok;
 }

@@ -1,4 +1,5 @@
 import { Boxes, Plus, Store } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState, type DragEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useClickOutside } from '../../../hooks/useClickOutside';
@@ -26,13 +27,9 @@ export function WorkBoard({ items, compact, maxPerColumn }: WorkBoardProps) {
   const { partner } = useAuth();
   const [draggingKey, setDraggingKey] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
-  // La tarjeta que acaba de soltarse hace un pequeño "aterrizaje" (ver .anim-settle en index.css).
-  const [settledKey, setSettledKey] = useState<string | null>(null);
 
   const move = (key: string, stage: WorkStage, beforeKey: string | null) => {
     if (partner) moveWork(key, stage, beforeKey, partner.id);
-    setSettledKey(key);
-    window.setTimeout(() => setSettledKey((k) => (k === key ? null : k)), 520);
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>, stage: WorkStage) => {
@@ -80,9 +77,9 @@ export function WorkBoard({ items, compact, maxPerColumn }: WorkBoardProps) {
           <section
             key={stage}
             aria-label={meta.label}
-            className={`flex shrink-0 flex-col rounded-2xl border bg-gray-900/60 transition ${
+            className={`flex shrink-0 flex-col rounded-2xl border bg-gray-900/60 transition duration-300 ${
               compact ? 'w-64 p-2.5 md:w-auto' : 'w-[85%] max-w-sm snap-center p-3 sm:w-80 lg:w-auto lg:max-w-none'
-            } ${isTarget ? 'border-indigo-500/60 bg-indigo-500/5' : 'border-gray-800'}`}
+            } ${isTarget ? 'scale-[1.01] border-dashed border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/10' : 'border-gray-800'}`}
           >
             <header className="mb-3 px-1">
               <div className="flex items-center gap-2">
@@ -109,13 +106,13 @@ export function WorkBoard({ items, compact, maxPerColumn }: WorkBoardProps) {
               className={`flex flex-1 flex-col gap-2 ${compact ? 'min-h-24' : 'min-h-40'}`}
             >
               {visible.map((item) => (
-                <div key={item.key}>
+                // Al soltar, la tarjeta viaja con un muelle hasta su sitio nuevo (también entre columnas).
+                <motion.div key={item.key} layout="position" layoutId={`kb-${item.key}`} transition={{ type: 'spring', stiffness: 420, damping: 36 }}>
                   {targetBefore === item.key && <div className="mb-2">{indicator}</div>}
                   <WorkCard
                     item={item}
                     compact={compact}
                     dragging={draggingKey === item.key}
-                    settled={settledKey === item.key}
                     onDragStart={(e) => {
                       e.dataTransfer.setData('text/plain', item.key);
                       e.dataTransfer.effectAllowed = 'move';
@@ -129,7 +126,7 @@ export function WorkBoard({ items, compact, maxPerColumn }: WorkBoardProps) {
                     onToggleWaiting={(w) => partner && setWaitingClient(item.key, w, partner.id)}
                     onMeeting={(m) => setMeeting(item.key, m)}
                   />
-                </div>
+                </motion.div>
               ))}
               {targetBefore === null && indicator}
 

@@ -1,6 +1,7 @@
 import { ArrowLeft, Boxes, Code2, ExternalLink, FileText, Link2, MonitorSmartphone, Settings2, SquareKanban, Trash2, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { AvatarStack } from '../../components/ui/AvatarStack';
 import { Badge } from '../../components/ui/Badge';
 import { ProgressBar } from '../../components/ui/ProgressBar';
@@ -9,12 +10,10 @@ import { LinksTab } from './detail/LinksTab';
 import { PreviewTab } from './detail/PreviewTab';
 import { SaasConfigTab } from './detail/SaasConfigTab';
 import { SummaryTab } from './detail/SummaryTab';
-import { toast } from '../../lib/toast';
-import { deleteProject } from './deleteProject';
 import { BUSINESS_TYPE_META, LAYOUT_META, STATUS_META, WAITING_BADGE } from './projectMeta';
-import { useProject } from './projectService';
+import { deleteProject, useProject } from './projectService';
 import { SaasTenantsPanel } from '../tenants/SaasTenantsPanel';
-import { useProjectTenants } from '../tenants/tenantService';
+import { forgetTenants, useProjectTenants } from '../tenants/tenantService';
 
 const SAAS_TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'tenants', label: 'Tenants', icon: Boxes },
@@ -33,12 +32,12 @@ export function ProjectDetailPage() {
   const project = useProject(projectId);
   const [searchParams, setSearchParams] = useSearchParams();
   const tenants = useProjectTenants(projectId ?? '');
-  const navigate = useNavigate();
-  const [confirmDelete, setConfirmDelete] = useState(false);
   // Un proyecto SaaS abre en sus tenants; el resto de pestañas (repo core, preview…) se mantienen.
   const tabs = project?.kind === 'saas' ? [...SAAS_TABS, ...TABS.filter((t) => t.id !== 'preview')] : TABS;
   const defaultTab = tabs[0].id;
   const tab = tabs.some((t) => t.id === searchParams.get('tab')) ? searchParams.get('tab')! : defaultTab;
+  const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!project) {
     return (
@@ -109,38 +108,14 @@ export function ProjectDetailPage() {
             )}
             <button
               onClick={() => setConfirmDelete(true)}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-gray-700 px-4 text-sm font-medium text-gray-400 hover:border-rose-500/60 hover:text-rose-300"
+              aria-label="Eliminar proyecto"
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-gray-700 px-3 text-sm font-medium text-rose-300 transition hover:border-rose-500 hover:bg-rose-500/10"
             >
               <Trash2 className="h-4 w-4" />
-              Eliminar
+              <span className="hidden sm:inline">Eliminar</span>
             </button>
           </div>
         </div>
-
-        {confirmDelete && (
-          <div role="alertdialog" aria-label="Confirmar borrado" className="mt-4 flex flex-col gap-3 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 sm:flex-row sm:items-center">
-            <p className="flex-1 text-sm text-rose-200">
-              ¿Eliminar «{project.name}»?{' '}
-              {saas && tenants.length > 0 && `También se borrarán sus ${tenants.length} tenant${tenants.length === 1 ? '' : 's'}. `}
-              Se borran sus tareas, horas y actividad. No se puede deshacer.
-            </p>
-            <div className="flex gap-2">
-              <button onClick={() => setConfirmDelete(false)} className="h-9 rounded-lg px-3 text-sm text-gray-300 hover:bg-gray-800">
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  deleteProject(project.id);
-                  toast('Proyecto eliminado');
-                  navigate('/proyectos', { replace: true });
-                }}
-                className="h-9 rounded-lg bg-rose-600 px-3 text-sm font-semibold text-white hover:bg-rose-500"
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        )}
       </header>
 
       <nav className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" aria-label="Secciones del proyecto">
@@ -170,6 +145,29 @@ export function ProjectDetailPage() {
         {tab === 'preview' && <PreviewTab project={project} />}
         {tab === 'accesos' && <LinksTab project={project} />}
       </div>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title={`Eliminar «${project.name}»`}
+          confirmLabel="Eliminar proyecto"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={async () => {
+            const ok = await deleteProject(project.id);
+            if (!ok) return false;
+            forgetTenants((t) => t.projectId === project.id);
+            navigate('/proyectos', { replace: true });
+          }}
+        >
+          <p>
+            Se borrará de la base de datos junto con sus tareas y commits
+            {saas ? `, sus ${tenants.length} tenants (con facturación, pagos e integraciones) y su configuración SaaS` : ''}.
+          </p>
+          <p className="text-gray-400">
+            Las horas, los movimientos del fondo, los leads y los chats se conservan sin proyecto. No se toca nada fuera de la
+            oficina (GitHub, Vercel, el SaaS…). Esta acción no se puede deshacer.
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

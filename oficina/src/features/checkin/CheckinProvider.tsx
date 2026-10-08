@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { reportDbError } from '../../lib/db';
 import type { CheckinSession } from '../../types';
 import { logActivity } from '../activity/activityService';
 import { useAuth } from '../auth/authContext';
@@ -18,9 +19,12 @@ export function CheckinProvider({ children }: { children: ReactNode }) {
       return;
     }
     let cancelled = false;
-    checkinService.getActive(partner.id).then((session) => {
-      if (!cancelled) setActive(session);
-    });
+    checkinService
+      .getActive(partner.id)
+      .then((session) => {
+        if (!cancelled) setActive(session);
+      })
+      .catch((e) => reportDbError('Cargar el check-in', e));
     return () => {
       cancelled = true;
     };
@@ -38,6 +42,8 @@ export function CheckinProvider({ children }: { children: ReactNode }) {
         projectId: session.projectId,
         action: session.projectId ? 'hizo check-in en' : 'hizo check-in',
       });
+    } catch (e) {
+      reportDbError('Hacer check-in', e);
     } finally {
       setBusy(false);
     }
@@ -59,6 +65,8 @@ export function CheckinProvider({ children }: { children: ReactNode }) {
           action: closed.projectId ? `hizo check-out (${worked}) en` : `hizo check-out (${worked})`,
         });
       }
+    } catch (e) {
+      reportDbError('Hacer check-out', e);
     } finally {
       setBusy(false);
     }

@@ -133,12 +133,12 @@ export function NewProjectDialog({ defaultPartner, initial, onClose, onCreate }:
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div aria-hidden onClick={onClose} className="anim-backdrop absolute inset-0 bg-black/70" />
+      <div aria-hidden onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-project-title"
-        className="anim-modal relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-gray-800 bg-gray-900 shadow-2xl sm:max-w-2xl sm:rounded-2xl"
+        className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-gray-800 bg-gray-900 shadow-2xl sm:max-w-2xl sm:rounded-2xl"
       >
         <header className="flex items-center justify-between border-b border-gray-800 px-5 py-4">
           <div className="flex items-center gap-2.5">

@@ -19,6 +19,7 @@ export const SOURCE_LABEL: Record<LeadSource, string> = {
   recomendacion: 'Recomendación',
   google: 'Google',
   whatsapp: 'WhatsApp',
+  formulario_web: 'Formulario web',
 };
 
 export const SOURCES = Object.keys(SOURCE_LABEL) as LeadSource[];

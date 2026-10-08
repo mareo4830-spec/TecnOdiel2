@@ -5,7 +5,6 @@ import { STATUS_META } from '../../features/projects/projectMeta';
 import { useProject, useProjects } from '../../features/projects/projectService';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useElapsed } from '../../hooks/useElapsed';
-import { RollingText } from '../motion/RollingText';
 import { formatDuration } from '../../lib/format';
 
 export function CheckinButton() {
@@ -92,7 +91,7 @@ export function CheckinButton() {
             {activeProject.businessName}
           </span>
         )}
-        <span className="font-mono text-xs tabular-nums text-emerald-300 sm:text-sm"><RollingText text={formatDuration(elapsed)} /></span>
+        <span className="font-mono text-xs tabular-nums text-emerald-300 sm:text-sm">{formatDuration(elapsed)}</span>
       </span>
       <button
         onClick={() => void checkOut()}

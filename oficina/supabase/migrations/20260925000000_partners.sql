@@ -77,7 +77,7 @@ create trigger on_auth_user_created_link_partner
 -- 5. Datos iniciales -------------------------------------------------------
 -- ⚠️ Sustituye los emails por los reales ANTES de ejecutar.
 insert into public.partners (id, name, initials, email, availability) values
-  ('javier', 'Javier', 'J', 'javier@CAMBIAR.com', 'Estudia por la mañana'),
+  ('javier', 'Javier', 'J', 'franciscojavierfarinapadilla@gmail.com', 'Estudia por la mañana'),
   ('dani',   'Dani',   'D', 'dani@CAMBIAR.com',   'Estudia por la tarde'),
   ('mario',  'Mario',  'M', 'mario@CAMBIAR.com',  'Disponibilidad completa')
 on conflict (id) do update

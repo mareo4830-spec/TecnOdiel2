@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Check, Eye, LoaderCircle, MapPin, RefreshCw, Save, Search, Wand2 } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { formatEuros } from '../../lib/format';
 import type {
   DnsProviderId,
@@ -77,13 +77,26 @@ function Section({ title, description, badge, children }: { title: string; descr
   );
 }
 
+/** Lo que llega desde "Crear tenant desde esta solicitud" en la ficha de un lead del CRM. */
+interface TenantPrefill {
+  businessName?: string;
+  businessType?: TenantBusinessType;
+  layout?: LayoutVariant;
+  layoutVariant?: string;
+  contactName?: string;
+  phone?: string;
+  email?: string;
+}
+
 export function TenantWizardPage() {
   const { projectId } = useParams();
   const project = useProject(projectId);
   const { partner } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const plans = usePlans();
   const cfg = project?.saas ?? null;
+  const prefill = (location.state as { prefill?: TenantPrefill } | null)?.prefill;
 
   const [step, setStep] = useState(0);
   const [visited, setVisited] = useState(0);
@@ -91,10 +104,10 @@ export function TenantWizardPage() {
   const [saving, setSaving] = useState(false);
 
   // 1. Negocio (esencial)
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [name, setName] = useState(() => prefill?.businessName ?? '');
+  const [slug, setSlug] = useState(() => (prefill?.businessName ? slugify(prefill.businessName) : ''));
   const [slugTouched, setSlugTouched] = useState(false);
-  const [businessType, setBusinessType] = useState<TenantBusinessType | null>(null);
+  const [businessType, setBusinessType] = useState<TenantBusinessType | null>(() => prefill?.businessType ?? null);
   const [businessMode, setBusinessMode] = useState<BusinessMode>('new');
   const [newBusinessId] = useState(() => crypto.randomUUID());
   const [linkedId, setLinkedId] = useState('');
@@ -108,17 +121,22 @@ export function TenantWizardPage() {
   const [stage, setStage] = useState<WorkStage>('en_progreso');
   const [meeting, setMeeting] = useState({ date: '', time: '', place: '' });
   // 2. Diseño y plan (esencial)
-  const [layout, setLayout] = useState<LayoutVariant | null>(null);
-  const [variant, setVariant] = useState<string | null>(null);
+  const [layout, setLayout] = useState<LayoutVariant | null>(() => prefill?.layout ?? null);
+  const [variant, setVariant] = useState<string | null>(() => prefill?.layoutVariant ?? null);
   const [tagline, setTagline] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [planId, setPlanId] = useState<string | null>(null);
   // 3. Contacto y redes (opcional)
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(() => prefill?.phone ?? '');
   const [whatsapp, setWhatsapp] = useState('');
-  const [publicEmail, setPublicEmail] = useState('');
+  const [publicEmail, setPublicEmail] = useState(() => prefill?.email ?? '');
   const [socials, setSocials] = useState<TenantSocials>({});
-  const [contact, setContact] = useState(emptyContact);
+  const [contact, setContact] = useState(() => ({
+    ...emptyContact,
+    fullName: prefill?.contactName ?? '',
+    billingEmail: prefill?.email ?? '',
+    phone: prefill?.phone ?? '',
+  }));
   // 4. Ubicación y horario (opcional)
   const [mapsUrl, setMapsUrl] = useState('');
   const [placeId, setPlaceId] = useState<string | null>(null);

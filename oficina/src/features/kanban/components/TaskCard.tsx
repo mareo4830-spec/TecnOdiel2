@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays, Flag, Folder, MoreHorizontal } from 'lucide-react';
+import { ArrowRight, CalendarDays, Flag, Folder, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState, type DragEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { AvatarStack } from '../../../components/ui/AvatarStack';
@@ -14,6 +14,7 @@ interface TaskCardProps {
   onDragStart: (e: DragEvent<HTMLElement>) => void;
   onDragEnd: () => void;
   onMoveTo: (status: TaskStatus) => void;
+  onDelete: () => void;
 }
 
 function dueClass(task: Task): string {
@@ -24,7 +25,7 @@ function dueClass(task: Task): string {
   return 'bg-gray-800 text-gray-300';
 }
 
-export function TaskCard({ task, projectName, compact, dragging, onDragStart, onDragEnd, onMoveTo }: TaskCardProps) {
+export function TaskCard({ task, projectName, compact, dragging, onDragStart, onDragEnd, onMoveTo, onDelete }: TaskCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const done = task.status === 'hecho';
   const priority = PRIORITY_META[task.priority];
@@ -33,17 +34,18 @@ export function TaskCard({ task, projectName, compact, dragging, onDragStart, on
     <article
       data-task-id={task.id}
       draggable
+      data-reveal
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`group cursor-grab rounded-xl border border-gray-800 bg-gray-800/60 p-3 transition duration-300 hover:-translate-y-0.5 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-black/20 active:cursor-grabbing ${
-        dragging ? 'rotate-2 scale-105 opacity-50 shadow-2xl ring-2 ring-indigo-500/60' : ''
+      className={`group cursor-grab rounded-xl border border-gray-800 bg-gray-800/60 p-3 transition duration-200 hover:border-indigo-500/50 active:cursor-grabbing ${
+        dragging ? 'rotate-2 scale-[0.98] opacity-40 ring-2 ring-indigo-500/60' : 'hover:-translate-y-0.5 hover:shadow-md'
       }`}
     >
       <div className="flex items-start gap-2">
         <h4 className={`flex-1 text-sm font-medium leading-snug ${done ? 'text-gray-400' : 'text-white'}`}>{task.title}</h4>
         <button
           onClick={() => setMenuOpen((v) => !v)}
-          aria-label={`Mover «${task.title}»`}
+          aria-label={`Opciones de «${task.title}»`}
           aria-expanded={menuOpen}
           className="-mr-1 -mt-1 rounded-md p-1 text-gray-500 hover:bg-gray-700 hover:text-white"
         >
@@ -112,6 +114,16 @@ export function TaskCard({ task, projectName, compact, dragging, onDragStart, on
               {c.label}
             </button>
           ))}
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              onDelete();
+            }}
+            className="ml-auto inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-rose-300 hover:bg-rose-500/15"
+          >
+            <Trash2 className="h-3 w-3" />
+            Eliminar
+          </button>
         </div>
       )}
     </article>

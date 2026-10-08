@@ -1,9 +1,11 @@
 import { Plus } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useMemo, useState, type DragEvent, type FormEvent } from 'react';
 import type { Project, Task, TaskStatus } from '../../../types';
 import { useAuth } from '../../auth/authContext';
 import { COLUMNS } from '../kanbanMeta';
-import { createTask, moveTask, sortColumn } from '../taskService';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import { createTask, deleteTask, moveTask, sortColumn } from '../taskService';
 import { TaskCard } from './TaskCard';
 
 interface KanbanBoardProps {
@@ -27,6 +29,7 @@ export function KanbanBoard({ tasks, projects, compact, maxPerColumn, defaultPro
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
   const [addingTo, setAddingTo] = useState<TaskStatus | null>(null);
+  const [toDelete, setToDelete] = useState<Task | null>(null);
 
   const projectNames = useMemo(() => new Map(projects.map((p) => [p.id, p.businessName])), [projects]);
 
@@ -60,6 +63,7 @@ export function KanbanBoard({ tasks, projects, compact, maxPerColumn, defaultPro
   const indicator = <div className="h-0.5 rounded-full bg-indigo-400 shadow-[0_0_8px] shadow-indigo-500" />;
 
   return (
+    <>
     <div
       className={
         compact
@@ -79,9 +83,9 @@ export function KanbanBoard({ tasks, projects, compact, maxPerColumn, defaultPro
           <section
             key={col.id}
             aria-label={col.label}
-            className={`flex shrink-0 flex-col rounded-2xl border bg-gray-900/60 transition ${
+            className={`flex shrink-0 flex-col rounded-2xl border bg-gray-900/60 transition duration-300 ${
               compact ? 'w-64 p-2.5 md:w-auto' : 'w-[85%] max-w-sm snap-center p-3 sm:w-80 lg:w-auto lg:max-w-none'
-            } ${isTarget ? 'border-indigo-500/60 bg-indigo-500/5' : 'border-gray-800'}`}
+            } ${isTarget ? 'scale-[1.01] border-dashed border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/10' : 'border-gray-800'}`}
           >
             <header className="mb-3 flex items-center gap-2 px-1">
               <span className={`h-2 w-2 rounded-full ${col.accent}`} />
@@ -119,7 +123,8 @@ export function KanbanBoard({ tasks, projects, compact, maxPerColumn, defaultPro
               )}
 
               {visible.map((task) => (
-                <div key={task.id}>
+                // Al soltar, la tarjeta viaja con un muelle hasta su sitio nuevo (también entre columnas).
+                <motion.div key={task.id} layout="position" layoutId={`kb-${task.id}`} transition={{ type: 'spring', stiffness: 420, damping: 36 }}>
                   {targetBefore === task.id && <div className="mb-2">{indicator}</div>}
                   <TaskCard
                     task={task}
@@ -136,8 +141,9 @@ export function KanbanBoard({ tasks, projects, compact, maxPerColumn, defaultPro
                       setDropTarget(null);
                     }}
                     onMoveTo={(status) => move(task.id, status, null)}
+                    onDelete={() => setToDelete(task)}
                   />
-                </div>
+                </motion.div>
               ))}
               {targetBefore === null && indicator}
 
@@ -152,6 +158,23 @@ export function KanbanBoard({ tasks, projects, compact, maxPerColumn, defaultPro
         );
       })}
     </div>
+    {toDelete && partner && (
+      <ConfirmDialog
+        title="Eliminar tarea"
+        confirmLabel="Eliminar tarea"
+        onCancel={() => setToDelete(null)}
+        onConfirm={async () => {
+          const ok = await deleteTask(toDelete.id, partner.id);
+          if (!ok) return false;
+          setToDelete(null);
+        }}
+      >
+        <p>
+          Se borrará «<strong className="text-white">{toDelete.title}</strong>» de la base de datos. Esta acción no se puede deshacer.
+        </p>
+      </ConfirmDialog>
+    )}
+    </>
   );
 }
 

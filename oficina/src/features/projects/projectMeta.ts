@@ -14,6 +14,7 @@ import type { BusinessType, LayoutVariant, ProjectStatus } from '../../types';
 export const BUSINESS_TYPE_META: Record<BusinessType, { label: string; icon: LucideIcon; tint: string }> = {
   barberia: { label: 'Barbería', icon: Scissors, tint: 'bg-sky-500/15 text-sky-300' },
   peluqueria: { label: 'Peluquería', icon: Sparkles, tint: 'bg-fuchsia-500/15 text-fuchsia-300' },
+  salon: { label: 'Salón de belleza', icon: Sparkles, tint: 'bg-pink-500/15 text-pink-300' },
   estetica: { label: 'Estética', icon: Flower2, tint: 'bg-rose-500/15 text-rose-300' },
   restaurante: { label: 'Restaurante', icon: UtensilsCrossed, tint: 'bg-amber-500/15 text-amber-300' },
   cafeteria: { label: 'Cafetería', icon: Coffee, tint: 'bg-orange-500/15 text-orange-300' },

@@ -1,21 +1,55 @@
 import { useMemo } from 'react';
+import { db, must, persist } from '../../lib/db';
 import { createStore, useStore } from '../../lib/store';
-import type { ActivityEvent } from '../../types';
+import type { ActivityEvent, ActivityType, PartnerId } from '../../types';
 
 /*
- * Timeline "Actividad del equipo". En local, los eventos llegan de las acciones de la app
- * (check-in, check-out, alta de proyectos). Con Supabase será una tabla `activity`
- * alimentada por triggers y por la Edge Function de GitHub, escuchada por Realtime.
+ * Timeline "Actividad del equipo". Con Supabase: tabla `activity` (solo se añade, nunca se
+ * reescribe) escuchada por Realtime. Sin Supabase: en memoria.
  */
-const activityStore = createStore<ActivityEvent[]>([], 'activity');
+const activityStore = createStore<ActivityEvent[]>([]);
+
+interface ActivityRow {
+  id: string;
+  type: ActivityType;
+  partner_id: PartnerId;
+  project_id: string | null;
+  action: string;
+  detail: string | null;
+  created_at: string;
+}
+
+export async function loadActivity(): Promise<void> {
+  const rows = await must<ActivityRow[]>(db().from('activity').select('*').order('created_at', { ascending: false }).limit(100));
+  activityStore.set(() =>
+    rows.map((r) => ({
+      id: r.id,
+      type: r.type,
+      partnerId: r.partner_id,
+      projectId: r.project_id,
+      action: r.action,
+      detail: r.detail ?? undefined,
+      createdAt: r.created_at,
+    })),
+  );
+}
 
 export function logActivity(event: Omit<ActivityEvent, 'id' | 'createdAt'>): void {
   const full: ActivityEvent = { ...event, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
   activityStore.set((prev) => [full, ...prev].slice(0, 100));
-}
-
-export function removeProjectActivity(projectId: string): void {
-  activityStore.set((prev) => prev.filter((e) => e.projectId !== projectId));
+  void persist('Registrar actividad', () =>
+    must(
+      db().from('activity').insert({
+        id: full.id,
+        type: full.type,
+        partner_id: full.partnerId,
+        project_id: full.projectId,
+        action: full.action,
+        detail: full.detail ?? null,
+        created_at: full.createdAt,
+      }),
+    ),
+  );
 }
 
 export function useActivity(limit = 20): ActivityEvent[] {

@@ -2,6 +2,7 @@ import { ArrowLeft, Check, CheckCheck, Clock, Folder, Handshake, SendHorizontal 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../../../components/ui/Avatar';
+import { ConfirmDialog, DeleteIconButton } from '../../../components/ui/ConfirmDialog';
 import { MOCK_PARTNERS, PARTNER_META } from '../../../lib/partners';
 import type { ClientConversation, ClientMessageStatus, PartnerId } from '../../../types';
 import { useAuth } from '../../auth/authContext';
@@ -9,6 +10,7 @@ import { useProjects } from '../../projects/projectService';
 import {
   SERVICE_WINDOW_MS,
   assignConversation,
+  deleteConversation,
   lastIncomingAt,
   markConversationRead,
   sendClientMessage,
@@ -34,6 +36,7 @@ export function ConversationThread({ conversation: c, typing, onBack }: Props) {
   const { partner } = useAuth();
   const projects = useProjects();
   const [text, setText] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const project = c.projectId ? projects.find((p) => p.id === c.projectId) : undefined;
   const lastIn = lastIncomingAt(c);
@@ -105,6 +108,7 @@ export function ConversationThread({ conversation: c, typing, onBack }: Props) {
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
+          <DeleteIconButton label="Eliminar conversación" onClick={() => setConfirmDelete(true)} />
         </div>
       </header>
 
@@ -199,6 +203,23 @@ export function ConversationThread({ conversation: c, typing, onBack }: Props) {
           </button>
         </form>
       </div>
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Eliminar conversación"
+          confirmLabel="Eliminar conversación"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={async () => {
+            const ok = await deleteConversation(c.id);
+            if (!ok) return false;
+            onBack();
+          }}
+        >
+          <p>
+            Se borrará la conversación con {c.contactName} ({c.businessName}) y sus {c.messages.length} mensajes de la oficina. En el
+            WhatsApp del cliente no cambia nada. Esta acción no se puede deshacer.
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

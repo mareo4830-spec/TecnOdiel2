@@ -1,7 +1,10 @@
-import { ArrowLeft, ExternalLink, Eye, FileText, Plug, Receipt, Rocket, ScrollText, SquarePen, Store, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Eye, FileText, Plug, Receipt, Rocket, ScrollText, SquarePen, Store, Trash2, type LucideIcon } from 'lucide-react';
+import { useState } from 'react';
 import { Badge } from '../../components/ui/Badge';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useAuth } from '../auth/authContext';
 import { STATUS_META, WAITING_BADGE } from '../projects/projectMeta';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useProject } from '../projects/projectService';
 import { TenantStatusBadge } from './components/TenantBits';
 import { BillingTab } from './tabs/BillingTab';
@@ -12,7 +15,7 @@ import { PreviewTab } from './tabs/PreviewTab';
 import { ProvisionTab } from './tabs/ProvisionTab';
 import { SummaryTab } from './tabs/SummaryTab';
 import { TENANT_TYPE_META } from './tenantMeta';
-import { useTenant, useTenantIntegrations } from './tenantService';
+import { deleteTenant, useTenant, useTenantIntegrations } from './tenantService';
 
 const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'resumen', label: 'Resumen', icon: FileText },
@@ -31,6 +34,9 @@ export function TenantDetailPage() {
   const integrations = useTenantIntegrations(tenantId ?? '');
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.id === params.get('tab')) ? params.get('tab')! : 'resumen';
+  const { partner } = useAuth();
+  const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!project || !tenant || tenant.projectId !== project.id) {
     return (
@@ -102,6 +108,14 @@ export function TenantDetailPage() {
             <Rocket className="h-4 w-4" />
             Provisionar
           </button>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            aria-label="Eliminar tenant"
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-gray-700 px-3 text-sm font-medium text-rose-300 transition hover:border-rose-500 hover:bg-rose-500/10"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Eliminar</span>
+          </button>
         </div>
       </header>
 
@@ -133,6 +147,25 @@ export function TenantDetailPage() {
         {tab === 'provisionar' && <ProvisionTab tenant={tenant} onGo={setTab} />}
         {tab === 'log' && <LogTab tenant={tenant} />}
       </div>
+
+      {confirmDelete && partner && (
+        <ConfirmDialog
+          title={`Eliminar «${tenant.name}»`}
+          confirmLabel="Eliminar tenant"
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={async () => {
+            const ok = await deleteTenant(tenant.id, partner.id);
+            if (!ok) return false;
+            navigate(`/proyectos/${project.id}`, { replace: true });
+          }}
+        >
+          <p>Se borrará de la base de datos con sus datos de cliente, facturación, pagos, integraciones y log.</p>
+          <p className="text-gray-400">
+            No se toca nada fuera de la oficina: el negocio en el SaaS, Vercel, DNS, OneSignal y Search Console siguen como estén.
+            Esta acción no se puede deshacer.
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }
