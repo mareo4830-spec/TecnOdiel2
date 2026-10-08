@@ -96,7 +96,7 @@ export default function FormularioPage({ onBack }) {
   const canNext = useMemo(() => {
     if (step === 'negocio') return form.businessName.trim().length > 1 && form.sector && form.ambiente;
     if (step === 'funciones') return form.features.length > 0;
-    if (step === 'estilo') return form.layoutFamily && form.layoutVariant;
+    if (step === 'estilo') return Boolean(form.layoutVariant);
     if (step === 'contacto') return form.contactName.trim().length > 1 && /\S+@\S+\.\S+/.test(form.email) && form.phone.trim().length >= 9;
     return true;
   }, [step, form]);

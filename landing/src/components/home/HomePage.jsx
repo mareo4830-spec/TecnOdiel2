@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, Menu, X, MessageCircle, MapPin, Mail,
   CalendarCheck, QrCode, LayoutDashboard, Bot, Globe, ShoppingBag, BarChart3, BellRing,
-  Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart
+  Image as ImageIcon, Rocket, RefreshCw, LifeBuoy, Users, Heart, Sparkles
 } from 'lucide-react';
 import LeadForm from './LeadForm.jsx';
 import { useAccount } from '../../lib/adminAuth.js';
@@ -307,12 +307,12 @@ function Faq() {
   );
 }
 
-/* ───────────── CTA + FORMULARIO ───────────── */
-function Contact({ style, onNavigateToMultiwebs, onNavigateToCyS }) {
+/* ───────────── CTA + CONFIGURADOR DE PROPUESTA ───────────── */
+function Contact({ onOpenFormulario }) {
   return (
     <section id="contacto" className="relative overflow-hidden bg-[#121212] py-20 sm:py-28">
       <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(50% 50% at 15% 20%, rgba(109,217,75,0.14), transparent 70%)' }} />
-      <div className="relative mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="relative mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] items-center">
         <div>
           <Eyebrow dark>HABLEMOS DE TU PROYECTO</Eyebrow>
           <h2 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">¿Tienes un negocio y quieres dar el salto digital?</h2>
@@ -325,11 +325,53 @@ function Contact({ style, onNavigateToMultiwebs, onNavigateToCyS }) {
             <MessageCircle className="h-4 w-4" /> Hablemos por WhatsApp
           </a>
         </div>
-        <LeadForm 
-          style={style} 
-          onNavigateToMultiwebs={onNavigateToMultiwebs}
-          onNavigateToCyS={onNavigateToCyS}
-        />
+
+        {/* ── BOTÓN Y TARJETA DEL CONFIGURADOR PASO A PASO ── */}
+        <div 
+          id="propuesta-lead-form" 
+          className="relative flex flex-col justify-center rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-12 shadow-2xl backdrop-blur-md"
+        >
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#6DD94B]">
+            <Sparkles className="h-4 w-4" />
+            Configurador de propuesta · 2 minutos
+          </div>
+          <h3 className="mt-3 text-2xl font-black text-white sm:text-3xl">
+            Diseña tu web y calcula tu presupuesto al instante
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+            Elige tu sector (bares, clínicas, barberías...), descubre nuestras plantillas reales creadas, personaliza tus colores y recibe tu propuesta cerrada.
+          </p>
+
+          <div className="mt-6 space-y-3 text-xs text-zinc-300">
+            <div className="flex items-center gap-3">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#6DD94B]/20 text-[#6DD94B] font-bold">✓</span>
+              <span>Plantillas reales ya creadas para hostelería, clínicas y comercios</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#6DD94B]/20 text-[#6DD94B] font-bold">✓</span>
+              <span>Personaliza tu estilo y paleta de colores de marca en tiempo real</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#6DD94B]/20 text-[#6DD94B] font-bold">✓</span>
+              <span>Sin comisiones por pedido ni mensualidades abusivas</span>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <button
+              id="abrir-formulario-btn"
+              type="button"
+              onClick={onOpenFormulario}
+              className="group relative flex w-full items-center justify-center gap-3 rounded-2xl bg-[#6DD94B] px-8 py-5 text-sm sm:text-base font-black uppercase tracking-wider text-black transition-all hover:bg-white hover:scale-[1.02] shadow-[0_0_35px_rgba(109,217,75,0.4)] cursor-pointer"
+            >
+              <span>Configurar mi propuesta paso a paso</span>
+              <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
+            </button>
+            <p className="mt-3 text-center text-[11px] text-zinc-500">
+              Paso a paso guiado · Presupuesto cerrado al instante · Gratis y sin compromiso
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -364,21 +406,12 @@ function Footer() {
   );
 }
 
-export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNavigateToPortal, onNavigateToAdmin }) {
-  // Llegada desde el popup de un preview: ?estilo=<slug> prellena el formulario y baja a él.
-  const [style] = useState(() => {
-    try { const slug = new URLSearchParams(window.location.search).get('estilo'); return slug ? findDemo(slug) : null; } catch { return null; }
-  });
-  useEffect(() => {
-    if (!style) return;
-    const t = setTimeout(() => document.querySelector('#contacto')?.scrollIntoView({ behavior: 'smooth' }), 400);
-    return () => clearTimeout(t);
-  }, [style]);
+export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNavigateToPortal, onNavigateToAdmin, onOpenFormulario }) {
   const onAction = (a) => (a === 'clinicas' ? onNavigateToCyS : onNavigateToMultiwebs)?.();
   const account = useAccount();
   return (
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
-      <Header account={account} />
+      <Header account={account} onOpenFormulario={onOpenFormulario} />
       <main>
         <Hero />
         <Sectors />
@@ -389,14 +422,10 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
         <Projects onAction={onAction} />
         <Services />
         <Faq />
-        <Contact 
-          style={style} 
-          onNavigateToMultiwebs={onNavigateToMultiwebs}
-          onNavigateToCyS={onNavigateToCyS}
-        />
+        <Contact onOpenFormulario={onOpenFormulario} />
       </main>
       <Footer />
-      <MobileBar />
+      <MobileBar onOpenFormulario={onOpenFormulario} />
     </div>
   );
 }

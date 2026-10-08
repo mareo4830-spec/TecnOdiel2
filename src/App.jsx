@@ -112,8 +112,8 @@ function resolveCurrentView() {
     return 'portal';
   }
 
-  // Raíz / Landing
-  if (path === '/' || path === '') {
+  // Raíz / Landing / Formulario
+  if (path === '/' || path === '' || path === '/formulario' || hash.includes('formulario')) {
     return 'landing';
   }
 
