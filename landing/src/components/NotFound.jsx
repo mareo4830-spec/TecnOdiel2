@@ -1,120 +1,242 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Terminal, RotateCcw, AlertTriangle } from 'lucide-react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { ArrowLeft, Sparkles, Terminal, Compass, RotateCcw, Home, Eye } from 'lucide-react';
 import LogoMark from './home/LogoMark';
 
-/**
- * Componente de dígito monolítico con física de peso masivo (Heavy Impact Physics).
- * Caída con aceleración gravitacional, compresión vertical (squash & stretch),
- * rebote elástico pesado, sombra dinámica y onda de choque neón en el suelo.
- */
-function HeavyDigit({ char, delay, animKey }) {
+/* ─────────────────────────────────────────────────────────────
+ * 1. FONDO REACTIVO: Interactive Particle Web (Inspirado en React Bits)
+ * Canvas 2D ultra-ligero a 60+ FPS que responde en tiempo real al ratón.
+ * ───────────────────────────────────────────────────────────── */
+function InteractiveParticleBackground({ mousePos }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const onResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', onResize);
+
+    // Número de partículas balanceado para máxima fluidez
+    const particleCount = Math.min(Math.floor((width * height) / 14000), 75);
+    const particles = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
+        radius: Math.random() * 2 + 1,
+        baseAlpha: Math.random() * 0.4 + 0.2,
+      });
+    }
+
+    const mouse = { x: -1000, y: -1000, radius: 170 };
+
+    const updateCanvas = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Actualizar posición de ratón desde props
+      mouse.x = mousePos.current.x;
+      mouse.y = mousePos.current.y;
+
+      // Dibujar y actualizar partículas
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        // Movimiento base
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Rebote en bordes
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        // Reacción magnética al ratón (efecto React Bits)
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < mouse.radius) {
+          const force = (1 - dist / mouse.radius) * 1.5;
+          p.x -= (dx / dist) * force;
+          p.y -= (dy / dist) * force;
+        }
+
+        // Renderizado del punto
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(109, 217, 75, ${p.baseAlpha})`;
+        ctx.fill();
+
+        // Conexiones de red entre partículas
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const distNodes = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (distNodes < 110) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(109, 217, 75, ${0.18 * (1 - distNodes / 110)})`;
+            ctx.lineWidth = 0.75;
+            ctx.stroke();
+          }
+        }
+
+        // Conexión dinámica hacia el cursor
+        if (dist < mouse.radius) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(109, 217, 75, ${0.35 * (1 - dist / mouse.radius)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      animId = requestAnimationFrame(updateCanvas);
+    };
+
+    updateCanvas();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [mousePos]);
+
+  return <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-0 opacity-80" />;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 2. COMPONENTE DE TEXTO DESENCRIPTADO (DecryptedText de React Bits)
+ * Transición cibernética de glifos aleatorios a texto legible.
+ * ───────────────────────────────────────────────────────────── */
+const CHARS = '01#$%/&<>?@*!ABCDEFXYZ';
+
+function DecryptedText({ text, speed = 40, className = '' }) {
+  const [displayText, setDisplayText] = useState(text);
+
+  const decrypt = useCallback(() => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(
+        text
+          .split('')
+          .map((char, index) => {
+            if (char === ' ') return ' ';
+            if (index < iteration) return text[index];
+            return CHARS[Math.floor(Math.random() * CHARS.length)];
+          })
+          .join('')
+      );
+
+      if (iteration >= text.length) {
+        clearInterval(interval);
+      }
+      iteration += 1 / 2;
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  useEffect(() => {
+    return decrypt();
+  }, [decrypt]);
+
   return (
-    <div className="relative inline-flex flex-col items-center justify-center px-1 sm:px-3">
-      {/* Dígito en caída pesada */}
-      <motion.div
-        key={`${char}-${animKey}`}
-        initial={{
-          y: -420,
-          opacity: 0,
-          scaleY: 1.35,
-          scaleX: 0.75,
-          filter: 'blur(8px)',
-        }}
-        animate={{
-          y: [-420, 0, -28, 0, -8, 0],
-          scaleY: [1.35, 0.72, 1.12, 0.94, 1.03, 1],
-          scaleX: [0.75, 1.28, 0.92, 1.05, 0.98, 1],
-          opacity: [0, 1, 1, 1, 1, 1],
-          filter: ['blur(8px)', 'blur(0px)', 'blur(0px)', 'blur(0px)', 'blur(0px)', 'blur(0px)'],
-        }}
-        transition={{
-          delay,
-          duration: 0.95,
-          times: [0, 0.48, 0.65, 0.8, 0.9, 1],
-          ease: ['easeIn', 'easeOut', 'easeInOut', 'easeOut', 'easeOut'],
-        }}
-        className="relative z-10 select-none transform-gpu origin-bottom cursor-default"
-      >
-        {/* Glow difuso posterior verde neón */}
-        <span 
-          aria-hidden 
-          className="pointer-events-none absolute inset-0 block text-[130px] sm:text-[210px] md:text-[270px] lg:text-[310px] font-black leading-none tracking-tighter text-[#6DD94B]/20 blur-xl scale-105"
-        >
-          {char}
-        </span>
-
-        {/* Sombra de relieve inferior profunda */}
-        <span 
-          aria-hidden 
-          className="pointer-events-none absolute inset-0 block text-[130px] sm:text-[210px] md:text-[270px] lg:text-[310px] font-black leading-none tracking-tighter text-black/90 translate-y-3 blur-[2px]"
-        >
-          {char}
-        </span>
-
-        {/* Tipografía gigante con bisel metálico de titanio y máscara */}
-        <span className="relative block text-[130px] sm:text-[210px] md:text-[270px] lg:text-[310px] font-black leading-none tracking-tighter bg-gradient-to-b from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent drop-shadow-[0_25px_35px_rgba(0,0,0,0.9)]">
-          {char}
-        </span>
-      </motion.div>
-
-      {/* ── SUELO: Sombra de impacto & Onda de choque ── */}
-      <div className="relative -mt-6 sm:-mt-10 h-8 w-full flex items-center justify-center pointer-events-none">
-        {/* Sombra proyectada en el suelo que se intensifica al tocar tierra */}
-        <motion.div
-          key={`shadow-${char}-${animKey}`}
-          initial={{ scaleX: 0.2, scaleY: 0.2, opacity: 0 }}
-          animate={{
-            scaleX: [0.15, 1.4, 0.9, 1.1, 1],
-            scaleY: [0.15, 1.4, 0.9, 1.1, 1],
-            opacity: [0, 0.9, 0.5, 0.8, 0.7],
-          }}
-          transition={{
-            delay: delay + 0.35,
-            duration: 0.6,
-            times: [0, 0.3, 0.55, 0.8, 1],
-          }}
-          className="h-4 w-28 sm:w-44 rounded-full bg-black/90 blur-md"
-        />
-
-        {/* Onda de choque (shockwave ring) que estalla en el instante de contacto */}
-        <motion.div
-          key={`shockwave-${char}-${animKey}`}
-          initial={{ scale: 0.1, opacity: 0 }}
-          animate={{
-            scale: [0.1, 2.3],
-            opacity: [0.85, 0],
-          }}
-          transition={{
-            delay: delay + 0.44, // Momento exacto de colisión
-            duration: 0.65,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          className="absolute h-8 w-28 sm:w-44 rounded-full border-2 border-[#6DD94B] shadow-[0_0_20px_#6DD94B]"
-        />
-
-        {/* Destello de impacto central */}
-        <motion.div
-          key={`flash-${char}-${animKey}`}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{
-            opacity: [0, 0.7, 0],
-            scale: [0.5, 1.5, 0.8],
-          }}
-          transition={{
-            delay: delay + 0.44,
-            duration: 0.3,
-            ease: 'easeOut',
-          }}
-          className="absolute h-2 w-16 rounded-full bg-[#6DD94B] blur-sm"
-        />
-      </div>
-    </div>
+    <span onMouseEnter={decrypt} className={`inline-block font-mono cursor-default ${className}`}>
+      {displayText}
+    </span>
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+ * 3. BOTÓN MAGNÉTICO (Magnet Button de React Bits)
+ * Sigue y se aproxima suavemente al cursor en su proximidad.
+ * ───────────────────────────────────────────────────────────── */
+function MagneticButton({ children, onClick, href, className = '' }) {
+  const ref = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springConfig = { damping: 15, stiffness: 150, mass: 0.2 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const distanceX = e.clientX - centerX;
+    const distanceY = e.clientY - centerY;
+
+    // Fuerza de atracción magnética dentro de 90px
+    x.set(distanceX * 0.35);
+    y.set(distanceY * 0.35);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const Tag = href ? motion.a : motion.button;
+
+  return (
+    <Tag
+      ref={ref}
+      href={href}
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+      className={`relative inline-flex items-center justify-center select-none cursor-pointer ${className}`}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 4. PÁGINA NOT FOUND REACTIVA & CINEMÁTICA
+ * ───────────────────────────────────────────────────────────── */
 export default function NotFound({ onNavigateHome, onNavigateToContact }) {
-  const [animKey, setAnimKey] = useState(0);
+  const mousePosRef = useRef({ x: -1000, y: -1000 });
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+
+  // Valores de movimiento para el Tilt 3D reactivo
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 25, stiffness: 120 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
+
+  // Rotaciones sutiles tridimensionales (React Bits 3D Card effect)
+  const rotateX = useTransform(smoothY, [-0.5, 0.5], [12, -12]);
+  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-15, 15]);
+
+  const handleGlobalMouseMove = (e) => {
+    mousePosRef.current = { x: e.clientX, y: e.clientY };
+    setCoords({ x: Math.round(e.clientX), y: Math.round(e.clientY) });
+
+    // Normalizar entre -0.5 y 0.5 para el Tilt 3D
+    const { innerWidth, innerHeight } = window;
+    mouseX.set(e.clientX / innerWidth - 0.5);
+    mouseY.set(e.clientY / innerHeight - 0.5);
+  };
 
   const goHome = (e) => {
     if (onNavigateHome) {
@@ -125,37 +247,32 @@ export default function NotFound({ onNavigateHome, onNavigateToContact }) {
     }
   };
 
-  const handleReplay = () => {
-    setAnimKey((prev) => prev + 1);
-  };
-
   return (
-    <div className="relative min-h-screen w-full bg-[#050505] text-white overflow-hidden flex flex-col justify-between font-['Montserrat',Inter,system-ui,sans-serif] selection:bg-[#6DD94B] selection:text-black">
-      {/* ── ATMÓSFERA CINEMÁTICA Y EFECTOS DE FONDO ── */}
-      {/* Cuadrícula técnica en perspectiva con fade radial */}
+    <div
+      onMouseMove={handleGlobalMouseMove}
+      className="relative min-h-screen w-full bg-[#080808] text-white overflow-hidden flex flex-col justify-between font-['Montserrat',Inter,system-ui,sans-serif] selection:bg-[#6DD94B] selection:text-black"
+    >
+      {/* ── 1. FONDO INTERACTIVO DE PARTÍCULAS REACTIVAS AL RATÓN ── */}
+      <InteractiveParticleBackground mousePos={mousePosRef} />
+
+      {/* ── 2. SPOTLIGHT RADIAL REACTIVO QUE SIGUE EL CURSOR ── */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-500"
+        style={{
+          background: `radial-gradient(650px circle at ${coords.x}px ${coords.y}px, rgba(109, 217, 75, 0.08), transparent 80%)`,
+        }}
+      />
+
+      {/* Grid técnico geométrico de fondo */}
       <div 
-        className="pointer-events-none absolute inset-0 opacity-[0.14]"
+        className="pointer-events-none absolute inset-0 opacity-[0.07] z-0"
         style={{
           backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-          backgroundSize: '4rem 4rem',
-          maskImage: 'radial-gradient(ellipse 65% 55% at 50% 50%, #000 65%, transparent 100%)'
+          backgroundSize: '3.5rem 3.5rem',
         }}
       />
 
-      {/* Orbe de luz neón ambiental pulsante */}
-      <motion.div
-        animate={{
-          scale: [1, 1.22, 1],
-          opacity: [0.12, 0.22, 0.12],
-        }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-[#6DD94B]/20 blur-[140px]"
-      />
-
-      {/* Halo de profundidad esmeralda en la base */}
-      <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 h-80 w-[750px] rounded-full bg-[#0D844A]/15 blur-[130px]" />
-
-      {/* ── HEADER MINIMALISTA ── */}
+      {/* ── HEADER ── */}
       <header className="relative z-20 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 sm:px-10">
         <a href="#/" onClick={goHome} className="flex items-center gap-3 group cursor-pointer">
           <LogoMark className="h-10 w-10 transition-transform duration-300 group-hover:scale-105" />
@@ -165,101 +282,103 @@ export default function NotFound({ onNavigateHome, onNavigateToContact }) {
           </span>
         </a>
 
+        {/* Telemetría reactiva en vivo (React Bits UI style) */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleReplay}
-            title="Repetir animación de caída"
-            aria-label="Repetir animación"
-            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-semibold text-zinc-300 hover:text-[#6DD94B] hover:border-[#6DD94B]/40 transition cursor-pointer"
-          >
-            <RotateCcw className="h-3 w-3" />
-            <span className="hidden sm:inline">Repetir caída</span>
-          </button>
+          <div className="hidden sm:flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 backdrop-blur-md text-[11px] font-mono text-zinc-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#6DD94B] animate-pulse" />
+            <span>RADAR: X {coords.x}px · Y {coords.y}px</span>
+          </div>
 
           <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 backdrop-blur-md">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-[11px] font-mono font-medium text-zinc-400">STATUS 404</span>
+            <span className="text-[11px] font-mono font-medium text-zinc-300">404 NOT FOUND</span>
           </div>
         </div>
       </header>
 
-      {/* ── ESCENARIO CENTRAL CINEMÁTICO ── */}
-      <main className="relative z-10 mx-auto flex max-w-5xl flex-col items-center justify-center px-4 sm:px-6 text-center py-6 sm:py-10">
-        {/* Terminal Badge con micro-animación */}
+      {/* ── MAIN: CONTENEDOR 3D TILT REACTIVO ── */}
+      <main className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center px-4 sm:px-6 text-center py-6 sm:py-8 [perspective:1200px]">
+        {/* Terminal Badge con texto desencriptado */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 rounded-full border border-[#6DD94B]/30 bg-[#6DD94B]/10 px-4 py-1.5 text-xs font-mono font-semibold text-[#6DD94B] shadow-lg shadow-[#6DD94B]/10 backdrop-blur-md mb-4 sm:mb-6"
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 rounded-full border border-[#6DD94B]/30 bg-[#6DD94B]/10 px-4 py-1.5 text-xs font-mono font-semibold text-[#6DD94B] shadow-lg shadow-[#6DD94B]/10 backdrop-blur-md mb-6"
         >
           <Terminal className="h-3.5 w-3.5" />
-          <span>[ GRAVITY_DROP // ERROR_404_PAGE_NOT_FOUND ]</span>
+          <span>[ </span>
+          <DecryptedText text="HTTP_404_PAGE_NOT_FOUND" speed={30} className="text-[#6DD94B]" />
+          <span> ]</span>
         </motion.div>
 
-        {/* ── CONTENEDOR DE IMPACTO DE LOS DÍGITOS 4 - 0 - 4 ── */}
-        {/* El contenedor sufre vibraciones sísmicas sincronizadas con la caída de cada dígito */}
+        {/* ── CAJA 3D CON TILT REACTIVO AL RATÓN (ESTILO REACT BITS) ── */}
         <motion.div
-          key={`camera-shake-${animKey}`}
-          animate={{
-            y: [0, 0, 7, -4, 2, 0, 7, -4, 2, 0, 9, -5, 3, 0],
-            rotateZ: [0, 0, -0.4, 0.3, -0.1, 0, 0.4, -0.3, 0.1, 0, -0.6, 0.4, -0.2, 0],
-          }}
-          transition={{
-            duration: 2.1,
-            times: [
-              0,
-              0.22, 0.24, 0.27, 0.30, 0.34, // Impacto del primer '4'
-              0.48, 0.50, 0.53, 0.56, 0.60, // Impacto del '0'
-              0.73, 0.75, 0.78, 0.82, 0.86  // Impacto del segundo '4'
-            ],
-            ease: 'easeInOut',
-          }}
-          className="relative flex items-center justify-center my-2 sm:my-4"
+          style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+          className="relative group select-none cursor-default py-2"
         >
-          {/* 1º Cae el 4 izquierdo (t = 0.15s) */}
-          <HeavyDigit char="4" delay={0.15} animKey={animKey} />
+          {/* Brillo reflectivo dinámico en la tarjeta */}
+          <div 
+            className="pointer-events-none absolute -inset-8 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
+            style={{
+              background: 'radial-gradient(circle, rgba(109,217,75,0.18) 0%, transparent 70%)',
+            }}
+          />
 
-          {/* 2º Cae el 0 central (t = 0.68s) */}
-          <HeavyDigit char="0" delay={0.68} animKey={animKey} />
+          {/* Sombra de relieve posterior */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 block text-[130px] sm:text-[210px] md:text-[270px] lg:text-[320px] font-black leading-none tracking-tighter text-[#6DD94B]/15 blur-2xl translate-z-[-50px]"
+          >
+            404
+          </span>
 
-          {/* 3º Cae el 4 derecho (t = 1.22s) */}
-          <HeavyDigit char="4" delay={1.22} animKey={animKey} />
+          {/* Tipografía 404 principal con gradiente líquido y bordes pulidos */}
+          <h1 className="relative text-[130px] sm:text-[210px] md:text-[270px] lg:text-[320px] font-black leading-none tracking-tighter bg-gradient-to-b from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent drop-shadow-[0_20px_60px_rgba(0,0,0,0.9)] transition-transform duration-200">
+            404
+          </h1>
+
+          {/* Línea de escaneo láser sutil neón */}
+          <div className="absolute inset-x-0 bottom-4 h-[2px] bg-gradient-to-r from-transparent via-[#6DD94B] to-transparent opacity-60 shadow-[0_0_15px_#6DD94B]" />
         </motion.div>
 
-        {/* Copy con actitud cinemática */}
+        {/* Titular y Copy */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 1.6 }}
-          className="space-y-3 max-w-xl px-4 mt-2 sm:mt-4"
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          className="space-y-3 max-w-xl px-4 mt-6"
         >
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-            Parece que te has perdido en el código.
+            <DecryptedText text="Parece que te has perdido en el código." speed={35} className="font-sans font-bold" />
           </h2>
           <p className="text-sm sm:text-base leading-relaxed text-zinc-400">
-            La ruta que buscas se desprendió del servidor o nunca existió. En TecnOdiel construimos sistemas robustos, pero aquí has llegado a un callejón sin salida.
+            Esta coordenada no existe en nuestro servidor. Pero en TecnOdiel ayudamos a tu negocio local a encontrar el camino exacto para multiplicar sus clientes.
           </p>
         </motion.div>
 
-        {/* Botones de Acción de alto contraste */}
+        {/* ── BOTONES CON FÍSICA MAGNÉTICA (REACT BITS MAGNET) ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 1.8 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
           className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          {/* Botón Principal: Volver al inicio */}
-          <a
+          {/* Botón Magnético Principal: Volver al inicio */}
+          <MagneticButton
             href="#/"
             onClick={goHome}
-            className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-[#6DD94B] px-8 py-4 text-sm font-black text-black shadow-xl shadow-[#6DD94B]/25 transition-all duration-300 hover:bg-white hover:shadow-white/20 hover:scale-[1.03] cursor-pointer active:scale-95"
+            className="group relative overflow-hidden rounded-full bg-[#6DD94B] px-8 py-4 text-sm font-black text-black shadow-xl shadow-[#6DD94B]/25 transition-colors duration-300 hover:bg-white hover:shadow-white/25 active:scale-95"
           >
-            <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
-            <span>Volver al inicio</span>
-          </a>
+            <div className="relative z-10 flex items-center gap-3">
+              <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+              <span>Volver al inicio</span>
+            </div>
+            {/* Efecto Shiny Shimmer interior */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          </MagneticButton>
 
-          {/* Botón Secundario: Contactar / Pide tu propuesta */}
-          <a
+          {/* Botón Magnético Secundario: Pide tu propuesta */}
+          <MagneticButton
             href="#contacto"
             onClick={(e) => {
               if (onNavigateToContact) {
@@ -267,21 +386,23 @@ export default function NotFound({ onNavigateHome, onNavigateToContact }) {
                 onNavigateToContact();
               }
             }}
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/5 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition-all duration-300 hover:border-[#6DD94B] hover:text-[#6DD94B] hover:bg-[#6DD94B]/10 hover:scale-[1.03] cursor-pointer"
+            className="rounded-full border border-white/20 bg-white/5 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition-all duration-300 hover:border-[#6DD94B] hover:text-[#6DD94B] hover:bg-[#6DD94B]/10 active:scale-95"
           >
-            <Sparkles className="h-4 w-4 text-[#6DD94B]" />
-            <span>Pide tu propuesta</span>
-          </a>
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="h-4 w-4 text-[#6DD94B]" />
+              <span>Pide tu propuesta</span>
+            </div>
+          </MagneticButton>
         </motion.div>
 
         {/* Atajos Rápidos */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
           className="mt-10 sm:mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-zinc-500"
         >
-          <span className="font-semibold text-zinc-400">Rutas rápidas:</span>
+          <span className="font-semibold text-zinc-400">Atajos rápidos:</span>
           <a href="#/multiwebs" className="hover:text-[#6DD94B] transition">Webs Hostelería</a>
           <span className="text-zinc-700">•</span>
           <a href="#/cys" className="hover:text-[#6DD94B] transition">Webs Clínicas & Salud</a>
