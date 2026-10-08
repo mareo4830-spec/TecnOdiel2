@@ -4,9 +4,10 @@ import React, { useState, useEffect, useRef } from 'react';
  * ODIELITO RUNNER - 3D Desktop Mascot & Cursor Hunter
  * Odielito corre en 3D por la pantalla persiguiendo tu ratón,
  * lo atrapa con un lazo de energía cibernética y lo arrastra
- * directamente al botón "Pide tu propuesta" celebrando con confeti.
+ * directamente al formulario de propuesta ("Hablemos de tu proyecto"),
+ * estés donde estés en la web, celebrando con confeti y destellos.
  */
-export default function OdielitoRunner() {
+export default function OdielitoRunner({ onNavigateToLanding }) {
   // Posiciones y estados físicos
   const [pos, setPos] = useState({ x: 120, y: 300 });
   const [facing, setFacing] = useState(1); // 1 = derecha, -1 = izquierda
@@ -27,9 +28,7 @@ export default function OdielitoRunner() {
   const animFrameRef = useRef(null);
   const runCycleRef = useRef(0);
   const cooldownRef = useRef(0);
-  const dragProgressRef = useRef(0);
-  const dragStartRef = useRef({ x: 0, y: 0 });
-  const targetBtnPosRef = useRef({ x: 0, y: 0 });
+  const dragStartTimeRef = useRef(0);
 
   // 1. Detectar si es dispositivo de escritorio
   useEffect(() => {
@@ -101,7 +100,7 @@ export default function OdielitoRunner() {
       mouseRef.current.lastActive = now;
 
       // Mecánica de escape: si el usuario sacude el ratón bruscamente mientras lo arrastra
-      if (stateRef.current === 'dragging' && dist > 32) {
+      if (stateRef.current === 'dragging' && dist > 34) {
         stateRef.current = 'idle';
         setState('idle');
         setLassoTarget(null);
@@ -125,70 +124,40 @@ export default function OdielitoRunner() {
     }, duration);
   };
 
-  // 5. Función para encontrar las coordenadas del botón "Pide tu propuesta"
-  const getProposalButtonCoords = () => {
-    // 1. Probar con el botón de la cabecera
-    const headerBtn = document.getElementById('pide-propuesta-btn');
-    if (headerBtn) {
-      const rect = headerBtn.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        return {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-          element: headerBtn
-        };
-      }
-    }
-
-    // 2. Probar con cualquier enlace de propuesta visible
-    const links = Array.from(document.querySelectorAll('a[href="#contacto"]'));
-    const visibleLink = links.find((l) => {
-      const r = l.getBoundingClientRect();
-      return r.width > 0 && r.height > 0;
-    });
-
-    if (visibleLink) {
-      const rect = visibleLink.getBoundingClientRect();
-      return {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-        element: visibleLink
-      };
-    }
-
-    // Fallback: esquina superior derecha
-    return {
-      x: window.innerWidth - 180,
-      y: 40,
-      element: null
-    };
+  // 5. Función para encontrar el elemento destino: el formulario de propuesta ("Hablemos de tu proyecto")
+  const getProposalFormElement = () => {
+    return (
+      document.getElementById('propuesta-lead-form') ||
+      document.getElementById('contacto') ||
+      document.querySelector('section#contacto')
+    );
   };
 
-  // 6. Explosión de confeti y partículas al llegar al botón
+  // 6. Explosión de confeti y resplandor al llegar al formulario
   const triggerCelebration = (targetX, targetY, targetEl) => {
-    // Aura de resplandor sobre el botón
+    // Aura de resplandor sobre el formulario
     if (targetEl) {
-      targetEl.style.transition = 'all 0.3s ease';
-      targetEl.style.transform = 'scale(1.1)';
-      targetEl.style.boxShadow = '0 0 35px #6DD94B, 0 0 60px rgba(109,217,75,0.6)';
+      targetEl.style.transition = 'all 0.4s ease';
+      targetEl.style.boxShadow = '0 0 50px #6DD94B, 0 0 90px rgba(109,217,75,0.45)';
+      targetEl.style.borderColor = '#6DD94B';
       setTimeout(() => {
-        targetEl.style.transform = 'scale(1)';
         targetEl.style.boxShadow = '';
-      }, 2500);
+        targetEl.style.borderColor = '';
+      }, 4000);
     }
 
     // Generar partículas de confeti cibernético
     const newParticles = [];
     const colors = ['#6DD94B', '#0D844A', '#FFFFFF', '#38BDF8', '#FACC15', '#A855F7'];
-    for (let i = 0; i < 48; i++) {
+    for (let i = 0; i < 52; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 3 + Math.random() * 7;
+      const speed = 4 + Math.random() * 8;
       newParticles.push({
         id: Math.random(),
         x: targetX,
         y: targetY,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 2,
+        vy: Math.sin(angle) * speed - 3,
         color: colors[Math.floor(Math.random() * colors.length)],
         size: 5 + Math.random() * 6,
         alpha: 1,
@@ -212,7 +181,7 @@ export default function OdielitoRunner() {
       "¡No huyas!",
       "¡A por tu ratón! 🎯",
       "¡Espérate que voy! 💨",
-      "¡Ven aquí!"
+      "¡Ven que te enseño algo! ✨"
     ];
 
     let lastSpeechTick = 0;
@@ -221,7 +190,7 @@ export default function OdielitoRunner() {
       const now = Date.now();
       const p = posRef.current;
       const m = mouseRef.current;
-      runCycleRef.current += 0.22;
+      runCycleRef.current += 0.24;
 
       // ── ESTADO: IDLE ──
       if (stateRef.current === 'idle') {
@@ -250,7 +219,7 @@ export default function OdielitoRunner() {
         }
 
         // Aceleración hacia el cursor
-        const speed = 4.2;
+        const speed = 4.4;
         if (dist > 35) {
           p.x += (dx / dist) * speed;
           p.y += (dy / dist) * speed;
@@ -266,77 +235,132 @@ export default function OdielitoRunner() {
         if (dist <= 38) {
           stateRef.current = 'caught';
           setState('caught');
-          triggerSpeech("¡¡TE PILLÉ!! 🎯🎯 ¡Vente a pedir tu propuesta!", 2400);
+          triggerSpeech("¡¡TE PILLÉ!! 🎯🎯 ¡Vente conmigo al formulario!", 2400);
 
           // Inicializar captura y lazo
           setLassoTarget({ x: m.x, y: m.y });
-          dragStartRef.current = { x: p.x, y: p.y };
-          dragProgressRef.current = 0;
 
-          // Obtener coordenadas destino del botón
-          const target = getProposalButtonCoords();
-          targetBtnPosRef.current = { x: target.x, y: target.y, element: target.element };
+          // Si estamos en otra página/sección sin el formulario, navegar a landing
+          if (!getProposalFormElement() && onNavigateToLanding) {
+            onNavigateToLanding();
+          }
 
           // Tras medio segundo, empezar a correr arrastrándolo
           setTimeout(() => {
             if (stateRef.current === 'caught') {
               stateRef.current = 'dragging';
               setState('dragging');
-              triggerSpeech("¡Tirando con fuerza! 💨 Rumbo a tu presupuesto 🚀", 3000);
+              dragStartTimeRef.current = Date.now();
+              triggerSpeech("¡Tirando con fuerza! 💨 ¡Rumbo a tu propuesta! 🚀", 3200);
             }
           }, 600);
         }
       }
 
-      // ── ESTADO: DRAGGING (Arrastrando hacia el botón) ──
+      // ── ESTADO: DRAGGING (Arrastrando hacia el formulario en cualquier parte de la web) ──
       else if (stateRef.current === 'dragging') {
-        const target = targetBtnPosRef.current;
-        const dx = target.x - p.x;
-        const dy = target.y - p.y;
-        const dist = Math.hypot(dx, dy);
+        let formEl = getProposalFormElement();
+        if (!formEl && onNavigateToLanding) {
+          onNavigateToLanding();
+          formEl = getProposalFormElement();
+        }
 
-        // Orientación hacia el botón
-        setFacing(dx >= 0 ? 1 : -1);
-        setTilt(dx >= 0 ? 18 : -18);
+        if (formEl) {
+          const rect = formEl.getBoundingClientRect();
+          // Colocación ideal del formulario en la parte superior-media de la pantalla
+          const idealScrollOffset = rect.top - Math.min(130, window.innerHeight * 0.16);
 
-        // Velocidad rápida de arrastre
-        const dragSpeed = 6.5;
-        if (dist > 30) {
-          p.x += (dx / dist) * dragSpeed;
-          p.y += (dy / dist) * dragSpeed;
+          // 1. Scroll suave, continuo y rápido de la página
+          const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 15);
+          const scrollDone = Math.abs(idealScrollOffset) <= 28 || (idealScrollOffset > 0 && isAtBottom);
 
-          // Actualizar posición del cursor virtual atrapado detrás de él
-          const trailOffset = dx >= 0 ? -45 : 45;
+          if (!scrollDone) {
+            const sign = Math.sign(idealScrollOffset);
+            const abs = Math.abs(idealScrollOffset);
+            // Velocidad progresiva: hasta 46px por frame (~2760px/s) para avance rápido y fluido
+            const scrollSpeed = sign * Math.min(abs * 0.16 + 8, 46);
+            window.scrollBy({ top: scrollSpeed, behavior: 'auto' });
+          }
+
+          // 2. Destino del bot en la pantalla
+          let targetX = rect.left + rect.width / 2;
+          let targetY = rect.top + 70;
+
+          // Si el formulario aún está fuera de la vista vertical
+          if (rect.top > window.innerHeight - 100) {
+            // El formulario está más abajo: el bot corre hacia abajo tirando con fuerza
+            targetX = window.innerWidth * 0.65;
+            targetY = window.innerHeight - 120;
+          } else if (rect.bottom < 100) {
+            // El formulario está más arriba: el bot corre hacia arriba
+            targetX = window.innerWidth * 0.65;
+            targetY = 110;
+          } else {
+            // El formulario está visible en pantalla
+            targetX = Math.max(80, Math.min(window.innerWidth - 80, rect.left + rect.width / 2));
+            targetY = Math.max(70, Math.min(window.innerHeight - 70, rect.top + 70));
+          }
+
+          const dx = targetX - p.x;
+          const dy = targetY - p.y;
+          const distToBotTarget = Math.hypot(dx, dy);
+
+          // Orientación e inclinación hacia la dirección del movimiento
+          setFacing(dx >= 0 ? 1 : -1);
+          setTilt(dx >= 0 ? 18 : -18);
+
+          // Carrera del bot arrastrando
+          const dragSpeed = 7.5;
+          if (distToBotTarget > 25) {
+            p.x += (dx / distToBotTarget) * dragSpeed;
+            p.y += (dy / distToBotTarget) * dragSpeed;
+          }
+
+          // Posición del cursor virtual atrapado detrás de él
+          const trailOffset = dx >= 0 ? -48 : 48;
           setLassoTarget({
             x: p.x + trailOffset,
             y: p.y + Math.sin(now * 0.02) * 8
           });
 
-          // Scroll automático suave de la ventana si el botón está fuera de pantalla
-          if (target.element) {
-            const rect = target.element.getBoundingClientRect();
-            if (rect.top < 60 || rect.bottom > window.innerHeight - 60) {
-              window.scrollBy({
-                top: rect.top < 60 ? -8 : 8,
-                behavior: 'auto'
-              });
+          // Watchdog: tiempo transcurrido de arrastre
+          const dragElapsed = Date.now() - (dragStartTimeRef.current || 0);
+
+          // Comprobación de llegada triunfal
+          const isArrived = (scrollDone && distToBotTarget <= 50) || 
+                            (dragElapsed > 8000 && rect.top < window.innerHeight);
+
+          if (isArrived) {
+            stateRef.current = 'delivered';
+            setState('delivered');
+            setLassoTarget(null);
+            triggerSpeech("¡¡LLEGAMOS!! 🎉 ¡Cuéntanos sobre tu negocio aquí!", 4500);
+            triggerCelebration(rect.left + rect.width / 2, rect.top + 60, formEl);
+
+            // Enfocar campo de nombre para que el usuario pueda empezar a escribir
+            const nameInput = document.getElementById('lf-name');
+            if (nameInput) {
+              setTimeout(() => {
+                nameInput.focus({ preventScroll: true });
+              }, 400);
             }
+
+            // Volver a estado idle tras celebrar
+            setTimeout(() => {
+              stateRef.current = 'idle';
+              setState('idle');
+              cooldownRef.current = Date.now() + 8000;
+              triggerSpeech("¡Descansando un ratito! ☕", 3000);
+            }, 4500);
           }
         } else {
-          // ¡LLEGADA CON ÉXITO AL BOTÓN!
-          stateRef.current = 'delivered';
-          setState('delivered');
-          setLassoTarget(null);
-          triggerSpeech("¡¡LLEGAMOS!! 🎉 ¡Pide tu propuesta aquí!", 4500);
-          triggerCelebration(target.x, target.y, target.element);
-
-          // Volver a idle tras celebrar
-          setTimeout(() => {
+          // Si tras 4s no encuentra el formulario en pantalla, soltar suavemente
+          if (Date.now() - (dragStartTimeRef.current || 0) > 4000) {
             stateRef.current = 'idle';
             setState('idle');
-            cooldownRef.current = Date.now() + 8000; // 8 segundos de descanso
-            triggerSpeech("¡Descansando un ratito! ☕", 3000);
-          }, 4500);
+            setLassoTarget(null);
+            cooldownRef.current = Date.now() + 4000;
+          }
         }
       }
 
@@ -374,7 +398,7 @@ export default function OdielitoRunner() {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [isDesktop, isPaused]);
+  }, [isDesktop, isPaused, onNavigateToLanding]);
 
   if (!isDesktop) return null;
 
@@ -484,7 +508,7 @@ export default function OdielitoRunner() {
           perspective: 800
         }}
         onClick={() => {
-          triggerSpeech("¡Hola! Soy Odielito 🤖✨ ¡Llévame a por un café!", 2500);
+          triggerSpeech("¡Hola! Soy Odielito 🤖✨ ¡Rellena el formulario para tu propuesta!", 2500);
         }}
         title="Odielito Bot — TecnOdiel (Haz clic para saludar)"
       >

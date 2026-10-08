@@ -159,6 +159,7 @@ export default function LeadForm({
 
   return (
     <form 
+      id="propuesta-lead-form"
       onSubmit={onSubmit} 
       noValidate 
       className={`rounded-2xl bg-white p-6 sm:p-9 text-zinc-900 shadow-2xl space-y-4 relative ${shaking ? 'runaway-shake' : ''}`}

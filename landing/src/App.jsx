@@ -9,7 +9,8 @@ export default function App({
   onNavigateToPortal,
   onNavigateToAdmin,
   initialIntroFinished = true, 
-  onIntroComplete 
+  onIntroComplete,
+  disableOdielito = false
 }) {
   const [auditModalOpen, setAuditModalOpen] = useState(false);
 
@@ -30,8 +31,8 @@ export default function App({
         onNavigateToAdmin={onNavigateToAdmin}
       />
 
-      {/* 3D Mascot Odielito: persigue el cursor y lo arrastra a "Pide tu propuesta" */}
-      <OdielitoRunner />
+      {/* 3D Mascot Odielito: persigue el cursor y lo arrastra al formulario de propuesta */}
+      {!disableOdielito && <OdielitoRunner />}
 
       {/* Interactive & Secure Technical Audit Diagnostic Modal with Direct Restaurant Routing */}
       <AuditModal 
