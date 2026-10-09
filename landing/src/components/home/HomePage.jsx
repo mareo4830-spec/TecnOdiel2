@@ -11,6 +11,7 @@ import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
 import WaveLines from '../ui/WaveLines.jsx';
 import HeroShowcase from './HeroShowcase.jsx';
+import TechText from '../ui/TechText.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -131,6 +132,43 @@ function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdm
 }
 
 /* ───────────── HERO ───────────── */
+/* "a tu medida" del título: el efecto de TechText a la misma medida y color que el resto del h1. */
+function HeroTechText({ text }) {
+  const ref = useRef(null);
+  const [size, setSize] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const read = () => setSize(parseFloat(getComputedStyle(el).fontSize) || 0);
+    read();
+    window.addEventListener('resize', read);
+    return () => window.removeEventListener('resize', read);
+  }, []);
+  return (
+    <span ref={ref} className="relative -my-[0.1em] -ml-[0.34em] block h-[1.3em] w-[6.75em]">
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true" className="absolute inset-0 block">
+        {size > 0 && (
+          <TechText
+            text={text}
+            fontWeight={800}
+            fontSize={size}
+            letterSpacing={-0.025}
+            color="#6DD94B"
+            accentColor="#6DD94B"
+            reveal="letter"
+            dashLength={5}
+            dashGap={3}
+            specks={7}
+            strokeWidth={1.75}
+            speed={0.8}
+          />
+        )}
+      </span>
+    </span>
+  );
+}
+
 function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden bg-[#121212] pt-20">
@@ -145,7 +183,7 @@ function Hero() {
         <div>
           <Eyebrow dark>Software a medida para negocios de Huelva</Eyebrow>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
-            Digitalizamos tu negocio, <span className="text-[#6DD94B]">a tu medida</span>
+            Digitalizamos tu negocio, <HeroTechText text="a tu medida" />
           </h1>
           <h2 className="mt-6 text-xl font-semibold text-zinc-200 sm:text-2xl">Tu próximo paso digital empieza aquí</h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
