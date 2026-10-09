@@ -35,8 +35,72 @@ import {
   Smartphone,
   ToggleLeft,
   ToggleRight,
-  Download
+  Download,
+  Banknote,
+  Bot,
+  Store,
+  Plus
 } from 'lucide-react';
+
+/** Mismas funciones oficiales que en el formulario de TecnOdiel */
+const ALL_FORM_FEATURES = [
+  { 
+    id: 'reservas', 
+    name: 'Reserva de citas online', 
+    desc: 'Tus clientes reservan solos en tu web 24/7, sin llamadas ni pérdidas de tiempo.',
+    icon: Calendar,
+    tag: 'Automatización'
+  },
+  { 
+    id: 'carta', 
+    name: 'Carta o menú digital con QR', 
+    desc: 'Sin PDFs pesados. Se actualiza al momento y se abre de inmediato en el móvil.',
+    icon: QrCode,
+    tag: 'Hostelería'
+  },
+  { 
+    id: 'panel', 
+    name: 'Panel de administrador', 
+    desc: 'Gestiona reservas, citas, platos, horarios y datos tú mismo sin depender de nadie.',
+    icon: ShieldCheck,
+    tag: 'Control total'
+  },
+  { 
+    id: 'seo', 
+    name: 'SEO local avanzado', 
+    desc: 'Optimización para destacar el primero en Google y Google Maps en tu zona.',
+    icon: Globe,
+    tag: 'Visibilidad'
+  },
+  { 
+    id: 'whatsapp', 
+    name: 'Contacto directo por WhatsApp', 
+    desc: 'Botón directo y accesible para que cualquier cliente te escriba con 1 solo clic.',
+    icon: MessageCircle,
+    tag: 'Atención directa'
+  },
+  { 
+    id: 'pagos', 
+    name: 'Pasarela de pago online', 
+    desc: 'Cobra señales para reservas o pedidos completos por adelantado de forma 100% segura.',
+    icon: Banknote,
+    tag: 'Finanzas'
+  },
+  { 
+    id: 'tienda', 
+    name: 'Tienda / pedidos online', 
+    desc: 'Vende productos, menús o pedidos para recoger y llevar directamente desde tu web.',
+    icon: Store,
+    tag: 'Ventas'
+  },
+  { 
+    id: 'ia', 
+    name: 'Asistente con IA', 
+    desc: 'Inteligencia artificial que responde preguntas frecuentes y dudas de tus clientes automáticamente.',
+    icon: Bot,
+    tag: 'Inteligencia Artificial'
+  },
+];
 
 /**
  * PORTAL DE CLIENTES (ESTÉTICA 100% TECNODIEL LANDING)
@@ -67,16 +131,102 @@ export const VirtualDeskClientPortal = ({
   const [contactEmail, setContactEmail] = useState(tenantData.email || 'contacto@minegocio.es');
   const [businessAddress, setBusinessAddress] = useState(tenantData.address || 'Calle Principal, Huelva');
 
-  // Servicios activos interactivos
-  const [servicesState, setServicesState] = useState([
-    { id: 'web', name: isClinic ? 'Página Web Médica Certificada' : 'Web Profesional Responsive', active: true, desc: 'Dominio propio y carga ultrarrápida 24/7' },
-    { id: 'menu_qr', name: isClinic ? 'Cita Previa Online' : 'Carta Digital Interactiva con QR', active: true, desc: 'Acceso instantáneo para tus clientes sin instalar apps' },
-    { id: 'whatsapp', name: 'Canal Directo de WhatsApp', active: true, desc: 'Tus clientes te escriben o reservan con 1 clic' },
-    { id: 'reviews', name: 'Google Maps & Reseñas Directas', active: true, desc: 'Fomenta valoraciones 5 estrellas de clientes satisfechos' }
-  ]);
+  // Obtener funciones seleccionadas por el cliente en el formulario o en su proyecto
+  const initialFeatureIds = React.useMemo(() => {
+    // 1. Directo de intake.features en tenantData
+    if (Array.isArray(tenantData?.intake?.features) && tenantData.intake.features.length > 0) {
+      return tenantData.intake.features;
+    }
+    // 2. Directo de tenantData.features
+    if (Array.isArray(tenantData?.features) && tenantData.features.length > 0) {
+      return tenantData.features;
+    }
+    // 3. localStorage activo
+    try {
+      const activeProj = localStorage.getItem('tecnodiel_active_project');
+      if (activeProj) {
+        const parsed = JSON.parse(activeProj);
+        if (Array.isArray(parsed?.intake?.features) && parsed.intake.features.length > 0) {
+          return parsed.intake.features;
+        }
+        if (Array.isArray(parsed?.features) && parsed.features.length > 0) {
+          return parsed.features;
+        }
+      }
+      if (tenantData?.email) {
+        const emailProj = localStorage.getItem(`tecnodiel_client_project_${tenantData.email.toLowerCase()}`);
+        if (emailProj) {
+          const parsed = JSON.parse(emailProj);
+          if (Array.isArray(parsed?.intake?.features) && parsed.intake.features.length > 0) {
+            return parsed.intake.features;
+          }
+          if (Array.isArray(parsed?.features) && parsed.features.length > 0) {
+            return parsed.features;
+          }
+        }
+      }
+    } catch (_) {}
 
-  const toggleService = (id) => {
-    setServicesState(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
+    // 4. Por defecto según categoría si no vino del formulario
+    if (isClinic) {
+      return ['reservas', 'panel', 'whatsapp', 'seo'];
+    }
+    return ['reservas', 'carta', 'panel', 'whatsapp'];
+  }, [tenantData, isClinic]);
+
+  // Lista de funciones solicitadas adicionalmente por el usuario en esta sesión
+  const [requestedFeatures, setRequestedFeatures] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`tecnodiel_requested_features_${slug}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (_) {
+      return [];
+    }
+  });
+
+  // Estado de interruptores para las funciones incluidas
+  const [servicesToggleState, setServicesToggleState] = useState({});
+
+  const handleToggleService = (id) => {
+    setServicesToggleState((prev) => ({
+      ...prev,
+      [id]: prev[id] === undefined ? false : !prev[id]
+    }));
+  };
+
+  // Funciones incluidas vs funciones disponibles para pedir
+  const includedFeatures = ALL_FORM_FEATURES.filter((f) => initialFeatureIds.includes(f.id));
+  const availableFeatures = ALL_FORM_FEATURES.filter((f) => !initialFeatureIds.includes(f.id));
+
+  const handleRequestFeature = (feature) => {
+    if (!requestedFeatures.includes(feature.id)) {
+      const updated = [...requestedFeatures, feature.id];
+      setRequestedFeatures(updated);
+      try {
+        localStorage.setItem(`tecnodiel_requested_features_${slug}`, JSON.stringify(updated));
+      } catch (_) {}
+    }
+
+    // Añadir mensaje automático al chat con Mario y Javier
+    const userMsg = {
+      id: Date.now(),
+      sender: 'Tú',
+      text: `Hola Mario y Javier, me gustaría activar la función "${feature.name}" en mi web de ${businessName}.`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isAgency: false
+    };
+
+    setMessages((prev) => [
+      ...prev,
+      userMsg,
+      {
+        id: Date.now() + 1,
+        sender: 'Mario (TecnOdiel)',
+        text: `¡Perfecto! Javier y yo hemos recibido tu petición para activar "${feature.name}". Nos ponemos con ello ahora mismo.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isAgency: true
+      }
+    ]);
   };
 
   const handleSaveInfo = (e) => {
@@ -108,7 +258,7 @@ export const VirtualDeskClientPortal = ({
     {
       id: 2,
       sender: 'Mario (TecnOdiel)',
-      text: 'Cualquier precio, plato, servicio, foto u horario que quieras retocar, dínoslo por aquí y Dani o yo te lo dejamos listo en el acto.',
+      text: 'Cualquier precio, plato, servicio, foto u horario que quieras retocar, dínoslo por aquí y Javier o yo te lo dejamos listo en el acto.',
       time: '10:01',
       isAgency: true
     }
@@ -142,9 +292,9 @@ export const VirtualDeskClientPortal = ({
     setMessages((prev) => [...prev, newMsg]);
     setInputMessage('');
 
-    // Respuesta inteligente automática de Mario & Dani
+    // Respuesta inteligente automática de Mario & Javier
     setTimeout(() => {
-      let replyText = '¡Oído cocina! Dani y yo nos ponemos con ello ahora mismo y te avisamos cuando quede publicado.';
+      let replyText = '¡Oído cocina! Javier y yo nos ponemos con ello ahora mismo y te avisamos cuando quede publicado.';
       const lower = userText.toLowerCase();
       if (lower.includes('precio') || lower.includes('plato') || lower.includes('carta') || lower.includes('menu')) {
         replyText = '¡Recibido! Actualizamos ese detalle en tu carta digital en unos minutos.';
@@ -265,10 +415,10 @@ export const VirtualDeskClientPortal = ({
             <span className="text-xs font-extrabold text-white">Equipo TecnOdiel</span>
           </div>
           <p className="text-[11px] text-zinc-400 leading-relaxed">
-            Mario y Dani te atienden al instante. Pídenos cualquier cambio o actualización.
+            Mario y Javier te atienden al instante. Pídenos cualquier cambio o actualización.
           </p>
           <a
-            href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Mario y Dani, soy ${businessName} desde mi portal TecnOdiel y necesito una actualización.`)}`}
+            href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Mario y Javier, soy ${businessName} desde mi portal TecnOdiel y necesito una actualización.`)}`}
             target="_blank"
             rel="noreferrer"
             className="w-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black py-2.5 rounded-full flex items-center justify-center gap-2 transition shadow-md shadow-[#6DD94B]/20 cursor-pointer"
@@ -354,17 +504,6 @@ export const VirtualDeskClientPortal = ({
                     <QrCode className="w-4 h-4 text-[#6DD94B]" />
                     <span>Ver QR</span>
                   </button>
-
-                  <a
-                    href={liveUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black px-6 py-2.5 flex items-center gap-2 transition shadow-lg shadow-[#6DD94B]/20 cursor-pointer"
-                  >
-                    <Globe className="w-4 h-4" />
-                    <span>Ver Web en Vivo</span>
-                    <ArrowUpRight className="w-4 h-4" />
-                  </a>
                 </div>
               </div>
 
@@ -434,115 +573,6 @@ export const VirtualDeskClientPortal = ({
                   </span>
                 </motion.div>
               </div>
-
-              {/* Ficha editable en directo: Teléfono, Horario y Ubicación */}
-              <motion.div
-                layout
-                className="bg-[#181818] border border-white/10 rounded-2xl p-6 space-y-5 shadow-xl"
-              >
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Edit3 className="w-4 h-4 text-[#6DD94B]" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                      Datos visibles para tus clientes
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingInfo(!isEditingInfo)}
-                    className="text-xs text-[#6DD94B] hover:underline font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    {isEditingInfo ? 'Cancelar edición' : 'Modificar datos'}
-                  </button>
-                </div>
-
-                {isEditingInfo ? (
-                  <form onSubmit={handleSaveInfo} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
-                        Teléfono / WhatsApp de atención
-                      </label>
-                      <input
-                        type="text"
-                        value={contactPhone}
-                        onChange={(e) => setContactPhone(e.target.value)}
-                        className="w-full bg-[#111] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#6DD94B]"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
-                        Horario de apertura / citas
-                      </label>
-                      <input
-                        type="text"
-                        value={openingHours}
-                        onChange={(e) => setOpeningHours(e.target.value)}
-                        className="w-full bg-[#111] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#6DD94B]"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
-                        Correo electrónico
-                      </label>
-                      <input
-                        type="email"
-                        value={contactEmail}
-                        onChange={(e) => setContactEmail(e.target.value)}
-                        className="w-full bg-[#111] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#6DD94B]"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
-                        Dirección del local o consulta
-                      </label>
-                      <input
-                        type="text"
-                        value={businessAddress}
-                        onChange={(e) => setBusinessAddress(e.target.value)}
-                        className="w-full bg-[#111] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#6DD94B]"
-                        required
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2 flex justify-end pt-2">
-                      <button
-                        type="submit"
-                        className="rounded-full bg-[#6DD94B] hover:bg-white text-black font-black text-xs px-6 py-2.5 flex items-center gap-2 transition cursor-pointer"
-                      >
-                        <Save className="w-4 h-4" />
-                        Guardar y Publicar en Mi Web
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                    <div className="bg-black/30 p-3 rounded-xl border border-white/5">
-                      <span className="text-zinc-500 block text-[10px] uppercase font-bold">Teléfono / WhatsApp</span>
-                      <span className="font-bold text-white mt-0.5 block truncate">{contactPhone}</span>
-                    </div>
-                    <div className="bg-black/30 p-3 rounded-xl border border-white/5">
-                      <span className="text-zinc-500 block text-[10px] uppercase font-bold">Horario</span>
-                      <span className="font-bold text-white mt-0.5 block truncate">{openingHours}</span>
-                    </div>
-                    <div className="bg-black/30 p-3 rounded-xl border border-white/5">
-                      <span className="text-zinc-500 block text-[10px] uppercase font-bold">Dirección</span>
-                      <span className="font-bold text-white mt-0.5 block truncate">{businessAddress}</span>
-                    </div>
-                    <div className="bg-black/30 p-3 rounded-xl border border-white/5">
-                      <span className="text-zinc-500 block text-[10px] uppercase font-bold">Enlace Clientes</span>
-                      <span className="font-mono text-[#6DD94B] mt-0.5 block truncate font-bold">
-                        {liveUrl.replace(/^https?:\/\//, '')}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
 
               {/* Registro reciente de peticiones y reservas */}
               <div className="bg-[#181818] border border-white/10 rounded-2xl p-6 space-y-4">
@@ -673,7 +703,7 @@ export const VirtualDeskClientPortal = ({
             </motion.div>
           )}
 
-          {/* SECCIÓN 3: HABLAR CON NOSOTROS (CHAT DIRECTO CON MARIO & DANI) */}
+          {/* SECCIÓN 3: HABLAR CON NOSOTROS (CHAT DIRECTO CON MARIO & JAVIER) */}
           {activeTab === 'chat' && (
             <motion.div
               key="tab-chat"
@@ -688,7 +718,7 @@ export const VirtualDeskClientPortal = ({
                 <div>
                   <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
                     <MessagesSquare className="w-5 h-5 text-[#6DD94B]" />
-                    Chat Directo con Mario y Dani
+                    Chat Directo con Mario y Javier
                   </h1>
                   <p className="text-xs text-zinc-400">
                     Dinos cualquier ajuste que quieras en tu web y lo implementamos sin que tú tengas que tocar código.
@@ -696,7 +726,7 @@ export const VirtualDeskClientPortal = ({
                 </div>
                 <div className="text-xs text-[#6DD94B] flex items-center gap-2 bg-[#6DD94B]/10 border border-[#6DD94B]/30 px-3 py-1.5 rounded-full font-bold">
                   <span className="w-2 h-2 rounded-full bg-[#6DD94B] animate-pulse" />
-                  Mario & Dani Disponibles
+                  Mario & Javier Disponibles
                 </div>
               </div>
 
@@ -752,7 +782,7 @@ export const VirtualDeskClientPortal = ({
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Escribe tu petición a Mario y Dani..."
+                    placeholder="Escribe tu petición a Mario y Javier..."
                     className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-full px-5 py-3 text-xs sm:text-sm text-white placeholder-zinc-500 outline-none focus:border-[#6DD94B] transition"
                   />
                   <button
@@ -767,7 +797,7 @@ export const VirtualDeskClientPortal = ({
             </motion.div>
           )}
 
-          {/* SECCIÓN 4: MIS SERVICIOS ACTIVOS */}
+          {/* SECCIÓN 4: MIS SERVICIOS (TODOS LOS DEL FORMULARIO Y OPCIÓN DE PEDIR LOS NO ELEGIDOS) */}
           {activeTab === 'services' && (
             <motion.div
               key="tab-services"
@@ -775,65 +805,167 @@ export const VirtualDeskClientPortal = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -14 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[1000px] mx-auto space-y-6"
+              className="max-w-[1000px] mx-auto space-y-8"
             >
               <div className="border-b border-white/10 pb-4">
-                <h1 className="text-2xl sm:text-3xl font-black text-white">Módulos & Servicios de tu Web</h1>
-                <p className="text-xs text-zinc-400">
-                  Controla las funciones activadas en tu plataforma. Todo disponible sin cuotas por pedido ni costes ocultos.
+                <div className="flex items-center gap-2.5">
+                  <Layers className="w-6 h-6 text-[#6DD94B]" />
+                  <h1 className="text-2xl sm:text-3xl font-black text-white">Servicios & Módulos de tu Web</h1>
+                </div>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Aquí tienes todas las funciones incluidas en tu plan y las funciones adicionales que puedes solicitar a Mario y Javier en cualquier momento.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {servicesState.map((srv) => (
-                  <motion.div
-                    key={srv.id}
-                    whileHover={{ y: -2 }}
-                    className="bg-[#181818] border border-white/10 rounded-2xl p-5 flex items-start justify-between gap-4"
-                  >
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-8 h-8 rounded-lg bg-[#6DD94B]/15 border border-[#6DD94B]/30 flex items-center justify-center text-[#6DD94B] shrink-0 mt-0.5">
-                        <Check className="w-4 h-4 stroke-[3]" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-white">{srv.name}</h4>
-                        <p className="text-xs text-zinc-400 mt-1">{srv.desc}</p>
-                      </div>
-                    </div>
+              {/* 1. SERVICIOS SELECCIONADOS EN EL FORMULARIO */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#6DD94B]" />
+                    <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
+                      Servicios Incluidos en tu Plan ({includedFeatures.length})
+                    </h2>
+                  </div>
+                  <span className="text-[11px] text-[#6DD94B] font-bold">100% operativos en tu web</span>
+                </div>
 
-                    <button
-                      type="button"
-                      onClick={() => toggleService(srv.id)}
-                      className="cursor-pointer shrink-0 text-[#6DD94B] hover:text-white transition"
-                      title="Activar / Pausar módulo"
-                    >
-                      {srv.active ? (
-                        <ToggleRight className="w-7 h-7 text-[#6DD94B]" />
-                      ) : (
-                        <ToggleLeft className="w-7 h-7 text-zinc-600" />
-                      )}
-                    </button>
-                  </motion.div>
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {includedFeatures.map((srv) => {
+                    const IconComponent = srv.icon || Layers;
+                    const isToggled = servicesToggleState[srv.id] !== false;
+                    return (
+                      <motion.div
+                        key={srv.id}
+                        whileHover={{ y: -2 }}
+                        className="bg-[#181818] border border-white/10 rounded-2xl p-5 flex items-start justify-between gap-4 shadow-lg"
+                      >
+                        <div className="flex items-start gap-3.5 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-[#6DD94B]/15 border border-[#6DD94B]/30 flex items-center justify-center text-[#6DD94B] shrink-0 mt-0.5">
+                            <IconComponent className="w-5 h-5 stroke-[2.2]" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="text-sm font-bold text-white truncate">{srv.name}</h4>
+                              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#6DD94B]/20 text-[#6DD94B] border border-[#6DD94B]/40">
+                                Incluido
+                              </span>
+                            </div>
+                            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{srv.desc}</p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleService(srv.id)}
+                          className="cursor-pointer shrink-0 text-[#6DD94B] hover:text-white transition"
+                          title="Activar / Desactivar visualmente"
+                        >
+                          {isToggled ? (
+                            <ToggleRight className="w-7 h-7 text-[#6DD94B]" />
+                          ) : (
+                            <ToggleLeft className="w-7 h-7 text-zinc-600" />
+                          )}
+                        </button>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="bg-[#181818] border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#6DD94B]" />
-                    ¿Quieres incorporar una nueva función a tu web?
-                  </h4>
-                  <p className="text-xs text-zinc-400">
-                    Podemos activar pasarela de pago, pedidos online o recordatorios por SMS cuando lo necesites.
+              {/* 2. FUNCIONES DISPONIBLES QUE NO SELECCIONÓ (CON BOTÓN PARA PEDIRLAS) */}
+              {availableFeatures.length > 0 ? (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between border-t border-white/10 pt-6">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#6DD94B]" />
+                      <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
+                        Funciones Disponibles para tu Web ({availableFeatures.length})
+                      </h2>
+                    </div>
+                    <span className="text-[11px] text-zinc-400">Pídelas con 1 clic a Mario y Javier</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {availableFeatures.map((srv) => {
+                      const IconComponent = srv.icon || Layers;
+                      const isRequested = requestedFeatures.includes(srv.id);
+                      return (
+                        <motion.div
+                          key={srv.id}
+                          whileHover={{ y: -2 }}
+                          className={`border rounded-2xl p-5 flex flex-col justify-between gap-4 transition shadow-lg ${
+                            isRequested 
+                              ? 'bg-[#181818] border-[#6DD94B]/40 shadow-[#6DD94B]/10' 
+                              : 'bg-[#161616] border-white/10 hover:border-white/20'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3.5">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                              isRequested
+                                ? 'bg-[#6DD94B]/20 text-[#6DD94B] border border-[#6DD94B]/40'
+                                : 'bg-white/5 text-zinc-400 border border-white/10'
+                            }`}>
+                              <IconComponent className="w-5 h-5 stroke-[2]" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-sm font-bold text-white">{srv.name}</h4>
+                                <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
+                                  {srv.tag}
+                                </span>
+                              </div>
+                              <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{srv.desc}</p>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 flex items-center justify-between gap-3 border-t border-white/5">
+                            {isRequested ? (
+                              <div className="w-full flex items-center justify-between gap-2">
+                                <span className="text-xs font-bold text-[#6DD94B] flex items-center gap-1.5">
+                                  <Check className="w-4 h-4 stroke-[3]" />
+                                  ¡Petición enviada a Mario y Javier!
+                                </span>
+                                <a
+                                  href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Mario y Javier, soy ${businessName} desde mi portal TecnOdiel y quiero añadir la función "${srv.name}" a mi web.`)}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-[11px] text-zinc-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full font-semibold transition"
+                                >
+                                  WhatsApp ➔
+                                </a>
+                              </div>
+                            ) : (
+                              <>
+                                <span className="text-[11px] text-zinc-500 font-medium">
+                                  Sin cuotas ocultas
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRequestFeature(srv)}
+                                  className="rounded-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black px-4 py-2 flex items-center gap-1.5 transition shadow-md shadow-[#6DD94B]/20 cursor-pointer"
+                                >
+                                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                                  Pedir esta función
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 rounded-2xl bg-[#6DD94B]/10 border border-[#6DD94B]/30 text-center space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-[#6DD94B] text-black mx-auto flex items-center justify-center font-black">
+                    <Check className="w-5 h-5 stroke-[3]" />
+                  </div>
+                  <h3 className="text-sm font-black text-white">¡Plan Completo Activo!</h3>
+                  <p className="text-xs text-zinc-300 max-w-md mx-auto">
+                    Tienes todas las 8 funciones y herramientas de TecnOdiel activadas y funcionando en tu web.
                   </p>
                 </div>
-                <button
-                  onClick={() => setActiveTab('chat')}
-                  className="rounded-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black px-6 py-3 transition cursor-pointer shrink-0 shadow-md shadow-[#6DD94B]/20"
-                >
-                  Solicitar Nueva Función
-                </button>
-              </div>
+              )}
             </motion.div>
           )}
 

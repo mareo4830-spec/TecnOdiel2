@@ -266,7 +266,7 @@ export default function BanchLanding({
       code: '04',
       title: 'TU PANEL PRIVADO',
       platform: 'GESTIÓN FÁCIL Y CONTACTO DIRECTO',
-      desc: 'Accede a tu zona privada para ver cuánta gente visita tu web, cambiar precios de tu carta o servicios cuando quieras, y pulsar un botón para hablar en directo por WhatsApp o llamada con Mario y Dani.',
+      desc: 'Accede a tu zona privada para ver cuánta gente visita tu web, cambiar precios de tu carta o servicios cuando quieras, y pulsar un botón para hablar en directo por WhatsApp o llamada con Mario y Javier.',
       action: onNavigateToPortal,
       actionText: 'ENTRAR AL PANEL DE CLIENTE',
       highlights: [
@@ -821,7 +821,7 @@ export default function BanchLanding({
                 { title: 'Carta digital táctil', desc: 'Fotos reales que abren el apetito y se actualizan al instante.' },
                 { title: 'Dominio y seguridad incluidos', desc: 'Todo listo, legal y protegido con candado de seguridad SSL.' },
                 { title: 'Cobro por Bizum o tarjeta', desc: 'El dinero llega directo a tu cuenta bancaria sin comisiones raras.' },
-                { title: 'Atención con personas reales', desc: 'Hablas directamente con nosotros (Mario y Dani), no con un contestador.' }
+                { title: 'Atención con personas reales', desc: 'Hablas directamente con nosotros (Mario y Javier), no con un contestador.' }
               ].map((g, i) => (
                 <div key={i} className="p-4 bg-[#121212] border border-white/10 space-y-1.5">
                   <div className="flex items-center gap-2">
@@ -898,8 +898,8 @@ export default function BanchLanding({
                   {
                     id: '06',
                     title: 'Soporte cercano',
-                    host: 'Mario y Dani disponibles por WhatsApp y llamada',
-                    clin: 'Mario y Dani disponibles por WhatsApp y llamada'
+                    host: 'Mario y Javier disponibles por WhatsApp y llamada',
+                    clin: 'Mario y Javier disponibles por WhatsApp y llamada'
                   },
                   {
                     id: '07',

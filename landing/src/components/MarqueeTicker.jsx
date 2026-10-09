@@ -11,7 +11,7 @@ export default function MarqueeTicker() {
     { text: 'CITAS MÉDICAS ONLINE LAS 24 HORAS', icon: Zap },
     { text: 'APARECE EL PRIMERO EN GOOGLE MAPS', icon: MapPin },
     { text: 'TU WEB ABRE EN 1 SEGUNDO EN EL MÓVIL', icon: Smartphone },
-    { text: 'ATENCIÓN DIRECTA CON MARIO Y DANI', icon: Store },
+    { text: 'ATENCIÓN DIRECTA CON MARIO Y JAVIER', icon: Store },
   ]
 
   // Double array for seamless loop

@@ -168,80 +168,6 @@ const INITIAL_ADMINS = [
         category: 'Atención'
       }
     ]
-  },
-  {
-    id: 'daniel',
-    name: 'Daniel',
-    role: 'Dirección de Diseño UX/UI & Expansión Comercial',
-    subRole: 'Co-Fundador TecnOdiel',
-    avatar: 'DA',
-    color: '#f59e0b', // amber
-    bgGradient: 'from-amber-500/20 via-zinc-900 to-zinc-950',
-    borderColor: 'border-amber-500/40',
-    badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-    totalHours: 45.0,
-    hoursBreakdown: [
-      { area: 'Diseño UX/UI & Identidad', hours: 21.0 },
-      { area: 'Prospección Comercial', hours: 14.5 },
-      { area: 'Cartelería QR & Packaging', hours: 9.5 }
-    ],
-    doneTasks: [
-      {
-        id: 'd-d1',
-        title: 'Diseño cinemático e inmersivo de la Landing Page y Portal de Clientes',
-        hours: 15.0,
-        date: 'Reciente',
-        category: 'Diseño'
-      },
-      {
-        id: 'd-d2',
-        title: 'Dirección de arte y conceptualización de las 30 identidades visuales para restaurantes',
-        hours: 12.0,
-        date: 'Reciente',
-        category: 'Diseño'
-      },
-      {
-        id: 'd-d3',
-        title: 'Generación y diseño de cartelería QR para mesas de alta definición descargable',
-        hours: 6.5,
-        date: 'Esta semana',
-        category: 'Branding'
-      },
-      {
-        id: 'd-d4',
-        title: 'Prospección y contacto con los primeros 10 restaurantes y bares piloto en Huelva',
-        hours: 8.5,
-        date: 'Esta semana',
-        category: 'Ventas'
-      },
-      {
-        id: 'd-d5',
-        title: 'Pruebas de usabilidad en móvil para cartas digitales con camareros y comensales',
-        hours: 5.0,
-        date: 'Esta semana',
-        category: 'UX Research'
-      }
-    ],
-    todoTasks: [
-      {
-        id: 'd-t1',
-        title: 'Sesión fotográfica gastronómica HD y vídeo corto para los 3 primeros clientes reales',
-        priority: 'Alta',
-        category: 'Audiovisual'
-      },
-      {
-        id: 'd-t2',
-        title: 'Crear plantillas especializadas para marisquerías de la costa y chiringuitos de verano',
-        priority: 'Media',
-        category: 'Diseño'
-      },
-      {
-        id: 'd-t3',
-        title: 'Campaña de visitas presenciales a locales de hostelería en Huelva capital',
-        priority: 'Alta',
-        category: 'Ventas'
-      }
-    ]
   }
 ];
 
@@ -260,7 +186,7 @@ export default function AdminTeamWorkspace() {
     return INITIAL_ADMINS;
   });
 
-  const [selectedAdminId, setSelectedAdminId] = useState('all'); // 'all' | 'mario' | 'javier' | 'daniel'
+  const [selectedAdminId, setSelectedAdminId] = useState('all'); // 'all' | 'mario' | 'javier'
   const [copiedReport, setCopiedReport] = useState(false);
 
   // Modal: Add Done Task
@@ -408,7 +334,7 @@ export default function AdminTeamWorkspace() {
 
   // Copy team report for WhatsApp or meeting
   const handleCopyReport = () => {
-    let report = `[REPORTE DE EQUIPO TECNODIEL - MARIO, JAVIER & DANIEL]\n`;
+    let report = `[REPORTE DE EQUIPO TECNODIEL - MARIO & JAVIER]\n`;
     report += `Total Horas Invertidas: ${totalTeamHours.toFixed(1)}h | Tareas Hechas: ${totalCompletedTasks} | Objetivos: ${totalPendingObjectives}\n\n`;
 
     admins.forEach(a => {
@@ -449,7 +375,7 @@ export default function AdminTeamWorkspace() {
               Gestión de Equipo & Dedicación
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
-              Seguimiento de horas reales de Mario, Javier y Daniel. Control de hitos completados, auditoría de tareas y backlog de objetivos para la plataforma TecnOdiel.
+              Seguimiento de horas reales de Mario y Javier. Control de hitos completados, auditoría de tareas y backlog de objetivos para la plataforma TecnOdiel.
             </p>
           </div>
 
@@ -793,7 +719,6 @@ export default function AdminTeamWorkspace() {
               >
                 <option value="mario">Mario</option>
                 <option value="javier">Javier</option>
-                <option value="daniel">Daniel</option>
               </select>
             </div>
 
@@ -886,7 +811,6 @@ export default function AdminTeamWorkspace() {
               >
                 <option value="mario">Mario</option>
                 <option value="javier">Javier</option>
-                <option value="daniel">Daniel</option>
               </select>
             </div>
 

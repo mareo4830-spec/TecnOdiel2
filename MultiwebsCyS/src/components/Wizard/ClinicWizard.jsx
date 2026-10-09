@@ -226,7 +226,7 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
               </span>
             </h1>
             <p className="text-[11px] text-zinc-400 hidden sm:block">
-              Paso {step} de 3 • Cualquier cambio lo coordinamos en el chat de tu portal con Mario y Dani
+              Paso {step} de 3 • Cualquier cambio lo coordinamos en el chat de tu portal con Mario y Javier
             </p>
           </div>
         </div>
@@ -451,11 +451,11 @@ export default function ClinicWizard({ onCreated, onCancel, onOpenPortal }) {
               </div>
             </div>
 
-            {/* Recordatorio amigable de Mario & Dani */}
+            {/* Recordatorio amigable de Mario & Javier */}
             <div className="p-4 rounded-xl bg-zinc-900/60 border border-white/10 text-xs text-zinc-400 leading-relaxed flex items-center gap-3">
               <Sparkles className="w-5 h-5 text-[#6DD94B] shrink-0" />
               <span>
-                Al terminar, entrarás directo a tu <strong className="text-white">Portal de Cliente</strong>. Allí tendrás un chat directo con Mario y Dani para pedir cualquier ajuste en tus textos, tratamientos, fotos o citas.
+                Al terminar, entrarás directo a tu <strong className="text-white">Portal de Cliente</strong>. Allí tendrás un chat directo con Mario y Javier para pedir cualquier ajuste en tus textos, tratamientos, fotos o citas.
               </span>
             </div>
           </div>
