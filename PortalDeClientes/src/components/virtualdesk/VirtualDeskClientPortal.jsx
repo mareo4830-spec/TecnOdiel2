@@ -1,337 +1,323 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Building2, 
-  Globe, 
-  ExternalLink, 
-  TrendingUp, 
-  Calendar, 
-  UtensilsCrossed, 
-  MessagesSquare, 
-  Send, 
-  ShieldCheck, 
-  Clock, 
-  Phone, 
-  CheckCircle2,
-  Sparkles,
-  ArrowUpRight,
-  Layers,
-  MessageCircle,
-  BarChart3,
-  FileText,
-  User,
-  LogOut,
-  MapPin,
-  Check,
-  AlertCircle,
-  HelpCircle,
-  Stethoscope,
-  QrCode,
-  Copy,
-  Edit3,
-  Save,
-  Share2,
-  Eye,
-  Smartphone,
-  ToggleLeft,
-  ToggleRight,
-  Download,
-  Banknote,
-  Bot,
-  Store,
-  Plus
+import { gsap } from 'gsap';
+import {
+  Home, FolderKanban, FileText, PackageCheck, LifeBuoy, ChevronRight, LogOut, ExternalLink, Check, Clock,
+  CalendarClock, ArrowRight, Send, Copy, Download, QrCode, Calendar, ShieldCheck, Globe, MessageCircle,
+  Banknote, Store, Bot, Plus, Sparkles, Pencil, Save, Users, Eye, CheckCircle2, Menu, X,
 } from 'lucide-react';
 import { supabase, portalAuthClient } from '../../lib/supabase';
 
-/** Mismas funciones oficiales que en el formulario de TecnOdiel */
+/*
+ * PORTAL DEL CLIENTE. Estructura tipo "portal de implantación" (inicio con avance, próximo paso,
+ * documentos, entregables, tareas y equipo) con la estética de la landing de TecnOdiel y el mismo
+ * lenguaje de movimiento que la Oficina Virtual: entradas en cascada (expo.out), números que
+ * cuentan, píldora deslizante en el menú y brillos/elevación en las tarjetas.
+ */
+
+const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Funciones oficiales del formulario de TecnOdiel. */
 const ALL_FORM_FEATURES = [
-  { 
-    id: 'reservas', 
-    name: 'Reserva de citas online', 
-    desc: 'Tus clientes reservan solos en tu web 24/7, sin llamadas ni pérdidas de tiempo.',
-    icon: Calendar,
-    tag: 'Automatización'
-  },
-  { 
-    id: 'carta', 
-    name: 'Carta o menú digital con QR', 
-    desc: 'Sin PDFs pesados. Se actualiza al momento y se abre de inmediato en el móvil.',
-    icon: QrCode,
-    tag: 'Hostelería'
-  },
-  { 
-    id: 'panel', 
-    name: 'Panel de administrador', 
-    desc: 'Gestiona reservas, citas, platos, horarios y datos tú mismo sin depender de nadie.',
-    icon: ShieldCheck,
-    tag: 'Control total'
-  },
-  { 
-    id: 'seo', 
-    name: 'SEO local avanzado', 
-    desc: 'Optimización para destacar el primero en Google y Google Maps en tu zona.',
-    icon: Globe,
-    tag: 'Visibilidad'
-  },
-  { 
-    id: 'whatsapp', 
-    name: 'Contacto directo por WhatsApp', 
-    desc: 'Botón directo y accesible para que cualquier cliente te escriba con 1 solo clic.',
-    icon: MessageCircle,
-    tag: 'Atención directa'
-  },
-  { 
-    id: 'pagos', 
-    name: 'Pasarela de pago online', 
-    desc: 'Cobra señales para reservas o pedidos completos por adelantado de forma 100% segura.',
-    icon: Banknote,
-    tag: 'Finanzas'
-  },
-  { 
-    id: 'tienda', 
-    name: 'Tienda / pedidos online', 
-    desc: 'Vende productos, menús o pedidos para recoger y llevar directamente desde tu web.',
-    icon: Store,
-    tag: 'Ventas'
-  },
-  { 
-    id: 'ia', 
-    name: 'Asistente con IA', 
-    desc: 'Inteligencia artificial que responde preguntas frecuentes y dudas de tus clientes automáticamente.',
-    icon: Bot,
-    tag: 'Inteligencia Artificial'
-  },
+  { id: 'reservas', name: 'Reserva de citas online', desc: 'Tus clientes reservan solos en tu web 24/7, sin llamadas.', icon: Calendar, tag: 'Automatización' },
+  { id: 'carta', name: 'Carta o menú digital con QR', desc: 'Sin PDFs pesados. Se actualiza al momento y se abre en el móvil.', icon: QrCode, tag: 'Hostelería' },
+  { id: 'panel', name: 'Panel de administrador', desc: 'Gestiona reservas, platos, horarios y datos sin depender de nadie.', icon: ShieldCheck, tag: 'Control total' },
+  { id: 'seo', name: 'SEO local avanzado', desc: 'Destaca en Google y Google Maps en tu zona.', icon: Globe, tag: 'Visibilidad' },
+  { id: 'whatsapp', name: 'Contacto directo por WhatsApp', desc: 'Un botón para que cualquier cliente te escriba con un clic.', icon: MessageCircle, tag: 'Atención directa' },
+  { id: 'pagos', name: 'Pasarela de pago online', desc: 'Cobra señales o pedidos por adelantado de forma segura.', icon: Banknote, tag: 'Finanzas' },
+  { id: 'tienda', name: 'Tienda / pedidos online', desc: 'Vende productos, menús o pedidos para recoger desde tu web.', icon: Store, tag: 'Ventas' },
+  { id: 'ia', name: 'Asistente con IA', desc: 'Responde preguntas frecuentes de tus clientes automáticamente.', icon: Bot, tag: 'Inteligencia Artificial' },
 ];
 
-/**
- * PORTAL DE CLIENTES (ESTÉTICA 100% TECNODIEL LANDING)
- * Paleta idéntica a la landing:
- * - Fondo grafito: #121212
- * - Paneles y tarjetas: #181818 con border-white/10
- * - Acento de marca TecnOdiel: Verde neón #6DD94B
- * - Animaciones fluidas idénticas al Panel de Administración con framer-motion
- */
-export const VirtualDeskClientPortal = ({
-  tenantData = {},
-  onSwitchToAdminView,
-  onNavigateToLanding,
-  onLogout
-}) => {
-  const businessName = tenantData.name || tenantData.business_name || 'Mi Negocio';
+const STEPS = [
+  { id: 'solicitud', label: 'Solicitud recibida' },
+  { id: 'kickoff', label: 'Reunión de inicio' },
+  { id: 'desarrollo', label: 'Desarrollo de tu web' },
+  { id: 'publicada', label: 'Publicación' },
+];
+const STEP_PROGRESS = [12, 38, 72, 100];
+const STAGE_TO_STEP = { planeado: 1, en_progreso: 2, hecho: 3 };
+
+const NAV = [
+  { id: 'inicio', label: 'Inicio', icon: Home },
+  { id: 'proyecto', label: 'Mi proyecto', icon: FolderKanban },
+  { id: 'documentos', label: 'Documentos', icon: FileText },
+  { id: 'entregables', label: 'Entregables', icon: PackageCheck },
+  { id: 'soporte', label: 'Soporte', icon: LifeBuoy },
+];
+
+const DEFAULT_TASKS = [
+  { id: 'task-form', label: 'Completar el formulario de tu negocio', done: false },
+  { id: 'task-logo', label: 'Enviarnos tu logotipo en alta resolución', done: false },
+  { id: 'task-fotos', label: 'Compartir fotos de tu local y tus productos', done: false },
+  { id: 'task-textos', label: 'Revisar los textos que hemos preparado', done: false },
+];
+
+const card = 'rounded-2xl border border-white/10 bg-[#181818] p-5 sm:p-6 transition-[border-color,box-shadow,transform] duration-300 hover:border-[#6DD94B]/30 hover:shadow-[0_8px_40px_-12px_rgba(109,217,75,0.25)]';
+const primaryBtn = 'group relative inline-flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-[#6DD94B] px-5 py-3 text-xs font-bold uppercase tracking-wider text-black transition hover:brightness-110 active:scale-[0.97]';
+const ghostBtn = 'group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-xs font-bold uppercase tracking-wider text-white transition hover:border-[#6DD94B]/50 hover:bg-[#6DD94B]/10 active:scale-[0.97]';
+
+// ---------------------------------------------------------------- movimiento
+
+/** Entrada en cascada de los bloques de primer nivel (igual que PageReveal de la Oficina). */
+function Reveal({ children, className = '' }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    const host = ref.current;
+    if (!host || reduced()) return undefined;
+    const blocks = [...host.children].slice(0, 24);
+    const tween = gsap.fromTo(
+      blocks,
+      { y: 26, opacity: 0, scale: 0.985 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.85, ease: 'expo.out', stagger: 0.07, clearProps: 'transform,opacity' },
+    );
+    return () => { tween.revert(); };
+  }, []);
+  return <div ref={ref} className={className}>{children}</div>;
+}
+
+/** Número que cuenta hasta su valor. */
+function CountUp({ value, suffix = '' }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const obj = { v: 0 };
+    const render = () => { el.textContent = `${Math.round(obj.v)}${suffix}`; };
+    if (reduced()) { obj.v = value; render(); return undefined; }
+    const tween = gsap.to(obj, { v: value, duration: 1.4, ease: 'power3.out', onUpdate: render });
+    return () => { tween.kill(); };
+  }, [value, suffix]);
+  return <span ref={ref} className="tabular-nums">0{suffix}</span>;
+}
+
+/** Título que sube letra a letra desde una máscara (como el splash de la Oficina). */
+function SplitTitle({ text, className = '' }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    if (!ref.current || reduced()) return undefined;
+    const tween = gsap.from(ref.current.querySelectorAll('.ch'), { yPercent: 115, duration: 0.7, ease: 'expo.out', stagger: 0.025, delay: 0.1 });
+    return () => { tween.revert(); };
+  }, [text]);
+  return (
+    <h1 ref={ref} className={className} aria-label={text}>
+      {[...text].map((c, i) => (
+        <span key={i} aria-hidden="true" className="inline-block overflow-hidden align-bottom">
+          <span className="ch inline-block">{c === ' ' ? ' ' : c}</span>
+        </span>
+      ))}
+    </h1>
+  );
+}
+
+function Pill({ tone = 'zinc', icon: Icon, children }) {
+  const tones = {
+    green: 'bg-[#6DD94B]/15 text-[#6DD94B] ring-[#6DD94B]/30',
+    amber: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
+    sky: 'bg-sky-500/15 text-sky-300 ring-sky-500/30',
+    zinc: 'bg-white/5 text-zinc-400 ring-white/10',
+  };
+  return (
+    <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${tones[tone]}`}>
+      {Icon && <Icon className="h-3 w-3" />}{children}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------- piezas
+
+function ProgressStepper({ step }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    if (!ref.current || reduced()) return undefined;
+    const ctx = gsap.context(() => {
+      gsap.from('.st-node', { scale: 0, duration: 0.6, ease: 'back.out(2)', stagger: 0.12, delay: 0.3 });
+      gsap.from('.st-fill', { scaleX: 0, transformOrigin: 'left center', duration: 1.2, ease: 'expo.out', delay: 0.35 });
+      gsap.from('.st-label', { y: 10, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.1, delay: 0.5 });
+    }, ref);
+    return () => ctx.revert();
+  }, [step]);
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="absolute left-[12.5%] right-[12.5%] top-[19px] h-1 rounded-full bg-white/10">
+        <div className="st-fill h-full rounded-full bg-gradient-to-r from-[#0D844A] to-[#6DD94B]" style={{ width: `${(step / (STEPS.length - 1)) * 100}%` }} />
+      </div>
+      <ol className="relative grid grid-cols-4">
+        {STEPS.map((s, i) => {
+          const done = i < step || (step === STEPS.length - 1 && i === step);
+          const current = i === step && !done;
+          return (
+            <li key={s.id} className="flex flex-col items-center text-center">
+              <span className={`st-node relative grid h-10 w-10 place-items-center rounded-full border-2 transition-colors ${done ? 'border-[#6DD94B] bg-[#6DD94B] text-black' : current ? 'border-[#6DD94B] bg-[#121212]' : 'border-white/15 bg-[#121212]'}`}>
+                {current && <span className="absolute inset-0 animate-ping rounded-full bg-[#6DD94B]/30" />}
+                {done ? <Check className="h-5 w-5" /> : <span className={`h-3 w-3 rounded-full ${current ? 'bg-[#6DD94B]' : 'bg-white/15'}`} />}
+              </span>
+              <span className={`st-label mt-3 px-1 text-xs font-semibold leading-tight sm:text-sm ${done || current ? 'text-white' : 'text-zinc-500'}`}>{s.label}</span>
+              <span className={`st-label mt-0.5 text-[11px] ${done ? 'text-zinc-500' : current ? 'font-semibold text-[#6DD94B]' : 'text-zinc-600'}`}>
+                {done ? 'Completado' : current ? 'En curso' : 'Pendiente'}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+function ListRow({ icon: Icon, title, hint, status, action }) {
+  return (
+    <motion.li whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 400, damping: 28 }} className="flex items-center gap-3 border-b border-white/5 py-3 last:border-0">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 text-[#6DD94B]"><Icon className="h-4 w-4" /></span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-white">{title}</p>
+        {hint && <p className="truncate text-[11px] text-zinc-500">{hint}</p>}
+      </div>
+      {status}
+      {action}
+    </motion.li>
+  );
+}
+
+function Checklist({ tasks, onToggle }) {
+  return (
+    <ul className="space-y-1">
+      {tasks.map((t) => (
+        <li key={t.id}>
+          <button type="button" onClick={() => onToggle(t.id)} className="group flex w-full cursor-pointer items-center gap-3 rounded-xl px-2 py-2 text-left transition hover:bg-white/5">
+            <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors ${t.done ? 'border-[#6DD94B] bg-[#6DD94B]' : 'border-white/25 group-hover:border-[#6DD94B]/60'}`}>
+              <AnimatePresence>
+                {t.done && <motion.span initial={{ scale: 0, rotate: -40 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 600, damping: 22 }}><Check className="h-3.5 w-3.5 text-black" /></motion.span>}
+              </AnimatePresence>
+            </span>
+            <span className={`text-sm transition-colors ${t.done ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>{t.label}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ---------------------------------------------------------------- portal
+
+export const VirtualDeskClientPortal = ({ tenantData = {}, onNavigateToLanding, onLogout }) => {
+  const businessName = tenantData.name || tenantData.business_name || 'Mi negocio';
+  const firstName = (tenantData.contact_name || '').trim().split(' ')[0];
+  const initials = (firstName || businessName).slice(0, 2).toUpperCase();
   const slug = tenantData.slug || 'mi-negocio';
-  const isClinic = tenantData.collegiate_number || tenantData.category === 'dental' || tenantData.category === 'policlinica' || (tenantData.selected_modules || []).some(m => typeof m === 'string' && m.toLowerCase().includes('cita'));
-  
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'qr' | 'chat' | 'services' | 'stats'
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [isEditingInfo, setIsEditingInfo] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const isClinic = Boolean(tenantData.collegiate_number || tenantData.category === 'dental' || tenantData.category === 'policlinica');
 
-  // Datos editables de contacto y horarios
-  const [contactPhone, setContactPhone] = useState(tenantData.phone || '+34 600 12 34 56');
-  const [openingHours, setOpeningHours] = useState(tenantData.schedule || 'L-D: 13:00 - 16:30 | 20:00 - 00:00');
-  const [contactEmail, setContactEmail] = useState(tenantData.email || 'contacto@minegocio.es');
-  const [businessAddress, setBusinessAddress] = useState(tenantData.address || 'Calle Principal, Huelva');
+  const [tab, setTab] = useState('inicio');
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Obtener funciones seleccionadas por el cliente en el formulario o en su proyecto
-  const initialFeatureIds = React.useMemo(() => {
-    // 1. Directo de intake.features en tenantData
-    if (Array.isArray(tenantData?.intake?.features) && tenantData.intake.features.length > 0) {
-      return tenantData.intake.features;
-    }
-    // 2. Directo de tenantData.features
-    if (Array.isArray(tenantData?.features) && tenantData.features.length > 0) {
-      return tenantData.features;
-    }
-    // 3. localStorage activo
+  // Fase del proyecto
+  const step = useMemo(() => {
+    if (STAGE_TO_STEP[tenantData.stage] != null) return STAGE_TO_STEP[tenantData.stage];
+    return tenantData.published_url || tenantData.cloudflare_url ? 3 : 1;
+  }, [tenantData]);
+  const progress = STEP_PROGRESS[step];
+  const liveUrl = tenantData.published_url || tenantData.cloudflare_url || null;
+  const signed = tenantData.contract_status === 'active' || tenantData.contract_status === 'signed';
+
+  // Tareas del cliente (persisten en el navegador)
+  const [tasks, setTasks] = useState(() => {
+    const base = Array.isArray(tenantData.pending_tasks) && tenantData.pending_tasks.length ? tenantData.pending_tasks : DEFAULT_TASKS;
     try {
-      const activeProj = localStorage.getItem('tecnodiel_active_project');
-      if (activeProj) {
-        const parsed = JSON.parse(activeProj);
-        if (Array.isArray(parsed?.intake?.features) && parsed.intake.features.length > 0) {
-          return parsed.intake.features;
-        }
-        if (Array.isArray(parsed?.features) && parsed.features.length > 0) {
-          return parsed.features;
-        }
-      }
-      if (tenantData?.email) {
-        const emailProj = localStorage.getItem(`tecnodiel_client_project_${tenantData.email.toLowerCase()}`);
-        if (emailProj) {
-          const parsed = JSON.parse(emailProj);
-          if (Array.isArray(parsed?.intake?.features) && parsed.intake.features.length > 0) {
-            return parsed.intake.features;
-          }
-          if (Array.isArray(parsed?.features) && parsed.features.length > 0) {
-            return parsed.features;
-          }
-        }
-      }
+      const saved = JSON.parse(localStorage.getItem(`tecnodiel_tasks_${slug}`) || 'null');
+      if (saved) return base.map((t) => (saved[t.id] != null ? { ...t, done: saved[t.id] } : t));
     } catch (_) {}
-
-    // 4. Por defecto según categoría si no vino del formulario
-    if (isClinic) {
-      return ['reservas', 'panel', 'whatsapp', 'seo'];
-    }
-    return ['reservas', 'carta', 'panel', 'whatsapp'];
-  }, [tenantData, isClinic]);
-
-  // Lista de funciones solicitadas adicionalmente por el usuario en esta sesión
-  const [requestedFeatures, setRequestedFeatures] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`tecnodiel_requested_features_${slug}`);
-      return saved ? JSON.parse(saved) : [];
-    } catch (_) {
-      return [];
-    }
+    return base;
   });
+  const toggleTask = (id) => setTasks((prev) => {
+    const next = prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
+    try { localStorage.setItem(`tecnodiel_tasks_${slug}`, JSON.stringify(Object.fromEntries(next.map((t) => [t.id, t.done])))); } catch (_) {}
+    return next;
+  });
+  const pendingTasks = tasks.filter((t) => !t.done);
 
-  // Estado de interruptores para las funciones incluidas
-  const [servicesToggleState, setServicesToggleState] = useState({});
+  // Soporte (chat)
+  const time = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const [messages, setMessages] = useState([
+    { id: 1, text: `¡Hola${firstName ? ` ${firstName}` : ''}! Soy Mario, de TecnOdiel. Aquí me tienes para cualquier duda de tu web.`, time: '10:00', agency: true },
+  ]);
+  const [draft, setDraft] = useState('');
+  const chatEnd = useRef(null);
+  useEffect(() => { chatEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [messages, tab]);
 
-  const handleToggleService = (id) => {
-    setServicesToggleState((prev) => ({
-      ...prev,
-      [id]: prev[id] === undefined ? false : !prev[id]
-    }));
+  const say = (text) => {
+    setMessages((m) => [...m, { id: Date.now(), text, time: time(), agency: false }]);
+    setTimeout(() => setMessages((m) => [...m, { id: Date.now() + 1, text: 'Recibido. Javier y yo nos ponemos con ello y te avisamos por aquí.', time: time(), agency: true }]), 900);
+  };
+  const askTeam = (text) => { say(text); setTab('soporte'); };
+  const send = (e) => { e.preventDefault(); if (!draft.trim()) return; say(draft.trim()); setDraft(''); };
+
+  // Funciones del proyecto
+  const initialFeatureIds = useMemo(() => {
+    if (Array.isArray(tenantData?.intake?.features) && tenantData.intake.features.length) return tenantData.intake.features;
+    if (Array.isArray(tenantData?.features) && tenantData.features.length) return tenantData.features;
+    return isClinic ? ['reservas', 'panel', 'whatsapp', 'seo'] : ['reservas', 'carta', 'panel', 'whatsapp'];
+  }, [tenantData, isClinic]);
+  const [requested, setRequested] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`tecnodiel_requested_features_${slug}`) || '[]'); } catch (_) { return []; }
+  });
+  const included = ALL_FORM_FEATURES.filter((f) => initialFeatureIds.includes(f.id));
+  const available = ALL_FORM_FEATURES.filter((f) => !initialFeatureIds.includes(f.id));
+  const requestFeature = (f) => {
+    if (requested.includes(f.id)) return;
+    const next = [...requested, f.id];
+    setRequested(next);
+    try { localStorage.setItem(`tecnodiel_requested_features_${slug}`, JSON.stringify(next)); } catch (_) {}
+    say(`Hola, me gustaría activar la función "${f.name}" en mi web de ${businessName}.`);
   };
 
-  // Funciones incluidas vs funciones disponibles para pedir
-  const includedFeatures = ALL_FORM_FEATURES.filter((f) => initialFeatureIds.includes(f.id));
-  const availableFeatures = ALL_FORM_FEATURES.filter((f) => !initialFeatureIds.includes(f.id));
-
-  const handleRequestFeature = (feature) => {
-    if (!requestedFeatures.includes(feature.id)) {
-      const updated = [...requestedFeatures, feature.id];
-      setRequestedFeatures(updated);
-      try {
-        localStorage.setItem(`tecnodiel_requested_features_${slug}`, JSON.stringify(updated));
-      } catch (_) {}
-    }
-
-    // Añadir mensaje automático al chat con Mario y Javier
-    const userMsg = {
-      id: Date.now(),
-      sender: 'Tú',
-      text: `Hola Mario y Javier, me gustaría activar la función "${feature.name}" en mi web de ${businessName}.`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isAgency: false
-    };
-
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      {
-        id: Date.now() + 1,
-        sender: 'Mario (TecnOdiel)',
-        text: `¡Perfecto! Javier y yo hemos recibido tu petición para activar "${feature.name}". Nos ponemos con ello ahora mismo.`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isAgency: true
-      }
-    ]);
-  };
-
-  const handleSaveInfo = (e) => {
+  // Datos del negocio
+  const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [info, setInfo] = useState({
+    phone: tenantData.phone || '', email: tenantData.email || '', address: tenantData.address || '', schedule: tenantData.schedule || '',
+  });
+  const saveInfo = (e) => {
     e.preventDefault();
-    setIsEditingInfo(false);
-    setSaveSuccess(true);
+    setEditing(false);
+    setSaved(true);
     try {
-      const updated = {
-        ...tenantData,
-        phone: contactPhone,
-        schedule: openingHours,
-        email: contactEmail,
-        address: businessAddress
-      };
-      localStorage.setItem(`tecnodiel_client_project_${contactEmail.toLowerCase()}`, JSON.stringify(updated));
+      const updated = { ...tenantData, ...info };
+      if (info.email) localStorage.setItem(`tecnodiel_client_project_${info.email.toLowerCase()}`, JSON.stringify(updated));
       localStorage.setItem('tecnodiel_active_project', JSON.stringify(updated));
     } catch (_) {}
-    setTimeout(() => setSaveSuccess(false), 2500);
+    setTimeout(() => setSaved(false), 2500);
   };
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'Mario (TecnOdiel)',
-      text: `¡Hola ${businessName}! Ya tenemos tu espacio web conectado y optimizado.`,
-      time: '10:00',
-      isAgency: true
-    },
-    {
-      id: 2,
-      sender: 'Mario (TecnOdiel)',
-      text: 'Cualquier precio, plato, servicio, foto u horario que quieras retocar, dínoslo por aquí y Javier o yo te lo dejamos listo en el acto.',
-      time: '10:01',
-      isAgency: true
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const chatBottomRef = useRef(null);
+  // QR de la web
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://tecnodiel.es';
+  const publicUrl = liveUrl || (isClinic ? `${origin}/#/c/${slug}` : `${origin}/#/r/${slug}`);
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(publicUrl)}&color=000000&bgcolor=ffffff&margin=1`;
+  const [copied, setCopied] = useState(false);
+  const copyLink = () => { try { navigator.clipboard.writeText(publicUrl); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (_) {} };
 
-  const templateName = tenantData.template_id || (isClinic ? 'Clínica & Salud Pro' : 'Hostelería & Gastro Pro');
+  // Documentos y entregables (según la fase)
+  const documents = [
+    { id: 'propuesta', title: 'Propuesta y presupuesto', hint: 'Lo que acordamos contigo', ok: true, label: 'Disponible' },
+    { id: 'contrato', title: 'Contrato de servicio', hint: 'Condiciones y plazos', ok: signed, label: signed ? 'Firmado' : 'Pendiente de firma', done: signed },
+    { id: 'alcance', title: 'Alcance del proyecto', hint: 'Páginas, funciones y plazos', ok: step >= 1, label: step >= 1 ? 'Disponible' : 'Pendiente' },
+    { id: 'guia', title: 'Guía de uso y accesos', hint: 'Cómo gestionar tu web', ok: step >= 3, label: step >= 3 ? 'Disponible' : 'Pendiente' },
+  ];
+  const deliverables = [
+    { id: 'diseno', title: 'Diseño de tu web', hint: 'Estructura, colores y textos', ok: step >= 2 },
+    { id: 'web', title: 'Web publicada', hint: liveUrl || 'Tu dirección en internet', ok: step >= 3 },
+    { id: 'panel', title: 'Panel de gestión', hint: 'Accesos para editar tu web', ok: step >= 3 },
+    { id: 'qr', title: 'Código QR', hint: 'Listo para imprimir', ok: step >= 3 },
+  ];
+  const deliveredCount = deliverables.filter((d) => d.ok).length;
 
-  const scrollToBottom = () => {
-    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const nextStep = [
+    { eyebrow: 'Tu próximo paso', title: 'Estamos revisando tu solicitud', text: 'Un socio de TecnOdiel te contactará en breve para cerrar los detalles contigo.', cta: 'Escribir al equipo', onClick: () => askTeam('Hola, quería comentar los detalles de mi solicitud.'), icon: Sparkles },
+    { eyebrow: 'Tu próximo paso', title: 'Agenda tu reunión de inicio', text: 'Conozcámonos, fijemos fecha y definamos juntos el plan de trabajo.', cta: 'Agendar reunión', onClick: () => askTeam('Hola, me gustaría agendar la reunión de inicio. ¿Qué días os vienen bien?'), icon: CalendarClock },
+    { eyebrow: 'Tu próximo paso', title: 'Revisa el avance de tu web', text: 'Estamos construyendo tu web. Cuando tengamos algo que enseñarte te avisamos por aquí.', cta: 'Pedir novedades', onClick: () => askTeam('Hola, ¿cómo va mi web? ¿Podéis enseñarme el avance?'), icon: Eye },
+    { eyebrow: 'Todo listo', title: '¡Tu web ya está online!', text: 'Compártela con tus clientes y pídenos cualquier cambio cuando lo necesites.', cta: liveUrl ? 'Ver mi web' : 'Pedir cambios', onClick: () => (liveUrl ? window.open(liveUrl, '_blank', 'noopener') : askTeam('Hola, quiero pedir un cambio en mi web.')), icon: Globe },
+  ][step];
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!inputMessage.trim()) return;
-
-    const userText = inputMessage.trim();
-    const newMsg = {
-      id: Date.now(),
-      sender: 'Tú',
-      text: userText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isAgency: false
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
-    setInputMessage('');
-
-    // Respuesta inteligente automática de Mario & Javier
-    setTimeout(() => {
-      let replyText = '¡Oído cocina! Javier y yo nos ponemos con ello ahora mismo y te avisamos cuando quede publicado.';
-      const lower = userText.toLowerCase();
-      if (lower.includes('precio') || lower.includes('plato') || lower.includes('carta') || lower.includes('menu')) {
-        replyText = '¡Recibido! Actualizamos ese detalle en tu carta digital en unos minutos.';
-      } else if (lower.includes('foto') || lower.includes('imagen')) {
-        replyText = 'Perfecto, podemos optimizar tus fotos y colocarlas en la web hoy mismo.';
-      } else if (lower.includes('horario') || lower.includes('telefono') || lower.includes('abrir')) {
-        replyText = 'Cambiamos el horario y datos de contacto de inmediato para que nadie tenga dudas al entrar.';
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: 'Mario (TecnOdiel)',
-          text: replyText,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isAgency: true
-        }
-      ]);
-    }, 900);
-  };
-
-  // URL pública de la web
-  const webOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://tecnodiel.es';
-  const liveUrl = isClinic ? `${webOrigin}/#/c/${slug}` : `${webOrigin}/#/r/${slug}`;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(liveUrl)}&color=000000&bgcolor=ffffff&margin=1`;
-
-  const handleCopyLink = () => {
-    try {
-      navigator.clipboard.writeText(liveUrl);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    } catch (_) {}
-  };
-
-  const handleLogoutAndGoLanding = async () => {
+  const logout = async () => {
     try {
       sessionStorage.removeItem('tecnodiel_auth_session');
       sessionStorage.removeItem('tecnodiel_formulario_draft');
@@ -342,740 +328,340 @@ export const VirtualDeskClientPortal = ({
       await portalAuthClient.auth.signOut();
       await supabase.auth.signOut();
     } catch (_) {}
-
-    if (onLogout) {
-      onLogout();
-      return;
-    }
-    if (onNavigateToLanding) {
-      onNavigateToLanding();
-      return;
-    }
-    if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', '/');
-      window.location.hash = '';
-      window.location.href = '/';
-    }
+    if (onLogout) return onLogout();
+    if (onNavigateToLanding) return onNavigateToLanding();
+    window.location.href = '/';
+    return undefined;
   };
 
-  return (
-    <div className="min-h-screen bg-[#121212] text-zinc-100 flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black">
-      {/* ── BARRA LATERAL (ESTÉTICA TECNODIEL CON VERDE #6DD94B) ── */}
-      <aside className="w-full lg:w-64 border-r border-white/10 bg-[#161616] flex flex-col shrink-0">
-        {/* Cabecera Sidebar con Logo TecnOdiel */}
-        <div className="h-20 px-5 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#6DD94B] flex items-center justify-center font-black text-black text-xs shadow-md shadow-[#6DD94B]/20">
-              TO
-            </div>
-            <div className="min-w-0">
-              <span className="font-extrabold text-sm text-white block tracking-wide truncate">
-                {businessName}
-              </span>
-              <span className="text-[10px] text-[#6DD94B] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#6DD94B] animate-pulse" />
-                Portal Verificado
-              </span>
-            </div>
-          </div>
+  // Ambiente: resplandores que derivan lentamente + menú lateral que entra en cascada
+  const root = useRef(null);
+  useLayoutEffect(() => {
+    if (reduced()) return undefined;
+    const ctx = gsap.context(() => {
+      gsap.from('.nav-item', { x: -18, opacity: 0, duration: 0.7, ease: 'expo.out', stagger: 0.06, delay: 0.1 });
+      gsap.from('.brand-mark', { scale: 0.4, rotate: -25, opacity: 0, duration: 0.6, ease: 'back.out(1.8)' });
+      gsap.to('.glow-a', { x: 60, y: 40, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to('.glow-b', { x: -50, y: -30, duration: 11, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    }, root);
+    return () => ctx.revert();
+  }, []);
 
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={handleLogoutAndGoLanding}
-              title="Cerrar sesión y volver a la portada de TecnOdiel"
-              className="text-[10px] bg-white/5 hover:bg-red-500/15 text-zinc-300 hover:text-red-300 border border-white/10 hover:border-red-500/30 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5"
-            >
-              <LogOut className="w-3.5 h-3.5 text-red-400" />
-              <span>Cerrar sesión</span>
-            </button>
+  const goto = (id) => { setTab(id); setMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const current = NAV.find((n) => n.id === tab)?.label || 'Mi cuenta';
+
+  // ---------------------------------------------------------------- secciones
+  const Inicio = (
+    <Reveal className="space-y-5">
+      <header>
+        <SplitTitle text={firstName ? `Bienvenido, ${firstName}` : 'Te damos la bienvenida'} className="text-3xl font-black tracking-tight text-white sm:text-5xl" />
+        <p className="mt-2 text-sm text-zinc-400 sm:text-base">Aquí encontrarás el avance de tu proyecto y todo lo que necesitas para empezar.</p>
+      </header>
+
+      <section className={card}>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-bold sm:text-xl">Tu web: {businessName}</h2>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl font-black text-[#6DD94B]"><CountUp value={progress} suffix=" %" /></span>
+            <Pill tone={step === 3 ? 'green' : 'amber'} icon={step === 3 ? CheckCircle2 : Clock}>{step === 3 ? 'Publicada' : STEPS[step].label}</Pill>
           </div>
         </div>
+        <ProgressStepper step={step} />
+      </section>
 
-        {/* Navegación del Portal con animación fluida layoutId */}
-        <nav className="p-3 space-y-1.5 flex-1">
-          {[
-            { id: 'overview', label: 'Mi Web & Herramientas', icon: Building2 },
-            { id: 'qr', label: 'Código QR para Clientes', icon: QrCode },
-            { id: 'chat', label: 'Hablar con Soporte', icon: MessagesSquare, badge: true },
-            { id: 'services', label: 'Mis Servicios Activos', icon: Layers },
-            { id: 'stats', label: 'Visitas & Estadísticas', icon: BarChart3 }
-          ].map(({ id, label, icon: Icon, badge }) => {
-            const isActive = activeTab === id;
+      <section className="relative overflow-hidden rounded-2xl border border-[#6DD94B]/25 bg-gradient-to-br from-[#6DD94B]/12 via-[#181818] to-[#0D844A]/10 p-5 sm:p-6">
+        <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+          <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 3.2, ease: 'easeInOut' }} className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#6DD94B]/15 text-[#6DD94B] ring-1 ring-[#6DD94B]/30">
+            <nextStep.icon className="h-7 w-7" />
+          </motion.span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#6DD94B]">{nextStep.eyebrow}</p>
+            <h3 className="mt-1 text-xl font-bold sm:text-2xl">{nextStep.title}</h3>
+            <p className="mt-1 text-sm text-zinc-400">{nextStep.text}</p>
+          </div>
+          <button type="button" onClick={nextStep.onClick} className={`${primaryBtn} w-full sm:w-auto`}>
+            <span className="pointer-events-none absolute inset-y-0 -left-full w-1/2 -skew-x-12 bg-white/40 transition-all duration-700 group-hover:left-[150%]" />
+            {nextStep.cta}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </button>
+        </div>
+      </section>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <section className={card}>
+          <h3 className="text-lg font-bold">Documentos importantes</h3>
+          <p className="mb-2 text-xs text-zinc-500">Todo en un solo lugar</p>
+          <ul>
+            {documents.slice(0, 3).map((d) => (
+              <ListRow key={d.id} icon={FileText} title={d.title} status={<Pill tone={d.done ? 'green' : d.ok ? 'sky' : 'zinc'} icon={d.done ? Check : d.ok ? FileText : Clock}>{d.label}</Pill>}
+                action={d.ok && <button type="button" onClick={() => askTeam(`Hola, ¿me podéis enviar una copia de "${d.title}"?`)} className="cursor-pointer text-xs font-semibold text-[#6DD94B] underline-offset-2 hover:underline">Pedir</button>} />
+            ))}
+          </ul>
+          <button type="button" onClick={() => goto('documentos')} className="mt-2 cursor-pointer text-xs font-semibold text-zinc-400 transition hover:text-white">Ver todos →</button>
+        </section>
+
+        <section className={card}>
+          <h3 className="text-lg font-bold">Entregables del proyecto</h3>
+          <p className="mb-2 text-xs text-zinc-500">Se habilitarán a medida que avancemos</p>
+          <ul>
+            {deliverables.slice(0, 3).map((d) => (
+              <ListRow key={d.id} icon={PackageCheck} title={d.title} status={<Pill tone={d.ok ? 'green' : 'zinc'} icon={d.ok ? Check : Clock}>{d.ok ? 'Entregado' : 'Pendiente'}</Pill>} />
+            ))}
+          </ul>
+          <button type="button" onClick={() => goto('entregables')} className="mt-2 cursor-pointer text-xs font-semibold text-zinc-400 transition hover:text-white">Ver todos →</button>
+        </section>
+
+        <section className={card}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold">Lo que necesitamos de ti</h3>
+            <Pill tone={pendingTasks.length ? 'amber' : 'green'}>{pendingTasks.length ? `${pendingTasks.length} pendientes` : 'Todo listo'}</Pill>
+          </div>
+          <div className="mt-3"><Checklist tasks={tasks} onToggle={toggleTask} /></div>
+          <button type="button" onClick={() => goto('proyecto')} className={`${primaryBtn} mt-4`}>Completar información<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></button>
+        </section>
+
+        <section className={card}>
+          <h3 className="text-lg font-bold">Tu equipo, a un mensaje</h3>
+          <p className="mt-1 text-sm text-zinc-400">¿Tienes dudas sobre el proceso? Estamos aquí para acompañarte.</p>
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-3">
+                {['M', 'J'].map((l, i) => (
+                  <motion.span key={l} whileHover={{ y: -4, zIndex: 2 }} className={`grid h-12 w-12 place-items-center rounded-full border-2 border-[#181818] text-sm font-black text-black ${i ? 'bg-emerald-300' : 'bg-[#6DD94B]'}`}>{l}</motion.span>
+                ))}
+              </div>
+              <div><p className="text-sm font-bold">Mario y Javier</p><p className="flex items-center gap-1.5 text-[11px] text-zinc-500"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#6DD94B]" />Equipo TecnOdiel</p></div>
+            </div>
+            <button type="button" onClick={() => goto('soporte')} className={`${ghostBtn} ml-auto`}>Contactar equipo<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></button>
+          </div>
+        </section>
+      </div>
+    </Reveal>
+  );
+
+  const Proyecto = (
+    <Reveal className="space-y-5">
+      <header>
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Mi proyecto</h1>
+        <p className="mt-2 text-sm text-zinc-400">Tu web, lo que incluye y los datos de tu negocio.</p>
+      </header>
+
+      <section className={`${card} flex flex-wrap items-center justify-between gap-4`}>
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#6DD94B]">{tenantData.plan_name || 'Tu plan'}</p>
+          <h2 className="mt-1 truncate text-xl font-bold">{businessName}</h2>
+          <p className="truncate text-sm text-zinc-500">{liveUrl || 'Tu web aún no está publicada'}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer" className={primaryBtn}>Ver mi web<ExternalLink className="h-4 w-4" /></a>}
+          <button type="button" onClick={copyLink} className={ghostBtn}>{copied ? <Check className="h-4 w-4 text-[#6DD94B]" /> : <Copy className="h-4 w-4" />}{copied ? 'Copiado' : 'Copiar enlace'}</button>
+        </div>
+      </section>
+
+      <section className={card}>
+        <h3 className="mb-4 text-lg font-bold">Tu web incluye</h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {included.map((f) => (
+            <motion.div key={f.id} whileHover={{ y: -3 }} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#6DD94B]/15 text-[#6DD94B]"><f.icon className="h-5 w-5" /></span>
+              <div><p className="text-sm font-bold">{f.name}</p><p className="mt-0.5 text-xs leading-snug text-zinc-400">{f.desc}</p></div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section className={card}>
+        <h3 className="text-lg font-bold">Añade más funciones</h3>
+        <p className="mb-4 text-xs text-zinc-500">Pídelas con un clic y el equipo se pone con ello.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {available.map((f) => {
+            const asked = requested.includes(f.id);
             return (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={`relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                  isActive ? 'text-black' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="clientPortalActiveTab"
-                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-                    className="absolute inset-0 bg-[#6DD94B] rounded-xl shadow-lg shadow-[#6DD94B]/20 -z-0"
-                  />
-                )}
-                <Icon className={`w-4 h-4 relative z-10 ${isActive ? 'text-black' : 'text-zinc-400'}`} />
-                <span className="relative z-10 flex-1 text-left">{label}</span>
-                {badge && (
-                  <span className={`w-2 h-2 rounded-full relative z-10 ${isActive ? 'bg-black' : 'bg-[#6DD94B] animate-pulse'}`} />
-                )}
+              <motion.div key={f.id} whileHover={{ y: -3 }} className="flex items-start gap-3 rounded-xl border border-dashed border-white/15 p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 text-zinc-400"><f.icon className="h-5 w-5" /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold">{f.name}</p>
+                  <p className="mt-0.5 text-xs leading-snug text-zinc-400">{f.desc}</p>
+                  <button type="button" disabled={asked} onClick={() => requestFeature(f)} className={`mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold transition ${asked ? 'bg-[#6DD94B]/15 text-[#6DD94B]' : 'bg-white/5 text-white hover:bg-[#6DD94B] hover:text-black'}`}>
+                    {asked ? <><Check className="h-3 w-3" />Solicitada</> : <><Plus className="h-3 w-3" />Solicitar</>}
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+        <section className={card}>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-bold">Datos de tu negocio</h3>
+            {!editing && <button type="button" onClick={() => setEditing(true)} className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[#6DD94B] hover:underline"><Pencil className="h-3.5 w-3.5" />Editar</button>}
+          </div>
+          <form onSubmit={saveInfo} className="grid gap-3 sm:grid-cols-2">
+            {[['phone', 'Teléfono'], ['email', 'Correo'], ['address', 'Dirección'], ['schedule', 'Horario']].map(([k, label]) => (
+              <label key={k} className="block">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{label}</span>
+                <input disabled={!editing} value={info[k]} onChange={(e) => setInfo({ ...info, [k]: e.target.value })} placeholder="—" className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-[#6DD94B] disabled:opacity-70" />
+              </label>
+            ))}
+            <AnimatePresence>
+              {editing && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex gap-2 sm:col-span-2">
+                  <button type="submit" className={primaryBtn}><Save className="h-4 w-4" />Guardar</button>
+                  <button type="button" onClick={() => setEditing(false)} className={ghostBtn}>Cancelar</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {saved && <p className="flex items-center gap-1.5 text-xs font-semibold text-[#6DD94B] sm:col-span-2"><Check className="h-3.5 w-3.5" />Datos guardados</p>}
+          </form>
+        </section>
+
+        <section className={`${card} text-center`}>
+          <h3 className="text-lg font-bold">Tu código QR</h3>
+          <p className="mb-4 text-xs text-zinc-500">Para tu local, tarjetas o carta</p>
+          <motion.img whileHover={{ scale: 1.04, rotate: -1.5 }} src={qrUrl} alt="Código QR de tu web" className="mx-auto h-40 w-40 rounded-2xl bg-white p-2" />
+          <a href={qrUrl} download={`qr-${slug}.png`} target="_blank" rel="noreferrer" className={`${ghostBtn} mt-4`}><Download className="h-4 w-4" />Descargar</a>
+        </section>
+      </div>
+    </Reveal>
+  );
+
+  const Documentos = (
+    <Reveal className="space-y-5">
+      <header>
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Documentos</h1>
+        <p className="mt-2 text-sm text-zinc-400">Todo lo firmado y acordado, en un solo lugar.</p>
+      </header>
+      <section className={card}>
+        <ul>
+          {documents.map((d) => (
+            <ListRow key={d.id} icon={FileText} title={d.title} hint={d.hint} status={<Pill tone={d.done ? 'green' : d.ok ? 'sky' : 'zinc'} icon={d.done ? Check : d.ok ? FileText : Clock}>{d.label}</Pill>}
+              action={d.ok && <button type="button" onClick={() => askTeam(`Hola, ¿me podéis enviar una copia de "${d.title}"?`)} className={`${ghostBtn} !px-3 !py-1.5 !text-[10px]`}>Pedir copia</button>} />
+          ))}
+        </ul>
+      </section>
+    </Reveal>
+  );
+
+  const Entregables = (
+    <Reveal className="space-y-5">
+      <header>
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Entregables</h1>
+        <p className="mt-2 text-sm text-zinc-400">Se habilitan a medida que avanzamos.</p>
+      </header>
+      <section className={card}>
+        <div className="mb-2 flex items-center justify-between text-xs text-zinc-500"><span>Entregados</span><span className="font-semibold text-white"><CountUp value={deliveredCount} /> / {deliverables.length}</span></div>
+        <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-white/10">
+          <motion.div initial={{ width: 0 }} animate={{ width: `${(deliveredCount / deliverables.length) * 100}%` }} transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }} className="h-full rounded-full bg-gradient-to-r from-[#0D844A] to-[#6DD94B]" />
+        </div>
+        <ul>
+          {deliverables.map((d) => (
+            <ListRow key={d.id} icon={PackageCheck} title={d.title} hint={d.hint} status={<Pill tone={d.ok ? 'green' : 'zinc'} icon={d.ok ? Check : Clock}>{d.ok ? 'Entregado' : 'Pendiente'}</Pill>} />
+          ))}
+        </ul>
+      </section>
+    </Reveal>
+  );
+
+  const Soporte = (
+    <Reveal className="space-y-5">
+      <header>
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Soporte</h1>
+        <p className="mt-2 text-sm text-zinc-400">Escríbenos cualquier cambio, duda o idea. Te respondemos por aquí.</p>
+      </header>
+      <section className={`${card} flex h-[28rem] flex-col !p-0`}>
+        <div className="flex-1 space-y-3 overflow-y-auto p-5">
+          <AnimatePresence initial={false}>
+            {messages.map((m) => (
+              <motion.div key={m.id} initial={{ opacity: 0, y: 14, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: 'spring', stiffness: 420, damping: 30 }} className={`flex ${m.agency ? 'justify-start' : 'justify-end'}`}>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${m.agency ? 'rounded-bl-md bg-white/[0.07] text-zinc-100' : 'rounded-br-md bg-[#6DD94B] text-black'}`}>
+                  <p className="leading-snug">{m.text}</p>
+                  <p className={`mt-1 text-[10px] ${m.agency ? 'text-zinc-500' : 'text-black/60'}`}>{m.agency ? 'Mario · ' : ''}{m.time}</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          <div ref={chatEnd} />
+        </div>
+        <form onSubmit={send} className="flex gap-2 border-t border-white/10 p-3">
+          <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Escribe tu mensaje…" className="min-w-0 flex-1 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-[#6DD94B]" />
+          <button type="submit" aria-label="Enviar" className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-[#6DD94B] text-black transition hover:brightness-110 active:scale-90"><Send className="h-4 w-4" /></button>
+        </form>
+      </section>
+    </Reveal>
+  );
+
+  const Cuenta = (
+    <Reveal className="space-y-5">
+      <header>
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Mi cuenta</h1>
+        <p className="mt-2 text-sm text-zinc-400">Tu sesión en el portal de TecnOdiel.</p>
+      </header>
+      <section className={`${card} flex flex-wrap items-center justify-between gap-4`}>
+        <div className="flex items-center gap-4">
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-[#6DD94B] text-xl font-black text-black">{initials.slice(0, 1)}</span>
+          <div><p className="font-bold">{businessName}</p><p className="text-sm text-zinc-500">{tenantData.email || 'Cuenta de Google'}</p></div>
+        </div>
+        <button type="button" onClick={logout} className={`${ghostBtn} hover:!border-red-400/50 hover:!bg-red-500/10`}><LogOut className="h-4 w-4" />Cerrar sesión</button>
+      </section>
+    </Reveal>
+  );
+
+  const sections = { inicio: Inicio, proyecto: Proyecto, documentos: Documentos, entregables: Entregables, soporte: Soporte, cuenta: Cuenta };
+
+  return (
+    <div ref={root} className="relative flex min-h-screen flex-col bg-[#121212] font-['Montserrat',Inter,sans-serif] text-zinc-100 selection:bg-[#6DD94B] selection:text-black lg:flex-row">
+      {/* Resplandores de fondo */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="glow-a absolute -right-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-[#6DD94B]/10 blur-[110px]" />
+        <div className="glow-b absolute -bottom-32 left-1/3 h-[26rem] w-[26rem] rounded-full bg-[#0D844A]/20 blur-[120px]" />
+        <div className="absolute inset-0 opacity-50" style={{ backgroundSize: '64px 64px', backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px)' }} />
+      </div>
+
+      {/* Barra superior móvil */}
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-[#121212]/90 px-4 py-3 backdrop-blur lg:hidden">
+        <span className="font-black">Tecn<span className="text-[#6DD94B]">Odiel</span></span>
+        <button type="button" onClick={() => setMenuOpen((v) => !v)} aria-label="Menú" className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-white/10">{menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</button>
+      </div>
+
+      {/* Menú lateral */}
+      <aside className={`${menuOpen ? 'flex' : 'hidden'} z-20 w-full shrink-0 flex-col border-r border-white/10 bg-[#161616]/95 backdrop-blur lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64`}>
+        <div className="hidden items-center gap-3 px-6 py-7 lg:flex">
+          <span className="brand-mark grid h-10 w-10 place-items-center rounded-xl bg-[#6DD94B] text-sm font-black text-black shadow-lg shadow-[#6DD94B]/25">TO</span>
+          <span className="text-lg font-black">Tecn<span className="text-[#6DD94B]">Odiel</span></span>
+        </div>
+        <p className="px-6 pb-2 pt-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500 lg:pt-0">Portal del cliente</p>
+        <nav className="flex-1 space-y-1 px-3">
+          {NAV.map(({ id, label, icon: Icon }) => {
+            const active = tab === id;
+            return (
+              <button key={id} type="button" onClick={() => goto(id)} className={`nav-item group relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${active ? 'text-black' : 'text-zinc-400 hover:text-white'}`}>
+                {active && <motion.span layoutId="portal-nav-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} className="absolute inset-0 rounded-xl bg-[#6DD94B] shadow-lg shadow-[#6DD94B]/20" />}
+                {!active && <span className="absolute inset-0 rounded-xl bg-white/0 transition-colors group-hover:bg-white/5" />}
+                <Icon className="relative h-[18px] w-[18px] transition-transform group-hover:scale-110" />
+                <span className="relative">{label}</span>
+                {id === 'soporte' && !active && <span className="relative ml-auto h-2 w-2 animate-pulse rounded-full bg-[#6DD94B]" />}
               </button>
             );
           })}
         </nav>
-
-        {/* Tarjeta de Asistencia Directa TecnOdiel con Verde Corporativo #6DD94B */}
-        <div className="p-4 border-t border-white/10 bg-[#181818] m-3 rounded-2xl space-y-2.5">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#6DD94B]" />
-            <span className="text-xs font-extrabold text-white">Equipo TecnOdiel</span>
-          </div>
-          <p className="text-[11px] text-zinc-400 leading-relaxed">
-            Mario y Javier te atienden al instante. Pídenos cualquier cambio o actualización.
-          </p>
-          <a
-            href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Mario y Javier, soy ${businessName} desde mi portal TecnOdiel y necesito una actualización.`)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="w-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black py-2.5 rounded-full flex items-center justify-center gap-2 transition shadow-md shadow-[#6DD94B]/20 cursor-pointer"
-          >
-            <MessageCircle className="w-4 h-4" />
-            WhatsApp Directo
-          </a>
-        </div>
-
-        {/* Pie del Sidebar */}
-        <div className="p-4 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
-          <div className="flex items-center gap-2 truncate">
-            <User className="w-4 h-4 text-zinc-500 shrink-0" />
-            <span className="truncate">{contactPhone}</span>
-          </div>
-          <button
-            type="button"
-            onClick={handleLogoutAndGoLanding}
-            title="Cerrar sesión e ir a la landing"
-            className="hover:text-red-400 p-1.5 transition cursor-pointer flex items-center gap-1.5 text-zinc-400 hover:bg-white/5 rounded-xl border border-transparent hover:border-red-500/20"
-          >
-            <LogOut className="w-4 h-4 text-red-400" />
-            <span className="text-xs font-semibold text-zinc-300 hover:text-white">Cerrar sesión</span>
-          </button>
-        </div>
+        <button type="button" onClick={() => goto('cuenta')} className="group m-3 flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-left transition hover:border-[#6DD94B]/40">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#6DD94B] text-sm font-black text-black">{initials}</span>
+          <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">Mi cuenta</span><span className="block truncate text-[11px] text-zinc-500">{businessName}</span></span>
+          <ChevronRight className="h-4 w-4 text-zinc-500 transition-transform group-hover:translate-x-1" />
+        </button>
       </aside>
 
-      {/* ── CONTENIDO PRINCIPAL CON ANIMACIONES FLUIDAS ── */}
-      <main className="flex-1 p-5 sm:p-8 md:p-10 overflow-y-auto">
-        <AnimatePresence mode="wait">
-          {/* SECCIÓN 1: MI WEB & HERRAMIENTAS ÚTILES */}
-          {activeTab === 'overview' && (
-            <motion.div
-              key="tab-overview"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[1100px] mx-auto space-y-7"
-            >
-              {/* Cabecera Principal */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-                      {businessName}
-                    </h1>
-                    <span className="text-[11px] font-black uppercase tracking-wider bg-[#6DD94B]/15 text-[#6DD94B] border border-[#6DD94B]/30 px-3 py-1 rounded-full flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#6DD94B] animate-pulse" />
-                      Web Activa
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-                    Panel de control privado • Gestiona tus datos, código QR y peticiones en tiempo real.
-                  </p>
-                </div>
-
-                {/* Acciones principales rápidas */}
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <button
-                    onClick={handleCopyLink}
-                    className="rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-bold px-4 py-2.5 flex items-center gap-2 border border-white/10 transition cursor-pointer"
-                  >
-                    {copiedLink ? (
-                      <>
-                        <Check className="w-4 h-4 text-[#6DD94B]" />
-                        <span className="text-[#6DD94B]">¡Enlace copiado!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 text-zinc-400" />
-                        <span>Copiar Enlace</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab('qr')}
-                    className="rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-bold px-4 py-2.5 flex items-center gap-2 border border-white/10 transition cursor-pointer"
-                  >
-                    <QrCode className="w-4 h-4 text-[#6DD94B]" />
-                    <span>Ver QR</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleLogoutAndGoLanding}
-                    className="rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold px-4 py-2.5 flex items-center gap-2 transition cursor-pointer"
-                    title="Cerrar sesión y volver a la portada de TecnOdiel"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Cerrar sesión</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Toast de guardado */}
-              <AnimatePresence>
-                {saveSuccess && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="p-3.5 rounded-xl bg-[#6DD94B]/15 border border-[#6DD94B]/40 text-[#6DD94B] text-xs font-bold flex items-center gap-2"
-                  >
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>¡Tus datos se han actualizado correctamente y ya se muestran en tu web!</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* 3 Métricas Clave con micro-animaciones */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                <motion.div
-                  whileHover={{ y: -3 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-[#181818] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-md"
-                >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                    Visitas este mes
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-black text-white flex items-baseline gap-2">
-                    <span>1.420</span>
-                    <span className="text-xs text-[#6DD94B] font-bold">+24%</span>
-                  </div>
-                  <span className="text-xs text-zinc-500 mt-2 block">
-                    Personas que han abierto tu enlace o código QR
-                  </span>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -3 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-[#181818] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-md"
-                >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                    {isClinic ? 'Citas solicitadas' : 'Peticiones / Reservas'}
-                  </span>
-                  <div className="text-3xl sm:text-4xl font-black text-[#6DD94B]">
-                    38
-                  </div>
-                  <span className="text-xs text-zinc-500 mt-2 block">
-                    Recibidas directamente en tu teléfono
-                  </span>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -3 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-[#181818] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-md"
-                >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                    Estilo & Plataforma
-                  </span>
-                  <div className="text-base sm:text-lg font-black text-white truncate">
-                    {templateName}
-                  </div>
-                  <span className="text-xs text-[#6DD94B] mt-2 block font-semibold">
-                    0% comisiones • Código 100% tuyo
-                  </span>
-                </motion.div>
-              </div>
-
-              {/* Registro reciente de peticiones y reservas */}
-              <div className="bg-[#181818] border border-white/10 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-[#6DD94B]" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                      {isClinic ? 'Últimas solicitudes de cita' : 'Últimas peticiones de clientes'}
-                    </h3>
-                  </div>
-                  <span className="text-[11px] text-zinc-500">Actualizado hace un momento</span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {[
-                    { id: 1, name: 'Carlos Mendoza', time: 'Hoy, 13:45', detail: isClinic ? 'Primera consulta dental' : 'Mesa para 4 comensales (Terraza)', status: 'Confirmada' },
-                    { id: 2, name: 'Laura Gómez', time: 'Ayer, 20:10', detail: isClinic ? 'Revisión periódica' : 'Mesa para 2 comensales (Interior)', status: 'Confirmada' },
-                    { id: 3, name: 'Manuel Rivas', time: 'Hace 2 días', detail: isClinic ? 'Consulta traumatología' : 'Reserva almuerzo de empresa', status: 'Atendida' }
-                  ].map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-black/40 border border-white/5 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white">{item.name}</span>
-                          <span className="text-[10px] text-zinc-500">• {item.time}</span>
-                        </div>
-                        <p className="text-zinc-400 text-[11px]">{item.detail}</p>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#6DD94B]/15 text-[#6DD94B] border border-[#6DD94B]/30">
-                          {item.status}
-                        </span>
-                        <a
-                          href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola ${item.name}, te escribimos desde ${businessName} sobre tu solicitud.`)}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-white text-[11px] font-semibold transition"
-                        >
-                          Contactar
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* SECCIÓN 2: CÓDIGO QR PARA CLIENTES (FUNCIÓN REAL Y ÚTIL) */}
-          {activeTab === 'qr' && (
-            <motion.div
-              key="tab-qr"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[800px] mx-auto space-y-7"
-            >
-              <div className="border-b border-white/10 pb-4">
-                <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
-                  <QrCode className="w-6 h-6 text-[#6DD94B]" />
-                  Código QR de tu Negocio
-                </h1>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Listo para imprimir en pegatinas, mesas, mostrador o escaparate. Al escanearlo, tus clientes acceden a tu web sin instalar nada.
-                </p>
-              </div>
-
-              <div className="bg-[#181818] border border-white/10 rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
-                {/* Visualizador del QR con marco para imprimir */}
-                <div className="bg-white p-5 rounded-2xl shadow-xl flex flex-col items-center justify-center shrink-0 border-4 border-[#6DD94B]">
-                  <img
-                    src={qrImageUrl}
-                    alt={`QR ${businessName}`}
-                    className="w-52 h-52 object-contain"
-                  />
-                  <span className="text-black font-extrabold text-[11px] uppercase tracking-wider mt-2">
-                    {businessName}
-                  </span>
-                  <span className="text-zinc-600 font-semibold text-[9px]">
-                    Escanea para ver nuestra web
-                  </span>
-                </div>
-
-                <div className="space-y-4 text-left flex-1">
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-[#6DD94B] uppercase tracking-wider">
-                      Listo para usar
-                    </span>
-                    <h3 className="text-lg font-black text-white">
-                      Coloca este código a la vista de tus clientes
-                    </h3>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      El código QR apunta siempre a la versión más actualizada de tu web. Si cambias precios o platos, se actualiza solo sin tener que reimprimir el QR.
-                    </p>
-                  </div>
-
-                  <div className="pt-2 flex flex-wrap gap-3">
-                    <a
-                      href={qrImageUrl}
-                      download={`QR-${slug}.png`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black px-6 py-3 flex items-center gap-2 transition shadow-lg shadow-[#6DD94B]/20 cursor-pointer"
-                    >
-                      <Download className="w-4 h-4" />
-                      Descargar Imagen QR (Alta Resolución)
-                    </a>
-
-                    <button
-                      type="button"
-                      onClick={() => window.print()}
-                      className="rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-bold px-5 py-3 flex items-center gap-2 border border-white/10 transition cursor-pointer"
-                    >
-                      Imprimir en Papel
-                    </button>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-[11px] text-zinc-400 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#6DD94B] shrink-0" />
-                    <span>Enlace directo del QR: <strong className="text-white font-mono">{liveUrl}</strong></span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* SECCIÓN 3: HABLAR CON NOSOTROS (CHAT DIRECTO CON MARIO & JAVIER) */}
-          {activeTab === 'chat' && (
-            <motion.div
-              key="tab-chat"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[900px] mx-auto space-y-5"
-            >
-              {/* Header del chat */}
-              <div className="border-b border-white/10 pb-4 flex flex-wrap justify-between items-center gap-3">
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                    <MessagesSquare className="w-5 h-5 text-[#6DD94B]" />
-                    Chat Directo con Mario y Javier
-                  </h1>
-                  <p className="text-xs text-zinc-400">
-                    Dinos cualquier ajuste que quieras en tu web y lo implementamos sin que tú tengas que tocar código.
-                  </p>
-                </div>
-                <div className="text-xs text-[#6DD94B] flex items-center gap-2 bg-[#6DD94B]/10 border border-[#6DD94B]/30 px-3 py-1.5 rounded-full font-bold">
-                  <span className="w-2 h-2 rounded-full bg-[#6DD94B] animate-pulse" />
-                  Mario & Javier Disponibles
-                </div>
-              </div>
-
-              {/* Atajos de peticiones reales para clientes */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                {[
-                  'Quiero cambiar los precios de la carta',
-                  'Quiero subir fotos nuevas de platos / local',
-                  'Quiero actualizar el horario de apertura',
-                  'Quiero poner aviso de días festivos o vacaciones'
-                ].map((shortcut) => (
-                  <button
-                    key={shortcut}
-                    type="button"
-                    onClick={() => setInputMessage(shortcut)}
-                    className="text-xs bg-[#181818] hover:bg-white/10 text-zinc-300 border border-white/10 px-3.5 py-2 rounded-full transition cursor-pointer"
-                  >
-                    {shortcut}
-                  </button>
-                ))}
-              </div>
-
-              {/* Contenedor de mensajes */}
-              <div className="bg-[#181818] border border-white/10 rounded-2xl flex flex-col h-[520px] overflow-hidden shadow-2xl">
-                <div className="flex-1 p-5 sm:p-6 overflow-y-auto space-y-4">
-                  {messages.map((m) => (
-                    <div
-                      key={m.id}
-                      className={`flex flex-col ${m.isAgency ? 'items-start' : 'items-end'}`}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1 text-[10px] text-zinc-400 font-mono">
-                        <span>{m.sender}</span>
-                        <span>•</span>
-                        <span>{m.time}</span>
-                      </div>
-                      <div
-                        className={`max-w-md px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-md ${
-                          m.isAgency
-                            ? 'bg-[#222222] text-zinc-200 rounded-tl-none border border-white/10'
-                            : 'bg-[#6DD94B] text-black font-semibold rounded-tr-none'
-                        }`}
-                      >
-                        {m.text}
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={chatBottomRef} />
-                </div>
-
-                {/* Input para redactar */}
-                <form onSubmit={handleSend} className="p-4 border-t border-white/10 bg-[#141414] flex gap-3">
-                  <input
-                    type="text"
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Escribe tu petición a Mario y Javier..."
-                    className="flex-1 bg-[#1a1a1a] border border-white/10 rounded-full px-5 py-3 text-xs sm:text-sm text-white placeholder-zinc-500 outline-none focus:border-[#6DD94B] transition"
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-full bg-[#6DD94B] hover:bg-white text-black px-6 py-3 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shrink-0 shadow-lg shadow-[#6DD94B]/20"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span className="hidden sm:inline">Enviar</span>
-                  </button>
-                </form>
-              </div>
-            </motion.div>
-          )}
-
-          {/* SECCIÓN 4: MIS SERVICIOS (TODOS LOS DEL FORMULARIO Y OPCIÓN DE PEDIR LOS NO ELEGIDOS) */}
-          {activeTab === 'services' && (
-            <motion.div
-              key="tab-services"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[1000px] mx-auto space-y-8"
-            >
-              <div className="border-b border-white/10 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <Layers className="w-6 h-6 text-[#6DD94B]" />
-                  <h1 className="text-2xl sm:text-3xl font-black text-white">Servicios & Módulos de tu Web</h1>
-                </div>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Aquí tienes todas las funciones incluidas en tu plan y las funciones adicionales que puedes solicitar a Mario y Javier en cualquier momento.
-                </p>
-              </div>
-
-              {/* 1. SERVICIOS SELECCIONADOS EN EL FORMULARIO */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#6DD94B]" />
-                    <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
-                      Servicios Incluidos en tu Plan ({includedFeatures.length})
-                    </h2>
-                  </div>
-                  <span className="text-[11px] text-[#6DD94B] font-bold">100% operativos en tu web</span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {includedFeatures.map((srv) => {
-                    const IconComponent = srv.icon || Layers;
-                    const isToggled = servicesToggleState[srv.id] !== false;
-                    return (
-                      <motion.div
-                        key={srv.id}
-                        whileHover={{ y: -2 }}
-                        className="bg-[#181818] border border-white/10 rounded-2xl p-5 flex items-start justify-between gap-4 shadow-lg"
-                      >
-                        <div className="flex items-start gap-3.5 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-[#6DD94B]/15 border border-[#6DD94B]/30 flex items-center justify-center text-[#6DD94B] shrink-0 mt-0.5">
-                            <IconComponent className="w-5 h-5 stroke-[2.2]" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="text-sm font-bold text-white truncate">{srv.name}</h4>
-                              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#6DD94B]/20 text-[#6DD94B] border border-[#6DD94B]/40">
-                                Incluido
-                              </span>
-                            </div>
-                            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{srv.desc}</p>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleService(srv.id)}
-                          className="cursor-pointer shrink-0 text-[#6DD94B] hover:text-white transition"
-                          title="Activar / Desactivar visualmente"
-                        >
-                          {isToggled ? (
-                            <ToggleRight className="w-7 h-7 text-[#6DD94B]" />
-                          ) : (
-                            <ToggleLeft className="w-7 h-7 text-zinc-600" />
-                          )}
-                        </button>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. FUNCIONES DISPONIBLES QUE NO SELECCIONÓ (CON BOTÓN PARA PEDIRLAS) */}
-              {availableFeatures.length > 0 ? (
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center justify-between border-t border-white/10 pt-6">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-[#6DD94B]" />
-                      <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
-                        Funciones Disponibles para tu Web ({availableFeatures.length})
-                      </h2>
-                    </div>
-                    <span className="text-[11px] text-zinc-400">Pídelas con 1 clic a Mario y Javier</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {availableFeatures.map((srv) => {
-                      const IconComponent = srv.icon || Layers;
-                      const isRequested = requestedFeatures.includes(srv.id);
-                      return (
-                        <motion.div
-                          key={srv.id}
-                          whileHover={{ y: -2 }}
-                          className={`border rounded-2xl p-5 flex flex-col justify-between gap-4 transition shadow-lg ${
-                            isRequested 
-                              ? 'bg-[#181818] border-[#6DD94B]/40 shadow-[#6DD94B]/10' 
-                              : 'bg-[#161616] border-white/10 hover:border-white/20'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3.5">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                              isRequested
-                                ? 'bg-[#6DD94B]/20 text-[#6DD94B] border border-[#6DD94B]/40'
-                                : 'bg-white/5 text-zinc-400 border border-white/10'
-                            }`}>
-                              <IconComponent className="w-5 h-5 stroke-[2]" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="text-sm font-bold text-white">{srv.name}</h4>
-                                <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
-                                  {srv.tag}
-                                </span>
-                              </div>
-                              <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{srv.desc}</p>
-                            </div>
-                          </div>
-
-                          <div className="pt-2 flex items-center justify-between gap-3 border-t border-white/5">
-                            {isRequested ? (
-                              <div className="w-full flex items-center justify-between gap-2">
-                                <span className="text-xs font-bold text-[#6DD94B] flex items-center gap-1.5">
-                                  <Check className="w-4 h-4 stroke-[3]" />
-                                  ¡Petición enviada a Mario y Javier!
-                                </span>
-                                <a
-                                  href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Mario y Javier, soy ${businessName} desde mi portal TecnOdiel y quiero añadir la función "${srv.name}" a mi web.`)}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-[11px] text-zinc-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full font-semibold transition"
-                                >
-                                  WhatsApp ➔
-                                </a>
-                              </div>
-                            ) : (
-                              <>
-                                <span className="text-[11px] text-zinc-500 font-medium">
-                                  Sin cuotas ocultas
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRequestFeature(srv)}
-                                  className="rounded-full bg-[#6DD94B] hover:bg-white text-black text-xs font-black px-4 py-2 flex items-center gap-1.5 transition shadow-md shadow-[#6DD94B]/20 cursor-pointer"
-                                >
-                                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                                  Pedir esta función
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 rounded-2xl bg-[#6DD94B]/10 border border-[#6DD94B]/30 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-[#6DD94B] text-black mx-auto flex items-center justify-center font-black">
-                    <Check className="w-5 h-5 stroke-[3]" />
-                  </div>
-                  <h3 className="text-sm font-black text-white">¡Plan Completo Activo!</h3>
-                  <p className="text-xs text-zinc-300 max-w-md mx-auto">
-                    Tienes todas las 8 funciones y herramientas de TecnOdiel activadas y funcionando en tu web.
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* SECCIÓN 5: ESTADÍSTICAS & ACTIVIDAD */}
-          {activeTab === 'stats' && (
-            <motion.div
-              key="tab-stats"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[1000px] mx-auto space-y-6"
-            >
-              <div className="border-b border-white/10 pb-4">
-                <h1 className="text-2xl sm:text-3xl font-black text-white">Actividad y Estadísticas en Vivo</h1>
-                <p className="text-xs text-zinc-400">
-                  Rendimiento real de tu plataforma y cómo interactúan tus clientes.
-                </p>
-              </div>
-
-              {/* Gráfico de barras animado semanal */}
-              <div className="bg-[#181818] border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-[#6DD94B]" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                      Visitas de los últimos 7 días
-                    </h3>
-                  </div>
-                  <span className="text-xs font-bold text-[#6DD94B]">+24% vs semana anterior</span>
-                </div>
-
-                <div className="h-44 flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-white/10">
-                  {[
-                    { day: 'Lun', val: 180, pct: '50%' },
-                    { day: 'Mar', val: 210, pct: '60%' },
-                    { day: 'Mié', val: 195, pct: '55%' },
-                    { day: 'Jue', val: 260, pct: '75%' },
-                    { day: 'Vie', val: 340, pct: '95%' },
-                    { day: 'Sáb', val: 370, pct: '100%' },
-                    { day: 'Dom', val: 310, pct: '88%' }
-                  ].map((bar, i) => (
-                    <div key={bar.day} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                      <span className="text-[10px] text-zinc-400 font-mono">{bar.val}</span>
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: bar.pct }}
-                        transition={{ duration: 0.6, delay: i * 0.08, ease: 'easeOut' }}
-                        className="w-full max-w-[36px] bg-gradient-to-t from-[#6DD94B]/30 to-[#6DD94B] rounded-t-lg shadow-sm"
-                      />
-                      <span className="text-[11px] font-bold text-zinc-400">{bar.day}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Métricas detalladas */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="bg-[#181818] border border-white/10 rounded-2xl p-6 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    <Smartphone className="w-4 h-4 text-[#6DD94B]" />
-                    <span>Dispositivos Móviles</span>
-                  </div>
-                  <div className="text-3xl sm:text-4xl font-black text-white">94%</div>
-                  <p className="text-xs text-zinc-400">
-                    La gran mayoría de clientes consulta tu carta o reserva directamente desde el teléfono mientras está en la calle o en tu local.
-                  </p>
-                </div>
-
-                <div className="bg-[#181818] border border-white/10 rounded-2xl p-6 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    <Eye className="w-4 h-4 text-[#6DD94B]" />
-                    <span>Velocidad de Carga</span>
-                  </div>
-                  <div className="text-3xl sm:text-4xl font-black text-[#6DD94B]">0.4 seg</div>
-                  <p className="text-xs text-zinc-400">
-                    Optimizado con caché en Cloudflare para abrir al instante incluso con mala cobertura móvil.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* Contenido */}
+      <main className="relative z-10 min-w-0 flex-1">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
+          <div className="mb-6 flex items-center justify-between gap-3 text-xs">
+            <p className="text-zinc-500">Mi proyecto <span className="mx-1 text-zinc-700">/</span><span className="font-semibold text-[#6DD94B]">{current}</span></p>
+            <Pill tone="green" icon={Users}>Portal verificado</Pill>
+          </div>
+          <div key={tab}>{sections[tab]}</div>
+          <footer className="mt-10 border-t border-white/10 pt-4 text-xs text-zinc-500">TecnOdiel · Tu progreso, paso a paso.</footer>
+        </div>
       </main>
     </div>
   );
