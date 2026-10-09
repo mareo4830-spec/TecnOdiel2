@@ -6,14 +6,27 @@ import { APP_URLS } from '../../config/apps.js';
 /* Botón de acceso rápido según el rol: cliente → su portal, admin → la oficina virtual. */
 export function roleLink(account) {
   if (account.role === 'admin') return { href: APP_URLS.oficina, label: 'Oficina virtual', Icon: LayoutDashboard };
-  if (account.role === 'client') return { href: APP_URLS.portal, label: 'Mi portal de cliente', Icon: Users };
+  if (account.hasProject || account.role === 'client') return { href: APP_URLS.portal, label: 'Ver portal de clientes', Icon: Users };
   return null;
 }
 
-export function RoleButton({ account, className = '' }) {
+export function RoleButton({ account, onNavigateToPortal, className = '' }) {
   const link = roleLink(account);
   if (!link) return null;
   const { href, label, Icon } = link;
+  
+  if (onNavigateToPortal && link.label === 'Ver portal de clientes') {
+    return (
+      <button 
+        type="button"
+        onClick={onNavigateToPortal} 
+        className={`flex items-center gap-2 rounded-full bg-[#6DD94B] px-4 py-2 text-xs font-black text-black shadow-[0_0_20px_rgba(109,217,75,0.4)] transition hover:bg-white cursor-pointer ${className}`}
+      >
+        <Icon className="h-4 w-4" />{label}
+      </button>
+    );
+  }
+
   return (
     <a href={href} className={`flex items-center gap-2 rounded-full bg-[#6DD94B]/10 px-3.5 py-1.5 text-xs font-semibold text-[#6DD94B] ring-1 ring-[#6DD94B]/40 transition hover:bg-[#6DD94B] hover:text-black ${className}`}>
       <Icon className="h-4 w-4" />{label}
@@ -53,8 +66,8 @@ function LoginModal({ onClose, onGoogle }) {
 }
 
 /* Círculo de perfil: sin sesión abre el popup de Google; con sesión, un desplegable con la cuenta y "Cerrar sesión". */
-export function ProfileButton({ account }) {
-  const { role, profile, signIn, signOut, enabled } = account;
+export function ProfileButton({ account, onNavigateToPortal }) {
+  const { role, profile, hasProject, signIn, signOut, enabled } = account;
   const [menu, setMenu] = useState(false);
   const [login, setLogin] = useState(false);
   const ref = useRef(null);
@@ -89,7 +102,15 @@ export function ProfileButton({ account }) {
             <p className="mt-1 truncate text-sm font-semibold text-white">{profile?.name}</p>
             <p className="truncate text-xs text-zinc-400">{profile?.email}</p>
           </div>
-          <button onClick={() => { setMenu(false); signOut(); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-zinc-200 transition hover:bg-white/5 cursor-pointer">
+          {hasProject && onNavigateToPortal && (
+            <button 
+              onClick={() => { setMenu(false); onNavigateToPortal(); }} 
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-black bg-[#6DD94B] hover:bg-white transition cursor-pointer mb-1 shadow-md"
+            >
+              <Users className="h-4 w-4" />Ver portal de clientes
+            </button>
+          )}
+          <button onClick={() => { setMenu(false); signOut(); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/5 cursor-pointer">
             <LogOut className="h-4 w-4" />Cerrar sesión
           </button>
         </div>

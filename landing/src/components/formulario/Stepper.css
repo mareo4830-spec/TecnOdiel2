@@ -1,0 +1,190 @@
+.outer-container {
+  display: flex;
+  min-height: 100%;
+  flex: 1 1 0%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.step-circle-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 44rem;
+  border-radius: 1.75rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px);
+}
+
+.step-indicator-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .step-indicator-row {
+    padding: 2rem 2.5rem 1.25rem 2.5rem;
+  }
+}
+
+.step-content-default {
+  position: relative;
+  overflow: hidden;
+}
+
+.step-default {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .step-default {
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+  }
+}
+
+.footer-container {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .footer-container {
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+    padding-bottom: 2.25rem;
+  }
+}
+
+.footer-nav {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.footer-nav.spread {
+  justify-content: space-between;
+}
+
+.footer-nav.end {
+  justify-content: flex-end;
+}
+
+.back-button {
+  transition: all 300ms;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  color: #a3a3a3;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.back-button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.back-button.inactive {
+  pointer-events: none;
+  opacity: 0.4;
+  color: #71717a;
+}
+
+.next-button {
+  transition: all 300ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.875rem;
+  background-color: #6DD94B;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.7rem 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(109, 217, 75, 0.35);
+}
+
+.next-button:hover {
+  background-color: #82e463;
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px rgba(109, 217, 75, 0.5);
+}
+
+.next-button:active {
+  transform: translateY(0);
+}
+
+.next-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.step-indicator {
+  position: relative;
+  cursor: pointer;
+  outline: none;
+}
+
+.step-indicator-inner {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.active-dot {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background-color: #000;
+}
+
+.step-number {
+  font-size: 0.875rem;
+}
+
+.step-connector {
+  position: relative;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  height: 0.15rem;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.step-connector-inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+.check-icon {
+  height: 1.1rem;
+  width: 1.1rem;
+  color: #000;
+}

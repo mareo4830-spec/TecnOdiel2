@@ -64,7 +64,7 @@ export default function App({
   return (
     <div className="relative min-h-[100dvh] w-full bg-[#121212] text-white selection:bg-[#6DD94B] selection:text-black overflow-x-hidden">
       {formularioOpen ? (
-        <FormularioPage onBack={handleCloseFormulario} />
+        <FormularioPage onBack={handleCloseFormulario} onNavigateToPortal={onNavigateToPortal} />
       ) : (
         <>
           <HomePage

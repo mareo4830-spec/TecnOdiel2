@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import ClientAuth from './components/ClientAuth';
 import VirtualDeskAdminApp from './components/virtualdesk/VirtualDeskAdminApp';
 import VirtualDeskClientPortal from './components/virtualdesk/VirtualDeskClientPortal';
@@ -67,6 +67,7 @@ export default function App({
     return null;
   });
   const [restaurantData, setRestaurantData] = useState(null);
+  const [showGreenSplash, setShowGreenSplash] = useState(true);
   const [isVerifyingSession, setIsVerifyingSession] = useState(() => {
     if (initialAdmin) return false;
     if (typeof window === 'undefined') return false;
@@ -79,6 +80,14 @@ export default function App({
       return !!raw;
     } catch (_) { return false; }
   });
+
+  // Animación de bienvenida en pantalla verde completa
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowGreenSplash(false);
+    }, 1400);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Sync if initialAdmin or URL hash changes
   useEffect(() => {
@@ -215,6 +224,38 @@ export default function App({
 
   return (
     <div className="relative min-h-[100dvh] w-full bg-[#121212] text-zinc-100 selection:bg-[#6DD94B] selection:text-black overflow-x-hidden font-['Montserrat',Inter,sans-serif]">
+      {/* Animación apertura: pantalla completa en verde con letras blancas "Portal de Clientes" */}
+      <AnimatePresence>
+        {showGreenSplash && (
+          <motion.div
+            key="portal-green-splash"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: 'easeInOut' }}
+            className="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#6DD94B] px-6 text-center select-none"
+          >
+            <motion.h1
+              initial={{ scale: 0.88, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.05, opacity: 0 }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white"
+            >
+              Portal de Clientes
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.35 }}
+              className="mt-3 text-xs sm:text-sm font-bold uppercase tracking-widest text-black/75"
+            >
+              TecnOdiel
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Fondo estético idéntico a la nueva Landing */}
       <div 
         className="pointer-events-none fixed inset-0 opacity-40 z-0" 

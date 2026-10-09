@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import LogoMark from '../components/home/LogoMark';
+import Stepper, { Step } from '../components/formulario/Stepper';
 import StepNegocio from '../components/formulario/StepNegocio';
 import StepFunciones from '../components/formulario/StepFunciones';
 import StepEstilo from '../components/formulario/StepEstilo';
@@ -35,24 +35,31 @@ function readDraft() {
 }
 
 const STEPS = ['negocio', 'funciones', 'estilo', 'contacto'];
-const STEP_TITLES = {
-  negocio: 'Tu negocio',
-  funciones: 'Qué necesitas',
-  estilo: 'Elige tu estilo',
-  contacto: 'Cómo te contactamos',
-};
 
 /**
- * Asistente público en /formulario: recoge negocio, funciones deseadas y estilo, calcula un
- * precio en vivo y, al confirmar (con sesión de Google), envía la solicitud a la Oficina Virtual
- * como un lead nuevo para que el equipo la revise y, si procede, cree el tenant real.
+ * Asistente público en /formulario con componente Stepper de React Bits:
+ * recoge negocio, funciones deseadas y estilo, calcula un precio en vivo y,
+ * al confirmar (con Google OAuth obligatorio), redirige directamente al Portal de Clientes.
  */
-export default function FormularioPage({ onBack }) {
+export default function FormularioPage({ onBack, onNavigateToPortal }) {
   const account = useAccount();
   const [form, setForm] = useState(readDraft);
-  const [stepIndex, setStepIndex] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
   const [showPrice, setShowPrice] = useState(false);
-  const step = STEPS[stepIndex];
+  const step = STEPS[currentStep - 1] || 'negocio';
+
+  // Si el usuario acaba de iniciar sesión con Google para confirmar la propuesta, redirigir al portal
+  useEffect(() => {
+    try {
+      const pendingRedirect = sessionStorage.getItem('tecnodiel_pending_portal_redirect');
+      if (pendingRedirect && account.profile) {
+        sessionStorage.removeItem('tecnodiel_pending_portal_redirect');
+        if (onNavigateToPortal) {
+          onNavigateToPortal();
+        }
+      }
+    } catch (_) {}
+  }, [account.profile, onNavigateToPortal]);
 
   // Guarda el progreso: si hay que pasar por Google, el redirect recarga la página entera.
   useEffect(() => {
@@ -94,24 +101,22 @@ export default function FormularioPage({ onBack }) {
   const set = (key, value) => setForm((f) => ({ ...f, [key]: typeof value === 'function' ? value(f[key]) : value }));
 
   const canNext = useMemo(() => {
-    if (step === 'negocio') return form.businessName.trim().length > 1 && form.sector && form.ambiente;
+    if (step === 'negocio') return form.businessName.trim().length > 1 && Boolean(form.sector) && Boolean(form.ambiente);
     if (step === 'funciones') return form.features.length > 0;
     if (step === 'estilo') return Boolean(form.layoutVariant);
-    if (step === 'contacto') return form.contactName.trim().length > 1 && /\S+@\S+\.\S+/.test(form.email) && form.phone.trim().length >= 9;
+    if (step === 'contacto') {
+      const cleanPhone = form.phone.replace(/\D/g, '');
+      return form.contactName.trim().length > 1 && /\S+@\S+\.\S+/.test(form.email) && cleanPhone.length === 9;
+    }
     return true;
   }, [step, form]);
 
-  const goNext = () => {
-    if (stepIndex < STEPS.length - 1) setStepIndex((i) => i + 1);
-    else setShowPrice(true);
-  };
   const goHome = (e) => {
     if (onBack) {
       e.preventDefault();
       onBack();
     }
   };
-  const goBack = () => setStepIndex((i) => Math.max(0, i - 1));
 
   const onSubmitted = () => {
     try {
@@ -140,59 +145,39 @@ export default function FormularioPage({ onBack }) {
         </a>
       </header>
 
-      <main className="relative z-10 mx-auto flex max-w-2xl flex-col px-5 pb-28 pt-6 sm:px-6">
-        <div className="mb-8">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-zinc-500">
-            <span>
-              Paso {stepIndex + 1} de {STEPS.length}
-            </span>
-            <span className="text-[#6DD94B]">{STEP_TITLES[step]}</span>
-          </div>
-          <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/10">
-            <motion.div
-              className="h-full rounded-full bg-[#6DD94B]"
-              animate={{ width: `${((stepIndex + 1) / STEPS.length) * 100}%` }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            />
-          </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {step === 'negocio' && <StepNegocio form={form} set={set} />}
-            {step === 'funciones' && <StepFunciones form={form} set={set} />}
-            {step === 'estilo' && <StepEstilo form={form} set={set} />}
-            {step === 'contacto' && <StepContacto form={form} set={set} account={account} />}
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="mt-10 flex items-center justify-between gap-3">
-          <button
-            onClick={goBack}
-            disabled={stepIndex === 0}
-            className="inline-flex h-12 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-zinc-400 transition hover:text-white disabled:opacity-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Atrás
-          </button>
-          <button
-            onClick={goNext}
-            disabled={!canNext}
-            className="group inline-flex h-12 items-center gap-2 rounded-xl bg-[#6DD94B] px-6 text-sm font-bold text-black transition hover:bg-[#7fe55f] disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            {step === 'contacto' ? 'Ver mi precio' : 'Siguiente'}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </button>
-        </div>
+      <main className="relative z-10 mx-auto flex max-w-3xl flex-col px-4 pb-28 pt-2 sm:px-6">
+        <Stepper
+          initialStep={1}
+          currentStep={currentStep}
+          onStepChange={(newStep) => setCurrentStep(newStep)}
+          onFinalStepCompleted={() => setShowPrice(true)}
+          canNext={canNext}
+          backButtonText="Atrás"
+          nextButtonText={step === 'contacto' ? 'Ver mi precio' : 'Continuar'}
+        >
+          <Step>
+            <StepNegocio form={form} set={set} />
+          </Step>
+          <Step>
+            <StepFunciones form={form} set={set} />
+          </Step>
+          <Step>
+            <StepEstilo form={form} set={set} />
+          </Step>
+          <Step>
+            <StepContacto form={form} set={set} account={account} />
+          </Step>
+        </Stepper>
       </main>
 
-      {showPrice && <PriceRevealModal form={form} onClose={() => setShowPrice(false)} onSubmitted={onSubmitted} />}
+      {showPrice && (
+        <PriceRevealModal 
+          form={form} 
+          onClose={() => setShowPrice(false)} 
+          onSubmitted={onSubmitted}
+          onNavigateToPortal={onNavigateToPortal}
+        />
+      )}
     </div>
   );
 }

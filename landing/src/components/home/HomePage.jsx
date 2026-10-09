@@ -40,7 +40,7 @@ const Logo = () => (
 );
 
 /* ───────────── HEADER ───────────── */
-function Header({ account }) {
+function Header({ account, onOpenFormulario, onNavigateToPortal }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -83,14 +83,24 @@ function Header({ account }) {
           ))}
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
+          {account?.hasProject && onNavigateToPortal && (
+            <button
+              type="button"
+              onClick={onNavigateToPortal}
+              className="flex items-center gap-2 rounded-full bg-[#6DD94B] px-5 py-2.5 text-xs font-black text-black transition hover:bg-white shadow-[0_0_20px_rgba(109,217,75,0.4)] cursor-pointer"
+            >
+              <Users className="h-4 w-4" />
+              Ver portal de clientes
+            </button>
+          )}
           <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-white">
             Pide tu propuesta
           </a>
-          <RoleButton account={account} />
-          <ProfileButton account={account} />
+          <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} />
+          <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} />
         </div>
         <div className="flex items-center gap-2 lg:hidden">
-          <ProfileButton account={account} />
+          <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} />
           <button className="p-2 text-white cursor-pointer" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
             {open ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
           </button>
@@ -104,7 +114,17 @@ function Header({ account }) {
               <span className="block text-xs text-zinc-400">{n.sub}</span>
             </a>
           ))}
-          {roleLink(account) && <RoleButton account={account} className="mt-4 w-fit" />}
+          {account?.hasProject && onNavigateToPortal && (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onNavigateToPortal(); }}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#6DD94B] px-6 py-3 text-center text-sm font-black text-black shadow-lg"
+            >
+              <Users className="h-4 w-4" />
+              Ver portal de clientes
+            </button>
+          )}
+          {roleLink(account) && <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} className="mt-4 w-fit" />}
           <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-6 py-3 text-center text-sm font-bold text-black">Pide tu propuesta</a>
         </div>
       )}
@@ -411,7 +431,7 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
   const account = useAccount();
   return (
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
-      <Header account={account} onOpenFormulario={onOpenFormulario} />
+      <Header account={account} onOpenFormulario={onOpenFormulario} onNavigateToPortal={onNavigateToPortal} />
       <main>
         <Hero />
         <Sectors />

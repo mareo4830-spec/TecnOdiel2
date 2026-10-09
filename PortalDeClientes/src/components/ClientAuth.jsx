@@ -18,7 +18,7 @@ import {
   Stethoscope,
   Mail
 } from 'lucide-react';
-import { supabase, verifyClientAccessKey, verifyClientByEmail, getClientRestaurantDetails, FALLBACK_RESTAURANT } from '../lib/supabase';
+import { supabase, portalAuthClient, verifyClientAccessKey, verifyClientByEmail, getClientRestaurantDetails, FALLBACK_RESTAURANT } from '../lib/supabase';
 import LogoMark from './LogoMark';
 
 const MAX_ADMIN_ATTEMPTS = 3;
@@ -63,11 +63,7 @@ export default function ClientAuth({
   targetSlug = null
 }) {
   const [authMode, setAuthMode] = useState('client'); // 'client' | 'admin'
-  const [clientMethod, setClientMethod] = useState('google'); // 'google' | 'key' | 'email'
-  const [accessKey, setAccessKey] = useState('');
-  const [clientEmail, setClientEmail] = useState('');
   const [adminPin, setAdminPin] = useState('');
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [targetBusinessName, setTargetBusinessName] = useState('');
@@ -91,46 +87,49 @@ export default function ClientAuth({
 
   // Manejar respuesta de retorno y estado de Supabase Google OAuth
   useEffect(() => {
-    // 1. Escuchar cambios de autenticación en vivo de Supabase
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session && session.user && session.user.email) {
-        const userEmail = session.user.email.toLowerCase();
-        let match = await verifyClientByEmail(userEmail, targetSlug);
-        if (!match) {
-          // Si el cliente entra por primera vez con Google, le asociamos una web personalizada inmediatamente
-          const userMeta = session.user.user_metadata || {};
-          const fallbackName = userMeta.full_name || userMeta.name || userEmail.split('@')[0];
-          match = {
-            ...FALLBACK_RESTAURANT,
-            id: `google-${session.user.id}`,
-            name: `${fallbackName}`,
-            email: userEmail,
-            client_access_key: `TO-GGL-${userEmail.slice(0, 4).toUpperCase()}`
-          };
-        }
-        onSelectRestaurant(match, match.client_access_key || 'GOOGLE-OAUTH');
+    const handleSessionUser = async (user) => {
+      if (!user || !user.email) return;
+      const userEmail = user.email.toLowerCase();
+      let match = await verifyClientByEmail(userEmail, targetSlug);
+      if (!match) {
+        const userMeta = user.user_metadata || {};
+        const fallbackName = userMeta.full_name || userMeta.name || userEmail.split('@')[0];
+        match = {
+          ...FALLBACK_RESTAURANT,
+          id: `google-${user.id}`,
+          name: `${fallbackName}`,
+          email: userEmail,
+          client_access_key: `TO-GGL-${userEmail.slice(0, 4).toUpperCase()}`
+        };
+      }
+      onSelectRestaurant(match, match.client_access_key || 'GOOGLE-OAUTH');
+    };
+
+    // 1. Escuchar cambios de autenticación en portalAuthClient (TecnOdiel database)
+    const { data: portalListener } = portalAuthClient.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await handleSessionUser(session.user);
       }
     });
 
-    // 2. Comprobar sesión existente al montar
+    // 2. Escuchar cambios en supabase
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await handleSessionUser(session.user);
+      }
+    });
+
+    // 3. Comprobar sesión existente al montar
     const checkGoogleUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session && session.user && session.user.email) {
-          const userEmail = session.user.email.toLowerCase();
-          let match = await verifyClientByEmail(userEmail, targetSlug);
-          if (!match) {
-            const userMeta = session.user.user_metadata || {};
-            const fallbackName = userMeta.full_name || userMeta.name || userEmail.split('@')[0];
-            match = {
-              ...FALLBACK_RESTAURANT,
-              id: `google-${session.user.id}`,
-              name: `${fallbackName}`,
-              email: userEmail,
-              client_access_key: `TO-GGL-${userEmail.slice(0, 4).toUpperCase()}`
-            };
-          }
-          onSelectRestaurant(match, match.client_access_key || 'GOOGLE-OAUTH');
+        const { data: pData } = await portalAuthClient.auth.getSession();
+        if (pData?.session?.user) {
+          await handleSessionUser(pData.session.user);
+          return;
+        }
+        const { data: sData } = await supabase.auth.getSession();
+        if (sData?.session?.user) {
+          await handleSessionUser(sData.session.user);
         }
       } catch (e) {
         console.warn('Error comprobando sesión de Google:', e);
@@ -139,6 +138,7 @@ export default function ClientAuth({
     checkGoogleUser();
 
     return () => {
+      portalListener?.subscription?.unsubscribe();
       authListener?.subscription?.unsubscribe();
     };
   }, [targetSlug, onSelectRestaurant]);
@@ -178,81 +178,25 @@ export default function ClientAuth({
     setGoogleLoading(true);
     try {
       const redirectUrl = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : undefined;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await portalAuthClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl
         }
       });
       if (error) {
-        setErrorMsg('Error al conectar con Google OAuth: ' + error.message);
+        // Fallback a supabase si hubiese fallo de proveedor
+        await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl
+          }
+        });
       }
     } catch (err) {
       setErrorMsg('No se pudo iniciar el flujo de autenticación de Google.');
     } finally {
       setGoogleLoading(false);
-    }
-  };
-
-  // Email Direct Submit
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    const cleanMail = clientEmail.trim().toLowerCase();
-
-    if (!cleanMail || !cleanMail.includes('@')) {
-      setErrorMsg('Por favor introduce un correo electrónico válido.');
-      return;
-    }
-
-    if (SQL_INJECTION_REGEX.test(cleanMail)) {
-      setErrorMsg('Formato de correo no permitido por seguridad.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const match = await verifyClientByEmail(cleanMail, targetSlug);
-      if (match) {
-        onSelectRestaurant(match, match.client_access_key || 'EMAIL-LOGIN');
-      } else {
-        setErrorMsg('No encontramos ninguna web registrada con ese correo electrónico. Si acabas de rellenar el formulario, contacta con administración.');
-      }
-    } catch (err) {
-      setErrorMsg('Error de conexión al verificar el correo. Inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClientSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    const cleanKey = accessKey.trim();
-
-    if (!cleanKey) {
-      setErrorMsg('Por favor, introduce tu clave privada de cliente.');
-      return;
-    }
-
-    // Blindaje contra inyección SQL en la clave de cliente
-    if (SQL_INJECTION_REGEX.test(cleanKey)) {
-      setErrorMsg('Formato de clave inválido. Caracteres no permitidos por seguridad.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const match = await verifyClientAccessKey(cleanKey, targetSlug);
-      if (match) {
-        onSelectRestaurant(match, cleanKey);
-      } else {
-        setErrorMsg('Clave incorrecta. Solo el titular que ha solicitado la web tiene acceso mediante su clave privada.');
-      }
-    } catch (err) {
-      setErrorMsg('Error de conexión al verificar la clave. Inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -446,21 +390,28 @@ export default function ClientAuth({
                   </p>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal text-left">
-                {targetBusinessName 
-                  ? `Para entrar a gestionar este negocio, identifícate con tu cuenta de Google o con tu clave privada de cliente.` 
-                  : `Inicia sesión con la cuenta de Google vinculada a tu formulario, o usa tu clave privada de cliente.`}
-              </p>
 
-              {/* Botón Principal: Continuar con Google OAuth */}
-              <div className="space-y-3 pt-1">
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-left space-y-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#6DD94B]">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Acceso seguro exclusivo con Google</span>
+                </div>
+                <p className="text-xs text-zinc-300 leading-relaxed font-normal">
+                  {targetBusinessName 
+                    ? `Identifícate con la cuenta de Google vinculada a ${targetBusinessName} para gestionar tu web y panel de control.` 
+                    : `Inicia sesión con la cuenta de Google con la que confirmaste tu propuesta o solicitaste tu proyecto web.`}
+                </p>
+              </div>
+
+              {/* Botón Principal: Continuar con Google OAuth (Único y Exclusivo) */}
+              <div className="space-y-3 pt-2">
                 <button
                   type="button"
                   disabled={googleLoading}
                   onClick={handleGoogleLogin}
-                  className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-white hover:bg-zinc-100 text-black font-semibold text-xs tracking-wide transition flex items-center justify-center gap-3 shadow-lg active:scale-98 cursor-pointer disabled:opacity-60"
+                  className="w-full min-h-[50px] py-3.5 px-4 rounded-xl bg-white hover:bg-zinc-100 text-black font-bold text-xs sm:text-sm tracking-wide transition flex items-center justify-center gap-3 shadow-xl active:scale-98 cursor-pointer disabled:opacity-60"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -469,137 +420,32 @@ export default function ClientAuth({
                   <span>{googleLoading ? 'Conectando con Google...' : 'Continuar con Google'}</span>
                 </button>
 
-                <div className="flex items-center gap-3 py-1">
-                  <div className="h-px bg-white/10 flex-1" />
-                  <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">o accede mediante</span>
-                  <div className="h-px bg-white/10 flex-1" />
-                </div>
-
-                {/* Sub-selector: Clave Privada vs Correo Electrónico */}
-                <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 border border-white/10 rounded-xl">
-                  <button
-                    type="button"
-                    onClick={() => { setClientMethod('key'); setErrorMsg(''); }}
-                    className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      clientMethod === 'key' ? 'bg-white/10 text-white font-bold' : 'text-zinc-400 hover:text-white'
-                    }`}
+                {errorMsg && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-2.5"
                   >
-                    <Key className="w-3.5 h-3.5 text-[#6DD94B]" />
-                    <span>Clave Privada</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setClientMethod('email'); setErrorMsg(''); }}
-                    className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      clientMethod === 'email' ? 'bg-white/10 text-white font-bold' : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    <Mail className="w-3.5 h-3.5 text-[#6DD94B]" />
-                    <span>Correo Registrado</span>
-                  </button>
-                </div>
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+                    <span>{errorMsg}</span>
+                  </motion.div>
+                )}
               </div>
 
-              {clientMethod === 'email' ? (
-                <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2">
-                      Correo Electrónico del Formulario:
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6DD94B]" />
-                      <input
-                        type="email"
-                        required
-                        placeholder="tu-correo@ejemplo.com"
-                        value={clientEmail}
-                        onChange={e => {
-                          setClientEmail(e.target.value);
-                          if (errorMsg) setErrorMsg('');
-                        }}
-                        className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#6DD94B] focus:ring-1 focus:ring-[#6DD94B]/40 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {errorMsg && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-2.5 shake-error"
-                    >
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                      <span>{errorMsg}</span>
-                    </motion.div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full min-h-[46px] py-3 rounded-full bg-[#6DD94B] hover:bg-white text-black font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
-                  >
-                    <span>{loading ? 'Verificando...' : 'Entrar con mi Correo'}</span>
-                    <ArrowRight className="w-4 h-4 stroke-[3]" />
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleClientSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-2">
-                      Tu Clave Privada de Cliente:
-                    </label>
-                    <div className="relative">
-                      <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6DD94B]" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Introduce tu clave privada (ej: TO-MN892)"
-                        value={accessKey}
-                        onChange={e => {
-                          setAccessKey(e.target.value);
-                          if (errorMsg) setErrorMsg('');
-                        }}
-                        className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-white text-sm placeholder:text-zinc-500 focus:outline-none focus:border-[#6DD94B] focus:ring-1 focus:ring-[#6DD94B]/40 uppercase tracking-wider transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {errorMsg && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-200 text-xs flex items-start gap-2.5 shake-error"
-                    >
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                      <span>{errorMsg}</span>
-                    </motion.div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full min-h-[46px] py-3 rounded-full bg-[#6DD94B] hover:bg-white text-black font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
-                  >
-                    <span>{loading ? 'Verificando...' : 'Entrar a Mi Panel'}</span>
-                    <ArrowRight className="w-4 h-4 stroke-[3]" />
-                  </button>
-                </form>
-              )}
-
-              {/* Ayuda de WhatsApp */}
+              {/* Ayuda de Soporte */}
               <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1.5 text-left">
                 <div className="text-xs text-zinc-400">
-                  ¿No recuerdas tu clave privada?{' '}
+                  ¿Tienes dudas o necesitas ayuda con tu cuenta?{' '}
                   <a
                     href={`https://wa.me/34600000000?text=${encodeURIComponent(
-                      `Hola equipo TecnOdiel, necesito mi clave de acceso para mi negocio.`
+                      `Hola equipo TecnOdiel, necesito ayuda para acceder al portal de clientes.`
                     )}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-[#6DD94B] hover:underline font-semibold inline-flex items-center gap-1"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
-                    Pídela por WhatsApp
+                    Escríbenos por WhatsApp
                   </a>
                 </div>
               </div>

@@ -19,8 +19,25 @@ export default function StepContacto({ form, set, account }) {
       </label>
 
       <label className="block">
-        <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-400">Teléfono</span>
-        <input value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="612345678" className={inputClass} />
+        <div className="flex items-center justify-between mb-2">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-zinc-400">Teléfono</span>
+          <span className="text-[11px] text-zinc-500 font-mono">
+            {form.phone ? `${form.phone.length}/9 dígitos` : 'Solo 9 números'}
+          </span>
+        </div>
+        <input 
+          type="tel"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={9}
+          value={form.phone} 
+          onChange={(e) => {
+            const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 9);
+            set('phone', digitsOnly);
+          }} 
+          placeholder="612345678" 
+          className={inputClass} 
+        />
       </label>
 
       <label className="block">

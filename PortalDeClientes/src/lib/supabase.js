@@ -9,6 +9,12 @@ const SUPABASE_KEY =
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Base de datos de Autenticación, Leads y Portal de Clientes de TecnOdiel
+export const PORTAL_AUTH_URL = 'https://zkgragndnbqieseobkcq.supabase.co';
+export const PORTAL_AUTH_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprZ3JhZ25kbmJxaWVzZW9ia2NxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NTkyNjEsImV4cCI6MjEwNjIzNTI2MX0.uFjyXaq_Dt5BpozYsMNskjuXajQ4kIOoIbffxbjWXNg';
+export const portalAuthClient = createClient(PORTAL_AUTH_URL, PORTAL_AUTH_KEY);
+
 // Default checklist tasks for monitoring website readiness
 export const DEFAULT_PENDING_TASKS = [
   { id: 'task-1', label: 'Fotografías profesionales de platos estrella', done: true },
@@ -193,12 +199,73 @@ export async function verifyClientAccessKey(rawKey, targetSlug = null) {
   return null;
 }
 
-// Verify client by submitted email (Para autenticación por Google OAuth o Email)
+// Verify client by submitted email (Para autenticación exclusiva por Google OAuth)
 export async function verifyClientByEmail(rawEmail, targetSlug = null) {
   if (!rawEmail) return null;
   const cleanEmail = rawEmail.toString().trim().toLowerCase();
   if (!cleanEmail || !cleanEmail.includes('@')) return null;
 
+  // 1. Comprobar leads registrados en la base de datos de TecnOdiel
+  try {
+    const { data: leads, error: leadError } = await portalAuthClient
+      .from('leads')
+      .select('*')
+      .ilike('email', cleanEmail)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (!leadError && leads && leads.length > 0) {
+      const lead = leads[0];
+      const leadName = lead.business_name || lead.contact_name || 'Mi Proyecto Web';
+      const leadSlug = sanitizeSlug(leadName) || 'mi-proyecto';
+      return {
+        ...FALLBACK_RESTAURANT,
+        id: `lead-${lead.id}`,
+        name: leadName,
+        email: cleanEmail,
+        phone: lead.phone || '',
+        slug: leadSlug,
+        plan_name: 'Plan Digital TecnOdiel',
+        budget: lead.estimated_value || 99,
+        category: lead.business_type || 'negocio',
+        client_access_key: `TO-${leadSlug.slice(0, 4).toUpperCase()}`,
+        pending_tasks: DEFAULT_PENDING_TASKS,
+        contract_status: 'active'
+      };
+    }
+  } catch (e) {
+    console.warn('Error checking lead by email:', e);
+  }
+
+  // 2. Comprobar proyectos persistidos en localStorage de la landing / formulario
+  if (typeof window !== 'undefined') {
+    try {
+      const storedProject = 
+        localStorage.getItem(`tecnodiel_client_project_${cleanEmail}`) ||
+        localStorage.getItem('tecnodiel_active_project');
+      if (storedProject) {
+        const p = JSON.parse(storedProject);
+        const pName = p.business_name || p.name || 'Mi Negocio Web';
+        const pSlug = sanitizeSlug(pName) || 'mi-negocio';
+        return {
+          ...FALLBACK_RESTAURANT,
+          id: p.id || `local-${Date.now()}`,
+          name: pName,
+          email: cleanEmail,
+          phone: p.phone || '',
+          slug: pSlug,
+          plan_name: 'Plan Digital TecnOdiel',
+          budget: p.budget || p.estimated_value || 99,
+          category: p.business_type || p.sector || 'negocio',
+          client_access_key: `TO-${pSlug.slice(0, 4).toUpperCase()}`,
+          pending_tasks: DEFAULT_PENDING_TASKS,
+          contract_status: 'active'
+        };
+      }
+    } catch (_) {}
+  }
+
+  // 3. Comprobar restaurantes en la base multitenant de hostelería
   try {
     let query = supabase
       .from('restaurants')
@@ -214,10 +281,10 @@ export async function verifyClientByEmail(rawEmail, targetSlug = null) {
       return byEmail[0];
     }
   } catch (e) {
-    console.warn('Error verifying client email in Supabase:', e);
+    console.warn('Error verifying client email in restaurants Supabase:', e);
   }
 
-  // Comprobar restaurantes o clínicas en almacenamiento local
+  // 4. Comprobar restaurantes o clínicas en almacenamiento local
   if (typeof window !== 'undefined') {
     try {
       const localClinicsRaw = localStorage.getItem('tecnodiel_cys_clinics');
@@ -244,7 +311,7 @@ export async function verifyClientByEmail(rawEmail, targetSlug = null) {
     } catch (_) {}
   }
 
-  // Fallback demo si el email coincide con el restaurante demo
+  // 5. Fallback demo si el email coincide con el restaurante demo
   if (cleanEmail === (FALLBACK_RESTAURANT.email || '').toLowerCase()) {
     if (!targetSlug || targetSlug === 'marea-negra') {
       return FALLBACK_RESTAURANT;

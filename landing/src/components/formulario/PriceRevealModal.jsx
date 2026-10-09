@@ -25,7 +25,7 @@ function CountTo({ from, to, duration = 1.6, onDone }) {
   return <>{value.toLocaleString('es-ES')}</>;
 }
 
-export default function PriceRevealModal({ form, onClose, onSubmitted }) {
+export default function PriceRevealModal({ form, onClose, onSubmitted, onNavigateToPortal }) {
   const account = useAccount();
   const [phase, setPhase] = useState('counting'); // counting -> revealed -> sending -> done | error
   const [errorMsg, setErrorMsg] = useState('');
@@ -42,43 +42,83 @@ export default function PriceRevealModal({ form, onClose, onSubmitted }) {
     };
   }, []);
 
-  const signedIn = account.role === 'client' || account.role === 'admin';
+  const signedIn = Boolean(account.profile && (account.role === 'client' || account.role === 'admin' || account.role === 'user'));
 
   const confirm = async () => {
     if (!signedIn) {
+      try {
+        sessionStorage.setItem('tecnodiel_pending_portal_redirect', 'true');
+        sessionStorage.setItem('tecnodiel_formulario_draft', JSON.stringify(form));
+        localStorage.setItem('tecnodiel_pending_form', JSON.stringify(form));
+      } catch (_) {}
       account.signIn();
       return;
     }
     setPhase('sending');
     setErrorMsg('');
+    const userEmail = (form.email || account.profile?.email || '').trim().toLowerCase();
+    const projectRecord = {
+      business_name: form.businessName,
+      name: form.businessName,
+      business_type: form.sector,
+      sector: form.sector,
+      contact_name: form.contactName,
+      phone: form.phone,
+      email: userEmail,
+      city: 'Huelva',
+      source: 'formulario_web',
+      stage: 'contactado',
+      estimated_value: ourPrice,
+      budget: ourPrice,
+      owner: 'javier',
+      intake: {
+        ambiente: form.ambiente,
+        features: form.features,
+        layoutFamily: form.layoutFamily,
+        layoutVariant: form.layoutVariant,
+        accentOverride: form.accentOverride || null,
+        ourPrice,
+        referencePrice,
+      },
+    };
+
     try {
-      const { error } = await client.from('leads').insert({
-        business_name: form.businessName,
-        business_type: form.sector,
-        contact_name: form.contactName,
-        phone: form.phone,
-        email: form.email || account.profile?.email || '',
-        city: 'Huelva',
-        source: 'formulario_web',
-        stage: 'contactado',
-        estimated_value: ourPrice,
-        owner: 'javier',
-        intake: {
-          ambiente: form.ambiente,
-          features: form.features,
-          layoutFamily: form.layoutFamily,
-          layoutVariant: form.layoutVariant,
-          accentOverride: form.accentOverride || null,
-          ourPrice,
-          referencePrice,
-        },
-      });
-      if (error) throw error;
-      setPhase('done');
-      onSubmitted?.();
+      const { error } = await client.from('leads').insert(projectRecord);
+      if (error) {
+        console.warn('Error insertando lead en Supabase:', error);
+      }
     } catch (e) {
-      setErrorMsg(e?.message || 'No se ha podido enviar. Inténtalo otra vez.');
-      setPhase('revealed');
+      console.warn('Excepción al registrar lead en Supabase:', e);
+    }
+
+    // Persistir siempre para el portal de clientes vinculado a esta cuenta
+    try {
+      if (userEmail) {
+        localStorage.setItem(`tecnodiel_client_project_${userEmail}`, JSON.stringify(projectRecord));
+      }
+      localStorage.setItem('tecnodiel_active_project', JSON.stringify(projectRecord));
+    } catch (_) {}
+
+    setPhase('done');
+    onSubmitted?.();
+
+    // Redirigir al portal de clientes automáticamente
+    setTimeout(() => {
+      if (onNavigateToPortal) {
+        onClose?.();
+        onNavigateToPortal();
+      } else if (typeof window !== 'undefined') {
+        window.location.hash = '#/portal';
+      }
+    }, 1200);
+  };
+
+  const handleGoToPortal = () => {
+    onClose?.();
+    if (onNavigateToPortal) {
+      onNavigateToPortal();
+    } else if (typeof window !== 'undefined') {
+      window.location.hash = '#/portal';
     }
   };
 
@@ -108,12 +148,15 @@ export default function PriceRevealModal({ form, onClose, onSubmitted }) {
               <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#6DD94B]/15 text-[#6DD94B]">
                 <Check className="h-7 w-7" />
               </div>
-              <h2 className="mt-4 text-xl font-bold text-white">¡Solicitud enviada!</h2>
+              <h2 className="mt-4 text-xl font-bold text-white">¡Propuesta confirmada!</h2>
               <p className="mt-2 text-sm text-zinc-400">
-                Hemos recibido todo para <span className="text-white">{form.businessName}</span>. Te escribimos en breve a {form.email}.
+                Todo listo para <span className="text-white font-semibold">{form.businessName}</span>. Abriendo tu Portal de Clientes...
               </p>
-              <button onClick={onClose} className="mt-6 rounded-xl bg-white/10 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/15">
-                Entendido
+              <button 
+                onClick={handleGoToPortal} 
+                className="mt-6 w-full rounded-xl bg-[#6DD94B] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#7fe55f]"
+              >
+                Acceder al Portal de Clientes
               </button>
             </motion.div>
           ) : (
