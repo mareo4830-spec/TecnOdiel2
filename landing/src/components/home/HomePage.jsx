@@ -12,6 +12,7 @@ import LogoMark from './LogoMark.jsx';
 import WaveLines from '../ui/WaveLines.jsx';
 import HeroShowcase from './HeroShowcase.jsx';
 import TechText from '../ui/TechText.jsx';
+import GlassButton from '../ui/GlassButton.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -94,9 +95,7 @@ function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdm
               Ver portal de clientes
             </button>
           )}
-          <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black transition hover:bg-white shadow-sm">
-            Pide tu propuesta
-          </a>
+          <GlassButton size="cta" pulse={10000} onClick={goTo('#contacto')}>Pide tu propuesta</GlassButton>
           <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
         </div>
         <div className="flex items-center gap-2 lg:hidden">
@@ -124,7 +123,9 @@ function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdm
               Ver portal de clientes
             </button>
           )}
-          <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-4 py-2.5 text-center text-xs font-bold text-black shadow-sm">Pide tu propuesta</a>
+          <div className="mt-2 flex justify-center">
+            <GlassButton size="cta" pulse={10000} autoAnimate className="w-full" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }}>Pide tu propuesta</GlassButton>
+          </div>
         </div>
       )}
     </header>
@@ -169,7 +170,7 @@ function HeroTechText({ text }) {
   );
 }
 
-function Hero() {
+function Hero({ onOpenFormulario }) {
   return (
     <section id="inicio" className="relative overflow-hidden bg-[#121212] pt-20">
       {/* Fondo de líneas verdes onduladas: SVG + animación CSS (sin WebGL), muy ligero */}
@@ -190,9 +191,7 @@ function Hero() {
             Reserva de citas, cartas digitales, panel de administración y automatización con IA para peluquerías, restauración, clínicas y comercios locales. Más económico, personal y cercano que las grandes plataformas.
           </p>
           <div className="mt-9 flex flex-wrap gap-4">
-            <a href="#contacto" onClick={goTo('#contacto')} className="inline-flex items-center gap-2 rounded-full bg-[#6DD94B] px-8 py-4 text-sm font-bold text-black transition hover:bg-white">
-              Calcula tu presupuesto <ArrowRight className="h-4 w-4" />
-            </a>
+            <GlassButton size="lg" onClick={onOpenFormulario}>Calcula tu presupuesto <ArrowRight className="h-4 w-4" /></GlassButton>
             <a href={waLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/30 px-8 py-4 text-sm font-bold text-white transition hover:border-[#6DD94B] hover:text-[#6DD94B]">
               <MessageCircle className="h-4 w-4" /> Hablemos por WhatsApp
             </a>
@@ -469,7 +468,7 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
       <Header account={account} onOpenFormulario={onOpenFormulario} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
       <main>
-        <Hero />
+        <Hero onOpenFormulario={onOpenFormulario} />
         <Sectors />
         <Demos />
         <Why />

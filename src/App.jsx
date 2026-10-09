@@ -10,6 +10,7 @@ import PoliticaPrivacidad from '../landing/src/components/legal/PoliticaPrivacid
 import PoliticaCookies from '../landing/src/components/legal/PoliticaCookies.jsx';
 import NotFound from '../landing/src/components/NotFound.jsx';
 import BotpressNudge from '../landing/src/components/BotpressNudge.jsx';
+import ChatbotGlassFab from '../landing/src/components/ChatbotGlassFab.jsx';
 import { APP_URLS } from '../landing/src/config/apps.js';
 
 // El panel de administración vive en la Oficina Virtual: el antiguo /admin redirige allí.
@@ -257,6 +258,7 @@ export default function App() {
 
       {/* Globo de invitación sobre el icono del chatbot de Botpress */}
       <BotpressNudge />
+      <ChatbotGlassFab />
     </div>
   );
 }
