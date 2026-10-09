@@ -52,6 +52,7 @@ export const PROJECTS = {
       sector: 'Sector · Belleza y cuidado personal',
       chips: ['Reserva de citas', 'Panel admin', 'SEO local', 'Tienda', 'Analíticas'],
       href: 'https://adrianmillan.es',
+      caption: 'Barbería en Huelva · SEO, panel de administrador, app y web para citas, notificaciones, marketing…',
       featured: true
     },
     {

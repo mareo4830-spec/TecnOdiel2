@@ -13,6 +13,7 @@ import WaveLines from '../ui/WaveLines.jsx';
 import HeroShowcase from './HeroShowcase.jsx';
 import TechText from '../ui/TechText.jsx';
 import GlassButton from '../ui/GlassButton.jsx';
+import DepthCarousel from '../ui/DepthCarousel.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -254,6 +255,14 @@ function Why() {
 }
 
 /* ───────────── PROYECTOS ───────────── */
+const ADRIAN_SHOTS = [
+  { image: '/demos/adrianmillan-inicio-web.webp', alt: 'Portada de adrianmillan.es: Adrián Millán, barbería y peluquería en Huelva' },
+  { image: '/demos/adrianmillan-reservas-web.webp', alt: 'Reserva de cita online en adrianmillan.es: calendario con disponibilidad y franjas horarias' },
+  { image: '/demos/adrianmillan-catalogo-web.webp', alt: 'Catálogo de productos de adrianmillan.es con categorías, ofertas y precios' },
+  { image: '/demos/adrianmillan-local-web.webp', alt: 'Sección Nuestro local de adrianmillan.es con galería, horario y ubicación' },
+  { image: '/demos/adrianmillan-faq-web.webp', alt: 'Preguntas frecuentes de adrianmillan.es para posicionar en Google' },
+];
+
 function Projects({ onAction }) {
   return (
     <section id="proyectos" className="bg-[#f4f6f4] py-20 text-zinc-900 sm:py-28">
@@ -264,6 +273,36 @@ function Projects({ onAction }) {
         </div>
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {PROJECTS.items.map((p) => {
+            if (p.featured) {
+              return (
+                <div key={p.title} className="flex flex-col">
+                  <div className="min-h-[22rem] flex-1">
+                    <DepthCarousel
+                      items={ADRIAN_SHOTS}
+                      cardWidth={370}
+                      cardHeight={350}
+                      radius={16}
+                      depth={170}
+                      spread={10}
+                      tilt={12}
+                      edgeGap={8}
+                      tiltDirection="right"
+                      perspective={1200}
+                      visibleCards={3}
+                      falloff={0.2}
+                      blur={3}
+                      autoplay
+                      autoplayDelay={3500}
+                      className="!min-h-0"
+                    />
+                  </div>
+                  <a href={p.href} target="_blank" rel="noopener noreferrer" className="group mt-4 inline-flex items-center gap-1.5 text-base font-bold text-[#0D844A] hover:underline">
+                    adrianmillan.es <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-600">{p.caption}</p>
+                </div>
+              );
+            }
             const Wrapper = p.href ? 'a' : 'button';
             const props = p.href ? { href: p.href, target: '_blank', rel: 'noopener noreferrer' } : { type: 'button', onClick: () => onAction(p.action) };
             return (
