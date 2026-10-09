@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import HomePage from './components/home/HomePage';
 import AuditModal from './components/AuditModal';
-import OdielitoRunner from './components/OdielitoRunner';
 import FormularioPage from './pages/FormularioPage';
 import { useAccount, client } from './lib/adminAuth';
 import { computeOurPrice, computeReferencePrice } from './components/formulario/pricing';
@@ -12,8 +11,7 @@ export default function App({
   onNavigateToPortal,
   onNavigateToAdmin,
   initialIntroFinished = true, 
-  onIntroComplete,
-  disableOdielito = false
+  onIntroComplete
 }) {
   const account = useAccount();
   const [isProcessingPortal, setIsProcessingPortal] = useState(() => {
@@ -185,9 +183,6 @@ export default function App({
             onNavigateToAdmin={onNavigateToAdmin}
             onOpenFormulario={handleOpenFormulario}
           />
-
-          {/* 3D Mascot Odielito: persigue el cursor y lo arrastra al botón de propuesta (solo en la landing) */}
-          {!disableOdielito && <OdielitoRunner />}
         </>
       )}
 
