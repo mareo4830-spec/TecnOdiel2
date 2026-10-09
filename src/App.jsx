@@ -112,6 +112,11 @@ function resolveCurrentView() {
     return 'portal';
   }
 
+  // Retorno de OAuth de Supabase / Google
+  if (hash.includes('access_token') || params.get('code')) {
+    return 'landing';
+  }
+
   // Raíz / Landing / Formulario
   if (path === '/' || path === '' || path === '/formulario' || hash.includes('formulario')) {
     return 'landing';

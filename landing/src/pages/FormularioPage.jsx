@@ -44,9 +44,35 @@ const STEPS = ['negocio', 'funciones', 'estilo', 'contacto'];
 export default function FormularioPage({ onBack, onNavigateToPortal }) {
   const account = useAccount();
   const [form, setForm] = useState(readDraft);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [showPrice, setShowPrice] = useState(false);
+  const [currentStep, setCurrentStep] = useState(() => {
+    try {
+      const s = Number(sessionStorage.getItem('tecnodiel_formulario_step'));
+      return s >= 1 && s <= 4 ? s : 1;
+    } catch {
+      return 1;
+    }
+  });
+  const [showPrice, setShowPrice] = useState(() => {
+    try {
+      return sessionStorage.getItem('tecnodiel_formulario_show_price') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const step = STEPS[currentStep - 1] || 'negocio';
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('tecnodiel_formulario_step', String(currentStep));
+    } catch (_) {}
+  }, [currentStep]);
+
+  useEffect(() => {
+    try {
+      if (showPrice) sessionStorage.setItem('tecnodiel_formulario_show_price', 'true');
+      else sessionStorage.removeItem('tecnodiel_formulario_show_price');
+    } catch (_) {}
+  }, [showPrice]);
 
   // Si el usuario acaba de iniciar sesión con Google para confirmar la propuesta, redirigir al portal
   useEffect(() => {

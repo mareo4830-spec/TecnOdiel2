@@ -384,21 +384,11 @@ export const VirtualDeskClientPortal = ({
               type="button"
               onClick={handleLogoutAndGoLanding}
               title="Cerrar sesión y volver a la portada de TecnOdiel"
-              className="text-[10px] bg-white/5 hover:bg-red-500/15 text-zinc-300 hover:text-red-300 border border-white/10 hover:border-red-500/30 px-2 py-1 rounded-lg transition cursor-pointer flex items-center gap-1"
+              className="text-[10px] bg-white/5 hover:bg-red-500/15 text-zinc-300 hover:text-red-300 border border-white/10 hover:border-red-500/30 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5"
             >
-              <LogOut className="w-3 h-3 text-red-400" />
+              <LogOut className="w-3.5 h-3.5 text-red-400" />
               <span>Cerrar sesión</span>
             </button>
-            {onSwitchToAdminView && (
-              <button
-                type="button"
-                onClick={onSwitchToAdminView}
-                title="Acceso administrativo"
-                className="text-[10px] bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 px-2 py-1 rounded-lg font-bold transition cursor-pointer"
-              >
-                Admin ➔
-              </button>
-            )}
           </div>
         </div>
 

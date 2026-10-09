@@ -40,7 +40,7 @@ const Logo = () => (
 );
 
 /* ───────────── HEADER ───────────── */
-function Header({ account, onOpenFormulario, onNavigateToPortal }) {
+function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdmin }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -96,11 +96,10 @@ function Header({ account, onOpenFormulario, onNavigateToPortal }) {
           <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black transition hover:bg-white shadow-sm">
             Pide tu propuesta
           </a>
-          {account?.role === 'admin' && <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} />}
-          <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} />
+          <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
         </div>
         <div className="flex items-center gap-2 lg:hidden">
-          <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} />
+          <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
           <button className="p-2 text-white cursor-pointer" aria-label={open ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
             {open ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
           </button>
@@ -124,7 +123,6 @@ function Header({ account, onOpenFormulario, onNavigateToPortal }) {
               Ver portal de clientes
             </button>
           )}
-          {account?.role === 'admin' && <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} className="mt-4 w-fit" />}
           <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-4 py-2.5 text-center text-xs font-bold text-black shadow-sm">Pide tu propuesta</a>
         </div>
       )}
@@ -431,7 +429,7 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
   const account = useAccount();
   return (
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
-      <Header account={account} onOpenFormulario={onOpenFormulario} onNavigateToPortal={onNavigateToPortal} />
+      <Header account={account} onOpenFormulario={onOpenFormulario} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
       <main>
         <Hero />
         <Sectors />

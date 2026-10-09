@@ -347,13 +347,6 @@ export default function App({
               <div className="flex items-center gap-4 text-xs">
                 <button 
                   type="button" 
-                  onClick={() => setIsAdmin(!isAdmin)}
-                  className="text-[#6DD94B] hover:underline font-semibold cursor-pointer"
-                >
-                  Acceder al Panel Admin
-                </button>
-                <button 
-                  type="button" 
                   onClick={handleLogoutToLanding}
                   className="text-zinc-400 hover:text-white cursor-pointer"
                 >

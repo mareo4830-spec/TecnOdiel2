@@ -5,7 +5,7 @@ import { APP_URLS } from '../../config/apps.js';
 
 /* Botón de acceso rápido según el rol: cliente → su portal, admin → la oficina virtual. */
 export function roleLink(account) {
-  if (account.role === 'admin') return { href: APP_URLS.oficina, label: 'Oficina virtual', Icon: LayoutDashboard };
+  // El botón de admin solo se muestra dentro del menú desplegable del perfil
   if (account.hasProject || account.role === 'client') return { href: APP_URLS.portal, label: 'Ver portal de clientes', Icon: Users };
   return null;
 }
@@ -66,11 +66,18 @@ function LoginModal({ onClose, onGoogle }) {
 }
 
 /* Círculo de perfil: sin sesión abre el popup de Google; con sesión, un desplegable con la cuenta y "Cerrar sesión". */
-export function ProfileButton({ account, onNavigateToPortal }) {
+export function ProfileButton({ account, onNavigateToPortal, onNavigateToAdmin }) {
   const { role, profile, hasProject, signIn, signOut, enabled } = account;
   const [menu, setMenu] = useState(false);
   const [login, setLogin] = useState(false);
   const ref = useRef(null);
+
+  const ADMIN_EMAILS = [
+    'franciscojavierfarinapadilla@gmail.com',
+    'mareo4830@gmail.com',
+  ];
+  const email = (profile?.email || '').toLowerCase().trim();
+  const isAdmin = role === 'admin' || (email && ADMIN_EMAILS.includes(email));
 
   useEffect(() => {
     if (!menu) return undefined;
@@ -102,6 +109,24 @@ export function ProfileButton({ account, onNavigateToPortal }) {
             <p className="mt-1 truncate text-sm font-semibold text-white">{profile?.name}</p>
             <p className="truncate text-xs text-zinc-400">{profile?.email}</p>
           </div>
+
+          {isAdmin && (
+            <button 
+              type="button"
+              onClick={() => { 
+                setMenu(false); 
+                if (onNavigateToAdmin) {
+                  onNavigateToAdmin();
+                } else {
+                  window.location.href = APP_URLS.oficina;
+                }
+              }} 
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-[#6DD94B] bg-[#6DD94B]/10 hover:bg-[#6DD94B] hover:text-black border border-[#6DD94B]/30 transition cursor-pointer mb-1.5 shadow-sm"
+            >
+              <LayoutDashboard className="h-4 w-4" />Panel de Administrador
+            </button>
+          )}
+
           {hasProject && onNavigateToPortal && (
             <button 
               onClick={() => { setMenu(false); onNavigateToPortal(); }} 

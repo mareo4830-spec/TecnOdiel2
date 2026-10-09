@@ -48,8 +48,10 @@ export default function PriceRevealModal({ form, onClose, onSubmitted, onNavigat
     if (!signedIn) {
       try {
         sessionStorage.setItem('tecnodiel_pending_portal_redirect', 'true');
-        sessionStorage.setItem('tecnodiel_formulario_draft', JSON.stringify(form));
+        sessionStorage.setItem('tecnodiel_pending_form', JSON.stringify(form));
+        localStorage.setItem('tecnodiel_pending_portal_redirect', 'true');
         localStorage.setItem('tecnodiel_pending_form', JSON.stringify(form));
+        sessionStorage.setItem('tecnodiel_formulario_draft', JSON.stringify(form));
       } catch (_) {}
       account.signIn();
       return;
