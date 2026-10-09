@@ -51,10 +51,8 @@ export const SECTOR_STYLES = {
 };
 
 function resolveCategory(sector) {
-  if (['restaurante', 'cafeteria'].includes(sector)) return 'restauracion';
-  if (['clinica'].includes(sector)) return 'salud';
-  if (['barberia', 'peluqueria', 'salon', 'estetica'].includes(sector)) return 'belleza';
-  return 'comercio';
+  if (sector === 'clinica') return 'salud';
+  return 'restauracion';
 }
 
 /**

@@ -2,15 +2,8 @@ import { Banknote, Bot, Calendar, Globe2, MessageCircle, QrCode, ShieldCheck, St
 
 /** Mismos valores que `leads.business_type` en la Oficina Virtual (ver migración formulario_publico). */
 export const SECTORS = [
-  { id: 'barberia', label: 'Barbería' },
-  { id: 'peluqueria', label: 'Peluquería' },
-  { id: 'salon', label: 'Salón de belleza' },
-  { id: 'estetica', label: 'Estética' },
-  { id: 'restaurante', label: 'Restaurante' },
-  { id: 'cafeteria', label: 'Cafetería' },
-  { id: 'clinica', label: 'Clínica' },
-  { id: 'tienda', label: 'Tienda' },
-  { id: 'otro', label: 'Otro' },
+  { id: 'restaurante', label: 'Restaurantes y Bares' },
+  { id: 'clinica', label: 'Clínicas y Salud' },
 ];
 
 export const AMBIENTES = [

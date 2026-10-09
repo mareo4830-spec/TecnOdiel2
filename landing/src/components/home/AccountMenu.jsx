@@ -20,16 +20,16 @@ export function RoleButton({ account, onNavigateToPortal, className = '' }) {
       <button 
         type="button"
         onClick={onNavigateToPortal} 
-        className={`flex items-center gap-2 rounded-full bg-[#6DD94B] px-4 py-2 text-xs font-black text-black shadow-[0_0_20px_rgba(109,217,75,0.4)] transition hover:bg-white cursor-pointer ${className}`}
+        className={`flex items-center gap-1.5 rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black shadow-sm transition hover:bg-white cursor-pointer ${className}`}
       >
-        <Icon className="h-4 w-4" />{label}
+        <Icon className="h-3.5 w-3.5" />{label}
       </button>
     );
   }
 
   return (
-    <a href={href} className={`flex items-center gap-2 rounded-full bg-[#6DD94B]/10 px-3.5 py-1.5 text-xs font-semibold text-[#6DD94B] ring-1 ring-[#6DD94B]/40 transition hover:bg-[#6DD94B] hover:text-black ${className}`}>
-      <Icon className="h-4 w-4" />{label}
+    <a href={href} className={`flex items-center gap-1.5 rounded-full bg-[#6DD94B]/10 px-3 py-1.5 text-xs font-semibold text-[#6DD94B] ring-1 ring-[#6DD94B]/40 transition hover:bg-[#6DD94B] hover:text-black ${className}`}>
+      <Icon className="h-3.5 w-3.5" />{label}
     </a>
   );
 }

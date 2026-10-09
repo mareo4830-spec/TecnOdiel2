@@ -233,14 +233,14 @@ export default function App({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.55, ease: 'easeInOut' }}
-            className="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#6DD94B] px-6 text-center select-none"
+            className="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-gradient-to-b from-[#1b5030] via-[#21633c] to-[#174529] px-6 text-center select-none shadow-2xl"
           >
             <motion.h1
-              initial={{ scale: 0.88, opacity: 0 }}
+              initial={{ scale: 0.90, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.05, opacity: 0 }}
+              exit={{ scale: 1.04, opacity: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
-              className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white"
+              className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white drop-shadow-sm"
             >
               Portal de Clientes
             </motion.h1>
@@ -248,7 +248,7 @@ export default function App({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.35 }}
-              className="mt-3 text-xs sm:text-sm font-bold uppercase tracking-widest text-black/75"
+              className="mt-3 text-xs sm:text-sm font-bold uppercase tracking-widest text-emerald-100/85"
             >
               TecnOdiel
             </motion.p>

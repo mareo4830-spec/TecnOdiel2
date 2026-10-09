@@ -17,7 +17,7 @@ export default function StepNegocio({ form, set }) {
         <input
           value={form.businessName}
           onChange={(e) => set('businessName', e.target.value)}
-          placeholder="Barbería Mi Negocio"
+          placeholder="ej: Restaurante El Puerto o Clínica San Juan"
           className={inputClass}
           autoFocus
         />
@@ -25,13 +25,13 @@ export default function StepNegocio({ form, set }) {
 
       <div>
         <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-400">Sector</span>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {SECTORS.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => set('sector', s.id)}
-              className={`rounded-xl border px-3 py-3 text-left text-sm font-medium transition ${
+              className={`rounded-xl border px-4 py-3.5 text-left text-sm font-semibold transition ${
                 form.sector === s.id ? 'border-[#6DD94B] bg-[#6DD94B]/10 text-[#6DD94B]' : 'border-white/10 bg-white/5 text-zinc-300 hover:border-white/25'
               }`}
             >

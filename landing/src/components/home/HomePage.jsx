@@ -82,21 +82,21 @@ function Header({ account, onOpenFormulario, onNavigateToPortal }) {
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {account?.hasProject && onNavigateToPortal && (
             <button
               type="button"
               onClick={onNavigateToPortal}
-              className="flex items-center gap-2 rounded-full bg-[#6DD94B] px-5 py-2.5 text-xs font-black text-black transition hover:bg-white shadow-[0_0_20px_rgba(109,217,75,0.4)] cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black transition hover:bg-white shadow-sm cursor-pointer"
             >
-              <Users className="h-4 w-4" />
+              <Users className="h-3.5 w-3.5" />
               Ver portal de clientes
             </button>
           )}
-          <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-white">
+          <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black transition hover:bg-white shadow-sm">
             Pide tu propuesta
           </a>
-          <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} />
+          {account?.role === 'admin' && <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} />}
           <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} />
         </div>
         <div className="flex items-center gap-2 lg:hidden">
@@ -118,14 +118,14 @@ function Header({ account, onOpenFormulario, onNavigateToPortal }) {
             <button
               type="button"
               onClick={() => { setOpen(false); onNavigateToPortal(); }}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#6DD94B] px-6 py-3 text-center text-sm font-black text-black shadow-lg"
+              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#6DD94B] px-4 py-2.5 text-center text-xs font-bold text-black shadow-sm"
             >
-              <Users className="h-4 w-4" />
+              <Users className="h-3.5 w-3.5" />
               Ver portal de clientes
             </button>
           )}
-          {roleLink(account) && <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} className="mt-4 w-fit" />}
-          <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-6 py-3 text-center text-sm font-bold text-black">Pide tu propuesta</a>
+          {account?.role === 'admin' && <RoleButton account={account} onNavigateToPortal={onNavigateToPortal} className="mt-4 w-fit" />}
+          <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-4 py-2.5 text-center text-xs font-bold text-black shadow-sm">Pide tu propuesta</a>
         </div>
       )}
     </header>
