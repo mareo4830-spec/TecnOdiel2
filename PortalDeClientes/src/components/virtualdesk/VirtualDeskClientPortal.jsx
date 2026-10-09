@@ -41,6 +41,7 @@ import {
   Store,
   Plus
 } from 'lucide-react';
+import { supabase, portalAuthClient } from '../../lib/supabase';
 
 /** Mismas funciones oficiales que en el formulario de TecnOdiel */
 const ALL_FORM_FEATURES = [
@@ -330,6 +331,33 @@ export const VirtualDeskClientPortal = ({
     } catch (_) {}
   };
 
+  const handleLogoutAndGoLanding = async () => {
+    try {
+      sessionStorage.removeItem('tecnodiel_auth_session');
+      sessionStorage.removeItem('tecnodiel_formulario_draft');
+      sessionStorage.removeItem('tecnodiel_pending_portal_redirect');
+      localStorage.removeItem('tecnodiel_client_slug');
+      localStorage.removeItem('tecnodiel_has_project');
+      localStorage.removeItem('tecnodiel-admin-auth');
+      await portalAuthClient.auth.signOut();
+      await supabase.auth.signOut();
+    } catch (_) {}
+
+    if (onLogout) {
+      onLogout();
+      return;
+    }
+    if (onNavigateToLanding) {
+      onNavigateToLanding();
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', '/');
+      window.location.hash = '';
+      window.location.href = '/';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#121212] text-zinc-100 flex flex-col lg:flex-row font-['Montserrat',Inter,sans-serif] selection:bg-[#6DD94B] selection:text-black">
       {/* ── BARRA LATERAL (ESTÉTICA TECNODIEL CON VERDE #6DD94B) ── */}
@@ -352,17 +380,18 @@ export const VirtualDeskClientPortal = ({
           </div>
 
           <div className="flex items-center gap-1.5">
-            {onNavigateToLanding && (
-              <button
-                onClick={onNavigateToLanding}
-                title="Volver a la portada de TecnOdiel"
-                className="text-[10px] bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 px-2 py-1 rounded-lg transition cursor-pointer"
-              >
-                Inicio
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleLogoutAndGoLanding}
+              title="Cerrar sesión y volver a la portada de TecnOdiel"
+              className="text-[10px] bg-white/5 hover:bg-red-500/15 text-zinc-300 hover:text-red-300 border border-white/10 hover:border-red-500/30 px-2 py-1 rounded-lg transition cursor-pointer flex items-center gap-1"
+            >
+              <LogOut className="w-3 h-3 text-red-400" />
+              <span>Cerrar sesión</span>
+            </button>
             {onSwitchToAdminView && (
               <button
+                type="button"
                 onClick={onSwitchToAdminView}
                 title="Acceso administrativo"
                 className="text-[10px] bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 px-2 py-1 rounded-lg font-bold transition cursor-pointer"
@@ -435,15 +464,13 @@ export const VirtualDeskClientPortal = ({
             <span className="truncate">{contactPhone}</span>
           </div>
           <button
-            onClick={() => {
-              sessionStorage.removeItem('tecnodiel_auth_session');
-              window.location.hash = '#/';
-              window.location.reload();
-            }}
-            title="Cerrar sesión"
-            className="hover:text-red-400 p-1.5 transition cursor-pointer"
+            type="button"
+            onClick={handleLogoutAndGoLanding}
+            title="Cerrar sesión e ir a la landing"
+            className="hover:text-red-400 p-1.5 transition cursor-pointer flex items-center gap-1.5 text-zinc-400 hover:bg-white/5 rounded-xl border border-transparent hover:border-red-500/20"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 text-red-400" />
+            <span className="text-xs font-semibold text-zinc-300 hover:text-white">Cerrar sesión</span>
           </button>
         </div>
       </aside>
@@ -503,6 +530,16 @@ export const VirtualDeskClientPortal = ({
                   >
                     <QrCode className="w-4 h-4 text-[#6DD94B]" />
                     <span>Ver QR</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleLogoutAndGoLanding}
+                    className="rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold px-4 py-2.5 flex items-center gap-2 transition cursor-pointer"
+                    title="Cerrar sesión y volver a la portada de TecnOdiel"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Cerrar sesión</span>
                   </button>
                 </div>
               </div>

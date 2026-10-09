@@ -277,8 +277,11 @@ export default function ClientAuth({
               onClick={() => {
                 if (onNavigateToLanding) {
                   onNavigateToLanding();
-                } else if (typeof window !== 'undefined') {
-                  window.location.hash = '#/';
+                }
+                if (typeof window !== 'undefined') {
+                  window.history.pushState(null, '', '/');
+                  window.location.hash = '';
+                  window.location.href = '/';
                 }
               }}
               className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5 min-h-[38px] cursor-pointer"

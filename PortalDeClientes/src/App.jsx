@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ClientAuth from './components/ClientAuth';
 import VirtualDeskAdminApp from './components/virtualdesk/VirtualDeskAdminApp';
 import VirtualDeskClientPortal from './components/virtualdesk/VirtualDeskClientPortal';
-import { getClientRestaurantDetails, verifyClientAccessKey } from './lib/supabase';
+import { getClientRestaurantDetails, verifyClientAccessKey, supabase, portalAuthClient } from './lib/supabase';
 
 class PortalAdminErrorBoundary extends React.Component {
   constructor(props) {
@@ -210,16 +210,34 @@ export default function App({
     setIsAuthenticated(false);
   };
 
-  const handleSwitchRestaurant = () => {
+  const handleLogoutToLanding = async () => {
     setSelectedSlug(null);
     setRestaurantData(null);
     setIsAuthenticated(false);
     setIsAdmin(false);
     setIsAdminImpersonating(false);
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('tecnodiel_auth_session');
-      localStorage.removeItem('tecnodiel_client_slug');
+      try {
+        sessionStorage.removeItem('tecnodiel_auth_session');
+        sessionStorage.removeItem('tecnodiel_formulario_draft');
+        sessionStorage.removeItem('tecnodiel_pending_portal_redirect');
+        localStorage.removeItem('tecnodiel_client_slug');
+        localStorage.removeItem('tecnodiel_has_project');
+        localStorage.removeItem('tecnodiel-admin-auth');
+        await portalAuthClient.auth.signOut();
+        await supabase.auth.signOut();
+      } catch (_) {}
+      if (onNavigateToLanding) {
+        onNavigateToLanding();
+      }
+      window.history.pushState(null, '', '/');
+      window.location.hash = '';
+      window.location.href = '/';
     }
+  };
+
+  const handleSwitchRestaurant = () => {
+    handleLogoutToLanding();
   };
 
   return (
@@ -299,7 +317,8 @@ export default function App({
             <VirtualDeskClientPortal 
               tenantData={restaurantData}
               onSwitchToAdminView={() => setIsAdmin(true)}
-              onNavigateToLanding={onNavigateToLanding}
+              onNavigateToLanding={handleLogoutToLanding}
+              onLogout={handleLogoutToLanding}
             />
           </main>
         ) : (
@@ -333,15 +352,13 @@ export default function App({
                 >
                   Acceder al Panel Admin
                 </button>
-                {onNavigateToLanding && (
-                  <button 
-                    type="button" 
-                    onClick={onNavigateToLanding}
-                    className="text-zinc-400 hover:text-white cursor-pointer"
-                  >
-                    Volver a la web
-                  </button>
-                )}
+                <button 
+                  type="button" 
+                  onClick={handleLogoutToLanding}
+                  className="text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  Volver a la web
+                </button>
               </div>
             </div>
           </footer>
