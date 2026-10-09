@@ -5,8 +5,8 @@ import { provisionCloudflarePage } from './cloudflareService';
 const STORAGE_KEY_CLINICS = 'tecnodiel_clinics_db';
 const STORAGE_KEY_CONFIG = 'tecnodiel_supabase_config_cys';
 
-const DEFAULT_SUPABASE_URL = 'https://ifmtuucsonuzuxauolvt.supabase.co';
-const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmbXR1dWNzb251enV4YXVvbHZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3OTkxNjMsImV4cCI6MjEwNjM3NTE2M30.lGjIIBmW0kfi8QAf5SNynlRDKsX3g1hXgTzPOVflAyU';
+const DEFAULT_SUPABASE_URL = 'https://wkzbgxsknkhixclgvrli.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndremJneHNrbmtoaXhjbGd2cmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0Nzk0NzUsImV4cCI6MjEwNzA1NTQ3NX0.MpIo0xJQC3MdJ4HQewEs3stfTF-I8uWXZgcJ6sS5uVw';
 
 export function getSupabaseConfig() {
   const envUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
