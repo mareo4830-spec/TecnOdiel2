@@ -174,13 +174,18 @@ function HeroTechText({ text }) {
 function Hero({ onOpenFormulario }) {
   return (
     <section id="inicio" className="relative overflow-hidden bg-[#121212] pt-20">
-      {/* Fondo de líneas verdes onduladas: SVG + animación CSS (sin WebGL), muy ligero */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-80">
-        <WaveLines />
+      {/* Fondo fijo: el contenido scrollea y la sección siguiente lo va tapando (clip-path recorta la capa fixed al hero) */}
+      <div className="pointer-events-none absolute inset-0 z-0" style={{ clipPath: 'inset(0)' }}>
+        <div className="fixed inset-0">
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-80">
+          <WaveLines />
+        </div>
+
+        <div className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(60% 50% at 70% 30%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(13,132,74,0.30), transparent 70%)' }} />
+        <div className="pointer-events-none absolute inset-0" style={{ backgroundSize: '64px 64px', backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)', maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)' }} />
+        </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(60% 50% at 70% 30%, rgba(109,217,75,0.18), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(13,132,74,0.30), transparent 70%)' }} />
-      <div className="pointer-events-none absolute inset-0" style={{ backgroundSize: '64px 64px', backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)', maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)', WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)' }} />
       <div className="relative z-10 mx-auto grid max-w-[1280px] lg:min-h-[calc(100dvh-5rem)] items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
           <Eyebrow dark>Software a medida para negocios de Huelva</Eyebrow>
