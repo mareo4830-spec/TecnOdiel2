@@ -21,7 +21,6 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedDns, setCopiedDns] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
-  const [copiedCfUrl, setCopiedCfUrl] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'domain' | 'dns' | 'whatsapp'
 
   if (!isOpen || !data) return null;
@@ -34,14 +33,12 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
     services = [],
     phone = '',
     email = '',
-    isHealth = false,
-    cloudflareUrl = null
+    isHealth = false
   } = data;
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://tecnodiel.com';
   const liveWebUrl = `${origin}/#/r/${slug}`;
   const portalUrl = `${origin}/#/portal?r=${slug}`;
-  const effectiveCloudflareUrl = cloudflareUrl || `https://${slug}.pages.dev`;
   const cloudflareDomain = `${slug}.pages.dev`;
 
   const cleanPhone = String(phone || '').replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1');
@@ -74,7 +71,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
     }
   ];
 
-  const whatsappMessage = `¡Hola! Soy Mario de TecnOdiel.\n\nYa tenemos tu nueva web montada y funcionando para ${businessName} 🚀\n\nPuedes ver cómo ha quedado en este enlace:\n${liveWebUrl}\n\nEnlace Cloudflare directo:\n${effectiveCloudflareUrl}\n\nTambién te hemos dejado activo tu panel privado de gestión:\n${portalUrl}\nClave de acceso: ${accessKey}\n\n¿Qué te parece? Si te gusta, te conectamos el dominio propio hoy mismo para que esté lista para tus clientes.`;
+  const whatsappMessage = `¡Hola! Soy Mario de TecnOdiel.\n\nYa tenemos tu nueva web montada y funcionando para ${businessName} 🚀\n\nPuedes ver cómo ha quedado en este enlace:\n${liveWebUrl}\n\nTambién te hemos dejado activo tu panel privado de gestión:\n${portalUrl}\nClave de acceso: ${accessKey}\n\n¿Qué te parece? Si te gusta, te conectamos el dominio propio hoy mismo para que esté lista para tus clientes.`;
 
   const handleCopy = (text, type) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -88,9 +85,6 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
       } else if (type === 'url') {
         setCopiedUrl(true);
         setTimeout(() => setCopiedUrl(false), 2000);
-      } else if (type === 'cf') {
-        setCopiedCfUrl(true);
-        setTimeout(() => setCopiedCfUrl(false), 2000);
       }
     }
   };
@@ -207,38 +201,9 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
                         {copiedUrl ? <Check className="w-4 h-4 text-[#6DD94B]" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
-                    
-                    {/* URL Cloudflare Pages Directa */}
-                    <div className="pt-2 border-t border-white/5 space-y-1">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-zinc-400 font-mono flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#6DD94B]" />
-                          Cloudflare Pages:
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleCopy(effectiveCloudflareUrl, 'cf')}
-                            className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-[10px] font-mono text-zinc-300 hover:text-white transition cursor-pointer flex items-center gap-1"
-                            title="Copiar URL Cloudflare"
-                          >
-                            {copiedCfUrl ? <Check className="w-3 h-3 text-[#6DD94B]" /> : <Copy className="w-3 h-3" />}
-                            <span>{copiedCfUrl ? 'Copiado' : 'Copiar'}</span>
-                          </button>
-                          <a
-                            href={effectiveCloudflareUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1 rounded bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition"
-                            title="Abrir URL Cloudflare"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-                      </div>
-                      <div className="text-[11px] font-mono text-[#6DD94B] truncate bg-black/40 px-2 py-1 rounded-lg border border-white/5">
-                        {effectiveCloudflareUrl}
-                      </div>
-                    </div>
+                    <p className="text-[11px] text-zinc-500">
+                      Subdominio Cloudflare: <strong className="text-zinc-300">https://{cloudflareDomain}</strong>
+                    </p>
                   </div>
 
                   {/* Card Portal del Cliente */}

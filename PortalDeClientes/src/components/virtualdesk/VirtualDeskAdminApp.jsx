@@ -61,7 +61,6 @@ import confetti from 'canvas-confetti';
 import { MOCK_TENANTS } from '../../../../src/multi-tenant/mockTenants.js';
 import { fetchLeads, updateLead } from '../../../../src/lib/leads.js';
 import { createRestaurant, sanitizeSlug } from '../../../../miltiwebs/src/lib/supabase.js';
-import { provisionCloudflarePage } from '../../../../miltiwebs/src/lib/cloudflareService.js';
 import { RESTAURANT_TEMPLATES } from '../../../../miltiwebs/src/components/Wizard/RestaurantWizard.jsx';
 import DeployDomainModal from './DeployDomainModal.jsx';
 
@@ -362,22 +361,10 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
       const tId = lead.template_id || (isHealth ? 'the-editorial-print' : 'the-awwwards-cinematic');
       const tObj = RESTAURANT_TEMPLATES.find(t => t.id === tId);
 
-      // Provisionar y conectar URL de Cloudflare Pages (*.pages.dev)
-      let cfRes = { url: `https://${cleanSlug}.pages.dev`, domain: `${cleanSlug}.pages.dev` };
-      try {
-        const provisioned = await provisionCloudflarePage(cleanSlug);
-        if (provisioned?.url) {
-          cfRes = provisioned;
-        }
-      } catch (cfErr) {
-        console.warn('Error provisionando Cloudflare:', cfErr);
-      }
-
       const restaurantPayload = {
         name: finalBusinessName,
         slug: cleanSlug,
-        subdomain: cfRes.domain || `${cleanSlug}.pages.dev`,
-        cloudflare_url: cfRes.url,
+        subdomain: `${cleanSlug}.pages.dev`,
         slogan: isHealth ? 'Atención médica y bienestar de confianza' : 'Cocina de calidad y buen servicio',
         description: lead.message || 'Carta digital, reservas directas y presencia web moderna.',
         category: isHealth ? 'dental' : 'tapas',
@@ -396,12 +383,11 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
 
       await createRestaurant(restaurantPayload);
 
-      // Actualizar el estado del lead para que quede registrado como montado y con su URL de Cloudflare
+      // Actualizar el estado del lead para que quede registrado como montado
       const updatedFields = {
         site_deployed: true,
         slug: cleanSlug,
         live_url: `#/r/${cleanSlug}`,
-        cloudflare_url: cfRes.url,
         client_access_key: accessKey,
         stage: 'propuesta'
       };
@@ -414,7 +400,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
         confetti({ particleCount: 100, spread: 75, origin: { y: 0.55 } });
       } catch (_) {}
 
-      // Abrir de inmediato el modal de despliegue y dominio con la URL de Cloudflare
+      // Abrir de inmediato el modal de despliegue y dominio
       setDeployModalData({
         lead,
         slug: cleanSlug,
@@ -424,8 +410,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
         services: lead.services || [],
         phone: lead.phone,
         email: lead.email,
-        isHealth,
-        cloudflareUrl: cfRes.url
+        isHealth
       });
     } catch (err) {
       console.error('Error montando la web del lead:', err);
@@ -440,7 +425,6 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
     const accessKey = lead.client_access_key || 'TO-892';
     const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '');
     const tObj = RESTAURANT_TEMPLATES.find(t => t.id === lead.template_id);
-    const cfUrl = lead.cloudflare_url || `https://${cleanSlug}.pages.dev`;
 
     setDeployModalData({
       lead,
@@ -451,8 +435,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
       services: lead.services || [],
       phone: lead.phone,
       email: lead.email,
-      isHealth,
-      cloudflareUrl: cfUrl
+      isHealth
     });
   };
 
@@ -1580,10 +1563,9 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                                 onClick={() => handleDeployWeb(lead)}
                                 disabled={isDeploying}
                                 className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/25 transition-all duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
-                                title="Montar web y generar URL en Cloudflare Pages"
                               >
                                 <Zap className="w-4 h-4 fill-black stroke-black" />
-                                <span>{isDeploying ? 'Conectando Cloudflare...' : '🚀 Lanzar Web (Cloudflare)'}</span>
+                                <span>{isDeploying ? 'Montando web...' : '⚡ Montar Web con 1 Clic'}</span>
                               </button>
                             ) : (
                               <>
@@ -1592,7 +1574,7 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                                   className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 font-bold text-xs transition-all duration-200 cursor-pointer active:scale-[0.98]"
                                 >
                                   <Globe className="w-3.5 h-3.5" />
-                                  <span>Gestionar Dominio & Cloudflare</span>
+                                  <span>Gestionar Dominio & Web</span>
                                 </button>
                                 {lead.slug && (
                                   <a
