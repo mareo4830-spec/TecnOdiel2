@@ -1,4 +1,4 @@
-import { CalendarDays, FolderCheck } from 'lucide-react';
+import { CalendarDays, FolderCheck, Globe, Rocket } from 'lucide-react';
 import type { DragEvent } from 'react';
 import { Avatar } from '../../../components/ui/Avatar';
 import { PARTNER_META } from '../../../lib/partners';
@@ -25,6 +25,8 @@ interface LeadCardProps {
 export function LeadCard({ lead, dragging, onOpen, onDragStart, onDragEnd }: LeadCardProps) {
   const type = BUSINESS_TYPE_META[lead.businessType];
   const TypeIcon = type.icon;
+  const isCloudflareLive = Boolean(lead.siteDeployed || lead.cloudflareUrl);
+
   return (
     <button
       draggable
@@ -45,6 +47,25 @@ export function LeadCard({ lead, dragging, onOpen, onDragStart, onDragEnd }: Lea
             {lead.contactName} · {lead.city}
           </span>
         </span>
+      </div>
+
+      {/* Indicador de estado de web en Cloudflare */}
+      <div className="mt-2.5 flex items-center gap-1.5">
+        {isCloudflareLive ? (
+          <span
+            className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300"
+            title={lead.cloudflareUrl || `https://${lead.slug || 'web'}.pages.dev`}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <Globe className="h-2.5 w-2.5" />
+            pages.dev activa
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
+            <Rocket className="h-2.5 w-2.5" />
+            Web pendiente de lanzar
+          </span>
+        )}
       </div>
 
       {lead.nextAction && <p className="mt-2 line-clamp-2 text-xs text-gray-400">{lead.nextAction}</p>}
