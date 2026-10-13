@@ -1,16 +1,15 @@
 import { useMemo } from 'react';
 import { createStore, useStore } from '../../lib/store';
-import type { Commit, NewProjectInput, PartnerId, Project, ProjectClient } from '../../types';
+import type { Commit, NewProjectInput, PartnerId, Project, ProjectClient, BusinessType, LayoutVariant, ProjectStatus } from '../../types';
 import { logActivity } from '../activity/activityService';
+import { sanitizeSlug } from '../../lib/cloudflare';
 
 /*
- * Capa de datos de proyectos (local). Al conectar Supabase:
- *  - projectsStore se rellena con `select` sobre `projects` + canal Realtime.
- *  - commitsStore con la tabla `commits` que escribe la Edge Function `github-webhook`.
- * Los hooks de abajo no cambian.
+ * Capa de datos de proyectos (local y sincronizada con leads/landing).
+ * Hidrata automáticamente proyectos desde `ov.data.projects`, `tecnodiel_active_project`
+ * y `tecnodiel_leads` para que cualquier cliente que envíe solicitud aparezca de inmediato
+ * tanto en Proyectos como en Kanban con la información limpia y necesaria.
  */
-const projectsStore = createStore<Project[]>([], 'projects');
-const commitsStore = createStore<Commit[]>([], 'commits');
 
 function slugify(text: string): string {
   return text
@@ -20,6 +19,141 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 }
+
+interface RawStoredLead {
+  id?: string;
+  name?: string;
+  business_name?: string;
+  sector?: string;
+  city?: string;
+  email?: string;
+  phone?: string;
+  services?: string[];
+  message?: string;
+  source?: string;
+  template_id?: string;
+  template_name?: string;
+  slug?: string;
+  site_deployed?: boolean;
+  live_url?: string;
+  stage?: string;
+  created_at?: string;
+  budget?: number;
+  estimated_value?: number;
+  owner?: string;
+  intake?: Record<string, unknown>;
+}
+
+function mapSectorToBusinessType(sector?: string): BusinessType {
+  const s = (sector || '').toLowerCase();
+  if (s.includes('restauran') || s.includes('comida') || s.includes('hosteler')) return 'restaurante';
+  if (s.includes('bar') || s.includes('cafeter')) return 'cafeteria';
+  if (s.includes('clinic') || s.includes('dental') || s.includes('salud') || s.includes('fisio') || s.includes('medic')) return 'clinica';
+  if (s.includes('barber')) return 'barberia';
+  if (s.includes('peluquer')) return 'peluqueria';
+  if (s.includes('estet')) return 'estetica';
+  if (s.includes('tienda') || s.includes('comercio') || s.includes('moda')) return 'tienda';
+  return 'otro';
+}
+
+function mapStageToProjectStatus(stage?: string): ProjectStatus {
+  const s = (stage || '').toLowerCase();
+  if (s === 'cerrado' || s === 'hecho' || s === 'ganado') return 'hecho';
+  if (s === 'interesado' || s === 'propuesta' || s === 'negociacion' || s === 'en_progreso') return 'en_progreso';
+  return 'planeado';
+}
+
+function projectFromLead(lead: RawStoredLead): Project {
+  const businessName = lead.business_name || lead.name || 'Negocio';
+  const cleanSlug = lead.slug || sanitizeSlug(businessName);
+  const id = slugify(businessName) || `proyecto-${Date.now()}`;
+  const now = lead.created_at || new Date().toISOString();
+  const cfUrl = lead.live_url || (lead.site_deployed ? `https://${cleanSlug}.pages.dev` : `https://${cleanSlug}.pages.dev`);
+  const status = mapStageToProjectStatus(lead.stage);
+
+  return {
+    id,
+    kind: 'standard',
+    name: `Web ${businessName}`,
+    description: lead.message || `Proyecto web para ${businessName}. Plantilla: ${lead.template_name || lead.template_id || 'Personalizada'}.`,
+    businessId: null,
+    businessName,
+    businessType: mapSectorToBusinessType(lead.sector),
+    layout: (lead.template_id?.includes('editorial') ? 'editorial' : lead.template_id?.includes('minimal') ? 'minimal' : lead.template_id?.includes('playful') ? 'playful' : 'classic') as LayoutVariant,
+    status,
+    progress: status === 'hecho' ? 100 : status === 'en_progreso' ? 50 : 15,
+    price: Number(lead.budget || lead.estimated_value) || 350,
+    closedBy: 'javier',
+    auditBy: 'mario',
+    contributors: ['mario', 'javier'],
+    client: {
+      contactName: lead.name || businessName,
+      phone: lead.phone || '',
+      email: lead.email || '',
+      city: lead.city || 'Huelva',
+    },
+    domain: null,
+    repo: { fullName: `agencia/${cleanSlug}`, branch: 'main' },
+    vercelProject: cleanSlug,
+    previewUrl: cfUrl,
+    saas: null,
+    waitingClient: false,
+    meeting: null,
+    boardOrder: -1,
+    startedAt: now,
+    updatedAt: now,
+  };
+}
+
+function loadInitialProjects(): Project[] {
+  const map = new Map<string, Project>();
+
+  // 1. Proyectos existentes en el almacenamiento de la oficina
+  try {
+    const raw = localStorage.getItem('ov.data.projects');
+    if (raw) {
+      const parsed = JSON.parse(raw) as Project[];
+      if (Array.isArray(parsed)) {
+        parsed.forEach((p) => map.set(p.id, p));
+      }
+    }
+  } catch (_) {}
+
+  // 2. Proyectos procedentes de solicitudes de la Landing (`tecnodiel_leads`)
+  try {
+    const rawLeads = localStorage.getItem('tecnodiel_leads');
+    if (rawLeads) {
+      const parsedLeads = JSON.parse(rawLeads) as RawStoredLead[];
+      if (Array.isArray(parsedLeads)) {
+        parsedLeads.forEach((l) => {
+          const proj = projectFromLead(l);
+          if (!map.has(proj.id)) {
+            map.set(proj.id, proj);
+          }
+        });
+      }
+    }
+  } catch (_) {}
+
+  // 3. Proyecto activo del cliente en sesión (`tecnodiel_active_project`)
+  try {
+    const rawActive = localStorage.getItem('tecnodiel_active_project');
+    if (rawActive) {
+      const active = JSON.parse(rawActive) as RawStoredLead;
+      if (active && (active.business_name || active.name)) {
+        const proj = projectFromLead(active);
+        if (!map.has(proj.id)) {
+          map.set(proj.id, proj);
+        }
+      }
+    }
+  } catch (_) {}
+
+  return Array.from(map.values());
+}
+
+const projectsStore = createStore<Project[]>(loadInitialProjects(), 'projects');
+const commitsStore = createStore<Commit[]>([], 'commits');
 
 export function createProject(
   input: NewProjectInput,
@@ -38,7 +172,6 @@ export function createProject(
     ...rest,
     id,
     description: '',
-    // Un estándar nace al cerrar la venta o antes (cita pendiente); el SaaS ya está en marcha.
     status: status ?? (input.kind === 'saas' ? 'en_progreso' : 'planeado'),
     progress: 0,
     contributors: [createdBy],
