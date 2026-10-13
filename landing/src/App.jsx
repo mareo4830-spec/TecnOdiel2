@@ -3,7 +3,7 @@ import HomePage from './components/home/HomePage';
 import AuditModal from './components/AuditModal';
 import FormularioPage from './pages/FormularioPage';
 import { useAccount, client } from './lib/adminAuth';
-import { submitLead } from '../../../src/lib/leads';
+import { submitLead } from './lib/leads';
 import { computeOurPrice, computeReferencePrice } from './components/formulario/pricing';
 
 export default function App({ 

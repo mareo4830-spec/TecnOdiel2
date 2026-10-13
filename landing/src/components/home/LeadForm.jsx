@@ -11,7 +11,7 @@ import {
   MessageSquare,
   Palette
 } from 'lucide-react';
-import { submitLead } from '../../../../src/lib/leads.js';
+import { submitLead } from '../../lib/leads.js';
 
 const EMPTY = { 
   name: '', 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Loader2, Sparkles, X } from 'lucide-react';
 import { client, useAccount } from '../../lib/adminAuth';
-import { submitLead } from '../../../../src/lib/leads';
+import { submitLead } from '../../lib/leads';
 import { computeOurPrice, computeReferencePrice } from './pricing';
 import { FEATURES } from './formConfig';
 
