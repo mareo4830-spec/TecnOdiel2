@@ -11,6 +11,9 @@ import { Demos, HowItWorks, Savings, MobileBar, findDemo } from './Extras.jsx';
 import LogoMark from './LogoMark.jsx';
 import WaveLines from '../ui/WaveLines.jsx';
 import HeroShowcase from './HeroShowcase.jsx';
+import TechText from '../ui/TechText.jsx';
+import GlassButton from '../ui/GlassButton.jsx';
+import DepthCarousel from '../ui/DepthCarousel.jsx';
 import { CONTACT, NAV, WHY, PROJECTS, SERVICES, SECTORS, FAQ, FOOTER, waLink } from './content.js';
 
 // Paleta TecnOdiel (la misma de siempre): verde neón #6DD94B, verde oscuro #0D844A, grafito #121212 y blanco.
@@ -93,9 +96,7 @@ function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdm
               Ver portal de clientes
             </button>
           )}
-          <a href="#contacto" id="pide-propuesta-btn" onClick={goTo('#contacto')} className="rounded-full bg-[#6DD94B] px-3.5 py-1.5 text-xs font-bold text-black transition hover:bg-white shadow-sm">
-            Pide tu propuesta
-          </a>
+          <GlassButton size="cta" pulse={10000} onClick={goTo('#contacto')}>Pide tu propuesta</GlassButton>
           <ProfileButton account={account} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
         </div>
         <div className="flex items-center gap-2 lg:hidden">
@@ -123,7 +124,9 @@ function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdm
               Ver portal de clientes
             </button>
           )}
-          <a href="#contacto" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }} className="mt-2 block rounded-full bg-[#6DD94B] px-4 py-2.5 text-center text-xs font-bold text-black shadow-sm">Pide tu propuesta</a>
+          <div className="mt-2 flex justify-center">
+            <GlassButton size="cta" pulse={10000} autoAnimate className="w-full" onClick={(e) => { goTo('#contacto')(e); setOpen(false); }}>Pide tu propuesta</GlassButton>
+          </div>
         </div>
       )}
     </header>
@@ -131,7 +134,44 @@ function Header({ account, onOpenFormulario, onNavigateToPortal, onNavigateToAdm
 }
 
 /* ───────────── HERO ───────────── */
-function Hero() {
+/* "a tu medida" del título: el efecto de TechText a la misma medida y color que el resto del h1. */
+function HeroTechText({ text }) {
+  const ref = useRef(null);
+  const [size, setSize] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const read = () => setSize(parseFloat(getComputedStyle(el).fontSize) || 0);
+    read();
+    window.addEventListener('resize', read);
+    return () => window.removeEventListener('resize', read);
+  }, []);
+  return (
+    <span ref={ref} className="relative -my-[0.1em] -ml-[0.34em] block h-[1.3em] w-[6.75em]">
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true" className="absolute inset-0 block">
+        {size > 0 && (
+          <TechText
+            text={text}
+            fontWeight={800}
+            fontSize={size}
+            letterSpacing={-0.025}
+            color="#6DD94B"
+            accentColor="#6DD94B"
+            reveal="letter"
+            dashLength={5}
+            dashGap={3}
+            specks={7}
+            strokeWidth={1.75}
+            speed={0.8}
+          />
+        )}
+      </span>
+    </span>
+  );
+}
+
+function Hero({ onOpenFormulario }) {
   return (
     <section id="inicio" className="relative overflow-hidden bg-[#121212] pt-20">
       {/* Fondo de líneas verdes onduladas: SVG + animación CSS (sin WebGL), muy ligero */}
@@ -145,16 +185,14 @@ function Hero() {
         <div>
           <Eyebrow dark>Software a medida para negocios de Huelva</Eyebrow>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
-            Digitalizamos tu negocio, <span className="text-[#6DD94B]">a tu medida</span>
+            Digitalizamos tu negocio, <HeroTechText text="a tu medida" />
           </h1>
           <h2 className="mt-6 text-xl font-semibold text-zinc-200 sm:text-2xl">Tu próximo paso digital empieza aquí</h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
             Reserva de citas, cartas digitales, panel de administración y automatización con IA para peluquerías, restauración, clínicas y comercios locales. Más económico, personal y cercano que las grandes plataformas.
           </p>
           <div className="mt-9 flex flex-wrap gap-4">
-            <a href="#contacto" onClick={goTo('#contacto')} className="inline-flex items-center gap-2 rounded-full bg-[#6DD94B] px-8 py-4 text-sm font-bold text-black transition hover:bg-white">
-              Calcula tu presupuesto <ArrowRight className="h-4 w-4" />
-            </a>
+            <GlassButton size="lg" onClick={onOpenFormulario}>Calcula tu presupuesto <ArrowRight className="h-4 w-4" /></GlassButton>
             <a href={waLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/30 px-8 py-4 text-sm font-bold text-white transition hover:border-[#6DD94B] hover:text-[#6DD94B]">
               <MessageCircle className="h-4 w-4" /> Hablemos por WhatsApp
             </a>
@@ -217,6 +255,14 @@ function Why() {
 }
 
 /* ───────────── PROYECTOS ───────────── */
+const ADRIAN_SHOTS = [
+  { image: '/demos/adrianmillan-inicio-web.webp', alt: 'Portada de adrianmillan.es: Adrián Millán, barbería y peluquería en Huelva' },
+  { image: '/demos/adrianmillan-reservas-web.webp', alt: 'Reserva de cita online en adrianmillan.es: calendario con disponibilidad y franjas horarias' },
+  { image: '/demos/adrianmillan-catalogo-web.webp', alt: 'Catálogo de productos de adrianmillan.es con categorías, ofertas y precios' },
+  { image: '/demos/adrianmillan-local-web.webp', alt: 'Sección Nuestro local de adrianmillan.es con galería, horario y ubicación' },
+  { image: '/demos/adrianmillan-faq-web.webp', alt: 'Preguntas frecuentes de adrianmillan.es para posicionar en Google' },
+];
+
 function Projects({ onAction }) {
   return (
     <section id="proyectos" className="bg-[#f4f6f4] py-20 text-zinc-900 sm:py-28">
@@ -227,6 +273,36 @@ function Projects({ onAction }) {
         </div>
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {PROJECTS.items.map((p) => {
+            if (p.featured) {
+              return (
+                <div key={p.title} className="flex flex-col">
+                  <div className="min-h-[22rem] flex-1">
+                    <DepthCarousel
+                      items={ADRIAN_SHOTS}
+                      cardWidth={370}
+                      cardHeight={350}
+                      radius={16}
+                      depth={170}
+                      spread={10}
+                      tilt={12}
+                      edgeGap={8}
+                      tiltDirection="right"
+                      perspective={1200}
+                      visibleCards={3}
+                      falloff={0.2}
+                      blur={3}
+                      autoplay
+                      autoplayDelay={3500}
+                      className="!min-h-0"
+                    />
+                  </div>
+                  <a href={p.href} target="_blank" rel="noopener noreferrer" className="group mt-4 inline-flex items-center gap-1.5 text-base font-bold text-[#0D844A] hover:underline">
+                    adrianmillan.es <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-600">{p.caption}</p>
+                </div>
+              );
+            }
             const Wrapper = p.href ? 'a' : 'button';
             const props = p.href ? { href: p.href, target: '_blank', rel: 'noopener noreferrer' } : { type: 'button', onClick: () => onAction(p.action) };
             return (
@@ -431,7 +507,7 @@ export default function HomePage({ onNavigateToMultiwebs, onNavigateToCyS, onNav
     <div className="font-['Montserrat',Inter,system-ui,sans-serif] antialiased">
       <Header account={account} onOpenFormulario={onOpenFormulario} onNavigateToPortal={onNavigateToPortal} onNavigateToAdmin={onNavigateToAdmin} />
       <main>
-        <Hero />
+        <Hero onOpenFormulario={onOpenFormulario} />
         <Sectors />
         <Demos />
         <Why />

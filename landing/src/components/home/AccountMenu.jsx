@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LayoutDashboard, LogOut, User, Users, X } from 'lucide-react';
 import { APP_URLS } from '../../config/apps.js';
+import GlassButton from '../ui/GlassButton.jsx';
 
 /* Botón de acceso rápido según el rol: cliente → su portal, admin → la oficina virtual. */
 export function roleLink(account) {
@@ -111,20 +112,18 @@ export function ProfileButton({ account, onNavigateToPortal, onNavigateToAdmin }
           </div>
 
           {isAdmin && (
-            <button 
-              type="button"
-              onClick={() => { 
-                setMenu(false); 
-                if (onNavigateToAdmin) {
-                  onNavigateToAdmin();
-                } else {
-                  window.location.href = APP_URLS.oficina;
-                }
-              }} 
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-[#6DD94B] bg-[#6DD94B]/10 hover:bg-[#6DD94B] hover:text-black border border-[#6DD94B]/30 transition cursor-pointer mb-1.5 shadow-sm"
-            >
-              <LayoutDashboard className="h-4 w-4" />Panel de Administrador
-            </button>
+            <div className="mb-1.5 flex">
+              <GlassButton
+                className="w-full"
+                onClick={() => {
+                  setMenu(false);
+                  if (onNavigateToAdmin) onNavigateToAdmin();
+                  else window.location.href = APP_URLS.oficina;
+                }}
+              >
+                <LayoutDashboard className="h-4 w-4" />Panel de Administrador
+              </GlassButton>
+            </div>
           )}
 
           {hasProject && onNavigateToPortal && (
