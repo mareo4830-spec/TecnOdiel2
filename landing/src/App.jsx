@@ -4,6 +4,7 @@ import AuditModal from './components/AuditModal';
 import OdielitoRunner from './components/OdielitoRunner';
 import FormularioPage from './pages/FormularioPage';
 import { useAccount, client } from './lib/adminAuth';
+import { submitLead } from '../../../src/lib/leads';
 import { computeOurPrice, computeReferencePrice } from './components/formulario/pricing';
 
 export default function App({ 
@@ -74,6 +75,27 @@ export default function App({
                 referencePrice,
               },
             };
+
+            // Sincronizar también con el panel de administración TecnOdiel (leads.js y tecnodiel_leads)
+            try {
+              await submitLead({
+                name: parsedForm.contactName || parsedForm.businessName,
+                business_name: parsedForm.businessName,
+                sector: parsedForm.sector,
+                city: 'Huelva',
+                email: userEmail,
+                phone: parsedForm.phone,
+                services: Array.isArray(parsedForm.features) ? parsedForm.features : [],
+                message: `Presupuesto calculado: ${ourPrice}€ tras Google Auth. Estilo: ${parsedForm.layoutFamily || ''} ${parsedForm.layoutVariant || ''}.`,
+                source: 'formulario_web',
+                template_id: parsedForm.layoutVariant || parsedForm.layoutFamily || '',
+                template_name: parsedForm.layoutFamily || 'Personalizada',
+                stage: 'nuevo',
+                site_deployed: false
+              });
+            } catch (err) {
+              console.warn('Error sincronizando lead con leads.js tras Google Auth:', err);
+            }
 
             if (client) {
               try {
