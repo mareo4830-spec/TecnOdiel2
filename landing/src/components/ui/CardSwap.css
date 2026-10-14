@@ -76,15 +76,15 @@
     margin: 0;
   }
   .hero-cardswap .card-swap-container {
-    right: -10px;
-    bottom: 60px;
+    right: 50px;
+    bottom: 160px;
     transform: scale(0.8);
   }
 }
 @media (min-width: 1440px) {
   .hero-cardswap .card-swap-container {
-    right: -14px;
-    bottom: 90px;
+    right: 80px;
+    bottom: 210px;
     transform: none;
   }
 }

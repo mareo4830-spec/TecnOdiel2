@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "tecnodiel", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "--port", "5199", "--strictPort"], "port": 5199 }
+    { "name": "tecnodiel", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--", "--port", "5199", "--strictPort"], "port": 5199 },
+    { "name": "landing", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--prefix", "landing", "--", "--port", "5198", "--strictPort"], "port": 5198 }
   ]
 }
