@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { generateStarterMenuCategories } from '../../../src/lib/starterTenantConfig.js';
 
 const SUPABASE_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) ||
