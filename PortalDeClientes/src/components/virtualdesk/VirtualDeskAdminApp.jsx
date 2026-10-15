@@ -62,6 +62,7 @@ import { MOCK_TENANTS } from '../../../../src/multi-tenant/mockTenants.js';
 import { fetchLeads, updateLead } from '../../../../src/lib/leads.js';
 import { createRestaurant, sanitizeSlug } from '../../../../miltiwebs/src/lib/supabase.js';
 import { RESTAURANT_TEMPLATES } from '../../../../miltiwebs/src/components/Wizard/RestaurantWizard.jsx';
+import { buildStarterTenantPayload } from '../../../../src/lib/starterTenantConfig.js';
 import DeployDomainModal from './DeployDomainModal.jsx';
 
 // ── CONFIGURACIÓN & METADATOS EXACTOS DE TECNODIEL ADMIN ──
@@ -349,50 +350,65 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
   const [deployModalData, setDeployModalData] = useState(null);
   const [deployingLeadId, setDeployingLeadId] = useState(null);
   const [leadFilter, setLeadFilter] = useState('all'); // 'all' | 'pending' | 'deployed'
+  const [copiedLeadUrlId, setCopiedLeadUrlId] = useState(null);
+
+  const handleCopyLeadUrl = (e, leadId, url) => {
+    e.stopPropagation();
+    if (!url) return;
+    try {
+      navigator.clipboard.writeText(url);
+      setCopiedLeadUrlId(leadId);
+      setTimeout(() => setCopiedLeadUrlId(null), 2000);
+    } catch (_) {}
+  };
 
   const handleDeployWeb = async (lead) => {
     setDeployingLeadId(lead.id);
     try {
-      const finalBusinessName = lead.business_name || lead.name || 'Nuevo Negocio';
-      const cleanSlug = sanitizeSlug(finalBusinessName) || `negocio-${Date.now().toString().slice(-4)}`;
-      const accessKey = lead.client_access_key || `TO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '');
+      // 1. Genera la configuración completa del tenant con sus datos (nombre, colores, fondo y platos de muestra)
+      const restaurantPayload = buildStarterTenantPayload(lead);
+      const cleanSlug = restaurantPayload.slug;
+      const accessKey = restaurantPayload.client_access_key;
+      const cloudflareUrl = restaurantPayload.cloudflare_url;
+      const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '') ||
+                       String(restaurantPayload.template_id).startsWith('the-ultra');
 
-      const tId = lead.template_id || (isHealth ? 'the-editorial-print' : 'the-awwwards-cinematic');
-      const tObj = RESTAURANT_TEMPLATES.find(t => t.id === tId);
-
-      const restaurantPayload = {
-        name: finalBusinessName,
-        slug: cleanSlug,
-        subdomain: `${cleanSlug}.pages.dev`,
-        slogan: isHealth ? 'Atención médica y bienestar de confianza' : 'Cocina de calidad y buen servicio',
-        description: lead.message || 'Carta digital, reservas directas y presencia web moderna.',
-        category: isHealth ? 'dental' : 'tapas',
-        template_id: tId,
-        hero_image: tObj?.image || '/demos/noir-atelier.jpg',
-        phone: lead.phone || '+34 600 000 000',
-        whatsapp_number: lead.phone || '+34 600 000 000',
-        email: lead.email || 'contacto@tecnodiel.com',
-        instagram_url: lead.instagram_url || '',
-        current_website: lead.current_website || '',
-        selected_modules: Array.isArray(lead.services) && lead.services.length > 0
-          ? lead.services 
-          : ['Carta digital QR', 'Reserva de mesas', 'Página web completa'],
-        client_access_key: accessKey
-      };
-
+      // 2. Crea el restaurante en Supabase (tabla restaurants + menu_categories + menu_items) y provisiona en Cloudflare Pages
       await createRestaurant(restaurantPayload);
 
-      // Actualizar el estado del lead para que quede registrado como montado
+      // 3. Actualiza el estado del lead para que quede registrado como montado con enlace de Cloudflare
       const updatedFields = {
         site_deployed: true,
         slug: cleanSlug,
-        live_url: `#/r/${cleanSlug}`,
+        cloudflare_url: cloudflareUrl,
+        live_url: cloudflareUrl,
         client_access_key: accessKey,
         stage: 'propuesta'
       };
 
       await updateLead(lead.id, updatedFields);
+
+      // 4. Sincroniza en localStorage para que el portal del cliente esté activo de inmediato
+      try {
+        const clientProject = {
+          business_name: restaurantPayload.name,
+          business_type: lead.sector || restaurantPayload.category,
+          contact_name: lead.name,
+          phone: lead.phone,
+          email: lead.email,
+          status: 'propuesta',
+          slug: cleanSlug,
+          client_access_key: accessKey,
+          cloudflare_url: cloudflareUrl,
+          live_url: cloudflareUrl,
+          site_deployed: true,
+          intake: lead.intake || null
+        };
+        localStorage.setItem('tecnodiel_active_project', JSON.stringify(clientProject));
+        if (lead.email) {
+          localStorage.setItem(`tecnodiel_client_project_${lead.email}`, JSON.stringify(clientProject));
+        }
+      } catch (_) {}
 
       setWebLeads(prev => prev.map(l => l.id === lead.id ? { ...l, ...updatedFields } : l));
 
@@ -400,16 +416,18 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
         confetti({ particleCount: 100, spread: 75, origin: { y: 0.55 } });
       } catch (_) {}
 
-      // Abrir de inmediato el modal de despliegue y dominio
+      // 5. Abrir de inmediato el modal de despliegue con el enlace de Cloudflare listo
       setDeployModalData({
         lead,
         slug: cleanSlug,
         accessKey,
-        businessName: finalBusinessName,
-        templateName: tObj ? `${tObj.num} - ${tObj.name}` : tId,
-        services: lead.services || [],
+        businessName: restaurantPayload.name,
+        templateName: restaurantPayload.template_id,
+        services: restaurantPayload.selected_modules || [],
         phone: lead.phone,
         email: lead.email,
+        cloudflareUrl,
+        liveUrl: cloudflareUrl,
         isHealth
       });
     } catch (err) {
@@ -424,17 +442,19 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
     const cleanSlug = lead.slug || sanitizeSlug(finalBusinessName);
     const accessKey = lead.client_access_key || 'TO-892';
     const isHealth = /cl[ií]nica|salud|est[eé]tica|bienestar/i.test(lead.sector || '');
-    const tObj = RESTAURANT_TEMPLATES.find(t => t.id === lead.template_id);
+    const cloudflareUrl = lead.cloudflare_url || (cleanSlug ? `https://${cleanSlug}.pages.dev` : '');
 
     setDeployModalData({
       lead,
       slug: cleanSlug,
       accessKey,
       businessName: finalBusinessName,
-      templateName: tObj ? `${tObj.num} - ${tObj.name}` : (lead.template_id || 'Cinematográfico'),
+      templateName: lead.template_name || lead.template_id || 'Cinematográfico',
       services: lead.services || [],
       phone: lead.phone,
       email: lead.email,
+      cloudflareUrl,
+      liveUrl: cloudflareUrl,
       isHealth
     });
   };
@@ -1556,38 +1576,89 @@ export default function VirtualDeskAdminApp({ onSwitchToClientView, onNavigateTo
                             </div>
                           </div>
 
-                          {/* Botón de Acción Principal */}
-                          <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center gap-2">
+                          {/* Botón de Acción Principal y Enlace Cloudflare */}
+                          <div className="pt-3 border-t border-white/10 space-y-2.5">
                             {!isDeployed ? (
-                              <button
-                                onClick={() => handleDeployWeb(lead)}
-                                disabled={isDeploying}
-                                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/25 transition-all duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
-                              >
-                                <Zap className="w-4 h-4 fill-black stroke-black" />
-                                <span>{isDeploying ? 'Montando web...' : '⚡ Montar Web con 1 Clic'}</span>
-                              </button>
-                            ) : (
-                              <>
+                              <div className="space-y-1.5">
                                 <button
-                                  onClick={() => openDeployModal(lead)}
-                                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 font-bold text-xs transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                                  onClick={() => handleDeployWeb(lead)}
+                                  disabled={isDeploying}
+                                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/25 transition-all duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50"
                                 >
-                                  <Globe className="w-3.5 h-3.5" />
-                                  <span>Gestionar Dominio & Web</span>
+                                  <Zap className="w-4 h-4 fill-black stroke-black" />
+                                  <span>{isDeploying ? 'Montando web y autohosteando en Cloudflare...' : '⚡ Aceptar y Crear Web (Cloudflare Auto-Host)'}</span>
                                 </button>
+                                <p className="text-[10px] text-zinc-500 text-center">
+                                  Inyecta nombre, estilo, colores y carta de platos, y autohostea en Cloudflare con 1 solo clic.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                {/* Enlace Oficial de Cloudflare */}
                                 {lead.slug && (
-                                  <a
-                                    href={`#/r/${lead.slug}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-full sm:w-auto inline-flex items-center justify-center p-2.5 rounded-xl border border-white/10 hover:border-white text-zinc-400 hover:text-white transition-all duration-200 active:scale-95"
-                                    title="Ver Web en Vivo"
-                                  >
-                                    <ExternalLink className="w-4 h-4" />
-                                  </a>
+                                  <div className="w-full p-2.5 rounded-xl bg-black/60 border border-[#6DD94B]/30 flex items-center justify-between gap-2 text-xs font-mono text-[#6DD94B]">
+                                    <div className="flex items-center gap-1.5 truncate">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-[#6DD94B] animate-pulse shrink-0" />
+                                      <span className="text-zinc-400 font-sans text-[11px] shrink-0">Cloudflare:</span>
+                                      <span className="truncate font-bold">
+                                        {lead.cloudflare_url || `https://${lead.slug}.pages.dev`}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <button
+                                        onClick={(e) => handleCopyLeadUrl(e, lead.id, lead.cloudflare_url || `https://${lead.slug}.pages.dev`)}
+                                        className="p-1.5 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer"
+                                        title="Copiar Enlace Cloudflare"
+                                      >
+                                        {copiedLeadUrlId === lead.id ? <Check className="w-3.5 h-3.5 text-[#6DD94B]" /> : <Copy className="w-3.5 h-3.5" />}
+                                      </button>
+                                      <a
+                                        href={lead.cloudflare_url || `https://${lead.slug}.pages.dev`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-1.5 rounded text-[#6DD94B] hover:text-white hover:bg-[#6DD94B]/20 transition"
+                                        title="Abrir Web en Cloudflare"
+                                      >
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                      </a>
+                                    </div>
+                                  </div>
                                 )}
-                              </>
+
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <button
+                                    onClick={() => openDeployModal(lead)}
+                                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#6DD94B]/15 hover:bg-[#6DD94B]/25 text-[#6DD94B] border border-[#6DD94B]/30 font-bold text-xs transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                                  >
+                                    <Globe className="w-3.5 h-3.5" />
+                                    <span>Gestionar Dominio & Web</span>
+                                  </button>
+
+                                  {lead.phone && (
+                                    <a
+                                      href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`¡Hola! Soy Mario de TecnOdiel.\n\nYa tenemos tu nueva web montada y autohosteada en Cloudflare para ${lead.business_name || lead.name} 🚀\n\nPuedes verla en directo aquí:\n${lead.cloudflare_url || `https://${lead.slug}.pages.dev`}\n\n¿Qué te parece? Si te gusta, te conectamos tu dominio propio hoy mismo.`)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center justify-center p-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/30 transition-all duration-200 active:scale-95"
+                                      title="Enviar Enlace Cloudflare por WhatsApp"
+                                    >
+                                      <MessageCircle className="w-4 h-4" />
+                                    </a>
+                                  )}
+
+                                  {lead.slug && (
+                                    <a
+                                      href={`#/r/${lead.slug}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center justify-center p-2.5 rounded-xl border border-white/10 hover:border-white text-zinc-400 hover:text-white transition-all duration-200 active:scale-95"
+                                      title="Ver en Multi-Tenant (/r/slug)"
+                                    >
+                                      <Utensils className="w-4 h-4" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>

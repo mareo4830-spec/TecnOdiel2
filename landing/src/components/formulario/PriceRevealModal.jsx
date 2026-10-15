@@ -100,7 +100,16 @@ export default function PriceRevealModal({ form, onClose, onSubmitted, onNavigat
         template_id: form.layoutVariant || form.layoutFamily || '',
         template_name: form.layoutFamily || 'Personalizada',
         stage: 'nuevo',
-        site_deployed: false
+        site_deployed: false,
+        intake: {
+          ambiente: form.ambiente,
+          features: form.features,
+          layoutFamily: form.layoutFamily,
+          layoutVariant: form.layoutVariant,
+          accentOverride: form.accentOverride || null,
+          ourPrice,
+          referencePrice,
+        }
       });
     } catch (e) {
       console.warn('Error al sincronizar lead con leads.js:', e);

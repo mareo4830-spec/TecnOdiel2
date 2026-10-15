@@ -47,8 +47,10 @@ export async function submitLead(form) {
     slug: clean(form.slug || '', 80),
     client_access_key: clean(form.client_access_key || '', 60),
     site_deployed: Boolean(form.site_deployed),
-    live_url: clean(form.live_url || '', 200),
+    live_url: clean(form.live_url || form.cloudflare_url || form.cloudflareUrl || '', 200),
+    cloudflare_url: clean(form.cloudflare_url || form.cloudflareUrl || (form.slug ? `https://${form.slug}.pages.dev` : ''), 200),
     stage: clean(form.stage || 'nuevo', 40),
+    intake: form.intake || null,
     created_at: form.created_at || new Date().toISOString()
   };
 
@@ -88,10 +90,12 @@ export async function fetchLeads() {
 }
 
 export async function updateLead(id, fields) {
-  if (String(id).startsWith('local-')) {
-    writeLocal(readLocal().map((l) => (l.id === id ? { ...l, ...fields } : l)));
-    return true;
-  }
+  // Siempre actualizar el almacenamiento local para reactividad inmediata
+  try {
+    const nextLocal = (Array.isArray(readLocal()) ? readLocal() : []).map((l) => (l.id === id ? { ...l, ...fields } : l));
+    writeLocal(nextLocal);
+  } catch (_) {}
+
   try {
     const res = await fetch(`${ENDPOINT}?id=eq.${encodeURIComponent(id)}`, {
       method: 'PATCH',

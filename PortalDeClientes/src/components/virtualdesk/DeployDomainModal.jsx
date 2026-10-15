@@ -37,9 +37,11 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
   } = data;
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://tecnodiel.com';
-  const liveWebUrl = `${origin}/#/r/${slug}`;
-  const portalUrl = `${origin}/#/portal?r=${slug}`;
   const cloudflareDomain = `${slug}.pages.dev`;
+  const cloudflareUrl = data.cloudflareUrl || `https://${cloudflareDomain}`;
+  const internalPreviewUrl = isHealth ? `${origin}/#/c/${slug}` : `${origin}/#/r/${slug}`;
+  const liveWebUrl = cloudflareUrl;
+  const portalUrl = `${origin}/#/portal?r=${slug}`;
 
   const cleanPhone = String(phone || '').replace(/\D/g, '').replace(/^(?!34)(\d{9})$/, '34$1');
 
@@ -71,7 +73,7 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
     }
   ];
 
-  const whatsappMessage = `¡Hola! Soy Mario de TecnOdiel.\n\nYa tenemos tu nueva web montada y funcionando para ${businessName} 🚀\n\nPuedes ver cómo ha quedado en este enlace:\n${liveWebUrl}\n\nTambién te hemos dejado activo tu panel privado de gestión:\n${portalUrl}\nClave de acceso: ${accessKey}\n\n¿Qué te parece? Si te gusta, te conectamos el dominio propio hoy mismo para que esté lista para tus clientes.`;
+  const whatsappMessage = `¡Hola! Soy Mario de TecnOdiel.\n\nYa tenemos tu nueva web montada y funcionando para ${businessName} 🚀\n\nPuedes ver cómo ha quedado en tu enlace oficial de Cloudflare:\n${cloudflareUrl}\n\nTambién te hemos dejado activo tu panel privado de gestión:\n${portalUrl}\nClave de acceso: ${accessKey}\n\n¿Qué te parece? Si te gusta, te conectamos el dominio propio hoy mismo para que esté lista para tus clientes.`;
 
   const handleCopy = (text, type) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -164,46 +166,66 @@ export default function DeployDomainModal({ isOpen, onClose, data }) {
               <div className="space-y-6 animate-fadeIn">
                 <div className="p-4 rounded-2xl bg-emerald-950/20 border border-[#6DD94B]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <span className="text-[11px] font-mono uppercase text-[#6DD94B] font-bold">
-                      ✓ Despliegue completado
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono uppercase text-[#6DD94B] font-bold">
+                        ✓ Autohosting en Cloudflare completado
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#6DD94B]/15 text-[#6DD94B] border border-[#6DD94B]/30">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#6DD94B] animate-pulse" />
+                        Cloudflare Pages Activo
+                      </span>
+                    </div>
                     <h3 className="text-base font-extrabold text-white">
-                      La web ya está completamente montada en el servidor
+                      La web ya está autohosteada y operativa en Cloudflare
                     </h3>
                     <p className="text-xs text-zinc-400">
-                      Todos los datos de la solicitud (servicios, horarios, plantilla y contacto) han sido inyectados.
+                      Datos de la solicitud, colores, fondo y carta de platos inyectados en la base de datos multi-tenant.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <button
-                      onClick={() => window.open(liveWebUrl, '_blank')}
+                      onClick={() => window.open(cloudflareUrl, '_blank')}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl bg-[#6DD94B] hover:bg-white text-black font-black text-xs shadow-lg shadow-[#6DD94B]/25 transition-all duration-200 cursor-pointer active:scale-95"
                     >
-                      <span>Abrir Web en Directo</span>
+                      <Globe className="w-4 h-4" />
+                      <span>Abrir en Cloudflare</span>
                       <ExternalLink className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Card Enlace Directo */}
+                  {/* Card Enlace Cloudflare */}
                   <div className="p-4 rounded-2xl bg-[#181818] border border-white/10 space-y-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-                      URL Pública Temporal (Activa Ya)
-                    </span>
-                    <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-black/60 border border-white/10 text-xs font-mono text-zinc-200">
-                      <span className="truncate">{liveWebUrl}</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#6DD94B] font-bold flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5" />
+                        Enlace Cloudflare Pages (En Directo)
+                      </span>
+                      <span className="text-[10px] text-zinc-500 font-mono">*.pages.dev</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-black/60 border border-[#6DD94B]/30 text-xs font-mono text-[#6DD94B]">
+                      <span className="truncate">{cloudflareUrl}</span>
                       <button
-                        onClick={() => handleCopy(liveWebUrl, 'url')}
+                        onClick={() => handleCopy(cloudflareUrl, 'url')}
                         className="p-1.5 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer active:scale-90"
-                        title="Copiar URL"
+                        title="Copiar Enlace Cloudflare"
                       >
                         {copiedUrl ? <Check className="w-4 h-4 text-[#6DD94B]" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
-                    <p className="text-[11px] text-zinc-500">
-                      Subdominio Cloudflare: <strong className="text-zinc-300">https://{cloudflareDomain}</strong>
-                    </p>
+                    <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500">
+                      <span>Vista previa multi-tenant:</span>
+                      <a
+                        href={internalPreviewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-zinc-400 hover:text-white inline-flex items-center gap-1 transition"
+                      >
+                        <span>Abrir /r/{slug}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
 
                   {/* Card Portal del Cliente */}

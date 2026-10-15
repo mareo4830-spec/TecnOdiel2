@@ -319,9 +319,10 @@ export const VirtualDeskClientPortal = ({
     }, 900);
   };
 
-  // URL pública de la web
+  // URL pública de la web (Cloudflare Pages como URL canónica de producción)
   const webOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://tecnodiel.es';
-  const liveUrl = isClinic ? `${webOrigin}/#/c/${slug}` : `${webOrigin}/#/r/${slug}`;
+  const cloudflareUrl = projectData?.cloudflare_url || projectData?.cloudflareUrl || (slug ? `https://${slug}.pages.dev` : null);
+  const liveUrl = cloudflareUrl || (isClinic ? `${webOrigin}/#/c/${slug}` : `${webOrigin}/#/r/${slug}`);
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(liveUrl)}&color=000000&bgcolor=ffffff&margin=1`;
 
   const handleCopyLink = () => {
