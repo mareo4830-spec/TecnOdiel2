@@ -4,6 +4,7 @@ import {
   Handshake,
   LayoutDashboard,
   MessagesSquare,
+  Radar,
   Settings,
   SquareKanban,
 } from 'lucide-react';
@@ -53,6 +54,15 @@ export const NAV_ITEMS: NavItem[] = [
     phase: 6,
     description:
       'Pipeline de leads de Contactado a Cerrado, con fichas y conversión a proyecto.',
+  },
+  {
+    path: '/prospeccion',
+    label: 'Prospección',
+    title: 'Prospección IA Multiagente',
+    icon: Radar,
+    phase: 6,
+    description:
+      'Sistema de 5 agentes IA para prospección comercial de negocios locales en España con un clic.',
   },
   {
     path: '/chats',

@@ -1,4 +1,4 @@
-import { Plus, Search } from 'lucide-react';
+import { Plus, Radar, Search } from 'lucide-react';
 import { useCallback, useMemo, useState, type DragEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { daysUntil, formatEuros } from '../../lib/format';
@@ -137,6 +137,13 @@ export function CrmPage() {
             }`}
           >
             Perdidos
+          </button>
+          <button
+            onClick={() => navigate('/prospeccion')}
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3.5 text-sm font-semibold text-indigo-300 hover:bg-indigo-500/20 hover:text-white transition cursor-pointer"
+          >
+            <Radar className="h-4 w-4 text-indigo-400" />
+            Prospección IA
           </button>
           <button
             onClick={() => setParam('nuevo', '1')}
