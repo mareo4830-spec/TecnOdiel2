@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Loader2, Sparkles, X } from 'lucide-react';
 import { client, useAccount } from '../../lib/adminAuth';
+import { submitLead } from '../../lib/leads';
 import { computeOurPrice, computeReferencePrice } from './pricing';
 import { FEATURES } from './formConfig';
 
@@ -83,6 +84,36 @@ export default function PriceRevealModal({ form, onClose, onSubmitted, onNavigat
         referencePrice,
       },
     };
+
+    // Sincronizar con el panel de administración TecnOdiel (leads.js y tecnodiel_leads)
+    try {
+      await submitLead({
+        name: form.contactName || form.businessName,
+        business_name: form.businessName,
+        sector: form.sector,
+        city: 'Huelva',
+        email: userEmail,
+        phone: form.phone,
+        services: featureLabels.length > 0 ? featureLabels : (form.features || []),
+        message: `Presupuesto calculado: ${ourPrice}€ (Ahorro: ${savings}€). Estilo: ${form.layoutFamily || ''} ${form.layoutVariant || ''}. Ambiente: ${form.ambiente || ''}.`,
+        source: 'formulario_web',
+        template_id: form.layoutVariant || form.layoutFamily || '',
+        template_name: form.layoutFamily || 'Personalizada',
+        stage: 'nuevo',
+        site_deployed: false,
+        intake: {
+          ambiente: form.ambiente,
+          features: form.features,
+          layoutFamily: form.layoutFamily,
+          layoutVariant: form.layoutVariant,
+          accentOverride: form.accentOverride || null,
+          ourPrice,
+          referencePrice,
+        }
+      });
+    } catch (e) {
+      console.warn('Error al sincronizar lead con leads.js:', e);
+    }
 
     try {
       const { error } = await client.from('leads').insert(projectRecord);

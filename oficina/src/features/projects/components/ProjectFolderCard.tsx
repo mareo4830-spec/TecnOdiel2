@@ -61,7 +61,9 @@ export function ProjectFolderCard({ project }: { project: Project }) {
           <div className="min-w-0 text-right">
             <p className="flex items-center justify-end gap-1 truncate text-xs text-gray-400">
               <Globe className="h-3 w-3 shrink-0" />
-              <span className="truncate">{project.domain ?? (saas ? 'Un dominio por tenant' : 'Sin dominio')}</span>
+              <span className="truncate">
+                {project.domain ?? (project.previewUrl ? project.previewUrl.replace('https://', '') : (saas ? 'Un dominio por tenant' : 'Pendiente'))}
+              </span>
             </p>
             <p className="text-[11px] text-gray-500">Actualizado {formatRelative(project.updatedAt)}</p>
           </div>

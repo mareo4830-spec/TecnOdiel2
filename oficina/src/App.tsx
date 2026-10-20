@@ -16,6 +16,9 @@ const ProjectDetailPage = lazy(() =>
 const KanbanPage = lazy(() => import('./features/kanban/KanbanPage').then((m) => ({ default: m.KanbanPage })));
 const HoursPage = lazy(() => import('./features/hours/HoursPage').then((m) => ({ default: m.HoursPage })));
 const CrmPage = lazy(() => import('./features/crm/CrmPage').then((m) => ({ default: m.CrmPage })));
+const ProspectPage = lazy(() =>
+  import('./features/prospect/ProspectPage').then((m) => ({ default: m.ProspectPage })),
+);
 const ChatsPage = lazy(() => import('./features/chats/ChatsPage').then((m) => ({ default: m.ChatsPage })));
 const TenantWizardPage = lazy(() => import('./features/tenants/TenantWizardPage').then((m) => ({ default: m.TenantWizardPage })));
 const TenantDetailPage = lazy(() => import('./features/tenants/TenantDetailPage').then((m) => ({ default: m.TenantDetailPage })));
@@ -50,6 +53,7 @@ export default function App() {
           <Route path="/kanban" element={<KanbanPage />} />
           <Route path="/horas" element={<HoursPage />} />
           <Route path="/crm" element={<CrmPage />} />
+          <Route path="/prospeccion" element={<ProspectPage />} />
           <Route path="/chats" element={<ChatsPage />} />
           <Route path="/ajustes" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

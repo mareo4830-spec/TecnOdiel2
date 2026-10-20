@@ -1,15 +1,21 @@
 import { useMemo } from 'react';
 import { iso, num, orNull } from '../../lib/rows';
 import { useStore } from '../../lib/store';
-import { createSyncedStore } from '../../lib/syncedStore';
-import type { Commit, NewProjectInput, PartnerId, Project, ProjectClient, SaasProjectConfig } from '../../types';
+import { isSupabaseConfigured } from '../../lib/supabase';
+import { createSyncedStore, whenSyncReady } from '../../lib/syncedStore';
+import type { BusinessType, Commit, LayoutVariant, NewProjectInput, PartnerId, Project, ProjectClient, ProjectStatus, SaasProjectConfig } from '../../types';
 import { logActivity } from '../activity/activityService';
+import { sanitizeSlug } from '../../lib/cloudflare';
 
 /*
  * Proyectos: tabla `projects`; la configuración de un proyecto SaaS vive aparte en
  * `saas_project_config` (solo nombres de secretos, nunca claves) y aquí se une al proyecto para que
  * los componentes sigan viendo `project.saas`. Los commits los escribe la Edge Function
  * `github-webhook`: el navegador solo los lee.
+ *
+ * Las solicitudes que la landing guarda en este navegador (`tecnodiel_leads` y
+ * `tecnodiel_active_project`) se convierten en proyectos si aún no existen, para que aparezcan
+ * en Proyectos y en el Kanban (ver importLandingProjects).
  */
 type ProjectRecord = Omit<Project, 'saas'>;
 interface SaasConfigRecord {
@@ -163,6 +169,149 @@ function slugify(text: string): string {
     .replace(/(^-|-$)/g, '');
 }
 
+interface RawStoredLead {
+  id?: string;
+  name?: string;
+  business_name?: string;
+  sector?: string;
+  city?: string;
+  email?: string;
+  phone?: string;
+  services?: string[];
+  message?: string;
+  source?: string;
+  template_id?: string;
+  template_name?: string;
+  slug?: string;
+  site_deployed?: boolean;
+  live_url?: string;
+  stage?: string;
+  created_at?: string;
+  budget?: number;
+  estimated_value?: number;
+  owner?: string;
+  intake?: Record<string, unknown>;
+}
+
+function mapSectorToBusinessType(sector?: string): BusinessType {
+  const s = (sector || '').toLowerCase();
+  if (s.includes('restauran') || s.includes('comida') || s.includes('hosteler')) return 'restaurante';
+  // «barbería» contiene «bar»: va antes que cafetería.
+  if (s.includes('barber')) return 'barberia';
+  if (s.includes('bar') || s.includes('cafeter')) return 'cafeteria';
+  if (s.includes('clinic') || s.includes('dental') || s.includes('salud') || s.includes('fisio') || s.includes('medic')) return 'clinica';
+  if (s.includes('peluquer')) return 'peluqueria';
+  if (s.includes('estet')) return 'estetica';
+  if (s.includes('tienda') || s.includes('comercio') || s.includes('moda')) return 'tienda';
+  return 'otro';
+}
+
+/** Grupo de portadas del SaaS que encaja con cada tipo de negocio (projects.layout). */
+const LAYOUT_FOR_BUSINESS: Record<BusinessType, LayoutVariant> = {
+  barberia: 'barber',
+  peluqueria: 'women',
+  salon: 'beauty',
+  estetica: 'beauty',
+  clinica: 'beauty',
+  restaurante: 'unisex',
+  cafeteria: 'unisex',
+  tienda: 'unisex',
+  otro: 'unisex',
+};
+
+function mapStageToProjectStatus(stage?: string): ProjectStatus {
+  const s = (stage || '').toLowerCase();
+  if (s === 'cerrado' || s === 'hecho' || s === 'ganado') return 'hecho';
+  if (s === 'interesado' || s === 'propuesta' || s === 'negociacion' || s === 'en_progreso') return 'en_progreso';
+  return 'planeado';
+}
+
+function projectFromLead(lead: RawStoredLead): ProjectRecord {
+  const businessName = lead.business_name || lead.name || 'Negocio';
+  const cleanSlug = lead.slug || sanitizeSlug(businessName);
+  const id = slugify(businessName) || `proyecto-${Date.now()}`;
+  const now = lead.created_at || new Date().toISOString();
+  const cfUrl = lead.live_url || (lead.site_deployed ? `https://${cleanSlug}.pages.dev` : `https://${cleanSlug}.pages.dev`);
+  const status = mapStageToProjectStatus(lead.stage);
+
+  return {
+    id,
+    kind: 'standard',
+    name: `Web ${businessName}`,
+    description: lead.message || `Proyecto web para ${businessName}. Plantilla: ${lead.template_name || lead.template_id || 'Personalizada'}.`,
+    businessId: null,
+    businessName,
+    businessType: mapSectorToBusinessType(lead.sector),
+    layout: LAYOUT_FOR_BUSINESS[mapSectorToBusinessType(lead.sector)],
+    status,
+    progress: status === 'hecho' ? 100 : status === 'en_progreso' ? 50 : 15,
+    price: Number(lead.budget || lead.estimated_value) || 350,
+    closedBy: 'javier',
+    auditBy: 'mario',
+    contributors: ['mario', 'javier'],
+    client: {
+      contactName: lead.name || businessName,
+      phone: lead.phone || '',
+      email: lead.email || '',
+      city: lead.city || 'Huelva',
+    },
+    domain: null,
+    repo: { fullName: `agencia/${cleanSlug}`, branch: 'main' },
+    vercelProject: cleanSlug,
+    previewUrl: cfUrl,
+    clientId: null,
+    waitingClient: false,
+    meeting: null,
+    boardOrder: -1,
+    startedAt: now,
+    updatedAt: now,
+  };
+}
+
+/** Solicitudes de la landing guardadas en este navegador, como filas de proyecto. */
+function landingProjects(): ProjectRecord[] {
+  const out: ProjectRecord[] = [];
+  const read = (key: string): RawStoredLead[] => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as RawStoredLead | RawStoredLead[];
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [];
+    }
+  };
+  for (const lead of [...read('tecnodiel_leads'), ...read('tecnodiel_active_project')]) {
+    if (lead && (lead.business_name || lead.name)) out.push(projectFromLead(lead));
+  }
+  return out;
+}
+
+/** Añade como proyecto cada solicitud de la landing que todavía no lo sea (por id o por negocio). */
+function importLandingProjects(): void {
+  const incoming = landingProjects();
+  if (!incoming.length) return;
+  projectsStore.set((prev) => {
+    const ids = new Set(prev.map((p) => p.id));
+    const names = new Set(prev.map((p) => p.businessName.trim().toLowerCase()));
+    const fresh: ProjectRecord[] = [];
+    for (const p of incoming) {
+      const name = p.businessName.trim().toLowerCase();
+      if (ids.has(p.id) || names.has(name)) continue;
+      ids.add(p.id);
+      names.add(name);
+      fresh.push(p);
+    }
+    return fresh.length ? [...fresh, ...prev] : prev;
+  });
+}
+
+// En la demo se importa al cargar; con Supabase, cuando ya se han leído los proyectos del equipo.
+if (typeof window !== 'undefined') {
+  if (isSupabaseConfigured) whenSyncReady(importLandingProjects);
+  else importLandingProjects();
+}
+
 export function createProject(
   input: NewProjectInput,
   createdBy: PartnerId,
@@ -182,7 +331,6 @@ export function createProject(
     id,
     clientId,
     description: '',
-    // Un estándar nace al cerrar la venta o antes (cita pendiente); el SaaS ya está en marcha.
     status: status ?? (input.kind === 'saas' ? 'en_progreso' : 'planeado'),
     progress: 0,
     contributors: [createdBy],

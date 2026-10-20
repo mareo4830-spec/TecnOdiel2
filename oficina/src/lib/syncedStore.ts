@@ -55,6 +55,17 @@ export type SyncState = 'idle' | 'loading' | 'ready';
 const statusStore = createStore<SyncState>('idle');
 export const useSyncStatus = (): SyncState => useStore(statusStore);
 
+/** Llama a `fn` cada vez que termina la carga inicial de las tablas (al entrar un socio). */
+export function whenSyncReady(fn: () => void): () => void {
+  if (statusStore.get() === 'ready') fn();
+  let last = statusStore.get();
+  return statusStore.subscribe(() => {
+    const now = statusStore.get();
+    if (now === 'ready' && last !== 'ready') fn();
+    last = now;
+  });
+}
+
 /** Empieza a leer y escuchar todas las tablas. Se llama al entrar un socio. */
 export async function startSync(): Promise<void> {
   if (!isSupabaseConfigured) return;

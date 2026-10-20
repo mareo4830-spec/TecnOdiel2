@@ -393,6 +393,14 @@ export interface Lead {
   intake?: Record<string, unknown> | null;
   /** Proyecto creado al convertir el lead. */
   projectId: string | null;
+  /** Datos de lanzamiento web y Cloudflare Pages */
+  siteDeployed?: boolean;
+  cloudflareUrl?: string | null;
+  liveUrl?: string | null;
+  slug?: string | null;
+  templateId?: string | null;
+  templateName?: string | null;
+  services?: string[];
   createdAt: string;
   updatedAt: string;
 }
