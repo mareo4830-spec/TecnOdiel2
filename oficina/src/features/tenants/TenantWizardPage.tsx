@@ -1032,7 +1032,7 @@ export function TenantWizardPage() {
 
         <aside className="lg:sticky lg:top-4 lg:self-start" aria-label="Vista previa en vivo">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Vista previa en vivo</p>
-          <SitePreview data={siteData} compact />
+          <SitePreview data={siteData} content={siteContent} compact />
         </aside>
       </div>
     </div>

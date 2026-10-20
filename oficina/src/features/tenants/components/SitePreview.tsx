@@ -1,5 +1,7 @@
 import { ExternalLink, Lock, Monitor, RotateCw, Smartphone } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { SiteContent } from '../../../types';
+import { LIVE_PREVIEW_ORIGIN, LIVE_PREVIEW_READY, LIVE_PREVIEW_URL, livePreviewMessage } from '../livePreview';
 import { buildTenantSite, type SiteData } from '../tenantSite';
 
 type Device = 'desktop' | 'mobile';
@@ -13,16 +15,40 @@ interface SitePreviewProps {
   /** Altura del marco en escritorio. */
   height?: string;
   compact?: boolean;
+  /** Contenido de la web: con él, la vista es la portada real del SaaS repintada en vivo. */
+  content?: SiteContent;
 }
 
 /** Marco de navegador con la web del tenant: la real (iframe) o la simulada con sus datos. */
-export function SitePreview({ data, liveUrl = null, preferLive = false, height = 'h-[560px]', compact = false }: SitePreviewProps) {
+export function SitePreview({ data, liveUrl = null, preferLive = false, height = 'h-[560px]', compact = false, content }: SitePreviewProps) {
   const [device, setDevice] = useState<Device>(compact ? 'mobile' : 'desktop');
   const [reloadKey, setReloadKey] = useState(0);
   const [live, setLive] = useState(Boolean(liveUrl && preferLive));
   const showLive = live && Boolean(liveUrl);
-  const srcDoc = useMemo(() => (showLive ? undefined : buildTenantSite(data)), [showLive, data]);
+  // Portada real en vivo (asistente): la demo del SaaS pintada con lo que se está editando.
+  const realtime = content !== undefined && !showLive;
+  const srcDoc = useMemo(() => (showLive || realtime ? undefined : buildTenantSite(data)), [showLive, realtime, data]);
   const shownUrl = showLive ? liveUrl! : (liveUrl ?? (data.previewHost ? `https://${data.previewHost}` : 'vista-previa.local'));
+
+  const frame = useRef<HTMLIFrameElement>(null);
+  const message = useMemo(() => (realtime ? livePreviewMessage(data, content) : null), [realtime, data, content]);
+  const latest = useRef(message);
+  latest.current = message;
+  useEffect(() => {
+    if (message) frame.current?.contentWindow?.postMessage(message, LIVE_PREVIEW_ORIGIN);
+  }, [message]);
+  useEffect(() => {
+    if (!realtime) return;
+    // La portada avisa cuando ya escucha (al cargar o al recargar): se le manda el estado actual.
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== LIVE_PREVIEW_ORIGIN || e.source !== frame.current?.contentWindow) return;
+      if ((e.data as { type?: string } | null)?.type === LIVE_PREVIEW_READY && latest.current) {
+        frame.current?.contentWindow?.postMessage(latest.current, LIVE_PREVIEW_ORIGIN);
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [realtime]);
 
   const tab = (active: boolean) =>
     `flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${active ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`;
@@ -33,8 +59,12 @@ export function SitePreview({ data, liveUrl = null, preferLive = false, height =
         <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-gray-800 px-3 py-2 text-xs text-gray-400">
           <Lock className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
           <span className="truncate font-mono">{shownUrl.replace('https://', '')}</span>
-          {!showLive && (
-            <span className="ml-auto shrink-0 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">SIMULADA</span>
+          {realtime ? (
+            <span className="ml-auto shrink-0 rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">PORTADA REAL</span>
+          ) : (
+            !showLive && (
+              <span className="ml-auto shrink-0 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">SIMULADA</span>
+            )
           )}
         </div>
         {liveUrl && (
@@ -95,12 +125,13 @@ export function SitePreview({ data, liveUrl = null, preferLive = false, height =
           }`}
         >
           <iframe
+            ref={frame}
             key={`${device}-${reloadKey}-${showLive}`}
             title={`Vista previa de ${data.name || 'el negocio'}`}
-            src={showLive ? liveUrl! : undefined}
+            src={showLive ? liveUrl! : realtime ? LIVE_PREVIEW_URL : undefined}
             srcDoc={srcDoc}
             // srcDoc hereda nuestro origen: la simulada va sin permisos. La real es de otro origen.
-            sandbox={showLive ? 'allow-scripts allow-same-origin allow-forms allow-popups' : 'allow-popups'}
+            sandbox={showLive || realtime ? 'allow-scripts allow-same-origin allow-forms allow-popups' : 'allow-popups'}
             className="h-full w-full"
           />
         </div>
