@@ -21,21 +21,17 @@ const SEEDS: Record<TenantBusinessType, ServiceSeed[]> = {
     ['Tinte', 35, 90, 'color'],
     ['Corte + Lavado y peinado', 25, 60, 'scissors-crossed'],
   ],
-  salon: [
-    ['Corte y peinado', 25, 45, 'scissors'],
-    ['Lavado y peinado', 18, 30, 'wash'],
-    ['Color', 40, 90, 'color'],
-  ],
   estetica: [
     ['Diseño de cejas', 10, 20, 'contours'],
     ['Limpieza facial', 35, 60, 'wash'],
     ['Depilación', 15, 30, 'neck'],
   ],
-  // Verticales nuevas: sin catálogo por defecto, cada SaaS (restaurantes, clínicas…) trae el suyo.
-  restaurante: [],
-  cafeteria: [],
-  clinica: [],
-  otro: [],
+  unisex: [
+    ['Corte caballero', 13, 30, 'scissors'],
+    ['Corte señora', 18, 45, 'scissors'],
+    ['Lavado y peinado', 15, 30, 'wash'],
+    ['Color', 35, 90, 'color'],
+  ],
 };
 
 export function defaultServices(businessId: string, type: TenantBusinessType): SaasService[] {

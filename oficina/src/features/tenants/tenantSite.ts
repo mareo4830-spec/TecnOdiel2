@@ -24,12 +24,8 @@ export type SiteData = Pick<
 const COPY_TYPE: Record<TenantBusinessType, BusinessType> = {
   barberia: 'barberia',
   peluqueria: 'peluqueria',
-  salon: 'peluqueria',
   estetica: 'estetica',
-  restaurante: 'restaurante',
-  cafeteria: 'cafeteria',
-  clinica: 'clinica',
-  otro: 'otro',
+  unisex: 'peluqueria',
 };
 
 const digits = (phone: string) => phone.replace(/[^\d+]/g, '').replace(/^\+/, '');
@@ -40,7 +36,7 @@ const digits = (phone: string) => phone.replace(/[^\d+]/g, '').replace(/^\+/, ''
  */
 export function buildTenantSite(d: SiteData): string {
   const v = effectiveVariant(d.layout ?? 'classic', d.layoutVariant);
-  const copy = SITE_COPY[COPY_TYPE[d.businessType ?? 'otro']];
+  const copy = SITE_COPY[(d.businessType ? COPY_TYPE[d.businessType] : 'otro')];
   const name = d.name.trim() || 'Tu negocio';
   const radius = v.radius === '999px' ? '24px' : v.radius;
   const services = copy.services.map(([n, p]) => `<li><span>${esc(n)}</span><strong>${esc(p)}</strong></li>`).join('');

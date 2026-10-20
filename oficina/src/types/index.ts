@@ -448,15 +448,8 @@ export interface Integration {
 // SaaS multi-tenant (proyectos kind = 'saas')
 // ---------------------------------------------------------------------------
 
-export type TenantBusinessType =
-  | 'barberia'
-  | 'peluqueria'
-  | 'salon'
-  | 'estetica'
-  | 'restaurante'
-  | 'cafeteria'
-  | 'clinica'
-  | 'otro';
+/** Tipos de negocio del SaaS: uno por grupo de portadas (barbería, femenina, belleza, unisex). */
+export type TenantBusinessType = 'barberia' | 'peluqueria' | 'estetica' | 'unisex';
 export type TenantStatus = 'draft' | 'provisioning' | 'live' | 'suspended' | 'error';
 export type DnsProviderId = 'cloudflare' | 'ionos';
 export type PaymentMode = 'single' | 'split_50_50';

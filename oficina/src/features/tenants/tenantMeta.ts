@@ -1,10 +1,6 @@
 import {
   CalendarClock,
-  Coffee,
   Eye,
-  Store,
-  Stethoscope,
-  UtensilsCrossed,
   Cloud,
   Database,
   Globe,
@@ -73,13 +69,9 @@ export const TENANT_STATUSES: TenantStatus[] = ['draft', 'provisioning', 'live',
 
 export const TENANT_TYPE_META: Record<TenantBusinessType, { label: string; icon: LucideIcon; tint: string }> = {
   barberia: { label: 'Barbería', icon: Scissors, tint: 'bg-sky-500/15 text-sky-300' },
-  peluqueria: { label: 'Peluquería', icon: Sparkles, tint: 'bg-fuchsia-500/15 text-fuchsia-300' },
-  salon: { label: 'Salón', icon: Brush, tint: 'bg-violet-500/15 text-violet-300' },
-  estetica: { label: 'Estética', icon: Flower2, tint: 'bg-rose-500/15 text-rose-300' },
-  restaurante: { label: 'Restaurante', icon: UtensilsCrossed, tint: 'bg-amber-500/15 text-amber-300' },
-  cafeteria: { label: 'Cafetería', icon: Coffee, tint: 'bg-orange-500/15 text-orange-300' },
-  clinica: { label: 'Clínica', icon: Stethoscope, tint: 'bg-teal-500/15 text-teal-300' },
-  otro: { label: 'Otro', icon: Store, tint: 'bg-gray-500/15 text-gray-300' },
+  peluqueria: { label: 'Peluquería femenina', icon: Sparkles, tint: 'bg-fuchsia-500/15 text-fuchsia-300' },
+  estetica: { label: 'Salón de belleza', icon: Flower2, tint: 'bg-rose-500/15 text-rose-300' },
+  unisex: { label: 'Peluquería unisex', icon: Brush, tint: 'bg-violet-500/15 text-violet-300' },
 };
 export const TENANT_TYPES = Object.keys(TENANT_TYPE_META) as TenantBusinessType[];
 
@@ -213,16 +205,12 @@ export const LAYOUT_VARIANTS: LayoutVariantMeta[] = [
 export const LAYOUT_FOR_TYPE: Record<TenantBusinessType, LayoutVariant> = {
   barberia: 'barber',
   peluqueria: 'women',
-  salon: 'beauty',
   estetica: 'beauty',
-  restaurante: 'unisex',
-  cafeteria: 'unisex',
-  clinica: 'beauty',
-  otro: 'unisex',
+  unisex: 'unisex',
 };
 
 /** Portada real del SaaS con datos de ejemplo (el SaaS permite ?variant= en sus previews). */
-export const SAAS_DEMO_URL = 'https://saas-demo-preview.vercel.app';
+export const SAAS_DEMO_URL: string = import.meta.env.VITE_SAAS_DEMO_URL || 'https://saas-demo-preview.vercel.app';
 export const variantDemoUrl = (key: string) => `${SAAS_DEMO_URL}/?variant=${encodeURIComponent(key)}`;
 
 export function variantsOf(layout: LayoutVariant): LayoutVariantMeta[] {

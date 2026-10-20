@@ -8,7 +8,7 @@ export type IntegrationStatus = 'pending' | 'running' | 'ok' | 'error' | 'skippe
 export type TenantStatus = 'draft' | 'provisioning' | 'live' | 'suspended' | 'error';
 /** Grupos de portadas del SaaS (businesses.layout_key). classic = solo la web propia de Adrián Millán. */
 export type LayoutKey = 'classic' | 'barber' | 'women' | 'beauty' | 'unisex';
-export type TenantBusinessType = 'barberia' | 'peluqueria' | 'salon' | 'estetica' | 'restaurante' | 'cafeteria' | 'clinica' | 'otro';
+export type TenantBusinessType = 'barberia' | 'peluqueria' | 'estetica' | 'unisex';
 
 /** Horario estructurado: { mon: [["09:30", "13:30"], ["16:30", "20:30"]], … }. */
 export type OpeningHours = Partial<Record<Weekday, [string, string][]>>;
