@@ -19,9 +19,11 @@ export const SOURCE_LABEL: Record<LeadSource, string> = {
   recomendacion: 'Recomendación',
   google: 'Google',
   whatsapp: 'WhatsApp',
+  formulario_web: 'Formulario web',
 };
 
-export const SOURCES = Object.keys(SOURCE_LABEL) as LeadSource[];
+/** Orígenes que un socio puede elegir a mano; `formulario_web` solo llega desde la landing. */
+export const SOURCES = (Object.keys(SOURCE_LABEL) as LeadSource[]).filter((s) => s !== 'formulario_web');
 
 /** Enlace a WhatsApp con el número en formato internacional sin símbolos. */
 export function whatsappLink(phone: string, text?: string): string {

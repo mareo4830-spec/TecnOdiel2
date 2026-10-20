@@ -1,12 +1,13 @@
 import { LoaderCircle, Lock, Save, Wand2 } from 'lucide-react';
 import { useState } from 'react';
-import type { DnsProviderId, OpeningHours, Tenant, TenantBusinessType, TenantSocials } from '../../../types';
+import type { DnsProviderId, OpeningHours, SiteContent, Tenant, TenantBusinessType, TenantSocials } from '../../../types';
 import { useProject } from '../../projects/projectService';
+import { BrandFields, cleanContent, ContentEditor, contentErrors } from '../components/ContentEditor';
 import { HoursEditor } from '../components/HoursEditor';
 import { LayoutPicker } from '../components/LayoutPicker';
 import { Field, inputClass } from '../components/TenantBits';
 import { lookupPlace } from '../provisioningClient';
-import { DNS_PROVIDER_META, MAX_LABEL, previewHostFor, SOCIAL_META, SOCIALS, TENANT_TYPES, TENANT_TYPE_META } from '../tenantMeta';
+import { DNS_PROVIDER_META, effectiveVariant, MAX_LABEL, previewHostFor, SOCIAL_META, SOCIALS, TENANT_TYPES, TENANT_TYPE_META } from '../tenantMeta';
 import {
   isDomainTaken,
   isSlugTaken,
@@ -99,6 +100,7 @@ export function DataTab({ tenant }: { tenant: Tenant }) {
     whatsapp: tenant.whatsapp ?? '',
     publicEmail: tenant.publicEmail ?? '',
     socials: tenant.socials as TenantSocials,
+    siteContent: (tenant.siteContent ?? {}) as SiteContent,
   });
   const project = useProject(tenant.projectId);
   const integrations = useTenantIntegrations(tenant.id);
@@ -132,6 +134,7 @@ export function DataTab({ tenant }: { tenant: Tenant }) {
     if (form.logoUrl && !/^https:\/\//.test(form.logoUrl)) e.logoUrl = 'Debe ser https://';
     if (domain && !isValidDomain(domain)) e.domain = 'Dominio no válido.';
     else if (domain && isDomainTaken(domain, tenant.id)) e.domain = 'Otro tenant lo usa.';
+    Object.assign(e, contentErrors(form.siteContent));
     setErrors(e);
     if (Object.keys(e).length) return;
     try {
@@ -155,6 +158,7 @@ export function DataTab({ tenant }: { tenant: Tenant }) {
         whatsapp: form.whatsapp.trim() || null,
         publicEmail: form.publicEmail.trim() || null,
         socials: Object.fromEntries(Object.entries(form.socials).filter(([, v]) => v?.trim()).map(([k, v]) => [k, v!.trim()])),
+        siteContent: cleanContent(form.siteContent),
         // El host de preview sigue al slug; el paso preview lo da de alta en Vercel al volver a lanzarlo.
         ...(form.slug !== tenant.slug ? { previewHost: nextPreviewHost } : {}),
       });
@@ -275,15 +279,33 @@ export function DataTab({ tenant }: { tenant: Tenant }) {
         </div>
       </Card>
 
-      <Card title="Web">
+      <Card title="Portada">
         <LayoutPicker
           layout={form.layout}
           variant={form.layoutVariant}
           name={form.name}
           tagline={form.tagline || null}
+          accent={form.siteContent.accent}
+          tenantId={tenant.id}
           onChange={(l, v) => setForm((f) => ({ ...f, layout: l, layoutVariant: v }))}
         />
+        {form.layout && form.layout !== 'classic' && (
+          <div className="mt-4">
+            <BrandFields
+              value={form.siteContent}
+              onChange={(c) => set('siteContent', c)}
+              defaultAccent={effectiveVariant(form.layout, form.layoutVariant).accent}
+              errors={errors}
+            />
+          </div>
+        )}
       </Card>
+
+      {form.layout !== 'classic' && (
+        <Card title="Contenido de la web">
+          <ContentEditor value={form.siteContent} onChange={(c) => set('siteContent', c)} errors={errors} />
+        </Card>
+      )}
 
       <div className="flex items-center justify-end gap-3">
         {errors.save && <span className="text-sm text-rose-300">{errors.save}</span>}

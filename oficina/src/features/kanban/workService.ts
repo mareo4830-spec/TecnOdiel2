@@ -125,7 +125,7 @@ export function moveWork(key: string, stage: WorkStage, beforeKey: string | null
   const at = beforeKey ? column.findIndex((i) => i.key === beforeKey) : -1;
   column.splice(at === -1 ? column.length : at, 0, item);
 
-  const projectPatches = new Map<string, Partial<Project>>();
+  const projectPatches = new Map<string, Partial<Omit<Project, 'saas'>>>();
   const tenantPatches = new Map<string, Partial<Tenant>>();
   column.forEach((i, order) => {
     if (i.boardOrder === order && i.key !== key) return;

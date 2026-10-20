@@ -54,6 +54,7 @@ export type AuthMode = 'supabase' | 'demo';
 export type BusinessType =
   | 'barberia'
   | 'peluqueria'
+  | 'salon'
   | 'estetica'
   | 'restaurante'
   | 'cafeteria'
@@ -61,8 +62,56 @@ export type BusinessType =
   | 'tienda'
   | 'otro';
 
-/** Mismos valores que businesses.layout_key del SaaS. */
-export type LayoutVariant = 'classic' | 'editorial' | 'minimal' | 'playful';
+/**
+ * Grupo de portadas del SaaS (businesses.layout_key): barbería, peluquería de mujer, belleza y
+ * unisex. classic solo existe para la web propia de Adrián Millán (variante classic_prestige).
+ */
+export type LayoutVariant = 'classic' | 'barber' | 'women' | 'beauty' | 'unisex';
+
+/** Intensidad de las animaciones de la portada (token motion del SaaS). */
+export type SiteMotion = 'calm' | 'smooth' | 'lively';
+
+export interface SiteService {
+  name: string;
+  price: number;
+  minutes: number;
+}
+export interface SiteMember {
+  name: string;
+  role: string;
+  photoUrl: string | null;
+}
+export interface SiteReview {
+  name: string;
+  text: string;
+  rating: number;
+}
+export interface SiteFaq {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Contenido de la portada del tenant (tenants.site_content). El provisionado lo vuelca al negocio
+ * del SaaS: textos y fotos a public_config, color y animación a design_tokens, servicios y equipo
+ * (solo si el negocio aún no tiene) y el dueño como administrador del panel.
+ */
+export interface SiteContent {
+  about?: string;
+  heroImageUrl?: string;
+  aboutImageUrl?: string;
+  placeImageUrl?: string;
+  /** Color de marca #rrggbb. Vacío = el de la portada. */
+  accent?: string;
+  motion?: SiteMotion;
+  services?: SiteService[];
+  team?: SiteMember[];
+  reviews?: SiteReview[];
+  rating?: number;
+  reviewUrl?: string;
+  faq?: SiteFaq[];
+  owner?: { email: string; name: string | null };
+}
 
 /**
  * Etapa de un trabajo en el Kanban (proyecto estándar o tenant de un SaaS):
@@ -129,8 +178,27 @@ export interface SaasProjectConfig {
   defaultDnsProvider: DnsProviderId | null;
 }
 
+/** Cliente del portal: quien contrata (y ve su proyecto al entrar con su cuenta de Google). */
+export type ClientStatus = 'solicitud' | 'activo' | 'pausado' | 'baja';
+
+export interface Client {
+  id: string;
+  /** Cuenta de Google propietaria. Null hasta que la reclama (por el formulario o por email). */
+  ownerUserId: string | null;
+  businessName: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  city: string;
+  leadId: string | null;
+  status: ClientStatus;
+  createdAt: string;
+}
+
 export interface Project extends BoardFields {
   id: string;
+  /** Cliente del portal al que pertenece (lo ve en su portal). */
+  clientId: string | null;
   kind: ProjectKind;
   /** Nombre del trabajo (ej. "Landing Page Barbería"). */
   name: string;
@@ -295,7 +363,7 @@ export interface FundMovement {
 // ---------------------------------------------------------------------------
 
 export type LeadStage = 'contactado' | 'interesado' | 'propuesta' | 'negociacion' | 'cerrado' | 'perdido';
-export type LeadSource = 'puerta_fria' | 'instagram' | 'recomendacion' | 'google' | 'whatsapp';
+export type LeadSource = 'puerta_fria' | 'instagram' | 'recomendacion' | 'google' | 'whatsapp' | 'formulario_web';
 
 export interface LeadNote {
   id: string;
@@ -321,6 +389,8 @@ export interface Lead {
   nextActionDate: string | null;
   nextAction: string;
   notes: LeadNote[];
+  /** Respuestas del asistente de la landing (solo en leads de `formulario_web`). */
+  intake?: Record<string, unknown> | null;
   /** Proyecto creado al convertir el lead. */
   projectId: string | null;
   createdAt: string;
@@ -416,6 +486,8 @@ export type TenantSocials = Partial<Record<SocialNetwork, string>>;
 export interface Tenant extends BoardFields {
   id: string;
   projectId: string;
+  /** Cliente del portal al que pertenece (lo ve en su portal). */
+  clientId: string | null;
   /**
    * `businesses.id` en el Supabase del SaaS. Se fija al crear el tenant (generado o vinculado a
    * un negocio que ya existe) y el provisionado crea o actualiza esa misma fila.
@@ -447,6 +519,8 @@ export interface Tenant extends BoardFields {
   whatsapp: string | null;
   publicEmail: string | null;
   socials: TenantSocials;
+  /** Contenido de la portada (presentación, fotos, servicios, equipo, reseñas, preguntas, marca). */
+  siteContent: SiteContent;
   status: TenantStatus;
   createdBy: PartnerId | null;
   createdAt: string;

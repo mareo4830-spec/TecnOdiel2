@@ -47,7 +47,9 @@ export function SaasConfigTab({ project }: { project: Project }) {
       supabaseRef: refFromSupabaseUrl(cfg.supabaseUrl) || cfg.supabaseRef,
       vercelProjectId: cfg.vercelProjectId.trim(),
       vercelTeamId: cfg.vercelTeamId.trim(),
-      agencyPreviewDomain: cfg.agencyPreviewDomain.trim().toLowerCase(),
+      // Cada modo de preview guarda solo su campo: lo que se escribió en el otro no se valida ni se envía.
+      agencyPreviewDomain: cfg.previewMode === 'agency_domain' ? cfg.agencyPreviewDomain.trim().toLowerCase() : '',
+      vercelAppSuffix: cfg.previewMode === 'vercel_app' ? cfg.vercelAppSuffix.trim().toLowerCase() : '',
     };
     const e = validateSaasConfig(clean, repo, vercelProject);
     setErrors(e);

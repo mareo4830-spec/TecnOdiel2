@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
-import { createStore, useStore } from '../../lib/store';
+import { iso, num } from '../../lib/rows';
+import { useStore } from '../../lib/store';
+import { createSyncedStore } from '../../lib/syncedStore';
 import type { CheckinSession, FundMovement, FundMovementType, PartnerId, WorkSession } from '../../types';
 import { logActivity } from '../activity/activityService';
 import { useAllCommits } from '../projects/projectService';
@@ -7,14 +9,61 @@ import { evaluateSessions, formatHours, sessionHours, type SessionEvaluation } f
 import { FUND_MIN_RESERVE } from './repartoConfig';
 
 /*
- * Capa de datos de horas y fondo común (local). Con Supabase:
- *  - `work_sessions` se rellena al hacer check-out (la tabla `checkins` cerrada).
- *  - La verificación por push se puede hacer igual en el cliente o en una vista SQL que cruce
- *    `work_sessions` con `commits`.
- *  - `fund_movements` guarda aportaciones y gastos.
+ * Horas y fondo común.
+ *  - `work_sessions`: el check-in abre una fila (ended_at nulo) y el check-out la cierra. Aquí solo
+ *    entran las cerradas y con proyecto: las demás no cuentan para el reparto.
+ *  - `fund_movements`: aportaciones y gastos. Solo se añaden (la BD no deja editar ni borrar).
  */
-const sessionsStore = createStore<WorkSession[]>([], 'sessions');
-const fundStore = createStore<FundMovement[]>([], 'fund');
+const sessionsStore = createSyncedStore<WorkSession>([], {
+  table: 'work_sessions',
+  persistKey: 'sessions',
+  toRow: (s) => ({
+    id: s.id,
+    partner_id: s.partnerId,
+    project_id: s.projectId,
+    started_at: s.startedAt,
+    ended_at: s.endedAt,
+    approved_by: s.approvedBy,
+  }),
+  fromRow: (r) => ({
+    id: r.id,
+    partnerId: r.partner_id,
+    projectId: r.project_id,
+    startedAt: iso(r.started_at),
+    endedAt: iso(r.ended_at),
+    approvedBy: r.approved_by,
+  }),
+  readFilter: (q) => q.not('ended_at', 'is', null).not('project_id', 'is', null),
+  accept: (r) => r.ended_at != null && r.project_id != null,
+  sort: (a, b) => b.startedAt.localeCompare(a.startedAt),
+  order: { column: 'started_at', ascending: false },
+  limit: 1000,
+});
+const fundStore = createSyncedStore<FundMovement>([], {
+  table: 'fund_movements',
+  persistKey: 'fund',
+  toRow: (m) => ({
+    id: m.id,
+    type: m.type,
+    concept: m.concept,
+    amount: m.amount,
+    project_id: m.projectId,
+    created_by: m.createdBy,
+    created_at: m.createdAt,
+  }),
+  fromRow: (r) => ({
+    id: r.id,
+    type: r.type,
+    concept: r.concept,
+    amount: num(r.amount),
+    projectId: r.project_id,
+    createdBy: r.created_by,
+    createdAt: iso(r.created_at),
+  }),
+  sort: (a, b) => b.createdAt.localeCompare(a.createdAt),
+  order: { column: 'created_at', ascending: false },
+  write: { update: false, delete: false },
+});
 
 /** Al borrar un proyecto: fuera sus sesiones; los movimientos del fondo se quedan sin proyecto. */
 export function removeProjectHours(projectId: string): void {
@@ -40,7 +89,8 @@ export function recordSession(closed: CheckinSession): void {
     endedAt: closed.endedAt,
     approvedBy: null,
   };
-  sessionsStore.set((prev) => [session, ...prev]);
+  // Con Supabase el check-out ya cerró la fila y Realtime puede haberla traído antes que esta llamada.
+  sessionsStore.set((prev) => [session, ...prev.filter((s) => s.id !== session.id)]);
 }
 
 /** Otro socio valida a mano una sesión sin push (reunión con cliente, diseño, auditoría…). */

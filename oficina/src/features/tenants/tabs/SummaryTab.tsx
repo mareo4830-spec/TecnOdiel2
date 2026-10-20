@@ -6,7 +6,8 @@ import type { Tenant } from '../../../types';
 import { hoursSummary } from '../components/HoursEditor';
 import { RequirementsChecklist } from '../components/TenantBits';
 import { DNS_PROVIDER_META, FEATURE_LABEL, INTEGRATION_STATUS_META, PROVIDERS, PROVIDER_META, TENANT_TYPE_META, effectiveVariant, SOCIAL_META, SOCIALS, socialUrl, tenantPreviewUrl } from '../tenantMeta';
-import { useMissingRequirements, usePlans, useTenantBilling, useTenantIntegrations } from '../tenantService';
+import { ClientSelect } from '../../clients/ClientSelect';
+import { updateTenant, useMissingRequirements, usePlans, useTenantBilling, useTenantIntegrations } from '../tenantService';
 import { Card, Row } from './shared';
 
 export function SummaryTab({ tenant, onGo }: { tenant: Tenant; onGo: (tab: string) => void }) {
@@ -90,6 +91,9 @@ export function SummaryTab({ tenant, onGo }: { tenant: Tenant; onGo: (tab: strin
           </Row>
           <Row label="Teléfono">{[tenant.phone, tenant.whatsapp && `WhatsApp ${tenant.whatsapp}`].filter(Boolean).join(' · ') || '—'}</Row>
           <Row label="Email">{tenant.publicEmail ?? '—'}</Row>
+          <Row label="Portal del cliente">
+            <ClientSelect value={tenant.clientId} onChange={(clientId) => updateTenant(tenant.id, { clientId })} />
+          </Row>
           <Row label="Redes">
             {SOCIALS.filter((n) => tenant.socials[n]).length ? (
               <span className="flex flex-wrap justify-end gap-x-2">

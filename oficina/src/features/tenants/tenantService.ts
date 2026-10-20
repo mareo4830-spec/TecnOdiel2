@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
-import { createStore, useStore } from '../../lib/store';
+import { iso, isoOrNull, num, numOrNull } from '../../lib/rows';
+import { useStore } from '../../lib/store';
+import { isSupabaseConfigured } from '../../lib/supabase';
+import { createSyncedStore } from '../../lib/syncedStore';
 import type {
   IntegrationProvider,
   PartnerId,
@@ -18,18 +21,232 @@ import { PLANS } from './plans';
 import { PROVIDERS } from './tenantMeta';
 
 /*
- * Capa de datos de los tenants (local). Reproduce las reglas de la BD de la fase 1 (pagos generados
- * desde la facturación, regla de go-live, unicidad de slug y dominio) para que la UI se comporte
- * igual que con Supabase. Al conectar Supabase: tablas tenants, tenant_* y provisioning_log con
- * Realtime; las reglas las aplica la BD y este archivo solo lee y escribe.
+ * Tenants de los proyectos SaaS: tablas tenants, tenant_contacts, tenant_billing, tenant_payments,
+ * tenant_integrations, provisioning_log y plans.
+ *
+ * Con Supabase las reglas las aplica la BD (pagos generados desde la facturación, integraciones
+ * creadas con el tenant, regla de go-live, unicidad de slug y dominio): este archivo solo lee y
+ * escribe, y las comprobaciones de aquí son para avisar al instante. Las integraciones y el log
+ * los escribe la Edge Function de provisionado: el navegador solo los lee. En la demo (sin
+ * Supabase) se reproducen las mismas reglas en local.
  */
-const plansStore = createStore<SaasPlan[]>(PLANS);
-const tenantsStore = createStore<Tenant[]>([], 'tenants');
-const contactsStore = createStore<TenantContact[]>([], 'tenants.contacts');
-const billingStore = createStore<TenantBilling[]>([], 'tenants.billing');
-const paymentsStore = createStore<TenantPayment[]>([], 'tenants.payments');
-export const integrationsStore = createStore<TenantIntegration[]>([], 'tenants.integrations');
-export const logStore = createStore<ProvisioningLogEntry[]>([], 'tenants.log');
+const remote = isSupabaseConfigured;
+
+const plansStore = createSyncedStore<SaasPlan>(remote ? [] : PLANS, {
+  table: 'plans',
+  toRow: (p) => ({
+    id: p.id,
+    name: p.name,
+    saas_plan_code: p.saasPlanCode,
+    setup_price: p.setupPrice,
+    yearly_maintenance: p.yearlyMaintenance,
+    monthly_ai: p.monthlyAi,
+    features: p.features,
+  }),
+  fromRow: (r) => ({
+    id: r.id,
+    name: r.name,
+    saasPlanCode: r.saas_plan_code,
+    setupPrice: num(r.setup_price),
+    yearlyMaintenance: num(r.yearly_maintenance),
+    monthlyAi: num(r.monthly_ai),
+    features: r.features ?? {},
+  }),
+  sort: (a, b) => a.setupPrice - b.setupPrice || a.monthlyAi - b.monthlyAi,
+  write: { insert: false, update: false, delete: false },
+});
+
+const tenantsStore = createSyncedStore<Tenant>([], {
+  table: 'tenants',
+  persistKey: 'tenants',
+  toRow: (t) => ({
+    id: t.id,
+    project_id: t.projectId,
+    client_id: t.clientId,
+    saas_business_id: t.saasBusinessId,
+    stage: t.stage,
+    name: t.name,
+    slug: t.slug,
+    tagline: t.tagline,
+    logo_url: t.logoUrl,
+    business_type: t.businessType,
+    layout: t.layout,
+    layout_variant: t.layoutVariant,
+    plan_id: t.planId,
+    google_maps_url: t.googleMapsUrl,
+    google_place_id: t.googlePlaceId,
+    opening_hours: t.openingHours,
+    address: t.address,
+    lat: t.lat,
+    lng: t.lng,
+    domain: t.domain,
+    dns_provider: t.dnsProvider,
+    preview_host: t.previewHost,
+    phone: t.phone,
+    whatsapp: t.whatsapp,
+    public_email: t.publicEmail,
+    socials: t.socials,
+    site_content: t.siteContent ?? {},
+    status: t.status,
+    waiting_client: t.waitingClient,
+    meeting: t.meeting,
+    board_order: t.boardOrder,
+    created_by: t.createdBy,
+    created_at: t.createdAt,
+  }),
+  fromRow: (r) => ({
+    id: r.id,
+    projectId: r.project_id,
+    clientId: r.client_id ?? null,
+    saasBusinessId: r.saas_business_id,
+    stage: r.stage,
+    name: r.name,
+    slug: r.slug,
+    tagline: r.tagline,
+    logoUrl: r.logo_url,
+    businessType: r.business_type,
+    layout: r.layout,
+    layoutVariant: r.layout_variant,
+    planId: r.plan_id,
+    googleMapsUrl: r.google_maps_url,
+    googlePlaceId: r.google_place_id,
+    openingHours: r.opening_hours,
+    address: r.address,
+    lat: numOrNull(r.lat),
+    lng: numOrNull(r.lng),
+    domain: r.domain,
+    dnsProvider: r.dns_provider,
+    previewHost: r.preview_host,
+    phone: r.phone,
+    whatsapp: r.whatsapp,
+    publicEmail: r.public_email,
+    socials: r.socials ?? {},
+    siteContent: r.site_content ?? {},
+    status: r.status,
+    waitingClient: r.waiting_client,
+    meeting: r.meeting,
+    boardOrder: r.board_order,
+    createdBy: r.created_by,
+    createdAt: iso(r.created_at),
+    updatedAt: iso(r.updated_at),
+  }),
+  sort: (a, b) => b.createdAt.localeCompare(a.createdAt),
+  order: { column: 'created_at', ascending: false },
+});
+
+const contactsStore = createSyncedStore<TenantContact>([], {
+  table: 'tenant_contacts',
+  conflict: 'tenant_id',
+  persistKey: 'tenants.contacts',
+  toRow: (c) => ({
+    tenant_id: c.tenantId,
+    full_name: c.fullName,
+    nif: c.nif,
+    legal_email: c.legalEmail,
+    billing_email: c.billingEmail,
+    phone: c.phone,
+    fiscal_address: c.fiscalAddress,
+  }),
+  fromRow: (r) => ({
+    tenantId: r.tenant_id,
+    fullName: r.full_name,
+    nif: r.nif,
+    legalEmail: r.legal_email,
+    billingEmail: r.billing_email,
+    phone: r.phone,
+    fiscalAddress: r.fiscal_address,
+  }),
+});
+
+const billingStore = createSyncedStore<TenantBilling>([], {
+  table: 'tenant_billing',
+  conflict: 'tenant_id',
+  persistKey: 'tenants.billing',
+  toRow: (b) => ({
+    tenant_id: b.tenantId,
+    closed_price: b.closedPrice,
+    payment_mode: b.paymentMode,
+    maintenance_yearly: b.maintenanceYearly,
+    maintenance_renewal: b.maintenanceRenewal,
+  }),
+  fromRow: (r) => ({
+    tenantId: r.tenant_id,
+    closedPrice: num(r.closed_price),
+    paymentMode: r.payment_mode,
+    maintenanceYearly: num(r.maintenance_yearly),
+    maintenanceRenewal: r.maintenance_renewal,
+  }),
+});
+
+// Los pagos los genera un trigger de la BD al guardar la facturación: aquí solo se marcan como cobrados.
+const paymentsStore = createSyncedStore<TenantPayment>([], {
+  table: 'tenant_payments',
+  persistKey: 'tenants.payments',
+  toRow: (p) => ({
+    id: p.id,
+    tenant_id: p.tenantId,
+    concept: p.concept,
+    amount: p.amount,
+    due_date: p.dueDate,
+    paid_at: p.paidAt,
+    method: p.method,
+  }),
+  fromRow: (r) => ({
+    id: r.id,
+    tenantId: r.tenant_id,
+    concept: r.concept,
+    amount: num(r.amount),
+    dueDate: r.due_date,
+    paidAt: isoOrNull(r.paid_at),
+    method: r.method,
+  }),
+  write: { insert: false, delete: false },
+});
+
+// Integraciones y log: los crea y actualiza el provisionado (Edge Function); el navegador solo los lee.
+export const integrationsStore = createSyncedStore<TenantIntegration>([], {
+  table: 'tenant_integrations',
+  conflict: 'tenant_id,provider',
+  persistKey: 'tenants.integrations',
+  toRow: (i) => ({
+    tenant_id: i.tenantId,
+    provider: i.provider,
+    status: i.status,
+    external_id: i.externalId,
+    meta: i.meta,
+    error: i.error,
+    last_sync_at: i.lastSyncAt,
+  }),
+  fromRow: (r) => ({
+    tenantId: r.tenant_id,
+    provider: r.provider,
+    status: r.status,
+    externalId: r.external_id,
+    meta: r.meta ?? {},
+    error: r.error,
+    lastSyncAt: isoOrNull(r.last_sync_at),
+  }),
+  write: { insert: false, update: false, delete: false },
+});
+
+export const logStore = createSyncedStore<ProvisioningLogEntry>([], {
+  table: 'provisioning_log',
+  persistKey: 'tenants.log',
+  toRow: (l) => ({ id: l.id, tenant_id: l.tenantId, step: l.step, ok: l.ok, detail: l.detail, actor: l.actor, at: l.at }),
+  fromRow: (r) => ({
+    id: String(r.id),
+    tenantId: r.tenant_id,
+    step: r.step,
+    ok: r.ok,
+    detail: r.detail ?? '',
+    actor: r.actor,
+    at: iso(r.at),
+  }),
+  sort: (a, b) => a.at.localeCompare(b.at),
+  order: { column: 'at', ascending: false },
+  limit: 1000,
+  write: { insert: false, update: false, delete: false },
+});
 
 /** Al borrar un proyecto SaaS: fuera sus tenants y todo lo que cuelga de ellos. */
 export function removeProjectTenants(projectId: string): void {
@@ -169,7 +386,7 @@ export function getMissingRequirements(tenantId: string): TenantRequirement[] {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-/** Igual que el trigger tenant_billing_generate_payments. */
+/** Igual que el trigger tenant_billing_generate_payments (solo en la demo: con Supabase lo hace la BD). */
 function paymentsFor(b: TenantBilling, withMaintenance: boolean): TenantPayment[] {
   const mk = (concept: TenantPayment['concept'], amount: number, dueDate: string | null): TenantPayment => ({
     id: crypto.randomUUID(),
@@ -196,7 +413,7 @@ function paymentsFor(b: TenantBilling, withMaintenance: boolean): TenantPayment[
 export interface NewTenantInput {
   tenant: Omit<
     Tenant,
-    'id' | 'status' | 'createdBy' | 'createdAt' | 'updatedAt' | 'googlePlaceId' | 'boardOrder' | 'waitingClient' | 'meeting'
+    'id' | 'status' | 'createdBy' | 'createdAt' | 'updatedAt' | 'googlePlaceId' | 'boardOrder' | 'waitingClient' | 'meeting' | 'clientId'
   > & {
     googlePlaceId?: string | null;
     meeting?: Tenant['meeting'];
@@ -221,6 +438,7 @@ export function createTenant(input: NewTenantInput, by: PartnerId): Tenant {
     ...input.tenant,
     googlePlaceId: input.tenant.googlePlaceId ?? null,
     meeting: input.tenant.meeting ?? null,
+    clientId: null,
     id: crypto.randomUUID(),
     status: 'draft',
     saasBusinessId: businessId,
@@ -233,10 +451,12 @@ export function createTenant(input: NewTenantInput, by: PartnerId): Tenant {
 
   tenantsStore.set((prev) => [tenant, ...prev]);
   if (input.billing) createBilling(tenant.id, input.billing);
-  integrationsStore.set((prev) => [
-    ...prev,
-    ...PROVIDERS.map((provider) => ({ tenantId: tenant.id, provider, status: 'pending' as const, externalId: null, meta: {}, error: null, lastSyncAt: null })),
-  ]);
+  if (!remote) {
+    integrationsStore.set((prev) => [
+      ...prev,
+      ...PROVIDERS.map((provider) => ({ tenantId: tenant.id, provider, status: 'pending' as const, externalId: null, meta: {}, error: null, lastSyncAt: null })),
+    ]);
+  }
   const contact = input.contact;
   if (contact && Object.values(contact).some(Boolean)) contactsStore.set((prev) => [...prev, { tenantId: tenant.id, ...contact }]);
 
@@ -264,19 +484,19 @@ export function patchTenants(patches: Map<string, Partial<Tenant>>): void {
   tenantsStore.set((prev) => prev.map((t) => (patches.has(t.id) ? { ...t, ...patches.get(t.id) } : t)));
 }
 
-/** Alta de la facturación (si no se puso en el asistente): genera los pagos como el trigger de la BD. */
+/** Alta de la facturación (si no se puso en el asistente): la BD genera los pagos; en la demo, aquí. */
 export function createBilling(tenantId: string, input: { closedPrice: number; paymentMode: PaymentMode; maintenanceYearly: number }): void {
   if (billingStore.get().some((b) => b.tenantId === tenantId)) throw new Error('Este tenant ya tiene facturación');
   const billing: TenantBilling = { tenantId, ...input, maintenanceRenewal: null };
   billingStore.set((prev) => [...prev, billing]);
-  paymentsStore.set((prev) => [...prev, ...paymentsFor(billing, true)]);
+  if (!remote) paymentsStore.set((prev) => [...prev, ...paymentsFor(billing, true)]);
 }
 
 export function saveContact(tenantId: string, contact: Omit<TenantContact, 'tenantId'>): void {
   contactsStore.set((prev) => [...prev.filter((c) => c.tenantId !== tenantId), { tenantId, ...contact }]);
 }
 
-/** Cambia precio / modalidad: regenera los pagos de cierre solo si ninguno está cobrado (como la BD). */
+/** Cambia precio / modalidad: los pagos de cierre se regeneran solo si ninguno está cobrado (lo exige también la BD). */
 export function updateBilling(tenantId: string, patch: Partial<Omit<TenantBilling, 'tenantId'>>): void {
   const current = billingStore.get().find((b) => b.tenantId === tenantId);
   if (!current) return;
@@ -287,6 +507,7 @@ export function updateBilling(tenantId: string, patch: Partial<Omit<TenantBillin
     throw new Error('Ya hay pagos de cierre cobrados: ajusta los pagos a mano antes de cambiar precio o modalidad');
   }
   billingStore.set((prev) => prev.map((b) => (b.tenantId === tenantId ? next : b)));
+  if (remote) return; // el trigger de la BD regenera los pagos y Realtime los trae
   paymentsStore.set((prev) => {
     let list = prev;
     if (closingChanged) {
@@ -323,7 +544,7 @@ export function setRenewalIfMissing(tenantId: string): void {
   updateBilling(tenantId, { maintenanceRenewal: d.toISOString().slice(0, 10) });
 }
 
-// ---------------------------------------------------------------- integraciones y log (los usa el provisionado)
+// ---------------------------------------------------------------- integraciones y log (los usa el provisionado simulado de la demo)
 
 export function patchIntegration(tenantId: string, provider: IntegrationProvider, patch: Partial<TenantIntegration>): void {
   integrationsStore.set((prev) => prev.map((i) => (i.tenantId === tenantId && i.provider === provider ? { ...i, ...patch } : i)));

@@ -4,7 +4,9 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { PARTNER_META } from '../../../lib/partners';
 import { formatEuros, formatShortDate } from '../../../lib/format';
 import type { PartnerId, Project } from '../../../types';
+import { ClientSelect } from '../../clients/ClientSelect';
 import { BUSINESS_TYPE_META, LAYOUT_META, STATUS_META } from '../projectMeta';
+import { updateProject } from '../projectService';
 
 function Card({ title, children, className = '' }: { title: string; children: ReactNode; className?: string }) {
   return (
@@ -88,6 +90,9 @@ export function SummaryTab({ project }: { project: Project }) {
           </Row>
           <Row label="Email">{project.client.email || '—'}</Row>
           <Row label="Localidad">{project.client.city || '—'}</Row>
+          <Row label="Portal del cliente">
+            <ClientSelect value={project.clientId} onChange={(clientId) => updateProject(project.id, { clientId })} />
+          </Row>
           {project.businessId && (
             <Row label="business_id (SaaS)">
               <CopyValue value={project.businessId} />

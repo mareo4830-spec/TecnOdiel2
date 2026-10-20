@@ -1,4 +1,5 @@
 import {
+  Brush,
   Coffee,
   Flower2,
   Scissors,
@@ -14,6 +15,7 @@ import type { BusinessType, LayoutVariant, ProjectStatus } from '../../types';
 export const BUSINESS_TYPE_META: Record<BusinessType, { label: string; icon: LucideIcon; tint: string }> = {
   barberia: { label: 'Barbería', icon: Scissors, tint: 'bg-sky-500/15 text-sky-300' },
   peluqueria: { label: 'Peluquería', icon: Sparkles, tint: 'bg-fuchsia-500/15 text-fuchsia-300' },
+  salon: { label: 'Salón', icon: Brush, tint: 'bg-violet-500/15 text-violet-300' },
   estetica: { label: 'Estética', icon: Flower2, tint: 'bg-rose-500/15 text-rose-300' },
   restaurante: { label: 'Restaurante', icon: UtensilsCrossed, tint: 'bg-amber-500/15 text-amber-300' },
   cafeteria: { label: 'Cafetería', icon: Coffee, tint: 'bg-orange-500/15 text-orange-300' },
@@ -24,10 +26,11 @@ export const BUSINESS_TYPE_META: Record<BusinessType, { label: string; icon: Luc
 
 // Mismos valores que businesses.layout_key del SaaS (cada uno tiene 5 variantes de estilo).
 export const LAYOUT_META: Record<LayoutVariant, { label: string }> = {
-  classic: { label: 'Layout Classic' },
-  editorial: { label: 'Layout Editorial' },
-  minimal: { label: 'Layout Minimal' },
-  playful: { label: 'Layout Playful' },
+  classic: { label: 'Web propia (Adrián Millán)' },
+  barber: { label: 'Barbería' },
+  women: { label: 'Peluquería' },
+  beauty: { label: 'Belleza' },
+  unisex: { label: 'Unisex' },
 };
 
 /** Etapas del Kanban de trabajos. Son también el estado de los proyectos. */
@@ -54,7 +57,8 @@ export const STATUS_META: Record<ProjectStatus, { label: string; badge: string; 
 
 export const STATUS_ORDER: ProjectStatus[] = ['planeado', 'en_progreso', 'hecho'];
 export const BUSINESS_TYPES = Object.keys(BUSINESS_TYPE_META) as BusinessType[];
-export const LAYOUTS: LayoutVariant[] = ['classic', 'editorial', 'minimal', 'playful'];
+/** Grupos de portadas que se ofrecen (classic solo es la web propia de Adrián Millán). */
+export const LAYOUTS: LayoutVariant[] = ['barber', 'women', 'beauty', 'unisex'];
 
 /** Badge de "esperando al cliente" (sub-estado de En progreso). */
 export const WAITING_BADGE = 'bg-amber-500/15 text-amber-300 ring-amber-500/30';

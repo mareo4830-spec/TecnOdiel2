@@ -11,6 +11,11 @@ export const SITE_COPY: Record<BusinessType, { tagline: string; cta: string; ser
     cta: 'Pedir cita',
     services: [['Corte y peinado', '22 €'], ['Mechas', '55 €'], ['Tratamiento hidratante', '18 €']],
   },
+  salon: {
+    tagline: 'Peluquería y estética en un mismo salón',
+    cta: 'Pedir cita',
+    services: [['Corte y peinado', '22 €'], ['Manicura', '15 €'], ['Tratamiento capilar', '25 €']],
+  },
   restaurante: {
     tagline: 'Cocina de la ría y producto de la lonja',
     cta: 'Reservar mesa',
@@ -44,10 +49,11 @@ export const SITE_COPY: Record<BusinessType, { tagline: string; cta: string; ser
 };
 
 const THEME: Record<LayoutVariant, { bg: string; fg: string; accent: string; card: string; font: string; radius: string }> = {
-  classic: { bg: '#faf7f2', fg: '#2b2118', accent: '#9a3412', card: '#ffffff', font: 'Georgia, serif', radius: '4px' },
-  editorial: { bg: '#0b0f19', fg: '#f3f4f6', accent: '#6366f1', card: '#151b2b', font: 'Inter, system-ui, sans-serif', radius: '16px' },
-  minimal: { bg: '#ffffff', fg: '#111827', accent: '#111827', card: '#f5f5f5', font: 'Helvetica, Arial, sans-serif', radius: '0' },
-  playful: { bg: '#fff5f8', fg: '#3a1b27', accent: '#d9467a', card: '#ffffff', font: 'Quicksand, system-ui, sans-serif', radius: '24px' },
+  classic: { bg: '#0a0a0a', fg: '#e4e4e7', accent: '#d4af37', card: '#121212', font: 'Inter, system-ui, sans-serif', radius: '16px' },
+  barber: { bg: '#1f1210', fg: '#f2e6d0', accent: '#b8893b', card: '#2a1916', font: 'Georgia, serif', radius: '0' },
+  women: { bg: '#f6f3ee', fg: '#141414', accent: '#8c1c2b', card: '#ffffff', font: 'Georgia, serif', radius: '0' },
+  beauty: { bg: '#eef0e8', fg: '#2c3a2e', accent: '#6f8f72', card: '#fbfbf7', font: 'Georgia, serif', radius: '24px' },
+  unisex: { bg: '#f5f5f0', fg: '#111111', accent: '#e6372b', card: '#ffffff', font: 'Inter, system-ui, sans-serif', radius: '12px' },
 };
 
 export const esc = (s: string) =>

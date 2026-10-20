@@ -180,29 +180,50 @@ const v = (key: string, name: string, description: string, surface: string, text
   radius,
 });
 
-/** Copia visual de public.layout_variants del SaaS (colores y tipografía por defecto) para la preview. */
+/**
+ * Copia visual de public.layout_variants del SaaS (colores y tipografía por defecto) para la preview.
+ * Debe coincidir con src/themes/layouts/catalog.ts del SaaS. classic_prestige es la web propia de
+ * Adrián Millán: se muestra pero no se ofrece para tenants nuevos.
+ */
 export const LAYOUT_VARIANTS: LayoutVariantMeta[] = [
-  v('classic_heritage', 'Heritage', 'Madera y vintage', '#1c140d', '#efe4d4', '#b07d48', 'Playfair Display, serif', '4px'),
-  v('classic_industrial', 'Industrial', 'Metal y urbano', '#15181b', '#e3e6e8', '#e07a2f', 'Oswald, sans-serif', '0'),
-  v('classic_prestige', 'Prestige', 'Lujo y dorado', '#0a0a0a', '#e4e4e7', '#d4af37', 'Plus Jakarta Sans, sans-serif', '16px'),
-  v('classic_street', 'Street', 'Urbano y neón', '#07080b', '#f1f4f8', '#39ff88', 'Bebas Neue, sans-serif', '8px'),
-  v('classic_club', 'Club', 'Deportivo y dinámico', '#0d1b2a', '#f1f4f8', '#e63946', 'Archivo, sans-serif', '12px'),
-  v('minimal_clinic', 'Clinic', 'Blanco, estéril y azul', '#ffffff', '#0f172a', '#2563eb', 'Manrope, sans-serif', '12px'),
-  v('minimal_spa', 'Spa', 'Zen, tierra y pastel', '#f6f1ea', '#3b3129', '#a47e5f', 'Cormorant Garamond, serif', '16px'),
-  v('minimal_luxury', 'Luxury', 'Mármol y oro rosa', '#fbf9f7', '#2d2426', '#b76e79', 'Playfair Display, serif', '8px'),
-  v('minimal_botanical', 'Botanical', 'Verde y natural', '#f4f6ef', '#243024', '#4f7a52', 'Fraunces, serif', '999px'),
-  v('minimal_chic', 'Chic', 'Monocromático y moda', '#ffffff', '#111111', '#111111', 'Syne, sans-serif', '0'),
-  v('editorial_magazine', 'Magazine', 'Asimétrico y tipografía grande', '#171411', '#f3ede2', '#c9a980', 'Fraunces, serif', '0'),
-  v('editorial_studio', 'Studio', 'Vibrante y creativo', '#fffaf5', '#1d1a2e', '#ff5c39', 'Syne, sans-serif', '12px'),
-  v('editorial_gallery', 'Gallery', 'Visual y cajas grandes', '#0c0c0c', '#f2f0eb', '#e8e2d6', 'DM Serif Display, serif', '0'),
-  v('editorial_fluid', 'Fluid', 'Formas suaves y moderno', '#f7f5ff', '#1e1a33', '#7c5cff', 'Plus Jakarta Sans, sans-serif', '999px'),
-  v('editorial_pop', 'Pop', 'Colores de alto contraste', '#fff200', '#111111', '#ff2d95', 'Bebas Neue, sans-serif', '4px'),
-  v('playful_paws', 'Paws', 'Cálido y amigable', '#fffbeb', '#3b2506', '#f59e0b', 'Fredoka, sans-serif', '16px'),
-  v('playful_boutique', 'Boutique', 'Coqueto y elegante', '#fff5f8', '#3a1b27', '#d9467a', 'Playfair Display, serif', '12px'),
-  v('playful_nature', 'Nature', 'Campo y aire libre', '#f3f8ef', '#1f3324', '#3f8f5b', 'Baloo 2, sans-serif', '16px'),
-  v('playful_bubble', 'Bubble', 'Burbujas y pastel', '#f0f9ff', '#0c2a3d', '#38bdf8', 'Fredoka, sans-serif', '999px'),
-  v('playful_vibrant', 'Vibrant', 'Colores intensos y divertidos', '#fdf4ff', '#2e1065', '#8b5cf6', 'Baloo 2, sans-serif', '16px'),
+  v('barber_tradicion', 'Tradición', 'Tarifa pintada, latón y cuero', '#1f1210', '#f2e6d0', '#b8893b', 'DM Serif Display, serif', '0'),
+  v('barber_urbano', 'Urbano', 'Cartel enorme, hormigón y naranja', '#e4e1db', '#111111', '#ff4d1a', 'Bebas Neue, sans-serif', '0'),
+  v('barber_club', 'Club', 'Club de caballeros: verde y latón', '#0e2219', '#efe9dc', '#c9a45c', 'Cormorant Garamond, serif', '6px'),
+  v('barber_taller', 'Taller', 'Acero, amarillo y ficha técnica', '#161a1d', '#e8ebec', '#f2c230', 'Oswald, sans-serif', '0'),
+  v('barber_barrio', 'Barrio', 'Luminosa, cercana y cobalto', '#fbfaf7', '#14213d', '#1f4fd8', 'Archivo, sans-serif', '999px'),
+  v('women_atelier', 'Atelier', 'Revista de moda y estilistas', '#f6f3ee', '#141414', '#8c1c2b', 'Playfair Display, serif', '0'),
+  v('women_color', 'Color', 'Probador de tonos en la portada', '#0f2b2e', '#f1ece4', '#e8875a', 'Syne, sans-serif', '20px'),
+  v('women_novias', 'Novias', 'Invitación, arcos y champán', '#faf6f1', '#3a2f2a', '#b08d57', 'Cormorant Garamond, serif', '28px'),
+  v('women_rizos', 'Rizos', 'Ondas, rosa y mostaza', '#f7e4dc', '#3b1f14', '#d4a017', 'Baloo 2, sans-serif', '999px'),
+  v('women_esencia', 'Esencia', 'Minimalismo nórdico', '#ffffff', '#1c1c1c', '#1c1c1c', 'Josefin Sans, sans-serif', '0'),
+  v('beauty_spa', 'Spa', 'Salvia, piedra y respiración', '#eef0e8', '#2c3a2e', '#6f8f72', 'Cormorant Garamond, serif', '28px'),
+  v('beauty_nails', 'Nails', 'Esmaltes, rosa y cereza', '#fbe8ea', '#1a0a0d', '#c8102e', 'Archivo, sans-serif', '999px'),
+  v('beauty_glow', 'Glow', 'Clínica de piel por tiempos', '#f7fbfa', '#0e2a2a', '#11998e', 'Plus Jakarta Sans, sans-serif', '20px'),
+  v('beauty_noir', 'Noir', 'Negro y rosa champán', '#0d0b0c', '#f4ece8', '#e8b4b8', 'DM Serif Display, serif', '6px'),
+  v('beauty_mirada', 'Mirada', 'Cejas y pestañas, anillo que gira', '#f3e9e4', '#2b1a15', '#a4515f', 'Playfair Display, serif', '999px'),
+  v('unisex_estudio', 'Estudio', 'Rejilla de bloques y rojo', '#f5f5f0', '#111111', '#e6372b', 'Space Grotesk, sans-serif', '12px'),
+  v('unisex_loft', 'Loft', 'Carbón, ladrillo y fotos que desfilan', '#1e1c1b', '#ece6e1', '#c4562f', 'Archivo, sans-serif', '6px'),
+  v('unisex_neon', 'Neón', 'Noche y rosa neón', '#0b0f24', '#eef0ff', '#ff2e88', 'Syne, sans-serif', '20px'),
+  v('unisex_natural', 'Natural', 'Lino, oliva y fichas apiladas', '#efe9df', '#2a2e1f', '#5e6b2f', 'Fraunces, serif', '20px'),
+  v('unisex_pop', 'Pop', 'Amarillo, rosa y pegatinas', '#ffe14d', '#111111', '#ff3c8e', 'Fredoka, sans-serif', '28px'),
+  v('classic_prestige', 'Prestige', 'Web propia de Adrián Millán', '#0a0a0a', '#e4e4e7', '#d4af37', 'Plus Jakarta Sans, sans-serif', '16px'),
 ];
+
+/** Grupo de portadas que encaja con cada tipo de negocio (se puede cambiar a mano). */
+export const LAYOUT_FOR_TYPE: Record<TenantBusinessType, LayoutVariant> = {
+  barberia: 'barber',
+  peluqueria: 'women',
+  salon: 'beauty',
+  estetica: 'beauty',
+  restaurante: 'unisex',
+  cafeteria: 'unisex',
+  clinica: 'beauty',
+  otro: 'unisex',
+};
+
+/** Portada real del SaaS con datos de ejemplo (el SaaS permite ?variant= en sus previews). */
+export const SAAS_DEMO_URL = 'https://saas-demo-preview.vercel.app';
+export const variantDemoUrl = (key: string) => `${SAAS_DEMO_URL}/?variant=${encodeURIComponent(key)}`;
 
 export function variantsOf(layout: LayoutVariant): LayoutVariantMeta[] {
   return LAYOUT_VARIANTS.filter((x) => x.layout === layout);

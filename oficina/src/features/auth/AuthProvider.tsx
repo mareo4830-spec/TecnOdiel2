@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase';
 import { MOCK_PARTNERS, PARTNER_COLUMNS, mapPartnerRow, type PartnerRow } from '../../lib/partners';
+import { startSync, stopSync } from '../../lib/syncedStore';
 import type { AuthStatus, Partner } from '../../types';
 import { AuthContext, type AuthContextValue } from './authContext';
 
@@ -30,31 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('user_id', userId)
       .maybeSingle<PartnerRow>();
 
-    let partnerRow = data;
-    if (!partnerRow) {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData?.session?.user;
-      const email = user?.email?.toLowerCase();
-      if (email === 'franciscojavierfarinapadilla@gmail.com') {
-        partnerRow = {
-          id: 'javier',
-          name: 'Javier',
-          initials: 'J',
-          email,
-          avatar_url: user?.user_metadata?.avatar_url || null,
-          availability: 'Estudia por la mañana',
-        };
-      } else if (email === 'mareo4830@gmail.com') {
-        partnerRow = {
-          id: 'mario',
-          name: 'Mario',
-          initials: 'M',
-          email,
-          avatar_url: user?.user_metadata?.avatar_url || null,
-          availability: 'Disponibilidad completa',
-        };
-      }
-    }
+    // Único criterio: tener una fila en `partners` vinculada a la cuenta. La BD la vincula por email
+    // al crear la cuenta y en cada inicio de sesión; sin esa fila RLS tampoco dejaría leer nada.
+    const partnerRow = data;
 
     if (!partnerRow) {
       await supabase.auth.signOut();
@@ -79,6 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => sub.subscription.unsubscribe();
   }, [resolvePartner]);
+
+  // Los datos del equipo solo se leen (y se escuchan) mientras haya un socio con sesión.
+  useEffect(() => {
+    if (!isSupabaseConfigured || state.status !== 'authenticated') return;
+    void startSync();
+    return () => stopSync();
+  }, [state.status]);
 
   const signInWithGoogle = useCallback<AuthContextValue['signInWithGoogle']>(async () => {
     if (!supabase) return 'Supabase no está configurado.';

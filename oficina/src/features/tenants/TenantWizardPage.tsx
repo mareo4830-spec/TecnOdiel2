@@ -7,6 +7,7 @@ import type {
   LayoutVariant,
   OpeningHours,
   PaymentMode,
+  SiteContent,
   TenantBusinessType,
   TenantRequirement,
   TenantSocials,
@@ -16,6 +17,7 @@ import { useAuth } from '../auth/authContext';
 import { STATUS_META } from '../projects/projectMeta';
 import { useProject } from '../projects/projectService';
 import { lookupSaasBusiness, type SaasBusinessSummary } from '../projects/saasProjectClient';
+import { BrandFields, cleanContent, ContentEditor, contentErrors, MOTION_META } from './components/ContentEditor';
 import { hoursSummary, HoursEditor } from './components/HoursEditor';
 import { LayoutPicker } from './components/LayoutPicker';
 import { SitePreview } from './components/SitePreview';
@@ -30,6 +32,7 @@ import {
   TENANT_TYPE_META,
   TENANT_TYPES,
   effectiveVariant,
+  LAYOUT_FOR_TYPE,
   previewHostFor,
 } from './tenantMeta';
 import {
@@ -51,6 +54,7 @@ const STEPS = [
   { id: 'diseno', label: 'Diseño y plan', essential: true },
   { id: 'contacto', label: 'Contacto y redes', essential: false },
   { id: 'ubicacion', label: 'Ubicación y horario', essential: false },
+  { id: 'contenido', label: 'Contenido de la web', essential: false },
   { id: 'dominio', label: 'Dominio y cobro', essential: false },
   { id: 'resumen', label: 'Resumen', essential: true },
 ] as const;
@@ -127,7 +131,9 @@ export function TenantWizardPage() {
   const [lng, setLng] = useState('');
   const [hours, setHours] = useState<OpeningHours>({});
   const [lookup, setLookup] = useState<{ state: 'idle' | 'loading' | 'done' | 'error'; message?: string }>({ state: 'idle' });
-  // 5. Dominio y cobro (opcional)
+  // 5. Contenido de la portada (opcional): presentación, fotos, servicios, equipo, reseñas, FAQ y dueño
+  const [siteContent, setSiteContent] = useState<SiteContent>({});
+  // 6. Dominio y cobro (opcional)
   const [domain, setDomain] = useState('');
   const [dnsProvider, setDnsProvider] = useState<DnsProviderId | ''>(cfg?.defaultDnsProvider ?? 'cloudflare');
   const [price, setPrice] = useState('');
@@ -165,7 +171,7 @@ export function TenantWizardPage() {
       // Prellenar lo que está vacío con lo que ya tiene el negocio.
       if (!name.trim()) onName(business.name);
       if (!slugTouched && !slug) setSlug(business.slug);
-      if (!layout && business.layoutKey && ['classic', 'editorial', 'minimal', 'playful'].includes(business.layoutKey)) {
+      if (!layout && business.layoutKey && ['classic', 'barber', 'women', 'beauty', 'unisex'].includes(business.layoutKey)) {
         setLayout(business.layoutKey as LayoutVariant);
       }
     } catch (e) {
@@ -209,6 +215,8 @@ export function TenantWizardPage() {
       if (!layout) e.layout = 'Elige el layout de la web.';
       if (!planId) e.plan = 'Elige un plan.';
       if (logoUrl.trim() && !/^https:\/\//.test(logoUrl.trim())) e.logoUrl = 'Debe ser una URL https://';
+      const brand = contentErrors({ accent: siteContent.accent });
+      if (brand.accent) e.accent = brand.accent;
     }
     if (i === 2) {
       if (phone.trim() && !PHONE_RE.test(phone.trim())) e.phone = 'Teléfono no válido.';
@@ -223,7 +231,8 @@ export function TenantWizardPage() {
         e.hours = 'Revisa los tramos: la apertura debe ser anterior al cierre.';
       if ((lat && !Number.isFinite(Number(lat))) || (lng && !Number.isFinite(Number(lng)))) e.coords = 'Coordenadas no válidas.';
     }
-    if (i === 4) {
+    if (i === 4) Object.assign(e, contentErrors(siteContent));
+    if (i === 5) {
       const d = normalizeDomain(domain);
       if (d && !isValidDomain(d)) e.domain = 'Dominio no válido (ej. salonaurora.es).';
       else if (d && isDomainTaken(d)) e.domain = 'Otro tenant ya usa este dominio.';
@@ -244,6 +253,8 @@ export function TenantWizardPage() {
       }
     }
     setErrors({});
+    // Al pasar del primer paso se propone el grupo de portadas que encaja con el tipo de negocio.
+    if (target >= 1 && !layout && businessType) setLayout(LAYOUT_FOR_TYPE[businessType]);
     setStep(target);
     setVisited((v) => Math.max(v, target));
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -285,7 +296,7 @@ export function TenantWizardPage() {
 
   const save = async () => {
     if (!partner || !project) return;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < STEPS.length - 1; i++) {
       const e = validate(i);
       if (Object.keys(e).length) {
         setErrors(e);
@@ -332,6 +343,7 @@ export function TenantWizardPage() {
             whatsapp: whatsapp.trim() || null,
             publicEmail: publicEmail.trim() || null,
             socials: cleanSocials,
+            siteContent: cleanContent(siteContent),
           },
           contact: Object.values(clean).some(Boolean) ? clean : null,
           billing: priceNum !== null ? { closedPrice: priceNum, paymentMode, maintenanceYearly: maintenanceNum } : null,
@@ -582,6 +594,7 @@ export function TenantWizardPage() {
                     variant={variant}
                     name={name}
                     tagline={tagline || null}
+                    accent={siteContent.accent}
                     onChange={(l, v) => {
                       setLayout(l);
                       setVariant(v);
@@ -589,6 +602,14 @@ export function TenantWizardPage() {
                   />
                   {errors.layout && <p className="mt-1 text-xs text-rose-400">{errors.layout}</p>}
                 </div>
+                {layout && layout !== 'classic' && (
+                  <BrandFields
+                    value={siteContent}
+                    onChange={setSiteContent}
+                    defaultAccent={effectiveVariant(layout, variant).accent}
+                    errors={errors}
+                  />
+                )}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Eslogan (opcional)" hint="Bajo el nombre en la portada.">
                     <input
@@ -775,6 +796,16 @@ export function TenantWizardPage() {
 
             {step === 4 && (
               <Section
+                title="Contenido de la web"
+                badge="opcional"
+                description="Lo que pinta la portada además de los datos básicos. Todo se puede completar después desde la ficha."
+              >
+                <ContentEditor value={siteContent} onChange={setSiteContent} errors={errors} />
+              </Section>
+            )}
+
+            {step === 5 && (
+              <Section
                 title="Dominio y cobro"
                 badge="opcional"
                 description="El dominio propio y el precio cerrado. Sin ellos la preview funciona; se piden para producción."
@@ -866,7 +897,7 @@ export function TenantWizardPage() {
               </Section>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <Section title="Resumen" description="Se guarda como borrador. La preview se crea en Vercel al guardar; producción, cuando esté todo.">
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                   <dl className="space-y-2 text-sm">
@@ -878,7 +909,31 @@ export function TenantWizardPage() {
                         'Etapa',
                         `${STATUS_META[stage].label}${stage === 'planeado' && meeting.date ? ` · cita ${meeting.date} ${meeting.time}` : ''}`,
                       ],
-                      ['Layout', layout ? `${layout} · ${effectiveVariant(layout, variant).name}` : '—'],
+                      [
+                        'Portada',
+                        layout
+                          ? [
+                              effectiveVariant(layout, variant).name,
+                              siteContent.accent && `color ${siteContent.accent}`,
+                              siteContent.motion && `animación ${MOTION_META[siteContent.motion].label.toLowerCase()}`,
+                            ]
+                              .filter(Boolean)
+                              .join(' · ')
+                          : '—',
+                      ],
+                      [
+                        'Contenido',
+                        [
+                          siteContent.about?.trim() && 'presentación',
+                          siteContent.services?.length && `${siteContent.services.length} servicios`,
+                          siteContent.team?.length && `${siteContent.team.length} en el equipo`,
+                          siteContent.reviews?.length && `${siteContent.reviews.length} reseñas`,
+                          siteContent.faq?.length && `${siteContent.faq.length} preguntas`,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ') || 'Por defecto',
+                      ],
+                      ['Acceso del dueño', siteContent.owner?.email?.trim() || 'Pendiente'],
                       ['Plan', plan ? `${plan.name} (${plan.saasPlanCode})` : '—'],
                       [
                         'Contacto',

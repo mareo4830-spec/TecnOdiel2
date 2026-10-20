@@ -1,13 +1,40 @@
-import { createStore, useStore } from '../../lib/store';
+import { iso } from '../../lib/rows';
+import { useStore } from '../../lib/store';
+import { createSyncedStore } from '../../lib/syncedStore';
 import type { PartnerId, Task, TaskStatus } from '../../types';
 import { logActivity } from '../activity/activityService';
 import { COLUMN_LABEL } from './kanbanMeta';
 
-/*
- * Capa de datos del Kanban (local). Con Supabase: tabla `tasks` + canal Realtime, y cada
- * movimiento se guarda con un `update` de status/order. Los componentes no cambian.
- */
-const tasksStore = createStore<Task[]>([], 'tasks');
+/* Kanban de tareas técnicas: tabla `tasks`. Cada movimiento actualiza solo status/order. */
+const tasksStore = createSyncedStore<Task>([], {
+  table: 'tasks',
+  persistKey: 'tasks',
+  toRow: (t) => ({
+    id: t.id,
+    title: t.title,
+    project_id: t.projectId,
+    status: t.status,
+    assignees: t.assignees,
+    tags: t.tags,
+    due_date: t.dueDate,
+    priority: t.priority,
+    order: t.order,
+    created_at: t.createdAt,
+  }),
+  fromRow: (r) => ({
+    id: r.id,
+    title: r.title,
+    projectId: r.project_id,
+    status: r.status,
+    assignees: r.assignees ?? [],
+    tags: r.tags ?? [],
+    dueDate: r.due_date,
+    priority: r.priority,
+    order: r.order,
+    createdAt: iso(r.created_at),
+  }),
+  order: { column: 'created_at', ascending: true },
+});
 
 export function removeProjectTasks(projectId: string): void {
   tasksStore.set((prev) => prev.filter((t) => t.projectId !== projectId));

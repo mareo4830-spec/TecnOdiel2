@@ -2,6 +2,8 @@ import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } f
 import { Outlet, useLocation } from 'react-router-dom';
 import { ChatWidget } from '../../features/chat/ChatWidget';
 import { gsap, prefersReducedMotion } from '../../lib/motion';
+import { isSupabaseConfigured } from '../../lib/supabase';
+import { useSyncStatus } from '../../lib/syncedStore';
 import { PageReveal } from '../motion/PageReveal';
 import { SlidingPills } from '../motion/SlidingPills';
 import { SmoothScroll } from '../motion/SmoothScroll';
@@ -20,6 +22,7 @@ function SectionSkeleton() {
 }
 
 export function AppLayout() {
+  const sync = useSyncStatus();
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -61,11 +64,17 @@ export function AppLayout() {
         <Header onOpenMenu={() => setMenuOpen(true)} />
         {/* pb extra para que el botón flotante del chat no tape el final de la página. */}
         <main className={`flex-1 px-4 pt-5 sm:px-6 sm:pt-6 ${showChatWidget ? 'pb-24' : 'pb-5 sm:pb-6'}`}>
-          <Suspense fallback={<SectionSkeleton />}>
-            <PageReveal key={pathname}>
-              <Outlet />
-            </PageReveal>
-          </Suspense>
+          {/* Hasta que llegan los datos de Supabase no se pinta la página: los formularios cogen su valor
+              inicial al montarse y, si arrancaran vacíos, al guardar sobrescribirían lo que hay en la BD. */}
+          {isSupabaseConfigured && sync !== 'ready' ? (
+            <SectionSkeleton />
+          ) : (
+            <Suspense fallback={<SectionSkeleton />}>
+              <PageReveal key={pathname}>
+                <Outlet />
+              </PageReveal>
+            </Suspense>
+          )}
         </main>
       </div>
       {showChatWidget && <ChatWidget />}

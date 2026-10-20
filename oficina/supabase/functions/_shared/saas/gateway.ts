@@ -24,7 +24,19 @@ export interface SaasBusinessWrite {
   active_features: Record<string, boolean>;
   contact: Record<string, unknown>;
   public_config: Record<string, unknown>;
+  /** Sobrescrituras sobre los tokens de la variante (color de marca, animación). */
+  design_tokens?: Record<string, unknown>;
   status?: SaasBusiness['status'];
+}
+
+export interface SaasBarber {
+  id: string;
+  business_id: string;
+  name: string;
+  role: string;
+  initials: string;
+  photo_url: string | null;
+  sort_order: number;
 }
 
 export interface SaasDomain {
@@ -65,6 +77,10 @@ export interface SaasGateway {
   activateDomain(businessId: string, hostname: string): Promise<void>;
   countServices(businessId: string): Promise<number>;
   insertServices(rows: SaasService[]): Promise<void>;
+  countBarbers(businessId: string): Promise<number>;
+  insertBarbers(rows: SaasBarber[]): Promise<void>;
+  /** Da acceso de administrador (titular) al dueño del negocio. Idempotente. */
+  grantOwner(businessId: string, email: string, fullName: string | null): Promise<void>;
   getIntegration(businessId: string): Promise<SaasIntegration | null>;
   upsertIntegration(businessId: string, patch: Partial<SaasIntegration>): Promise<void>;
   /** Guarda la API key en Vault (RPC set_business_integration_secret) y devuelve el nombre del secreto. */
@@ -146,6 +162,25 @@ export function createSaasGateway(env: Env, fetchFn: FetchFn): SaasGateway {
     async insertServices(rows) {
       const { error } = await db.from('services').insert(rows);
       if (error) fail('crear los servicios por defecto', error);
+    },
+    async countBarbers(businessId) {
+      const { count, error } = await db.from('barbers').select('id', { count: 'exact', head: true }).eq('business_id', businessId);
+      if (error) fail('contar el equipo', error);
+      return count ?? 0;
+    },
+    async insertBarbers(rows) {
+      const { error } = await db.from('barbers').insert(rows);
+      if (error) fail('crear el equipo', error);
+    },
+    async grantOwner(businessId, email, fullName) {
+      // Con la service_role no hay usuario final: el trigger de staff permite fijar la titularidad.
+      const { error } = await db
+        .from('staff')
+        .upsert(
+          { business_id: businessId, email, full_name: fullName, role: 'admin', status: 'verified', is_owner: true, barber_id: null },
+          { onConflict: 'business_id,email' },
+        );
+      if (error) fail(`dar acceso de administrador a ${email}`, error);
     },
     async getIntegration(businessId) {
       const { data, error } = await db

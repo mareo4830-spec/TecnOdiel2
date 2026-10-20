@@ -47,6 +47,23 @@ const propagated = (tenantId: string) => (dnsReadyAt.get(tenantId) ?? Infinity) 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const shortId = (id: string) => `${id.slice(0, 8)}…`;
 
+/** Llama a una Edge Function; el motivo real de un error viene en el cuerpo de la respuesta. */
+async function invokeFunction<T>(name: string, body: Record<string, unknown>): Promise<T> {
+  const { data, error } = await supabase!.functions.invoke<T & { error?: string }>(name, { body });
+  if (error) {
+    const payload = await (error as { context?: Response }).context?.json?.().catch(() => null);
+    throw new ProvisioningError(payload?.error ?? error.message);
+  }
+  if (!data || (data as { error?: string }).error) throw new ProvisioningError((data as { error?: string } | null)?.error ?? 'Respuesta vacía');
+  return data;
+}
+
+/** Con Supabase el provisionado lo hace la Edge Function; la ficha ve el avance por Realtime. */
+async function runRemote(tenantId: string, mode: 'full' | 'preview', force: IntegrationProvider[]): Promise<ProvisionResult> {
+  const res = await invokeFunction<ProvisionResult>('provision-tenant', { tenantId, mode, force, wait: true });
+  return { status: res.status, failedStep: res.failedStep };
+}
+
 interface Outcome {
   status: 'ok' | 'pending' | 'skipped';
   detail: string;
@@ -187,6 +204,7 @@ export async function createPreview(tenantId: string, actor: PartnerId): Promise
 
   setRunning(tenantId, true);
   try {
+    if (isSupabaseConfigured && supabase) return await runRemote(tenantId, 'preview', []);
     appendLog({ tenantId, step: 'start', ok: true, detail: `Preview solicitada por ${actor}`, actor });
     for (const step of PREVIEW_STEPS) {
       const current = getIntegrations(tenantId).find((i) => i.provider === step);
@@ -229,6 +247,7 @@ export async function provisionTenant(tenantId: string, actor: PartnerId, force:
   setRunning(tenantId, true);
   const wasLive = tenant.status === 'live';
   try {
+    if (isSupabaseConfigured && supabase) return await runRemote(tenantId, 'full', force);
     appendLog({ tenantId, step: 'start', ok: true, detail: `Provisionado iniciado por ${actor}`, actor });
     if (!wasLive) updateTenant(tenantId, { status: 'provisioning' });
 
@@ -270,6 +289,10 @@ export async function provisionTenant(tenantId: string, actor: PartnerId, force:
 export async function syncTenant(tenantId: string, actor: PartnerId): Promise<void> {
   const t = getTenant(tenantId);
   if (!t) return;
+  if (isSupabaseConfigured && supabase) {
+    await invokeFunction('sync-tenant', { tenantId });
+    return;
+  }
   await sleep(900);
   const integ = getIntegrations(tenantId);
   const now = new Date().toISOString();

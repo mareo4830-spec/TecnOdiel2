@@ -49,7 +49,7 @@ export function NewProjectDialog({ defaultPartner, initial, onClose, onCreate }:
     businessName: initial?.businessName ?? '',
     businessId: '',
     businessType: initial?.businessType ?? ('barberia' as BusinessType),
-    layout: 'classic' as LayoutVariant,
+    layout: 'barber' as LayoutVariant,
     price: initial?.price ? String(initial.price) : '',
     domain: '',
     closedBy: initial?.closedBy ?? defaultPartner,

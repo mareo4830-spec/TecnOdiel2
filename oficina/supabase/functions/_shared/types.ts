@@ -6,7 +6,8 @@ import type { SaasGateway } from './saas/gateway.ts';
 export type IntegrationProvider = 'places' | 'supabase' | 'preview' | 'vercel' | 'dns' | 'onesignal' | 'gsc';
 export type IntegrationStatus = 'pending' | 'running' | 'ok' | 'error' | 'skipped';
 export type TenantStatus = 'draft' | 'provisioning' | 'live' | 'suspended' | 'error';
-export type LayoutKey = 'classic' | 'editorial' | 'minimal' | 'playful';
+/** Grupos de portadas del SaaS (businesses.layout_key). classic = solo la web propia de Adrián Millán. */
+export type LayoutKey = 'classic' | 'barber' | 'women' | 'beauty' | 'unisex';
 export type TenantBusinessType = 'barberia' | 'peluqueria' | 'salon' | 'estetica' | 'restaurante' | 'cafeteria' | 'clinica' | 'otro';
 
 /** Horario estructurado: { mon: [["09:30", "13:30"], ["16:30", "20:30"]], … }. */
@@ -40,6 +41,8 @@ export interface Tenant {
   whatsapp: string | null;
   public_email: string | null;
   socials: Record<string, string>;
+  /** Contenido de la portada (tenants.site_content). Ver siteContent.ts. */
+  site_content: Record<string, unknown> | null;
   status: TenantStatus;
 }
 
