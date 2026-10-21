@@ -122,7 +122,7 @@ export function ProjectDetailPage() {
             <p className="flex-1 text-sm text-rose-200">
               ¿Eliminar «{project.name}»?{' '}
               {saas && tenants.length > 0 && `También se borrarán sus ${tenants.length} tenant${tenants.length === 1 ? '' : 's'}. `}
-              Se borran sus tareas, horas y actividad. No se puede deshacer.
+              Se borran sus tareas y su actividad. No se puede deshacer.
             </p>
             <div className="flex gap-2">
               <button onClick={() => setConfirmDelete(false)} className="h-9 rounded-lg px-3 text-sm text-gray-300 hover:bg-gray-800">

@@ -47,7 +47,7 @@ export function LiveBadge() {
   );
 }
 
-/** Timeline "Actividad del equipo": pushes, check-ins, despliegues y cambios de estado. */
+/** Timeline "Actividad del equipo": pushes, despliegues y cambios de estado. */
 export function ActivityWidget() {
   const events = useActivity(8);
   const projects = useProjects();

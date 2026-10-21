@@ -1,8 +1,6 @@
-import { Activity, Clock, FolderKanban, PiggyBank, Plug, SquareKanban, type LucideIcon } from 'lucide-react';
+import { Activity, FolderKanban, Plug, SquareKanban, type LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { ActivityWidget, LiveBadge } from './widgets/ActivityWidget';
-import { FundWidget } from './widgets/FundWidget';
-import { HoursTodayWidget } from './widgets/HoursTodayWidget';
 import { IntegrationsWidget } from './widgets/IntegrationsWidget';
 import { KanbanWidget } from './widgets/KanbanWidget';
 import { MyProjectsWidget } from './widgets/MyProjectsWidget';
@@ -53,32 +51,12 @@ export const DASHBOARD_WIDGETS: DashboardWidget[] = [
     link: { label: 'Ver todos', to: '/proyectos' },
   },
   {
-    id: 'hours',
-    title: 'Horas de hoy',
-    icon: Clock,
-    phase: 5,
-    description: 'Horas verificadas por socio y proyecto, con el tope diario de 8 h.',
-    className: 'xl:col-span-4',
-    component: HoursTodayWidget,
-    link: { label: 'Ver horas', to: '/horas' },
-  },
-  {
-    id: 'fund',
-    title: 'Fondo común',
-    icon: PiggyBank,
-    phase: 5,
-    description: 'Saldo acumulado, reserva mínima, gastos y saldo repartible.',
-    className: 'xl:col-span-4',
-    component: FundWidget,
-    link: { label: 'Ver fondo', to: '/horas?tab=fondo' },
-  },
-  {
     id: 'activity',
     title: 'Actividad del equipo',
     icon: Activity,
     phase: 2,
-    description: 'Timeline en tiempo real: pushes, check-ins y movimientos de tareas.',
-    className: 'md:col-span-2 xl:col-span-12',
+    description: 'Timeline en tiempo real: pushes y movimientos de tareas.',
+    className: 'md:col-span-2 xl:col-span-8',
     component: ActivityWidget,
     badge: LiveBadge,
   },

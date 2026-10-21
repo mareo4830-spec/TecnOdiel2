@@ -7,13 +7,9 @@ import { useAuth } from '../auth/authContext';
 import { useChatMessages, useLastRead } from '../chat/chatService';
 import { unreadCount, useConversations } from '../chats/clientChatService';
 import { useLeads } from '../crm/leadService';
-import { formatHours } from '../hours/hoursMath';
-import { useSessionEvaluations } from '../hours/hoursService';
-import { useProjects } from '../projects/projectService';
 
 /*
- * Notificaciones derivadas de lo que requiere tu atención: horas de otros socios por validar,
- * seguimientos del CRM que vencen, WhatsApp sin leer y avisos del equipo. Con Supabase se
+ * Notificaciones derivadas de lo que requiere tu atención: seguimientos del CRM que vencen, WhatsApp sin leer y avisos del equipo. Con Supabase se
  * podrían generar igual en el cliente o con una tabla `notifications` + push (OneSignal).
  */
 const seenStore = createStore<Set<string>>(new Set());
@@ -21,29 +17,15 @@ const seenStore = createStore<Set<string>>(new Set());
 export function useNotifications() {
   const { partner } = useAuth();
   const me = partner?.id;
-  const evaluations = useSessionEvaluations();
   const leads = useLeads();
   const conversations = useConversations();
   const messages = useChatMessages();
   const lastRead = useLastRead(me);
-  const projects = useProjects();
   const seen = useStore(seenStore);
 
   const items = useMemo<AppNotification[]>(() => {
     if (!me) return [];
-    const projectName = (id: string | null) => projects.find((p) => p.id === id)?.businessName ?? '';
     const list: Omit<AppNotification, 'read'>[] = [];
-
-    for (const e of evaluations) {
-      if (e.verification !== 'pendiente' || e.session.partnerId === me) continue;
-      list.push({
-        id: `session-${e.session.id}`,
-        title: 'Horas pendientes de validar',
-        body: `${PARTNER_META[e.session.partnerId].name} · ${formatHours(e.hours)} en ${projectName(e.session.projectId)}`,
-        createdAt: e.session.endedAt,
-        to: '/horas',
-      });
-    }
 
     for (const l of leads) {
       if (l.owner !== me || !l.nextActionDate || l.stage === 'cerrado' || l.stage === 'perdido') continue;
@@ -85,7 +67,7 @@ export function useNotifications() {
     return list
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .map((n) => ({ ...n, read: seen.has(n.id) }));
-  }, [me, evaluations, leads, conversations, messages, lastRead, projects, seen]);
+  }, [me, leads, conversations, messages, lastRead, seen]);
 
   const unreadCountTotal = useMemo(() => items.filter((n) => !n.read).length, [items]);
 

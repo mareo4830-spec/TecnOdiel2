@@ -49,7 +49,7 @@ function CopyValue({ value }: { value: string }) {
   );
 }
 
-function RoleRow({ icon: Icon, role, share, ids }: { icon: LucideIcon; role: string; share: string; ids: PartnerId[] }) {
+function RoleRow({ icon: Icon, role, ids }: { icon: LucideIcon; role: string; ids: PartnerId[] }) {
   return (
     <li className="flex items-center gap-3 rounded-xl border border-gray-800 bg-gray-800/30 p-3">
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-indigo-500/10 text-indigo-400">
@@ -57,7 +57,6 @@ function RoleRow({ icon: Icon, role, share, ids }: { icon: LucideIcon; role: str
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-white">{role}</p>
-        <p className="text-xs text-gray-500">{share}</p>
       </div>
       <div className="flex -space-x-2">
         {ids.map((id) => (
@@ -124,9 +123,9 @@ export function SummaryTab({ project }: { project: Project }) {
 
       <Card title="Roles del proyecto" className="lg:col-span-2">
         <ul className="grid gap-3 md:grid-cols-3">
-          <RoleRow icon={HandCoins} role="Cerró la venta" share="20% del reparto" ids={[project.closedBy]} />
-          <RoleRow icon={ShieldCheck} role="Auditoría, seguridad y SEO" share="20% del reparto" ids={[project.auditBy]} />
-          <RoleRow icon={Code2} role="Desarrollo" share="60% según horas verificadas" ids={project.contributors} />
+          <RoleRow icon={HandCoins} role="Cerró la venta" ids={[project.closedBy]} />
+          <RoleRow icon={ShieldCheck} role="Auditoría, seguridad y SEO" ids={[project.auditBy]} />
+          <RoleRow icon={Code2} role="Desarrollo" ids={project.contributors} />
         </ul>
       </Card>
     </div>

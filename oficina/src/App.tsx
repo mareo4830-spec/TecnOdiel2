@@ -4,7 +4,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './features/auth/LoginPage';
 import { useAuth } from './features/auth/authContext';
-import { CheckinProvider } from './features/checkin/CheckinProvider';
 import { APP_CONFIG } from './lib/config';
 
 // Cada sección se descarga al entrar en ella; AppLayout muestra un spinner mientras tanto.
@@ -14,7 +13,6 @@ const ProjectDetailPage = lazy(() =>
   import('./features/projects/ProjectDetailPage').then((m) => ({ default: m.ProjectDetailPage })),
 );
 const KanbanPage = lazy(() => import('./features/kanban/KanbanPage').then((m) => ({ default: m.KanbanPage })));
-const HoursPage = lazy(() => import('./features/hours/HoursPage').then((m) => ({ default: m.HoursPage })));
 const CrmPage = lazy(() => import('./features/crm/CrmPage').then((m) => ({ default: m.CrmPage })));
 const ProspectPage = lazy(() =>
   import('./features/prospect/ProspectPage').then((m) => ({ default: m.ProspectPage })),
@@ -42,23 +40,20 @@ export default function App() {
   if (status === 'unauthenticated') return <LoginPage />;
 
   return (
-    <CheckinProvider>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="/proyectos" element={<ProjectsPage />} />
-          <Route path="/proyectos/:projectId" element={<ProjectDetailPage />} />
-          <Route path="/proyectos/:projectId/tenants/nuevo" element={<TenantWizardPage />} />
-          <Route path="/proyectos/:projectId/tenants/:tenantId" element={<TenantDetailPage />} />
-          <Route path="/kanban" element={<KanbanPage />} />
-          <Route path="/horas" element={<HoursPage />} />
-          <Route path="/crm" element={<CrmPage />} />
-          <Route path="/prospeccion" element={<ProspectPage />} />
-          <Route path="/chats" element={<ChatsPage />} />
-          <Route path="/ajustes" element={<SettingsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </CheckinProvider>
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="/proyectos" element={<ProjectsPage />} />
+        <Route path="/proyectos/:projectId" element={<ProjectDetailPage />} />
+        <Route path="/proyectos/:projectId/tenants/nuevo" element={<TenantWizardPage />} />
+        <Route path="/proyectos/:projectId/tenants/:tenantId" element={<TenantDetailPage />} />
+        <Route path="/kanban" element={<KanbanPage />} />
+        <Route path="/crm" element={<CrmPage />} />
+        <Route path="/prospeccion" element={<ProspectPage />} />
+        <Route path="/chats" element={<ChatsPage />} />
+        <Route path="/ajustes" element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 }

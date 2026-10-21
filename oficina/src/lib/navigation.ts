@@ -1,5 +1,4 @@
 import {
-  Clock,
   FolderKanban,
   Handshake,
   LayoutDashboard,
@@ -36,15 +35,6 @@ export const NAV_ITEMS: NavItem[] = [
     phase: 3,
     description:
       'Tablero Por hacer / En progreso / Hecho, filtrable por proyecto y socio, con drag and drop.',
-  },
-  {
-    path: '/horas',
-    label: 'Horas y Reparto',
-    title: 'Horas y Reparto',
-    icon: Clock,
-    phase: 5,
-    description:
-      'Check-ins por proyecto verificados con pushes a main, calculadora de reparto y fondo común.',
   },
   {
     path: '/crm',
