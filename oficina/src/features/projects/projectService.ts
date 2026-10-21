@@ -287,15 +287,35 @@ function landingProjects(): ProjectRecord[] {
   return out;
 }
 
-/** Añade como proyecto cada solicitud de la landing que todavía no lo sea (por id o por negocio). */
+/** Solicitudes ya convertidas en proyecto en este navegador: no se vuelven a importar aunque se borre el proyecto. */
+const IMPORTED_KEY = 'vd-landing-imported';
+
+function readImported(): Set<string> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(IMPORTED_KEY) ?? '[]') as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+/** Añade como proyecto cada solicitud de la landing que todavía no lo sea (por id o por negocio). Cada una solo una vez. */
 function importLandingProjects(): void {
   const incoming = landingProjects();
   if (!incoming.length) return;
+  const imported = readImported();
+  const pending = incoming.filter((p) => !imported.has(p.id));
+  if (!pending.length) return;
+  for (const p of pending) imported.add(p.id);
+  try {
+    localStorage.setItem(IMPORTED_KEY, JSON.stringify([...imported]));
+  } catch {
+    /* sin almacenamiento: se importará de nuevo en la próxima carga */
+  }
   projectsStore.set((prev) => {
     const ids = new Set(prev.map((p) => p.id));
     const names = new Set(prev.map((p) => p.businessName.trim().toLowerCase()));
     const fresh: ProjectRecord[] = [];
-    for (const p of incoming) {
+    for (const p of pending) {
       const name = p.businessName.trim().toLowerCase();
       if (ids.has(p.id) || names.has(name)) continue;
       ids.add(p.id);

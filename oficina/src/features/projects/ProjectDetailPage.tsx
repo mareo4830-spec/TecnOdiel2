@@ -1,5 +1,5 @@
-import { ArrowLeft, Boxes, Code2, ExternalLink, FileText, Link2, MonitorSmartphone, Settings2, SquareKanban, Trash2, type LucideIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Boxes, Check, Code2, ExternalLink, FileText, Link2, MonitorSmartphone, Pencil, Settings2, SquareKanban, Trash2, X, type LucideIcon } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AvatarStack } from '../../components/ui/AvatarStack';
 import { Badge } from '../../components/ui/Badge';
@@ -12,7 +12,7 @@ import { SummaryTab } from './detail/SummaryTab';
 import { toast } from '../../lib/toast';
 import { deleteProject } from './deleteProject';
 import { BUSINESS_TYPE_META, LAYOUT_META, STATUS_META, WAITING_BADGE } from './projectMeta';
-import { useProject } from './projectService';
+import { updateProject, useProject } from './projectService';
 import { SaasTenantsPanel } from '../tenants/SaasTenantsPanel';
 import { useProjectTenants } from '../tenants/tenantService';
 
@@ -69,7 +69,7 @@ export function ProjectDetailPage() {
             </span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl font-semibold text-white sm:text-2xl">{project.name}</h2>
+                <ProjectName id={project.id} name={project.name} />
                 <Badge className={STATUS_META[project.status].badge}>{STATUS_META[project.status].label}</Badge>
                 {project.waitingClient && <Badge className={WAITING_BADGE}>Esperando cliente</Badge>}
               </div>
@@ -171,5 +171,61 @@ export function ProjectDetailPage() {
         {tab === 'accesos' && <LinksTab project={project} />}
       </div>
     </div>
+  );
+}
+
+/** Nombre del proyecto con edición en el sitio: lápiz → campo; Enter guarda, Escape cancela. */
+function ProjectName({ id, name }: { id: string; name: string }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(name);
+
+  const start = () => {
+    setDraft(name);
+    setEditing(true);
+  };
+  const save = (e?: FormEvent) => {
+    e?.preventDefault();
+    const next = draft.trim();
+    if (next && next !== name) {
+      updateProject(id, { name: next });
+      toast('Nombre actualizado');
+    }
+    setEditing(false);
+  };
+
+  if (!editing) {
+    return (
+      <span className="group inline-flex min-w-0 items-center gap-1.5">
+        <h2 className="text-xl font-semibold text-white sm:text-2xl">{name}</h2>
+        <button
+          onClick={start}
+          aria-label="Cambiar el nombre del proyecto"
+          title="Cambiar nombre"
+          className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-800 hover:text-white"
+        >
+          <Pencil className="h-4 w-4" />
+        </button>
+      </span>
+    );
+  }
+
+  return (
+    <form onSubmit={save} className="flex min-w-0 items-center gap-1.5">
+      <input
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => e.key === 'Escape' && setEditing(false)}
+        aria-label="Nombre del proyecto"
+        autoFocus
+        onFocus={(e) => e.currentTarget.select()}
+        className="h-10 w-64 max-w-full rounded-xl border border-indigo-500 bg-gray-950 px-3 text-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 sm:w-80"
+      />
+      <button type="submit" disabled={!draft.trim()} aria-label="Guardar nombre" className="grid h-9 w-9 place-items-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50">
+        <Check className="h-4 w-4" />
+      </button>
+      <button type="button" onClick={() => setEditing(false)} aria-label="Cancelar" className="grid h-9 w-9 place-items-center rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white">
+        <X className="h-4 w-4" />
+      </button>
+    </form>
   );
 }

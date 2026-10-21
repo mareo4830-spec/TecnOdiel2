@@ -1,6 +1,7 @@
 import { Boxes, Check, Plus, Settings2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AvatarStack } from '../../../components/ui/AvatarStack';
+import { useCardLink } from '../../../hooks/useCardLink';
 import type { Project } from '../../../types';
 import { useProjectTenants } from '../../tenants/tenantService';
 import { BUSINESS_TYPE_META, STATUS_META, STATUS_ORDER } from '../projectMeta';
@@ -12,9 +13,12 @@ export function SaasProductCard({ project }: { project: Project }) {
   const connections = saasConnections(project);
   const live = tenants.filter((t) => t.status === 'live').length;
   const vertical = BUSINESS_TYPE_META[project.businessType];
+  const cardLink = useCardLink(`/proyectos/${project.id}`);
 
   return (
-    <article className="flex flex-col rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-gray-900 to-gray-900 p-4 sm:p-5">
+    <article
+      {...cardLink}
+      className="flex cursor-pointer flex-col rounded-2xl border border-indigo-500/30 transition hover:border-indigo-500/60 bg-gradient-to-br from-indigo-950/40 via-gray-900 to-gray-900 p-4 sm:p-5">
       <div className="flex items-start gap-3">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-500/15 text-indigo-300">
           <Boxes className="h-5 w-5" />

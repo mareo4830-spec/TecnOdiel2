@@ -2,6 +2,7 @@ import { ArrowRight, Boxes, CalendarDays, Clock, ExternalLink, Hourglass, MapPin
 import { useState, type DragEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { AvatarStack } from '../../../components/ui/AvatarStack';
+import { useCardLink } from '../../../hooks/useCardLink';
 import { daysUntil, formatDueDate, formatEuros } from '../../../lib/format';
 import type { PlannedMeeting, WorkStage } from '../../../types';
 import { STATUS_META, STATUS_ORDER } from '../../projects/projectMeta';
@@ -30,6 +31,7 @@ export function WorkCard({ item, compact, dragging, onDragStart, onDragEnd, onMo
   const [editingMeeting, setEditingMeeting] = useState(false);
   const Icon = item.icon;
   const done = item.stage === 'hecho';
+  const cardLink = useCardLink(item.to);
 
   return (
     <article
@@ -37,7 +39,8 @@ export function WorkCard({ item, compact, dragging, onDragStart, onDragEnd, onMo
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`group cursor-grab rounded-xl border bg-gray-800/60 p-3 transition hover:border-indigo-500/50 active:cursor-grabbing ${
+      {...cardLink}
+      className={`group cursor-pointer rounded-xl border bg-gray-800/60 p-3 transition hover:border-indigo-500/50 active:cursor-grabbing ${
         item.waitingClient ? 'border-amber-500/40' : 'border-gray-800'
       } ${dragging ? 'opacity-40 ring-2 ring-indigo-500/60' : ''}`}
     >

@@ -2,6 +2,7 @@ import { ArrowRight, CalendarDays, Flag, Folder, MoreHorizontal } from 'lucide-r
 import { useState, type DragEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { AvatarStack } from '../../../components/ui/AvatarStack';
+import { useCardLink } from '../../../hooks/useCardLink';
 import { daysUntil, formatDueDate } from '../../../lib/format';
 import type { Task, TaskStatus } from '../../../types';
 import { COLUMNS, PRIORITY_META, TAG_META } from '../kanbanMeta';
@@ -28,6 +29,7 @@ export function TaskCard({ task, projectName, compact, dragging, onDragStart, on
   const [menuOpen, setMenuOpen] = useState(false);
   const done = task.status === 'hecho';
   const priority = PRIORITY_META[task.priority];
+  const cardLink = useCardLink(`/proyectos/${task.projectId}`);
 
   return (
     <article
@@ -35,7 +37,8 @@ export function TaskCard({ task, projectName, compact, dragging, onDragStart, on
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`group cursor-grab rounded-xl border border-gray-800 bg-gray-800/60 p-3 transition duration-300 hover:-translate-y-0.5 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-black/20 active:cursor-grabbing ${
+      {...(projectName ? cardLink : {})}
+      className={`group ${projectName ? 'cursor-pointer' : 'cursor-grab'} rounded-xl border border-gray-800 bg-gray-800/60 p-3 transition duration-300 hover:-translate-y-0.5 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-black/20 active:cursor-grabbing ${
         dragging ? 'rotate-2 scale-105 opacity-50 shadow-2xl ring-2 ring-indigo-500/60' : ''
       }`}
     >
