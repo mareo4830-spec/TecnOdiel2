@@ -56,11 +56,11 @@ export function AppLayout() {
   }, []);
 
   return (
-    <div ref={shell} className="min-h-dvh bg-gray-950 text-gray-100 lg:flex">
+    <div ref={shell} className="min-h-dvh text-gray-100 lg:flex">
       <SmoothScroll />
       <SlidingPills />
       <Sidebar open={menuOpen} onClose={closeMenu} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="surface-light app-panel flex min-h-dvh min-w-0 flex-1 flex-col lg:min-h-[calc(100dvh-1.5rem)]">
         <Header onOpenMenu={() => setMenuOpen(true)} />
         {/* pb extra para que el botón flotante del chat no tape el final de la página. */}
         <main className={`flex-1 px-4 pt-5 sm:px-6 sm:pt-6 ${showChatWidget ? 'pb-24' : 'pb-5 sm:pb-6'}`}>
@@ -77,8 +77,10 @@ export function AppLayout() {
           )}
         </main>
       </div>
-      {showChatWidget && <ChatWidget />}
-      <ToastHost />
+      <div className="surface-light contents">
+        {showChatWidget && <ChatWidget />}
+        <ToastHost />
+      </div>
     </div>
   );
 }

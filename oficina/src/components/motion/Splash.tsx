@@ -41,23 +41,23 @@ export function Splash() {
   return (
     <div
       ref={root}
-      className="fixed inset-0 z-[100] grid place-items-center overflow-hidden bg-[#080b08]"
+      className="fixed inset-0 z-[100] grid place-items-center overflow-hidden bg-[#08110a]"
       onClick={() => setDone(true)}
     >
       <div
         aria-hidden
-        className="absolute -left-1/4 -top-1/4 h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(circle,#2f9622_0%,transparent_65%)] opacity-70 [animation:drift_9s_ease-in-out_infinite]"
+        className="absolute -left-1/4 -top-1/4 h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(circle,#23993a_0%,transparent_65%)] opacity-70 [animation:drift_9s_ease-in-out_infinite]"
       />
       <div
         aria-hidden
-        className="absolute -bottom-1/3 -right-1/4 h-[60vmax] w-[60vmax] rounded-full bg-[radial-gradient(circle,#26761f_0%,transparent_65%)] opacity-60 [animation:drift_11s_ease-in-out_infinite_reverse]"
+        className="absolute -bottom-1/3 -right-1/4 h-[60vmax] w-[60vmax] rounded-full bg-[radial-gradient(circle,#157a40_0%,transparent_65%)] opacity-60 [animation:drift_11s_ease-in-out_infinite_reverse]"
       />
       <div className="sp-content relative flex flex-col items-center text-center">
         <div className="flex items-center gap-4">
-          <span className="sp-mark grid h-14 w-14 place-items-center rounded-2xl border-2 border-[#6dd94b] text-xl font-bold text-[#6dd94b]">
+          <span className="sp-mark grid h-14 w-14 place-items-center rounded-2xl border-2 border-[#38b54c] text-xl font-bold text-[#38b54c]">
             {APP_CONFIG.shortName}
           </span>
-          <h1 className="flex overflow-hidden pb-2 text-6xl font-semibold tracking-tight text-[#f4f7f4] sm:text-7xl">
+          <h1 className="flex overflow-hidden pb-2 text-6xl font-semibold tracking-tight text-[#f5f8f5] sm:text-7xl">
             {[...SPLASH_TITLE].map((c, i) => (
               <span key={i} className="sp-char inline-block whitespace-pre">
                 {c}

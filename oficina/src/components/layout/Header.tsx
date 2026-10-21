@@ -3,7 +3,6 @@ import { useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { APP_URLS } from '../../lib/config';
 import { gsap, prefersReducedMotion } from '../../lib/motion';
-import { ThemeToggle } from '../ui/ThemeToggle';
 import { getNavItem } from '../../lib/navigation';
 import { CheckinButton } from './CheckinButton';
 import { GlobalSearch } from './GlobalSearch';
@@ -81,7 +80,6 @@ export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
             <Globe className="h-4 w-4" />
             <span className="hidden md:inline">Landing</span>
           </a>
-          <ThemeToggle />
           <CheckinButton />
           <NotificationsMenu />
           <ProfileMenu />

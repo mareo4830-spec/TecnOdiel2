@@ -102,7 +102,7 @@ function AnalysisCard({
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-black shadow-md transition hover:bg-gray-200 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gray-100 px-3.5 py-2 text-xs font-bold text-gray-950 shadow-md transition hover:bg-gray-200 active:scale-95"
           >
             {copied ? (
               <>

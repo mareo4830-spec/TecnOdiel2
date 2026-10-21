@@ -5,99 +5,131 @@
 }
 
 /*
- * Temas. Toda la UI usa las escalas gray/indigo/purple de Tailwind, que se compilan a
- * variables CSS: redefinirlas aquí re-tinta la app entera sin tocar cada componente.
- *  - gray    -> neutros con matiz verde. En claro la escala se invierte (950 = fondo, 100 = texto).
- *  - indigo  -> verde acuoso (acento principal).
- *  - purple/violet -> verde azulado, segundo extremo de los degradados.
- * El modo oscuro es el principal; el claro se activa con data-theme="light" en <html>.
+ * Paleta única (sin modo claro/oscuro). Toda la UI usa las escalas gray/indigo/purple de Tailwind, que se
+ * compilan a variables CSS: redefinirlas aquí re-tinta la app entera sin tocar cada componente.
+ *  - Superficie oscura (:root y .surface-dark): marco, barra lateral, login y splash. Verde casi negro.
+ *  - Superficie clara (.surface-light): panel de contenido menta con tarjetas blancas. La escala gray se
+ *    invierte (950 = fondo, 900 = tarjeta, 100 = texto) para que las clases existentes sigan funcionando.
+ *  - indigo -> verde hoja (acento principal). purple/violet -> verde bosque, segundo extremo de los degradados.
  */
 :root,
-:root[data-theme="dark"] {
+.surface-dark {
   color-scheme: dark;
 
-  /* Paleta de la landing: negro con matiz verde y verde lima vivo (#6DD94B). */
-  --color-gray-50: #f4f7f4;
-  --color-gray-100: #e8ede8;
-  --color-gray-200: #d3dbd3;
-  --color-gray-300: #b3beb3;
-  --color-gray-400: #8d9b8d;
-  --color-gray-500: #667566;
-  --color-gray-600: #3a463a;
-  --color-gray-700: #263026;
-  --color-gray-800: #182018;
-  --color-gray-900: #0e140e;
-  --color-gray-950: #080b08;
+  --color-gray-50: #f5f8f5;
+  --color-gray-100: #e9efea;
+  --color-gray-200: #d5ded7;
+  --color-gray-300: #b6c4b9;
+  --color-gray-400: #8fa193;
+  --color-gray-500: #627566;
+  --color-gray-600: #36483a;
+  --color-gray-700: #233327;
+  --color-gray-800: #18261b;
+  --color-gray-900: #0f1a12;
+  --color-gray-950: #08110a;
 
-  --color-indigo-50: #effcec;
-  --color-indigo-100: #d8f8d1;
-  --color-indigo-200: #b2f0a5;
-  --color-indigo-300: #a9ee93;
-  --color-indigo-400: #8ae56d;
-  --color-indigo-500: #6dd94b;
-  --color-indigo-600: #57c238;
-  --color-indigo-700: #2f9622;
-  --color-indigo-800: #26761f;
-  --color-indigo-900: #1f5e1b;
-  --color-indigo-950: #0e3a0f;
+  --color-indigo-50: #ecf8ee;
+  --color-indigo-100: #d3f0d8;
+  --color-indigo-200: #aee4b7;
+  --color-indigo-300: #86d994;
+  --color-indigo-400: #5ccd6e;
+  --color-indigo-500: #38b54c;
+  --color-indigo-600: #23993a;
+  --color-indigo-700: #1b7a2f;
+  --color-indigo-800: #186127;
+  --color-indigo-900: #154f22;
+  --color-indigo-950: #0a2c12;
 
-  --color-purple-50: #f0fdee;
-  --color-purple-100: #daf9d4;
-  --color-purple-200: #b7f2ab;
-  --color-purple-300: #8fe87f;
-  --color-purple-400: #86e26a;
-  --color-purple-500: #6dd94b;
-  --color-purple-600: #55bd37;
-  --color-purple-700: #328b27;
-  --color-purple-800: #286e21;
-  --color-purple-900: #20581d;
-  --color-purple-950: #0f3410;
+  --color-purple-50: #eaf7ef;
+  --color-purple-100: #cdeed9;
+  --color-purple-200: #9fdcb6;
+  --color-purple-300: #6cc78f;
+  --color-purple-400: #3faf6b;
+  --color-purple-500: #1f9450;
+  --color-purple-600: #157a40;
+  --color-purple-700: #126335;
+  --color-purple-800: #114f2c;
+  --color-purple-900: #0f4126;
+  --color-purple-950: #062414;
   --color-violet-300: var(--color-purple-300);
   --color-violet-400: var(--color-purple-400);
   --color-violet-500: var(--color-purple-500);
   --color-violet-600: var(--color-purple-600);
 
-  --app-glow-a: rgb(109 217 75 / 0.14);
-  --app-glow-b: rgb(109 217 75 / 0.07);
+  /* Tonos por defecto de Tailwind: la superficie clara los oscurece y aquí se restauran. */
+  --color-emerald-200: oklch(90.5% 0.093 164.15);
+  --color-emerald-300: oklch(84.5% 0.143 164.978);
+  --color-emerald-400: oklch(76.5% 0.177 163.223);
+  --color-green-300: oklch(87.1% 0.15 154.449);
+  --color-green-400: oklch(79.2% 0.209 151.711);
+  --color-rose-200: oklch(89.2% 0.058 10.001);
+  --color-rose-300: oklch(81% 0.117 11.638);
+  --color-rose-400: oklch(71.2% 0.194 13.428);
+  --color-amber-200: oklch(92.4% 0.12 95.746);
+  --color-amber-300: oklch(87.9% 0.169 91.605);
+  --color-amber-400: oklch(82.8% 0.189 84.429);
+  --color-sky-200: oklch(90.1% 0.058 230.902);
+  --color-sky-300: oklch(82.8% 0.111 230.318);
+  --color-sky-400: oklch(74.6% 0.16 232.661);
+
   --app-text-strong: #ffffff;
 }
 
-:root[data-theme="light"] {
+.surface-light {
   color-scheme: light;
 
-  --color-gray-50: #0b1713;
-  --color-gray-100: #14221d;
-  --color-gray-200: #24352e;
-  --color-gray-300: #3a4f46;
-  --color-gray-400: #566d63;
-  --color-gray-500: #7a9188;
-  --color-gray-600: #a9bdb4;
-  --color-gray-700: #cbdad3;
-  --color-gray-800: #e1ebe6;
+  --color-gray-50: #0b140e;
+  --color-gray-100: #142017;
+  --color-gray-200: #26322a;
+  --color-gray-300: #3d4b41;
+  --color-gray-400: #5b6b5f;
+  --color-gray-500: #7d8d81;
+  --color-gray-600: #b4c2b7;
+  --color-gray-700: #d3ddd5;
+  --color-gray-800: #e4ebe5;
   --color-gray-900: #ffffff;
-  --color-gray-950: #f2f8f5;
+  --color-gray-950: #eef3ef;
 
-  --color-indigo-300: #0b9a7f;
-  --color-indigo-400: #0b8a73;
-  --color-indigo-500: #0e9f84;
-  --color-indigo-600: #0b8a72;
-  --color-indigo-700: #0a7561;
+  /* Acento legible sobre blanco: los tonos claros pasan a verdes profundos y los oscuros a fondos suaves. */
+  --color-indigo-200: #157a2b;
+  --color-indigo-300: #1b8a32;
+  --color-indigo-400: #23993a;
+  --color-indigo-500: #2aa842;
+  --color-indigo-600: #1f8f35;
+  --color-indigo-700: #18762b;
+  --color-indigo-900: #d6ecda;
+  --color-indigo-950: #e8f4ea;
 
-  --color-purple-300: #0b8f8a;
-  --color-purple-400: #0b7f7b;
-  --color-purple-500: #0d8f8c;
-  --color-purple-600: #0b7a78;
+  --color-purple-300: #157a40;
+  --color-purple-400: #157a40;
+  --color-purple-500: #1a8a49;
+  --color-purple-600: #126f39;
+  --color-purple-950: #e3f2e9;
 
-  --app-glow-a: rgb(20 184 152 / 0.14);
-  --app-glow-b: rgb(15 181 166 / 0.08);
-  --app-text-strong: #0b1713;
+  --color-emerald-200: #047857;
+  --color-emerald-300: #047857;
+  --color-emerald-400: #059669;
+  --color-green-300: #15803d;
+  --color-green-400: #16a34a;
+  --color-rose-200: #be123c;
+  --color-rose-300: #e11d48;
+  --color-rose-400: #e11d48;
+  --color-amber-200: #b45309;
+  --color-amber-300: #b45309;
+  --color-amber-400: #d97706;
+  --color-sky-200: #0369a1;
+  --color-sky-300: #0284c7;
+  --color-sky-400: #0284c7;
+
+  --app-text-strong: #0b140e;
+  color: var(--color-gray-100);
 }
 
 body {
   @apply bg-gray-950 text-gray-100 antialiased;
   background-image:
-    radial-gradient(60rem 40rem at 8% -10%, var(--app-glow-a), transparent 70%),
-    radial-gradient(50rem 36rem at 105% 0%, var(--app-glow-b), transparent 70%);
+    radial-gradient(60rem 40rem at -10% -10%, rgb(56 181 76 / 0.22), transparent 70%),
+    radial-gradient(50rem 36rem at 110% 110%, rgb(31 148 80 / 0.16), transparent 70%);
   background-attachment: fixed;
 }
 
@@ -106,18 +138,17 @@ body {
   scrollbar-color: var(--color-gray-700) transparent;
 }
 
-/* En oscuro, como en la landing, los botones de acento verde llevan texto casi negro. */
-:root:not([data-theme="light"])
-  :is([class*="bg-indigo-5"], [class*="bg-indigo-6"], [class*="bg-purple-5"], [class*="bg-purple-6"]).text-white:not([class*="/"]) {
+/* En la superficie oscura los botones de acento verde llevan texto casi negro, como en la landing. */
+:root :is([class*="bg-indigo-5"], [class*="bg-indigo-6"]).text-white:not([class*="/"]) {
   color: var(--color-gray-950);
 }
 
-/* En claro, `text-white` se usa como "texto fuerte" en títulos: pasa a tinta oscura. Los botones
-   de color (fondo de acento, éxito, error) conservan el blanco. */
-:root[data-theme="light"] .text-white {
+/* En la superficie clara `text-white` se usa como "texto fuerte" en títulos: pasa a tinta oscura. Los
+   botones de color (fondo de acento, éxito, error) conservan el blanco. */
+.surface-light .text-white {
   color: var(--app-text-strong);
 }
-:root[data-theme="light"]
+.surface-light
   :is(
     [class*="bg-indigo-"],
     [class*="from-indigo-"],
@@ -127,25 +158,37 @@ body {
     [class*="bg-rose-"],
     [class*="bg-amber-"],
     [class*="bg-sky-"],
-    [class*="bg-gray-950"]
-  ).text-white:not([class*="/"]) {
+    [class*="bg-gray-950"],
+    [class*="bg-gray-100"]
+  ).text-white:not([class*="/"]),
+.surface-light [class*="from-indigo-"].text-white,
+.surface-light .surface-dark .text-white {
   color: #fff;
 }
-:root[data-theme="light"] .bg-black\/60 {
-  background-color: rgb(11 23 19 / 0.35);
+.surface-light :is([class*="bg-emerald-"], [class*="bg-amber-"]).text-gray-950 {
+  color: #0b140e;
+}
+.surface-light .bg-black\/60 {
+  background-color: rgb(11 20 14 / 0.35);
+}
+.surface-light :is(.bg-white\/10, .hover\:bg-white\/10:hover) {
+  background-color: rgb(11 20 14 / 0.06);
+}
+.surface-light .bg-white\/20 {
+  background-color: rgb(11 20 14 / 0.1);
 }
 
-/* Cambio de tema / acento: transición breve y global, solo mientras dura. */
-html.theme-switching *,
-html.theme-switching *::before,
-html.theme-switching *::after {
-  transition:
-    background-color 0.45s ease,
-    border-color 0.45s ease,
-    color 0.45s ease,
-    fill 0.45s ease,
-    stroke 0.45s ease,
-    box-shadow 0.45s ease !important;
+/* Panel de contenido: el bloque claro redondeado que flota sobre el marco oscuro. */
+.app-panel {
+  background-color: var(--color-gray-950);
+}
+@media (min-width: 1024px) {
+  .app-panel {
+    margin: 0.75rem 0.75rem 0.75rem 0;
+    border-radius: 1.75rem;
+    overflow: clip;
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.6);
+  }
 }
 
 /* Filas deslizables en móvil (filtros, pestañas) sin barra visible. */
@@ -276,6 +319,9 @@ button:not(:disabled):active {
   transform: translateY(-3px);
   box-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.5);
 }
+.surface-light .lift:hover {
+  box-shadow: 0 16px 32px -16px rgb(16 48 24 / 0.28);
+}
 
 /* Tarjeta de Kanban mientras se arrastra / al soltarla. */
 @keyframes settle {
@@ -340,16 +386,6 @@ button:not(:disabled):active {
   .skeleton {
     animation: none;
   }
-}
-
-/* View Transitions: el círculo del cambio de tema anima solo la capa nueva. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-::view-transition-new(root) {
-  z-index: 2;
 }
 
 /* Píldora deslizante de chips/pestañas (ver SlidingPills). El botón activo pierde su fondo: lo pone la píldora. */
